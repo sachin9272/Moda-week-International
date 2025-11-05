@@ -1,0 +1,30 @@
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import DashboardLayout from "./pages/dashboard/DashboardLayout";
+import DashboardPage from "./pages/dashboard/Dashboard";
+import News from "./pages/dashboard/newsSection/News";
+import AddNews from "./pages/dashboard/newsSection/EditNews";
+
+const App = () => {
+  return (
+    <Router>
+      <Routes>
+        <Route
+          path="/dashboard"
+          element={
+            // <ProtectedRoute>
+            <DashboardLayout />
+            // </ProtectedRoute>
+          }
+        >
+          <Route index element={<DashboardPage />} />
+          <Route path="news" element={<News />}/>
+    
+          <Route path="news-add" element={<AddNews />} />
+        </Route>
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
