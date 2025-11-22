@@ -6,6 +6,7 @@ import {
   Home,
   Newspaper,
   LogOut,
+  FileUser 
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -15,6 +16,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Dashboard", icon: <Home size={18} />, path: "/dashboard" },
     { name: "News", icon: <Newspaper size={18} />, path: "/dashboard/news" },
+    { name:"Applications", icon: <FileUser  size={18} />, path: "/dashboard/applications" },
   ];
 
   return (
