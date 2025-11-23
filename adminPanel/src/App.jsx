@@ -6,6 +6,7 @@ import News from "./pages/dashboard/newsSection/News";
 import AddNews from "./pages/dashboard/newsSection/AddNews";
 import EditNews from "./pages/dashboard/newsSection/EditNews";
 import NewsDetail from "./pages/dashboard/newsSection/NewsDetail";
+import AdminDashboard from "./pages/dashboard/applicationSection/Application";
 
 const App = () => {
   return (
@@ -20,11 +21,11 @@ const App = () => {
           }
         >
           <Route index element={<DashboardPage />} />
-          <Route path="news" element={<News />} > 
-          </Route>
-<Route path="/dashboard/news/:id" element={<NewsDetail />} />
-            <Route path="/dashboard/news-edit/:id" element={<EditNews />} />
+          <Route path="news" element={<News />}></Route>
+          <Route path="/dashboard/news/:id" element={<NewsDetail />} />
+          <Route path="/dashboard/news-edit/:id" element={<EditNews />} />
           <Route path="news-add" element={<AddNews />} />
+          <Route path="applications" element={<AdminDashboard />} />
         </Route>
       </Routes>
     </Router>
