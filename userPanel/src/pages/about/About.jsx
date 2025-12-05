@@ -5,6 +5,7 @@ import Founder2 from "../../assets/founder2.jpg";
 import CtaSection from "../../components/CtaSection";
 import Card from "./Card";
 import Footer from "../../components/Footer";
+import { ChevronDown } from "lucide-react";
 
 export default function ModaWeekSite() {
   const cardData = [
@@ -45,13 +46,16 @@ export default function ModaWeekSite() {
       >
         <div className="absolute inset-0 bg-linear-to-b from-black/20 to-black/90 z-10"></div>
         <div className="relative z-20 text-center px-4">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 tracking-tight">
+          <h2 className="text-4xl font-bold mb-6 tracking-wider">
             WHAT IS MODA WEEK INTERNATIONAL
           </h2>
-          <p className="max-w-3xl mx-auto text-lg md:text-xl leading-relaxed">
+          <span className="absolute w-[50%] left-1/4 md:bottom-32 h-px bg-linear-to-r from-transparent via-yellow-500 to-transparent"></span>
+
+          <p className="max-w-2xl mx-auto text-lg md:text-xl leading-relaxed mt-24 md:mt-10">
             INTERNATIONAL FASHION SHOW PRODUCTION ORGANIZATION WITH THE PURPOSE
-            OF CONVERGING FASHION EVENTS, EDUCATION & ADVOCACY SUPPORT.
+            OF CONVEYING GLAMOROUS EVENTS, EDUCATION & COMMUNITY SUPPORT.
           </p>
+          <ChevronDown className="text-[#A87530] absolute left-1/2 md:bottom-[-90px] -bottom-10" />
         </div>
       </section>
 
@@ -99,17 +103,11 @@ export default function ModaWeekSite() {
       </section>
 
       {/* Foundation Section */}
-      <section className="py-20 px-4 bg-[radial-gradient(circle_at_top_left,_#C7913E_10%,_#C7913E_10%,_white_80%)]">
+      <section className="py-10 px-4 bg-[radial-gradient(circle_at_top_left,#C7913E_10%,#C7913E_10%,white_80%)]">
         <div className="max-w-9xl ">
-          <div className="flex flex-col md:flex-row items-center md:items-start gap-12">
-            {/* <div className="w-[1000px]">
-              <img
-                src={Founder}
-                alt="Founder"
-                className="shadow-lg h-[500px] w-[386px] object-cover"
-              />
-            </div> */}
-            <div className="w-full flex justify-center items-end">
+          {/* <div className="flex flex-col md:flex-row items-center md:items-start gap-12"> */}
+          <div className="flex flex-col md:flex-row items-center md:items-center gap-12">
+            <div className="w-full flex justify-center h-full items-center">
               <img
                 src={Founder}
                 alt="Founder"
@@ -118,85 +116,93 @@ export default function ModaWeekSite() {
             </div>
 
             <div className="text-gray-800">
-              <h2 className="text-4xl md:text-5xl font-bold mb-12 grad-text">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 grad-text">
                 FOUNDATION
               </h2>
-              <p className="text-lg mb-6 leading-relaxed">
-                "Leading the Way in Fashion and Education" The Chief-Mentor and
-                CEO of Moda Week International.
+              <p className="md:text-sm mb-3 leading-relaxed">
+                "Leading the Way in Fashion and Education: The Chairwoman and
+                CEO of Moda Week International"
               </p>
-              <p className="text-lg mb-6 leading-relaxed">
-                Karina Fay Hernandez is the VP and Founder of MODA WEEK
-                INTERNATIONAL FASHION / NTL. She is an International Fashion
-                Event Producer with over a decade of Fashion Business Management
-                and organizational leadership experience in fashion, education
-                and philanthropy. Originally from Latvia, she has toured
-                multiple continents (Los Clemente, Germany/New and Brazil) -
-                Given-Maro a lifelong passion-forward focus.
+              <p className="md:text-sm mb-1 leading-relaxed">
+                I am deeply fascinated by the art of global fashion, and always
+                seek to explore its finest expressions." Esmeralda is a
+                executive fashion show producer, experience and expertise in the
+                field. Her multicultural background and exceptional
+                organizational skills have played a significant role in her
+                success, as she draws inspiration from a diverse range of
+                influences. Originally from Leticia, Amazonas  the southernmost
+                city in Colombia, bordering Peru and Brazil - Esmeralda's work
+                is infused with the unique cultural and natural treasures of her
+                native region.
               </p>
-              <p className="text-lg mb-6 leading-relaxed">
-                She is the CEO of NTL Fashion Events LLC, her entertainment in
-                event-agency made it easy to blend the global fashion market
-                innovation, hosting fashion and other cultural industry
-                events/conferences, hosting fashion and designer competitions.
-                Everyone is a firm believer by "the fashion industry holds a lot
-                of world that matter."
+              <p className="md:text-sm mb-1 leading-relaxed">
+                With a passion for creativity and an unwavering commitment to excellence, Esmeralda has made a name for herself in the global fashion industry. She has worked with the world's most prestigious brands and designers, helping to shape and define the industry as we know it today. In addition to her impressive professional accomplishments, Esmeralda is also known for her energetic and dynamic personality, which has endeared her to colleagues and clients alike.
               </p>
-              <p className="text-lg mb-6 leading-relaxed">
-                Believing in the power of education and exposure, she developed
-                her MODA WEEK INTERNATIONAL - Fashion Event Company
-                International, a premier fashion event that showcases the latest
-                trends and designs from around the world. Through her company,
-                Karina has gained a reputation for producing flawless, impactful
-                runway shows that have set the standard, and the networks she
-                has built have transformed her from just producer into a
-                respected figure in the fashion/design, education, and cultural
-                industry events.
+              <p className="md:text-sm mb-1 leading-relaxed">
+                Esmeralda continues to push the boundaries of fashion and style through her work as the founder and CEO of Moda Week International, a premier fashion event that showcases the latest trends and designs from around the world. Through her leadership and vision, Esmeralda has helped to establish MWINTL as a key player in the industry, and has cemented her reputation as a true innovator and trailblazer in the world of education and fashion.  MWINTL's events celebrate life and convey elegance while also supporting the future of young students in the fashion industry.
               </p>
-              <p className="text-sm italic">— Karina Fay Hernandez / CEO</p>
+              <p className="md:text-sm mb-1 leading-relaxed">
+                The company believes that fashion design brings art directly to one's skin and shows not only who you are but also the values that make you who you are.  MWINTL delivers trendsetting creations that focus on the present and future of fashion artists today. Through their events and projects, they hope to inspire guests to join them in supporting the education and development of future generations in the fashion and art industries.
+              </p>
+              <p className="md:text-sm mb-1 leading-relaxed">
+                ‘’At Moda Week International, our diverse and extensive experiences around the world allow us to produce iconic events that positively impact communities globally. Our bold mission is to shape many communities around the globe through philanthropic educational projects. God willing, we will continue to make a difference." 
+
+              </p>
+              <p className="md:text-sm italic">— Karina Fay Hernandez / CEO</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Philosophy Section */}
-      <section className="bg-white px-10 ">
-        <div className="w-full p-10 bg-[radial-gradient(circle_at_bottom_right,_#C7913E_10%,_#C7913E_10%,_white_80%)]">
+      <section className="bg-white md:px-10 ">
+        <div className="w-full p-10 bg-[radial-gradient(circle_at_bottom_right,#C7913E_10%,#C7913E_10%,white_80%)]">
           <h2 className="text-4xl md:text-5xl font-bold mb-12 grad-text">
             OUR PHILOSOPHY
           </h2>
 
           <div className="flex flex-col md:flex-row items-start gap-12">
             {/* Left Text */}
-            <div className="text-gray-800 text-lg leading-relaxed space-y-6 flex-1">
+            <div className="text-gray-800 md:text-sm leading-relaxed space-y-1 flex-1">
               <p>
-                We believe in bringing together a powerful network of designers,
-                buyers, stylists, media and more – our fashion platforms,
-                headlined with world-leaders, are where opportunities begin. MWI
-                uniquely combines networking with live, experience-led
-                productions, creating global fashion experiences that stand as a
-                premier immersive and creative destination.
+                Moda Week International (MWINTL) is a distinguished global
+                platform that merges the art of fashion with professional
+                business acumen, cultural diplomacy, and philanthropic impact.
+                Our exclusive events spotlight the latest trends in the fashion
+                industry while providing a strategic platform for both emerging
+                and established designers to present their collections to an
+                international audience.
               </p>
 
               <p>
-                Each production unites designers, buyers, stylists, and media to
-                build opportunities within the fashion ecosystem. Our platforms
-                merge creative energy with impactful storytelling to elevate
-                industry experiences.
+                Each production brings together a powerful network of designers,
+                buyers, retailers, media partners, and fashion investors,
+                fostering elite connections, commercial opportunities, and
+                cross-border collaborations. MWINTL is committed to elevating
+                the global fashion industry while positioning itself as a
+                premier business and creative force.
               </p>
 
               <p>
-                Our platform encourages authentic discovery, deep cultural
-                contexts, diversity, and industry relevance. We celebrate
-                fashion, passion, advocacy, and cultural expression, shaping the
-                global narrative for the next generation of fashion consumers.
+                Founded in 2012, Moda Week International operates through key
+                global stations, promoting the cultural pulse of various fashion
+                capitals while reinforcing commercial growth and industry
+                relevance. Our brand is built on a foundation of integrity,
+                precision, and economic foresight, dedicated to advancing
+                fashion as both an art form and a business.
               </p>
 
               <p>
-                MWI continuously evolves with the future of fashion. Through
-                strategic equity partnerships, we support the growth of
-                designers, cultural innovators, and enthusiasts shaping
-                tomorrow’s global trends.
+                Our commitment extends to community development and the future
+                of fashion. Through hands-on experience and platform exposure,
+                we support the growth of next generation designers, fashion
+                students, and creatives.
+              </p>
+
+              <p>
+                Join us, where elegance meets enterprise, where fashion becomes
+                a catalyst for business opportunities, empowerment and lasting
+                legacy.
               </p>
             </div>
 
@@ -205,7 +211,7 @@ export default function ModaWeekSite() {
               <img
                 src={Founder2}
                 alt="Fashion Model"
-                className="w-[500px] max-w-full object-cover object-top shadow-xl"
+                className="w-[500px] h-[500px] max-w-full object-cover object-top shadow-xl"
               />
             </div>
           </div>
@@ -213,9 +219,9 @@ export default function ModaWeekSite() {
       </section>
 
       {/* Global Platform Section */}
-      <section className="py-20 px-10 bg-white">
+      <section className="md:py-16 py-10 md:px-10 bg-white">
         <div className="w-full bg-[#f4f4f4] mx-auto px-10 py-6">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-6 text-gray-900">
+          <h2 className="text-2xl md:text-[45px] font-bold text-center mb-6 text-gray-900">
             A GLOBAL PLATFORM FOR VISIONARIES,
             <br />
             CULTURE & INNOVATION
