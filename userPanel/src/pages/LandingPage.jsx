@@ -1,0 +1,434 @@
+import React, { useState, useEffect } from "react";
+import { Menu, X, Calendar, MapPin, Clock } from "lucide-react";
+import Footer from "../components/Footer.jsx";
+import Eventrsvp from "../assets/eventrsvp.jpg";
+import video1 from "../assets/video1.mp4";
+import video2 from "../assets/video2.mp4";
+import video3 from "../assets/video3.mp4";
+import logo from "../assets/glodenlogo.png";
+import AboutUs from "../assets/aboutus1.png";
+import designer1 from "../assets/designer1.jpg";
+import designer2 from "../assets/designer2.jpg";
+import designer3 from "../assets/designer3.jpg";
+import designer4 from "../assets/designer4.png";
+import ourservice from "../assets/ourservice.jpg";
+import schedule from "../assets/schedule.jpg";
+import pastevent1 from "../assets/pastevent1.jpg";
+import pastevent2 from "../assets/pastevent2.jpg";
+import pastevent3 from "../assets/pastevent3.jpg";
+import pastevent4 from "../assets/pastevent4.png";
+import calender1 from "../assets/calender1.jpg";
+import calender2 from "../assets/calender2.jpg";
+import calender3 from "../assets/calender3.png";
+
+
+export default function LandingPage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const slides = [
+    {
+      video: video1,
+      title: "",
+    },
+    {
+      video: video2,
+      title: "NEW YORK CITY",
+    },
+    {
+      video: video3,
+      title: "AMAZONAS FASHION WEEK",
+    },
+  ];
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % slides.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const designers = [
+    {
+      name: "LAMIA LATROUS",
+      image: designer1,
+    },
+    {
+      name: "NIA & ROSE",
+      image: designer2,
+    },
+    {
+      name: "PIETRO PARADISO",
+      image: designer3,
+    },
+    {
+      name: "WALID ATALLAH",
+      image: designer4,
+    },
+    {
+      name: "NIA & ROSE",
+      image: designer2,
+    },
+    {
+      name: "PIETRO PARADISO",
+      image: designer3,
+    },
+    {
+      name: "WALID ATALLAH",
+      image: designer4,
+    },
+  ];
+
+  const pastEvents = [
+    {
+      title: "THE PREMIER - SYRACUSE FASHION WEEKEND 2012",
+      image: pastevent1
+    },
+    {
+      title: "SYRACUSE FASHION WEEKEND 2013",
+      image: pastevent2
+    },
+    {
+      title: "SYRACUSE FASHION WEEKEND 2014",
+      image: pastevent3
+    },
+    {
+      title: "SYRACUSE FASHION WEEKEND 2016",
+      image:pastevent4    
+    },
+    {
+      title: "SYRACUSE FASHION WEEKEND 2014",
+      image: pastevent3
+    },
+    {
+      title: "SYRACUSE FASHION WEEKEND 2016",
+      image:pastevent4    
+    },
+    {
+      title: "SYRACUSE FASHION WEEKEND 2014",
+      image: pastevent3
+    },
+    {
+      title: "SYRACUSE FASHION WEEKEND 2016",
+      image:pastevent4    
+    }
+  ];
+
+  const upcomingEvents = [
+    {
+      title: "NEW YORK CITY FASHION SHOW",
+      date: "JUN 15, 2018",
+      location: "NEW YORK",
+      time: "08:00 - 17:00",
+      image: calender1,
+      status: "SEATS AVAILABLE",
+    },
+    {
+      title: "APW | LETICIA, COLOMBIA",
+      date: "APW | LETICIA, COLOMBIA",
+      location: "LETICIA, COLOMBIA",
+      time: "08:00 - 17:00",
+      image:calender2,      
+      status: "SOLD OUT",
+    },
+    {
+      title: "APW | TABATINGA, BRAZIL",
+      date: "JUN 15, 2018",
+      location: "TABATINGA, BRAZIL",
+      time: "08:00 - 17:00",
+      image: calender3,
+      status: "AVAILABLE SOON",
+    },
+  ];
+
+  return (
+    <div className="bg-black text-white min-h-screen">
+      {/* Hero Section */}
+      <section className="relative  h-screen overflow-hidden">
+        <nav className="fixed top-0 w-full z-50 bg-linear-to-b from-black/99 to-black/0">
+          <div className="container px-4 py-4 flex justify-between items-center">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="text-white"
+            >
+              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <div className="text-2xl font-bold tracking-wider">
+              <img src={logo} className="md:h-18 h-12" alt="" />
+            </div>
+          </div>
+        </nav>
+        {/* Videos */}
+        <div className="absolute inset-0">
+          {slides.map((slide, index) => (
+            <video
+              key={index}
+              src={slide.video}
+              autoPlay
+              muted
+              loop
+              playsInline
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1500
+              ${current === index ? "opacity-100" : "opacity-0"}
+            `}
+            />
+          ))}
+        </div>
+
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black"></div>
+
+        {/* Dynamic Content (LEFT) */}
+        <div className="relative z-10 container mx-auto h-full px-4 flex flex-col justify-end gap-10 pb-30 md:pb-20 ">
+          <h1 className="text-6xl md:text-6xl lg:text-7xl font-bold leading-tight text-white max-w-3xl md:ml-16 ml-4">
+            {slides[current].title}
+          </h1>
+        </div>
+
+        {/* Dots (RIGHT BOTTOM) */}
+        <div className="absolute bottom-10 right-20 flex gap-4">
+          {slides.map((_, i) => (
+            <div
+              key={i}
+              className={`h-0.5 w-16  
+        ${current === i ? "bg-white scale-125" : "bg-white/50"}
+      `}
+            />
+          ))}
+        </div>
+      </section>
+
+      <div className="bg-black mb-10 ml-10">
+        <p>
+          FASHION DESIGNERS APPLICATIONS NOW OPEN FOR <br /> FEBRUARY, JUNE &
+          SEPTEMBER  SS26/AW27
+        </p>
+        <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">
+          APPLY NOW
+        </button>
+      </div>
+
+      {/* MODA Week International */}
+      <section className="py-12 px-6 bg-white mt-10">
+        <div className="container md:h-96 mx-auto px-5 py-5 md:py-0 bg-black">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-12 h-full">
+            <img
+              src={AboutUs}
+              alt="Fashion Models"
+              className="shadow-2xl md:h-84 h-64 w-[427px]"
+            />
+
+            <div>
+              <h2 className="text-2xl font-bold mb-6 grad-text">
+                MODA WEEK INTERNATIONAL
+              </h2>
+              <p className="mb-4 leading-relaxed">
+                The Premier Wandering World Fashion Show Featuring Textile and
+                Ceremonial Excellence
+              </p>
+              <p className="mb-4 leading-relaxed">
+                Proudly offers a multicultural showcase featuring fashion
+                designers from around the world, providing an unmatched platform
+                for international runway showcases and exclusive exhibitions.
+              </p>
+              <p className="leading-relaxed">
+                Through the presentation time of several hours from curtain rise
+                and across a worldwide catalog of handwoven native, cultural,
+                artisan, and formal clothing featured fashions, MODA presents
+                the highest quality fashion designs and professional exhibitions
+                with live entertainment and more.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Fashion Designers */}
+      <section className="bg-white">
+        <div className="container mx-auto pl-4">
+          <div className="flex justify-between items-center mb-6 pr-4">
+            <h2 className="text-2xl font-bold grad-text">FASHION DESIGNERS</h2>
+            <button className="grad-text font-semibold">VIEW ALL</button>
+          </div>
+
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex gap-4 px-0 snap-x snap-mandatory">
+              {designers.map((designer, idx) => (
+                <div
+                  key={idx}
+                  className="group cursor-pointer shrink-0 w-94 snap-start"
+                >
+                  <div className="relative overflow-hidden mb-4 aspect-3/4">
+                    <img
+                      src={designer.image}
+                      alt={designer.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+
+                    <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/80 to-transparent"></div>
+
+                    <p className="absolute bottom-3 left-3 text-white text-sm font-medium tracking-wide">
+                      {designer.name}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Best Moments & Schedule */}
+      <section className="py-5 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="relative overflow-hidden group cursor-pointer">
+              <img
+                src={ourservice}
+                alt="Best Moments"
+                className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+              />
+
+              <div className="absolute inset-0 flex items-end p-8  bg-linear-to-t from-black/90 to-transparent">
+                {" "}
+                <div>
+                  <h3 className="text-5xl font-bold mb-2">OUR SERVICES</h3>
+                  <button className="grad-bg px-5 py-2">VIEW NOW</button>
+                </div>
+              </div>
+            </div>
+            <div className="relative overflow-hidden group cursor-pointer">
+              <img
+                src={schedule}
+                alt="Best Moments"
+                className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 flex items-end p-8  bg-linear-to-t from-black/90 to-transparent">
+                <div>
+                  <h3 className="text-5xl font-bold mb-2">SCHEDULE</h3>
+                  <button className="grad-bg px-5 py-2">VIEW NOW</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Past Events */}
+      <section className="py-5 bg-white">
+        <div className="container mx-auto">
+          {/* Heading + View All */}
+          <div className="flex justify-between items-center mb-6 px-4">
+            <h2 className="text-2xl font-bold bg-linear-to-l from-[#8C5D25] to-[#C7913E] bg-clip-text text-transparent">
+              PAST EVENTS
+            </h2>
+
+            <button className="grad-text font-semibold">VIEW ALL</button>
+          </div>
+
+          {/* Horizontal scroll */}
+          <div className="overflow-x-auto scrollbar-hide pl-4">
+            <div className="flex gap-2.5 snap-x snap-mandatory">
+              {pastEvents.map((event, idx) => (
+                <div
+                  key={idx}
+                  className="group cursor-pointer shrink-0 w-88 snap-start"
+                >
+                  <div className="relative overflow-hidden mb-4 aspect-3/4">
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  </div>
+
+                  <h3 className="text-sm text-black font-inter">
+                    {event.title}
+                  </h3>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* RSVP Section */}
+      <section className="flex flex-col md:flex-row">
+        {/* Left side */}
+        <div className="md:w-1/2">
+          <img
+            src={Eventrsvp}
+            alt=""
+            className="w-full h-[400px] object-cover object-top"
+          />
+        </div>
+
+        {/* Right side */}
+        <div className="md:w-1/2 py-20 grad-bg">
+          <div className="flex items-center justify-center h-full px-12">
+            <div className="">
+              <h2 className="text-5xl font-bold mb-2">
+                FASHION
+                <br />
+                EVENT RSVP
+              </h2>
+              <p className="mb-10">
+                Register to Attend Our Upcoming Global <br /> Fashion Showcases.{" "}
+              </p>
+              <button className="bg-white text-black px-8 py-3 rounded hover:bg-gray-100 transition-colors font-semibold">
+                RSVP NOW
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Fashion Calendar */}
+      <section className="py-20 bg-[#f0f0f0]">
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-center mb-12">
+            <h2 className="text-2xl font-bold grad-text">FASHION CALENDAR</h2>
+            <button className="grad-text hover:text-yellow-500 font-semibold underline grad-bottom-border">
+              VIEW ALL
+            </button>
+          </div>
+          <div className="grid md:grid-cols-3 gap-2">
+            {upcomingEvents.map((event, idx) => (
+              <div key={idx} className="bg-white overflow-hidden">
+                <div className="relative">
+                  <img
+                    src={event.image}
+                    alt={event.title}
+                    className="w-full h-80 object-cover"
+                  />
+                  <span className="absolute top-4 right-4 bg-white text-xs text-black px-3 py-1">
+                    {event.status}
+                  </span>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold mb-4">{event.title}</h3>
+                  <div className="space-y-2 text-sm text-gray-400">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} className="text-[#BC8739]" />
+                      <span>{event.date}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} className="text-[#BC8739]" />
+                      <span>{event.location}</span>
+                    </div>
+                  </div>
+                  <button className="w-full mt-6 grad-bg text-white py-1.5 transition-colors font-semibold">
+                    GET TICKETS
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <Footer />
+    </div>
+  );
+}
