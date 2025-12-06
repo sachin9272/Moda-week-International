@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import HomePage from './HomePage.jsx';
+
 import LandingPage from './pages/LandingPage.jsx';
 import About from './pages/about/About.jsx';
 import FashioEvents from './pages/fashionEvents/FashionEvents.jsx'
@@ -11,7 +11,7 @@ function App() {
       <Routes>
         {/* Default route */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/pricing" element={<Pricing/>}/>
+        <Route path="/pricing" element={<Pricing />} />
         {/* Add more pages */}
         <Route path="/about" element={<About />} />
         <Route path="/events" element={<FashioEvents />} />
