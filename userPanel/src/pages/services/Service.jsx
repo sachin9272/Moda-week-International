@@ -1,4 +1,5 @@
 import React from "react";
+import Navbar from "../../components/Navbar";
 import Service1 from "../../assets/services1.jpg";
 import services1 from "../../assets/service1.jpg";
 import services2 from "../../assets/service2.jpg";
@@ -35,6 +36,7 @@ export default function Service() {
 
   return (
     <div>
+      <Navbar />
       <section
         className="relative w-full min-h-[90vh] flex items-center bg-cover bg-top"
         style={{ backgroundImage: `url(${Service1})` }}
@@ -43,9 +45,9 @@ export default function Service() {
         <div className="absolute inset-0 bg-black/75"></div>
 
         {/* Content */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 w-full max-w-6xl mx-auto px-6">
+        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-2 py-8 md:gap-12 w-full max-w-6xl mx-auto px-6">
           {/* Left Content */}
-          <div className="text-white flex flex-col justify-center">
+          <div className="text-white flex flex-col justify-center mt-28">
             <p className="text-xl tracking-widest mb-3">OUR SERVICES</p>
             <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-6">
               COLLABORATION &
@@ -93,11 +95,11 @@ export default function Service() {
       </section>
 
       {/* Application Forms */}
-      <ApplicationForm/>
+      <ApplicationForm />
       <section className="text-white">
-        <CtaSection/>
+        <CtaSection />
       </section>
-      <Footer/>
+      <Footer />
     </div>
   );
 }
