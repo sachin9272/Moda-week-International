@@ -4,47 +4,47 @@ import { Check } from "lucide-react";
 // Pricing Card Component with API Integration
 const PricingCard = ({ plan, onGetStarted, isPopular }) => {
   const cardClasses = isPopular
-    ? "bg-white shadow-2xl scale-105 relative border-2 border-amber-500"
-    : "bg-gray-50 shadow-lg";
+    ? "shadow-2xl relative"
+    : "shadow-lg";
 
   const buttonClasses = isPopular
-    ? "bg-amber-700 hover:bg-amber-800 text-white"
+    ? "grad-bg hover:bg-amber-800 text-white"
     : "bg-black hover:bg-gray-800 text-white";
 
   return (
     <div
-      className={`${cardClasses} rounded-2xl p-8 transition-transform hover:scale-105 duration-300 h-[500px]`}
+      className={`bg-gray-50 ${cardClasses} rounded-2xl p-8 transition-transform hover:scale-105 duration-300 h-[500px]`}
     >
       {/* Popular Badge */}
       {isPopular && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-          <span className="bg-amber-700 text-white px-6 py-1.5 rounded-full text-sm font-semibold">
+          <span className="grad-bg text-white px-6 py-1.5 rounded-full text-sm">
             Most Popular
           </span>
         </div>
       )}
 
       {/* Plan Header */}
-      <div className="mb-6">
-        <h3 className="text-xl font-bold text-gray-900 mb-2 uppercase tracking-wide">
+      <div className="mb-1">
+        <h3 className="font-bold text-black mb-2 uppercase tracking-wide">
           {plan.name}
         </h3>
         <p className="text-gray-600 text-sm h-10">{plan.description}</p>
       </div>
 
       {/* Price */}
-      <div className="mb-8">
-        <span className="text-4xl font-bold text-gray-900">
+      <div className="mb-4">
+        <span className="text-[#101010]">
           ${plan.price.toLocaleString()}
         </span>
       </div>
 
       {/* Features */}
-      <div className="space-y-4 mb-8">
+      <div className="space-y-3.5 mb-8">
         {plan.features.map((feature, index) => (
           <div key={index} className="flex items-start gap-3">
             <Check className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
-            <span className="text-gray-700 text-sm">{feature}</span>
+            <span className="text-black">{feature}</span>
           </div>
         ))}
       </div>
@@ -52,7 +52,7 @@ const PricingCard = ({ plan, onGetStarted, isPopular }) => {
       {/* CTA Button */}
       <button
         onClick={() => onGetStarted(plan)}
-        className={`${buttonClasses} w-full py-3 rounded-lg font-semibold transition-colors duration-200`}
+        className={`${buttonClasses} w-full py-1.5 rounded-lg font-semibold transition-colors duration-200`}
       >
         Get Started
       </button>
@@ -74,11 +74,6 @@ const PricingComponent = () => {
   const fetchPricingPlans = async () => {
     try {
       setLoading(true);
-
-      // Replace this URL with your actual API endpoint
-      // const response = await fetch('https://your-api.com/api/pricing-plans');
-
-      // Mock API call - replace with actual API
       const response = await mockApiCall();
 
       if (!response.ok) {
@@ -222,7 +217,7 @@ const PricingComponent = () => {
             PRICING
           </h1>
 
-          <div className="w-24 h-0.5 bg-amber-600 mx-auto mb-6"></div>
+          <div className="w-38 h-px grad-bg mx-auto mb-6 mt-4"></div>
           <p className="text-gray-700 text-lg max-w-2xl mx-auto">
             Choose the perfect plan to showcase your fashion event to a global
             audience
