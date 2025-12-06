@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ShoppingBag, Palette, Award, HandHeart  } from "lucide-react";
+import { ShoppingBag, Palette, Award, HandHeart } from "lucide-react";
 const ApplicationForm = () => {
   const [activeTab, setActiveTab] = useState("buyer");
   const [formData, setFormData] = useState({
@@ -16,7 +16,7 @@ const ApplicationForm = () => {
     { id: "buyer", label: "Become a Buyer", icon: ShoppingBag },
     { id: "designer", label: "Apply as Designer", icon: Palette },
     { id: "sponsor", label: "Apply as Sponsor", icon: Award },
-    { id: "service", label:"Our Services", icon: HandHeart }
+    { id: "service", label: "Our Services", icon: HandHeart },
   ];
 
   const descriptions = {
@@ -42,7 +42,7 @@ const ApplicationForm = () => {
       buyer: "/api/buyer-application",
       designer: "/api/designer-application",
       sponsor: "/api/sponsor-application",
-      service: "/api/services"
+      service: "/api/services",
     };
 
     try {
@@ -79,7 +79,11 @@ const ApplicationForm = () => {
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 h-8 bg-[#ECECF0] rounded-3xl">
+        <div
+          className="mb-8 bg-[#ECECF0] rounded-3xl 
+            grid grid-cols-2 gap-2  
+            md:grid-cols-4 md:gap-2 md:h-8"
+        >
           {tabs.map((tab) => {
             const Icon = tab.icon;
 
@@ -87,11 +91,12 @@ const ApplicationForm = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 px-4 rounded-3xl font-medium transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                  activeTab === tab.id
-                    ? "bg-black text-[#EFA137]"
-                    : "text-gray-700 hover:bg-gray-100"
-                }`}
+                className={`px-4 rounded-3xl font-medium transition-all flex items-center justify-center gap-2 cursor-pointer
+          ${
+            activeTab === tab.id
+              ? "bg-black text-[#EFA137]"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
