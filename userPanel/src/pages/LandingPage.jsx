@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, Calendar, MapPin, Clock } from "lucide-react";
+import Navbar from "../components/Navbar.jsx";
+import { Calendar, MapPin, Clock } from "lucide-react";
 import Footer from "../components/Footer.jsx";
 import Eventrsvp from "../assets/eventrsvp.jpg";
 import video1 from "../assets/video1.mp4";
@@ -94,7 +95,7 @@ export default function LandingPage() {
     },
     {
       title: "SYRACUSE FASHION WEEKEND 2016",
-      image:pastevent4    
+      image: pastevent4
     },
     {
       title: "SYRACUSE FASHION WEEKEND 2014",
@@ -102,7 +103,7 @@ export default function LandingPage() {
     },
     {
       title: "SYRACUSE FASHION WEEKEND 2016",
-      image:pastevent4    
+      image: pastevent4
     },
     {
       title: "SYRACUSE FASHION WEEKEND 2014",
@@ -110,7 +111,7 @@ export default function LandingPage() {
     },
     {
       title: "SYRACUSE FASHION WEEKEND 2016",
-      image:pastevent4    
+      image: pastevent4
     }
   ];
 
@@ -128,7 +129,7 @@ export default function LandingPage() {
       date: "APW | LETICIA, COLOMBIA",
       location: "LETICIA, COLOMBIA",
       time: "08:00 - 17:00",
-      image:calender2,      
+      image: calender2,
       status: "SOLD OUT",
     },
     {
@@ -145,19 +146,7 @@ export default function LandingPage() {
     <div className="bg-black text-white min-h-screen">
       {/* Hero Section */}
       <section className="relative  h-screen overflow-hidden">
-        <nav className="fixed top-0 w-full z-50 bg-linear-to-b from-black/99 to-black/0">
-          <div className="container px-4 py-4 flex justify-between items-center">
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="text-white"
-            >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-            <div className="text-2xl font-bold tracking-wider">
-              <img src={logo} className="md:h-18 h-12" alt="" />
-            </div>
-          </div>
-        </nav>
+        <Navbar />
         {/* Videos */}
         <div className="absolute inset-0">
           {slides.map((slide, index) => (
@@ -201,7 +190,7 @@ export default function LandingPage() {
       <div className="bg-black mb-10 ml-10">
         <p>
           FASHION DESIGNERS APPLICATIONS NOW OPEN FOR <br /> FEBRUARY, JUNE &
-          SEPTEMBER  SS26/AW27
+          SEPTEMBER SS26/AW27
         </p>
         <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">
           APPLY NOW
