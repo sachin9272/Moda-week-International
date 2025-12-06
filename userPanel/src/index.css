@@ -36,6 +36,12 @@ body {
   color: transparent;
 }
 
+.grad-text-rev {
+  background: linear-gradient(to right, #C7913E, #8C5D25);;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
 .grad-border {
   border: 3px solid transparent;
   border-image: var(--brand-grad) 1;
