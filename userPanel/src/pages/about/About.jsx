@@ -6,6 +6,7 @@ import CtaSection from "../../components/CtaSection";
 import Card from "./Card";
 import Footer from "../../components/Footer";
 import { ChevronDown } from "lucide-react";
+import Navbar from "../../components/Navbar";
 
 export default function ModaWeekSite() {
   const cardData = [
@@ -34,6 +35,7 @@ export default function ModaWeekSite() {
 
   return (
     <div className="min-h-screen bg-black text-white">
+      <Navbar />
       {/* Hero Section */}
       <section
         className="relative h-screen flex items-center justify-center"
@@ -145,7 +147,7 @@ export default function ModaWeekSite() {
                 The company believes that fashion design brings art directly to one's skin and shows not only who you are but also the values that make you who you are.  MWINTL delivers trendsetting creations that focus on the present and future of fashion artists today. Through their events and projects, they hope to inspire guests to join them in supporting the education and development of future generations in the fashion and art industries.
               </p>
               <p className="md:text-sm mb-1 leading-relaxed">
-                ‘’At Moda Week International, our diverse and extensive experiences around the world allow us to produce iconic events that positively impact communities globally. Our bold mission is to shape many communities around the globe through philanthropic educational projects. God willing, we will continue to make a difference." 
+                ‘’At Moda Week International, our diverse and extensive experiences around the world allow us to produce iconic events that positively impact communities globally. Our bold mission is to shape many communities around the globe through philanthropic educational projects. God willing, we will continue to make a difference."
 
               </p>
               <p className="md:text-sm italic">— Karina Fay Hernandez / CEO</p>
