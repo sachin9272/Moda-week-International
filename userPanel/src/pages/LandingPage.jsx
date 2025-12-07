@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
 import { Calendar, MapPin, Clock } from "lucide-react";
 import Footer from "../components/Footer.jsx";
@@ -6,7 +7,6 @@ import Eventrsvp from "../assets/eventrsvp.jpg";
 import video1 from "../assets/video1.mp4";
 import video2 from "../assets/video2.mp4";
 import video3 from "../assets/video3.mp4";
-import logo from "../assets/glodenlogo.png";
 import AboutUs from "../assets/aboutus1.png";
 import designer1 from "../assets/designer1.jpg";
 import designer2 from "../assets/designer2.jpg";
@@ -237,7 +237,7 @@ export default function LandingPage() {
         <div className="container mx-auto pl-4">
           <div className="flex justify-between items-center mb-6 pr-4">
             <h2 className="text-2xl font-bold grad-text">FASHION DESIGNERS</h2>
-            <button className="grad-text font-semibold">VIEW ALL</button>
+            <Link to="/fashion-designers" className="grad-text font-semibold">VIEW ALL</Link>
           </div>
 
           <div className="overflow-x-auto scrollbar-hide">

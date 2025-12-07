@@ -3,7 +3,7 @@ import { Menu, X, ChevronRight, Search, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/glodenlogo.png";
 import { Link } from "react-router-dom";
- 
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -56,7 +56,7 @@ const Navbar = () => {
     { name: "About Us", path: "/about", category: "Company" },
     { name: "Newsroom", path: "#", category: "Company" },
     { name: "Partners", path: "#", category: "Business" },
-    { name: "Designers", path: "#", category: "Experience" },
+    { name: "Designers", path: "/fashion-designers", category: "Experience" },
   ];
 
   return (
@@ -69,8 +69,8 @@ const Navbar = () => {
             : "bg-linear-to-b from-black/90 to-transparent"
         }`}
       >
-        <div className="container mx-auto px-6 h-20 flex justify-between items-center">
-          {/* Menu Toggle */}
+        <div className="container px-6 h-20 flex justify-between items-center">
+          {/* Menu Toggle - Left */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="flex items-center gap-2 text-white hover:text-[#C7913E] transition-colors group z-50"
@@ -105,15 +105,12 @@ const Navbar = () => {
             </span>
           </button>
 
-          {/* Logo */}
-          <Link
-            to="/"
-            className="absolute left-[75%] transform -translate-x-1/2 z-50"
-          >
+          {/* Logo - Right */}
+          <Link to="/" className="z-50">
             <img
               src={logo}
               alt="Moda Week International"
-              className="h-12 md:h-16"
+              className="h-10 md:h-16"
             />
           </Link>
         </div>
