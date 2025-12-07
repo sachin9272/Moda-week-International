@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ShoppingBag, Palette, Award, HandHeart } from "lucide-react";
+import toast from "react-hot-toast";
 
 const ApplicationForm = () => {
   const [activeTab, setActiveTab] = useState("service");
@@ -73,19 +74,14 @@ const ApplicationForm = () => {
   const handleSubmit = async () => {
     // Define different API endpoints for each tab
     const apiEndpoints = {
-      buyer: "/api/buyer-application",
-      designer: "/api/designer-application",
-      sponsor: "/api/sponsor-application",
-      service: "/api/services",
+      buyer: "http://localhost:5000/api/forms/buyer",
+      designer: "http://localhost:5000/api/forms/designer",
+      sponsor: "http://localhost:5000/api/forms/sponsor",
+      service: "http://localhost:5000/api/forms/service",
     };
 
     console.log("Submitting Form Data:", formData);
 
-    // Simulation of submission
-    alert(`Application for ${activeTab.toUpperCase()} submitted! (Check console for data)`);
-
-    // In real app, uncomment below:
-    /*
     try {
       const response = await fetch(apiEndpoints[activeTab], {
         method: "POST",
@@ -95,17 +91,50 @@ const ApplicationForm = () => {
         body: JSON.stringify(formData),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        alert("Application submitted successfully!");
-        setFormData({...resetState}); 
+        toast.success(`${activeTab.toUpperCase()} application submitted successfully!`);
+        // Reset form data logic if needed, but keeping it simple for now or resetting all
+        setFormData({
+          // Shared
+          fullName: "",
+          email: "",
+          phoneNumber: "",
+          country: "",
+
+          // Service
+          requestParticipation: [],
+
+          // Sponsor
+          companyName: "",
+          contactName: "",
+          industry: "",
+          sponsorshipInterests: [],
+
+          // Designer
+          brandName: "",
+          designerName: "",
+          designCategory: "",
+          yearsOfExperience: "",
+          website: "",
+          portfolioLink: "",
+          brandDescription: "",
+
+          // Buyer
+          businessType: "",
+          productInterests: "",
+
+          // Additional
+          additionalInfo: "",
+        });
       } else {
-        alert("Failed to submit application. Please try again.");
+        toast.error(data.message || "Failed to submit application. Please try again.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("An error occurred. Please try again later.");
+      toast.error("An error occurred. Please try again later.");
     }
-    */
   };
 
   const renderInput = (label, name, placeholder, type = "text", required = true) => (
@@ -208,7 +237,7 @@ const ApplicationForm = () => {
 
   const renderTabContent = () => {
     switch (activeTab) {
-      
+
       case "buyer":
         return (
           <>
@@ -320,7 +349,7 @@ const ApplicationForm = () => {
             </div>
           </>
         );
-      
+
       case "service":
         return (
           <>
@@ -347,7 +376,7 @@ const ApplicationForm = () => {
             </div>
           </>
         );
-      
+
       default:
         return null;
     }

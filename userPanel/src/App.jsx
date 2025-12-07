@@ -7,9 +7,12 @@ import Service from "./pages/services/Service.jsx";
 import Pricing from "./components/Pricing.jsx"
 import FashionDesigners from "./pages/fashionDesigners/FashionDesigners.jsx";
 
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   return (
     <Router>
+      <Toaster position="top-right" />
       <Routes>
         {/* Default route */}
         <Route path="/" element={<LandingPage />} />
