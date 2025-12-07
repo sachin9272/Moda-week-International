@@ -15,21 +15,21 @@ export default function ModaWeekSite() {
       image:
         "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=500&fit=crop",
       description:
-        "MWI/NTL paints the future of the fashion industry through our productions. By creating a curated global platform of visionaries, we encourage teams made with pathways for international collaboration, inclusivity, and genuine support — for long-term industry development.",
+        "MWINTL leads the future of the fashion industry by transforming traditional runway events into global platforms of purpose. We anticipate trends, create new pathways for international collaboration, and elevate fashion beyond aesthetics, into education, social impact, and long-term industry development.",
     },
     {
       title: "CULTURE",
       image:
         "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=500&fit=crop",
       description:
-        "Fashion as diversity and global-heritage. MWI/NTL is committed to celebrating diverse cultures, Indigenous communities, and international designers under one singular vision. We give platform for cultural expression, art and style—supporting a strong back for global-culture.",
+        "Rooted in diversity and global heritage, celebrates fashion as a cultural bridge. We unite nations, indigenous communities, and international designers under one stage, honoring identity, storytelling, and artistic expression while positioning culture as a driving force for global connection",
     },
     {
       title: "INNOVATION",
       image:
         "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=500&fit=crop",
       description:
-        "From sustainable performance in designing best-thinking through technology, AI-led fashion systems, we provide forward-thinking solutions that shape the course of today and the future of the industry.",
+        "From international partnerships to emerging talent development and global fashion calendar systems, we provide forward thinking solutions that shape the industry of today and the one yet to come.",
     },
   ];
 
@@ -229,11 +229,7 @@ export default function ModaWeekSite() {
             CULTURE & INNOVATION
           </h2>
           <p className="text-center text-lg text-gray-700 mb-16 max-w-4xl mx-auto leading-relaxed">
-            MWI/NTL is how global platform, where category leadership, cultural
-            excellence, and industry-shaping innovation converge-transforming
-            fashion into a bridge between nations, elevating diverse artistic
-            heritages, and pioneering new modes of collaboration, education, and
-            business impact for the future of the industry.
+            MWINTL is the global platform where visionary leadership, cultural excellence, and industry-shaping innovation converge transforming fashion into a bridge between nations, elevating diverse artistic heritage, and pioneering new models of collaboration, education, and international impact for the future of the industry.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8">

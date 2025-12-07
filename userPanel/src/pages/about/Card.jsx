@@ -17,7 +17,7 @@ const Card = ({ image, title, description }) => {
       </div>
 
       {/* Description below image */}
-      <p className="text-sm leading-relaxed mt-4 text-black p-4">
+      <p className="text-sm leading-relaxed mt-4 text-[#4A5565] p-4">
         {description}
       </p>
     </div>
