@@ -47,6 +47,37 @@ export default function FashionEvents() {
 
   const [activeTab, setActiveTab] = useState("upcoming");
 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleWhatsAppMessage = () => {
+    const { name, email, subject, message } = formData;
+
+    if (!name || !email || !message) {
+      // You could use toast here since it's already in the app, but alert is fine for now
+      alert("Please fill in your name, email, and message.");
+      return;
+    }
+
+    const text = `Hello, I would like to get in touch.\n\n*Name:* ${name}\n*Email:* ${email}\n*Subject:* ${subject}\n*Message:* ${message}`;
+    const phoneNumber = "16802145633";
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
+
+    window.open(whatsappUrl, '_blank');
+  };
+
   const upcomingEvents = [
     {
       date: "FEB 1-6, 2026",
@@ -344,12 +375,44 @@ export default function FashionEvents() {
 
             {/* Form */}
             <form className="space-y-4">
-              <input type="text" placeholder="Your Name" className="w-full p-3 bg-white border border-gray-200 focus:outline-none focus:border-[#C7913E] text-black placeholder-[#A7A7A7]" />
-              <input type="email" placeholder="Your Email" className="w-full p-3 bg-white border border-gray-200 focus:outline-none focus:border-[#C7913E] text-black placeholder-[#A7A7A7]" />
-              <input type="text" placeholder="Subject" className="w-full p-3 bg-white border border-gray-200 focus:outline-none focus:border-[#C7913E] text-black placeholder-[#A7A7A7]" />
-              <textarea rows="4" placeholder="Your Message" className="w-full p-3 bg-white border border-gray-200 focus:outline-none focus:border-[#C7913E] text-black placeholder-[#A7A7A7]"></textarea>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Your Name"
+                className="w-full p-3 bg-white border border-gray-200 focus:outline-none focus:border-[#C7913E] text-black placeholder-[#A7A7A7]"
+              />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Your Email"
+                className="w-full p-3 bg-white border border-gray-200 focus:outline-none focus:border-[#C7913E] text-black placeholder-[#A7A7A7]"
+              />
+              <input
+                type="text"
+                name="subject"
+                value={formData.subject}
+                onChange={handleInputChange}
+                placeholder="Subject"
+                className="w-full p-3 bg-white border border-gray-200 focus:outline-none focus:border-[#C7913E] text-black placeholder-[#A7A7A7]"
+              />
+              <textarea
+                rows="4"
+                name="message"
+                value={formData.message}
+                onChange={handleInputChange}
+                placeholder="Your Message"
+                className="w-full p-3 bg-white border border-gray-200 focus:outline-none focus:border-[#C7913E] text-black placeholder-[#A7A7A7]"
+              ></textarea>
 
-              <button type="button" className="w-full grad-bg text-white font-bold py-4 tracking-widest hover:opacity-90 transition-opacity">
+              <button
+                type="button"
+                onClick={handleWhatsAppMessage}
+                className="w-full grad-bg text-white font-bold py-4 tracking-widest hover:opacity-90 transition-opacity"
+              >
                 SEND MESSAGE
               </button>
             </form>

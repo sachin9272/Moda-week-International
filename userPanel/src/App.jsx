@@ -8,11 +8,13 @@ import Pricing from "./components/Pricing.jsx"
 import FashionDesigners from "./pages/fashionDesigners/FashionDesigners.jsx";
 
 import { Toaster } from 'react-hot-toast';
+import WhatsAppButton from "./components/WhatsAppButton.jsx";
 
 function App() {
   return (
     <Router>
       <Toaster position="top-right" />
+      <WhatsAppButton />
       <Routes>
         {/* Default route */}
         <Route path="/" element={<LandingPage />} />

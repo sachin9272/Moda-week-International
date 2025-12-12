@@ -1,5 +1,6 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../context/AuthContext';
 import {
     LayoutDashboard,
     Users,
@@ -8,14 +9,26 @@ import {
     Wrench,
     Newspaper,
     LogOut,
-    FolderOpen
+    FolderOpen,
+    Video
 } from 'lucide-react';
 
 const Sidebar = () => {
+    const { logout } = useContext(AuthContext);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     const navItems = [
         { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/applications', icon: FolderOpen, label: 'Applications' },
         { path: '/news', icon: Newspaper, label: 'News Management' },
+        { path: '/landing-videos', icon: Video, label: 'Landing Videos' },
+        { path: '/service-types', icon: Briefcase, label: 'Service Types' },
+        { path: '/service-hero', icon: Palette, label: 'Service Hero' },
     ];
 
     return (
@@ -45,7 +58,10 @@ const Sidebar = () => {
             </nav>
 
             <div className="p-4 border-t border-slate-800">
-                <button className="flex items-center gap-3 px-4 py-3 w-full text-slate-400 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all duration-200">
+                <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 px-4 py-3 w-full text-slate-400 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all duration-200"
+                >
                     <LogOut size={20} />
                     <span className="font-medium">Logout</span>
                 </button>

@@ -52,6 +52,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Global Events", path: "/events", category: "Experience" },
+    { name: "Past Events", path: "/events", category: "Experience" },
     { name: "Services", path: "/service", category: "Business" },
     { name: "About Us", path: "/about", category: "Company" },
     { name: "Newsroom", path: "#", category: "Company" },
@@ -124,7 +125,7 @@ const Navbar = () => {
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-0 z-40 bg-[#0a0a0a] pt-24 pb-10 overflow-y-auto"
+            className="fixed inset-0 z-40 bg-[#0a0a0a] pt-24 pb-10 overflow-y-auto bg-white text-black"
           >
             <div className="container mx-auto px-6 h-full flex flex-col">
               {/* Menu Grid */}
@@ -137,7 +138,7 @@ const Navbar = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 0.5 }}
                       transition={{ delay: 0.4 }}
-                      className="text-xs font-bold tracking-[0.2em] text-white uppercase border-b border-white/20 pb-2 mb-6"
+                      className="text-xs font-bold tracking-[0.2em] uppercase border-b border-white/20 pb-2 mb-6"
                     >
                       Experience
                     </motion.h3>
@@ -154,7 +155,7 @@ const Navbar = () => {
                           <Link
                             to={link.path}
                             onClick={() => setIsMenuOpen(false)}
-                            className="group flex items-center justify-between text-2xl md:text-4xl font-light text-white hover:text-[#C7913E] transition-colors py-2"
+                            className="group flex items-center justify-between text-2xl md:text-4xl font-light text-black hover:text-[#C7913E] transition-colors py-2"
                           >
                             <span className="font-[Playfair_Display] italic">
                               {link.name}
@@ -171,7 +172,7 @@ const Navbar = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 0.5 }}
                       transition={{ delay: 0.5 }}
-                      className="text-xs font-bold tracking-[0.2em] text-white uppercase border-b border-white/20 pb-2 mb-6"
+                      className="text-xs font-bold tracking-[0.2em] text-black uppercase border-b border-white/20 pb-2 mb-6"
                     >
                       Business
                     </motion.h3>
@@ -188,7 +189,7 @@ const Navbar = () => {
                           <Link
                             to={link.path}
                             onClick={() => setIsMenuOpen(false)}
-                            className="group flex items-center justify-between text-2xl md:text-4xl font-light text-white hover:text-[#C7913E] transition-colors py-2"
+                            className="group flex items-center justify-between text-2xl md:text-4xl font-light text-black hover:text-[#C7913E] transition-colors py-2"
                           >
                             <span className="font-[Playfair_Display] italic">
                               {link.name}
@@ -205,7 +206,7 @@ const Navbar = () => {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 0.5 }}
                       transition={{ delay: 0.6 }}
-                      className="text-xs font-bold tracking-[0.2em] text-white uppercase border-b border-white/20 pb-2 mb-6"
+                      className="text-xs font-bold tracking-[0.2em] uppercase border-b border-white/20 pb-2 mb-6"
                     >
                       Company
                     </motion.h3>
@@ -222,7 +223,7 @@ const Navbar = () => {
                           <Link
                             to={link.path}
                             onClick={() => setIsMenuOpen(false)}
-                            className="group flex items-center justify-between text-2xl md:text-4xl font-light text-white hover:text-[#C7913E] transition-colors py-2"
+                            className="group flex items-center justify-between text-2xl md:text-4xl font-light hover:text-[#C7913E] transition-colors py-2"
                           >
                             <span className="font-[Playfair_Display] italic">
                               {link.name}

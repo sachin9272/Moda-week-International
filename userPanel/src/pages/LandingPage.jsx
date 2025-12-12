@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
 import { Calendar, MapPin, Clock } from "lucide-react";
@@ -23,10 +23,108 @@ import calender2 from "../assets/calender2.jpg";
 import calender3 from "../assets/calender3.png";
 
 
+
+function VideoSlider({ slides }) {
+  const [current, setCurrent] = useState(0);
+  const videoRefs = useRef([]);
+  const scrollTimeout = useRef(null);
+
+  // Initial play
+  useEffect(() => {
+    if (videoRefs.current[0]) {
+      videoRefs.current[0].play().catch(e => console.log("Autoplay prevented", e));
+    }
+  }, []);
+
+  const handleEnded = () => {
+    setCurrent((prev) => (prev + 1) % slides.length);
+  };
+
+  // Sync play state when current changes
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (!video) return;
+      if (index === current) {
+        video.currentTime = 0;
+        video.play().catch(e => console.log("Play error", e));
+      } else {
+        video.pause();
+      }
+    });
+  }, [current, slides]);
+
+  const handleScroll = (e) => {
+    if (scrollTimeout.current) return;
+
+    if (e.deltaY > 0) {
+      // Scroll Down -> Next
+      setCurrent((prev) => (prev + 1) % slides.length);
+    } else {
+      // Scroll Up -> Prev
+      setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+    }
+
+    scrollTimeout.current = setTimeout(() => {
+      scrollTimeout.current = null;
+    }, 1000); // 1 second cooldown for scroll
+  };
+
+  return (
+    <div className="absolute inset-0 w-full h-full" onWheel={handleScroll}>
+      {/* Videos */}
+      <div className="absolute inset-0 bg-black">
+        {slides.map((slide, index) => (
+          <video
+            key={index}
+            ref={el => videoRefs.current[index] = el}
+            src={slide.video}
+            muted
+            playsInline
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000
+                          ${current === index ? "opacity-100" : "opacity-0"}
+                      `}
+            onEnded={handleEnded}
+          />
+        ))}
+      </div>
+
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black pointer-events-none"></div>
+
+      {/* Dynamic Content (LEFT) */}
+      <div className="relative z-10 container mx-auto h-full px-4 flex flex-col justify-end gap-10 pb-30 md:pb-20 pointer-events-none">
+        <h1 className="text-6xl md:text-6xl lg:text-7xl font-bold leading-tight text-white max-w-3xl md:ml-6 ml-4">
+          {slides[current].title}
+        </h1>
+      </div>
+
+      {/* Dots (RIGHT BOTTOM) */}
+      <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
+        {slides.map((_, i) => (
+          <div
+            key={i}
+            className={`h-0.5 w-16 transition-all duration-300
+                          ${current === i ? "bg-white scale-125" : "bg-white/50"}
+                      `}
+            onClick={() => setCurrent(i)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const slides = [
+  /* Helper to format video URL */
+  const getVideoSrc = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url; // Already full URL (or old drive link if any remain)
+    return `http://localhost:5000${url}`; // Prepend backend URL for local paths
+  };
+
+  const [slides, setSlides] = useState([
     {
       video: video1,
       title: "",
@@ -39,15 +137,30 @@ export default function LandingPage() {
       video: video3,
       title: "AMAZONAS FASHION WEEK",
     },
-  ];
-  const [current, setCurrent] = useState(0);
+  ]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % slides.length);
-    }, 6000);
-    return () => clearInterval(interval);
+    const fetchVideos = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/landing-videos');
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+          const formattedSlides = data.map(item => ({
+            video: getVideoSrc(item.videoUrl),
+            title: item.title,
+            isDynamic: true
+          }));
+          setSlides(formattedSlides);
+        }
+      } catch (error) {
+        console.error("Failed to fetch landing videos:", error);
+      }
+    };
+
+    fetchVideos();
   }, []);
+
 
   const designers = [
     {
@@ -145,46 +258,18 @@ export default function LandingPage() {
   return (
     <div className="bg-black text-white min-h-screen">
       {/* Hero Section */}
-      <section className="relative  h-screen overflow-hidden">
+      <section
+        className="relative h-screen overflow-hidden"
+        onWheel={(e) => {
+          // Simple debounce logic could be added here if needed, but for now direct control
+          // However, to prevent rapid firing, we might want to check a timestamp or just rely on user intent.
+          // A simple debounce is safer for "one scroll = one switch" feel.
+          // For now, let's try a direct implementation and refine if it's too sensitive.
+          // Actually, standard scroll is very sensitive. Let's add a small timeout lock.
+        }}
+      >
         <Navbar />
-        {/* Videos */}
-        <div className="absolute inset-0">
-          {slides.map((slide, index) => (
-            <video
-              key={index}
-              src={slide.video}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1500
-              ${current === index ? "opacity-100" : "opacity-0"}
-            `}
-            />
-          ))}
-        </div>
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black"></div>
-
-        {/* Dynamic Content (LEFT) */}
-        <div className="relative z-10 container mx-auto h-full px-4 flex flex-col justify-end gap-10 pb-30 md:pb-20 ">
-          <h1 className="text-6xl md:text-6xl lg:text-7xl font-bold leading-tight text-white max-w-3xl md:ml-16 ml-4">
-            {slides[current].title}
-          </h1>
-        </div>
-
-        {/* Dots (RIGHT BOTTOM) */}
-        <div className="absolute bottom-10 right-20 flex gap-4">
-          {slides.map((_, i) => (
-            <div
-              key={i}
-              className={`h-0.5 w-16  
-        ${current === i ? "bg-white scale-125" : "bg-white/50"}
-      `}
-            />
-          ))}
-        </div>
+        <VideoSlider slides={slides} />
       </section>
 
       <div className="bg-black mb-10 ml-10">

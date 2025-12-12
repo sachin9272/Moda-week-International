@@ -9,37 +9,66 @@ import ServiceCard from "./ServiceCard";
 import ApplicationForm from "./Forms";
 import CtaSection from "../../components/CtaSection";
 import Footer from "../../components/Footer";
+import { baseURL } from '../../config/api';
 
 export default function Service() {
-  const services = [
-    {
-      img: services1,
-      title: "INTERNATIONAL FASHION SHOW",
-      desc: "Signature runway productions that unite global talent, deliver high-impact visibility, and create luxury cultural experiences for brands, designers, and audiences worldwide.",
-    },
-    {
-      img: services2,
-      title: "CONSULTING SERVICES",
-      desc: "Strategic guidance for fashion designers, brands, performances, and emerging companies covering collection development, branding, business positioning, event participation, and international market expansion.",
-    },
-    {
-      img: services3,
-      title: "SPONSORSHIP & CORPORATE PARTNERSHIP",
-      desc: "Customized alliances offering brand integration, VIP exposure, media visibility, and co-branded opportunities that generate mutual growth and measurable impact.",
-    },
-    {
-      img: services4,
-      title: "FASHION DESIGNER PLATFORM",
-      desc: "A premier stage platform for established and emerging designers to present collections, access global press, gain industry recognition, and scale their brand internationally.",
-    },
-  ];
+  /* State for dynamic services */
+  const [services, setServices] = React.useState([]);
+  const [heroData, setHeroData] = React.useState({
+    title: "COLLABORATION & EXPOSURE PLATFORM",
+    subtitle: "OUR SERVICES",
+    description: "Moda Week International offers a premier platform for companies and brands to showcase their presence through our international fashion show productions and global promotional events. By participating, partners gain direct visibility to high value audiences, international designers, media, VIPs, and commerce industry, while accessing exclusive networking opportunities that foster long term collaboration. Through aligned sponsorships, branding, and co-produced initiatives, MWINTL creates meaningful mutual growth and global impact uniting fashion, culture, and business on an international stage platform.",
+    image: Service1 // Default image
+  });
+
+  React.useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch(`${baseURL}/api/service-types`);
+        const data = await response.json();
+        if (data && data.length > 0) {
+          const formatted = data.map(s => ({
+            title: s.title,
+            desc: s.description,
+            img: s.image
+          }));
+          setServices(formatted);
+        } else {
+          setServices([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch services", error);
+      }
+    };
+
+    const fetchHero = async () => {
+      try {
+        const response = await fetch(`${baseURL}/api/service-hero`);
+        const data = await response.json();
+        if (data) {
+          setHeroData({
+            title: data.title || heroData.title,
+            subtitle: data.subtitle || heroData.subtitle,
+            description: data.description || heroData.description,
+            image: data.image || Service1
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch hero data", error);
+      }
+    };
+
+    fetchServices();
+    fetchHero();
+  }, []);
+
 
   return (
     <div>
       <Navbar />
       <section
         className="relative w-full min-h-[90vh] flex items-center bg-cover bg-top"
-        style={{ backgroundImage: `url(${Service1})` }}
+        style={{ backgroundImage: `url(${heroData.image})` }}
       >
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/75"></div>
@@ -48,27 +77,16 @@ export default function Service() {
         <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-2 py-8 md:gap-12 w-full max-w-6xl mx-auto px-6">
           {/* Left Content */}
           <div className="text-white flex flex-col justify-center mt-28">
-            <p className="text-xl tracking-widest mb-3">OUR SERVICES</p>
-            <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-6">
-              COLLABORATION &
-              <br />
-              EXPOSURE PLATFORM
+            <p className="text-xl tracking-widest mb-3 uppercase">{heroData.subtitle}</p>
+            <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-6 uppercase">
+              {heroData.title}
             </h2>
           </div>
 
           {/* Right side empty — background image already covers */}
           <div>
             <p className="text-lg md:text-base leading-loose text-white">
-              Moda Week International offers a premier platform for companies
-              and brands to showcase their presence through our international
-              fashion show productions and global promotional events. By
-              participating, partners gain direct visibility to high value
-              audiences, international designers, media, VIPs, and commerce
-              industry, while accessing exclusive networking opportunities that
-              foster long term collaboration. Through aligned sponsorships,
-              branding, and co-produced initiatives, MWINTL creates meaningful
-              mutual growth and global impact uniting fashion, culture, and
-              business on an international stage platform.
+              {heroData.description}
             </p>
           </div>
         </div>
