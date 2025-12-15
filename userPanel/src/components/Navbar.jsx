@@ -52,10 +52,10 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Global Events", path: "/events", category: "Experience" },
-    { name: "Past Events", path: "/events", category: "Experience" },
+    { name: "Past Events", path: "/past-events", category: "Experience" },
     { name: "Services", path: "/service", category: "Business" },
     { name: "About Us", path: "/about", category: "Company" },
-    { name: "Newsroom", path: "#", category: "Company" },
+    { name: "Newsroom", path: "/news-room", category: "Company" },
     { name: "Partners", path: "#", category: "Business" },
     { name: "Designers", path: "/fashion-designers", category: "Experience" },
   ];
@@ -64,11 +64,10 @@ const Navbar = () => {
     <>
       {/* Top Bar */}
       <nav
-        className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          scrolled || isMenuOpen
+        className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled || isMenuOpen
             ? "bg-black"
             : "bg-linear-to-b from-black/90 to-transparent"
-        }`}
+          } !font-[sans-serif]`}
       >
         <div className="container px-6 h-20 flex justify-between items-center">
           {/* Menu Toggle - Left */}

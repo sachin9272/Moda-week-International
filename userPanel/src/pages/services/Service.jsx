@@ -10,10 +10,12 @@ import ApplicationForm from "./Forms";
 import CtaSection from "../../components/CtaSection";
 import Footer from "../../components/Footer";
 import { baseURL } from '../../config/api';
+import { useSearchParams } from "react-router-dom";
 
 export default function Service() {
   /* State for dynamic services */
   const [services, setServices] = React.useState([]);
+  const [searchParams] = useSearchParams();
   const [heroData, setHeroData] = React.useState({
     title: "COLLABORATION & EXPOSURE PLATFORM",
     subtitle: "OUR SERVICES",
@@ -61,6 +63,19 @@ export default function Service() {
     fetchServices();
     fetchHero();
   }, []);
+
+  React.useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+      const element = document.getElementById("application-forms");
+      if (element) {
+        // slight delay to allow layout to settle
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+  }, [searchParams]);
 
 
   return (
@@ -113,7 +128,9 @@ export default function Service() {
       </section>
 
       {/* Application Forms */}
-      <ApplicationForm />
+      <div id="application-forms">
+        <ApplicationForm />
+      </div>
       <section className="text-white">
         <CtaSection />
       </section>

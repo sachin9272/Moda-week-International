@@ -16,6 +16,7 @@ import brand4 from "../assets/brand4.png";
 import brand5 from "../assets/brand5.png";
 import brand6 from "../assets/brand6.png";
 import logo from "../assets/glodenlogo.png";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
@@ -160,44 +161,44 @@ export default function Footer() {
                 <h3 className="text-xl font-bold mb-6">SERVICES</h3>
                 <ul className="space-y-3">
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/buy-tickets"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Buy Tickets
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/consulting"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Consulting
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/event-productions"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Event Productions
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/fashion-calendar"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Fashion Calendar
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/marketing-exposure"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Marketing Exposure
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -207,44 +208,44 @@ export default function Footer() {
                 <h3 className="text-xl font-bold mb-6">QUICK LINKS</h3>
                 <ul className="space-y-3">
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/about"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       About MWINTL
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/service?tab=designer"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Apply as Designer
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/service?tab=sponsor"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Apply as Sponsor
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/news-room"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Newsroom
-                    </a>
+                    </Link>
                   </li>
                   <li>
-                    <a
-                      href="#"
+                    <Link
+                      to="/past-events"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Past Events
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </div>
@@ -253,7 +254,7 @@ export default function Footer() {
               <div>
                 <h3 className="text-xl font-bold mb-6">CONTACT</h3>
                 <ul className="space-y-4">
-                  <li className="flex items-start gap-3">
+                  <li className="flex items-start gap-3 text-gray-400">
                     <Mail size={20} className="mt-1 shrink-0 text-[#9e6826]" />
                     <span>info@modaweekinternational.com</span>
                   </li>

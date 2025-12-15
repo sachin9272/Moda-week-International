@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
 import { Calendar, MapPin, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
 import Eventrsvp from "../assets/eventrsvp.jpg";
 import video1 from "../assets/video1.mp4";
@@ -116,7 +117,7 @@ function VideoSlider({ slides }) {
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
-
+  const navigate = useNavigate();
   /* Helper to format video URL */
   const getVideoSrc = (url) => {
     if (!url) return '';
@@ -296,22 +297,7 @@ export default function LandingPage() {
               <h2 className="text-2xl font-bold mb-6 grad-text">
                 MODA WEEK INTERNATIONAL
               </h2>
-              <p className="mb-4 leading-relaxed">
-                The Premier Wandering World Fashion Show Featuring Textile and
-                Ceremonial Excellence
-              </p>
-              <p className="mb-4 leading-relaxed">
-                Proudly offers a multicultural showcase featuring fashion
-                designers from around the world, providing an unmatched platform
-                for international runway showcases and exclusive exhibitions.
-              </p>
-              <p className="leading-relaxed">
-                Through the presentation time of several hours from curtain rise
-                and across a worldwide catalog of handwoven native, cultural,
-                artisan, and formal clothing featured fashions, MODA presents
-                the highest quality fashion designs and professional exhibitions
-                with live entertainment and more.
-              </p>
+              <p className="leading-relaxed mr-4">We offer a international exposure business platform that showcases established, emerging fashion designers and business acumen . Our mission is to celebrate diversity,  sustainability, and foster innovation. Through our comprehensive services, including fashion expos, international fashion events, and impactful marketing and promotion strategies, we aim to elevate the visibility and success of all our clientele participants and companies partnership. </p>
             </div>
           </div>
         </div>
@@ -367,7 +353,7 @@ export default function LandingPage() {
                 {" "}
                 <div>
                   <h3 className="text-5xl font-bold mb-2">OUR SERVICES</h3>
-                  <button className="grad-bg px-5 py-2">VIEW NOW</button>
+                  <button className="grad-bg px-5 py-2" onClick={() => navigate("/service")}>VIEW NOW</button>
                 </div>
               </div>
             </div>
@@ -397,7 +383,7 @@ export default function LandingPage() {
               PAST EVENTS
             </h2>
 
-            <button className="grad-text font-semibold">VIEW ALL</button>
+            <button className="grad-text font-semibold cursor-pointer" onClick={() => navigate("/past-events")}>VIEW ALL</button>
           </div>
 
           {/* Horizontal scroll */}

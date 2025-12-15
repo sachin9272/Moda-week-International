@@ -1,9 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ShoppingBag, Palette, Award, HandHeart } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { baseURL } from "../../config/api";
 
 const ApplicationForm = () => {
-  const [activeTab, setActiveTab] = useState("service");
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "service";
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab && ["buyer", "designer", "sponsor", "service"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
   const [formData, setFormData] = useState({
     // Shared
     fullName: "",
@@ -74,10 +85,10 @@ const ApplicationForm = () => {
   const handleSubmit = async () => {
     // Define different API endpoints for each tab
     const apiEndpoints = {
-      buyer: "http://localhost:5000/api/forms/buyer",
-      designer: "http://localhost:5000/api/forms/designer",
-      sponsor: "http://localhost:5000/api/forms/sponsor",
-      service: "http://localhost:5000/api/forms/service",
+      buyer: `${baseURL}/api/forms/buyer`,
+      designer: `${baseURL}/api/forms/designer`,
+      sponsor: `${baseURL}/api/forms/sponsor`,
+      service: `${baseURL}/api/forms/service`,
     };
 
     console.log("Submitting Form Data:", formData);
