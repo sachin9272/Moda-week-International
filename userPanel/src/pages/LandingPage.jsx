@@ -94,7 +94,7 @@ function VideoSlider({ slides }) {
 
       {/* Dynamic Content (LEFT) */}
       <div className="relative z-10 container mx-auto h-full px-4 flex flex-col justify-end gap-10 pb-30 md:pb-20 pointer-events-none">
-        <h1 className="text-6xl md:text-6xl lg:text-7xl font-bold leading-tight text-white max-w-3xl md:ml-6 ml-4">
+        <h1 className="text-6xl md:text-6xl lg:text-7xl font-bold leading-tight text-white max-w-3xl md:ml-6 ml-4 whitespace-pre-line">
           {slides[current].title}
         </h1>
       </div>
@@ -132,11 +132,11 @@ export default function LandingPage() {
     },
     {
       video: video2,
-      title: "NEW YORK CITY",
+      title: "NEW YORK\nCITY",
     },
     {
       video: video3,
-      title: "AMAZONAS FASHION WEEK",
+      title: "AMAZONAS\nFASHION WEEK",
     },
   ]);
 
@@ -149,7 +149,7 @@ export default function LandingPage() {
         if (data && data.length > 0) {
           const formattedSlides = data.map(item => ({
             video: getVideoSrc(item.videoUrl),
-            title: item.title,
+            title: item.title.replace("NEW YORK CITY", "NEW YORK\nCITY").replace("AMAZONAS FASHION WEEK", "AMAZONAS\nFASHION WEEK"),
             isDynamic: true
           }));
           setSlides(formattedSlides);
@@ -279,9 +279,9 @@ export default function LandingPage() {
           SEPTEMBER SS26/AW27
         </p>
         <Link to="/service?tab=designer">
-        <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">
-          APPLY NOW
-        </button>
+          <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">
+            APPLY NOW
+          </button>
         </Link>
       </div>
 
@@ -438,9 +438,9 @@ export default function LandingPage() {
                 Register to Attend Our Upcoming Global <br /> Fashion Showcases.{" "}
               </p>
               <Link to="/events">
-              <button className="bg-white text-black px-8 py-3 rounded hover:bg-gray-100 transition-colors font-semibold">
-                RSVP NOW
-              </button>
+                <button className="bg-white text-black px-8 py-3 rounded hover:bg-gray-100 transition-colors font-semibold">
+                  RSVP NOW
+                </button>
               </Link>
             </div>
           </div>
@@ -453,9 +453,9 @@ export default function LandingPage() {
           <div className="flex justify-between items-center mb-12">
             <h2 className="text-2xl font-bold grad-text">FASHION CALENDAR</h2>
             <Link to="/events">
-            <button className="grad-text hover:text-yellow-500 font-semibold underline grad-bottom-border">
-              VIEW ALL
-            </button>
+              <button className="grad-text hover:text-yellow-500 font-semibold underline grad-bottom-border">
+                VIEW ALL
+              </button>
             </Link>
           </div>
           <div className="grid md:grid-cols-3 gap-2">

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Menu, X, ChevronRight, Search, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/glodenlogo.png";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
 
   // Handle scroll effect
   useEffect(() => {
@@ -16,6 +17,16 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Handle hash scroll on mount and update
+  useEffect(() => {
+    if (location.hash) {
+      const element = document.querySelector(location.hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [location.hash]);
 
   // Menu Animation Variants
   const menuVariants = {
@@ -56,7 +67,7 @@ const Navbar = () => {
     { name: "Services", path: "/service", category: "Business" },
     { name: "About Us", path: "/about", category: "Company" },
     { name: "Newsroom", path: "/news-room", category: "Company" },
-    { name: "Contact Us", path: "/events", category: "Company" },
+    { name: "Contact Us", path: "/events#contact-us", category: "Company" },
     { name: "Buy Tickets", path: "#", category: "Business" },
     { name: "Designers", path: "/fashion-designers", category: "Experience" },
   ];
@@ -66,8 +77,8 @@ const Navbar = () => {
       {/* Top Bar */}
       <nav
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled || isMenuOpen
-            ? "bg-black"
-            : "bg-linear-to-b from-black/90 to-transparent"
+          ? "bg-black"
+          : "bg-linear-to-b from-black/90 to-transparent"
           } !font-[sans-serif]`}
       >
         <div className="container px-6 h-20 flex justify-between items-center">
@@ -154,7 +165,16 @@ const Navbar = () => {
                         >
                           <Link
                             to={link.path}
-                            onClick={() => setIsMenuOpen(false)}
+                            onClick={() => {
+                              setIsMenuOpen(false);
+                              if (link.path.includes("#")) {
+                                const hash = link.path.split("#")[1];
+                                setTimeout(() => {
+                                  const element = document.getElementById(hash);
+                                  if (element) element.scrollIntoView({ behavior: "smooth" });
+                                }, 100);
+                              }
+                            }}
                             className="group flex items-center justify-between text-2xl md:text-4xl font-light text-black hover:text-[#C7913E] transition-colors py-2"
                           >
                             <span className="font-[Playfair_Display] italic">
@@ -188,7 +208,16 @@ const Navbar = () => {
                         >
                           <Link
                             to={link.path}
-                            onClick={() => setIsMenuOpen(false)}
+                            onClick={() => {
+                              setIsMenuOpen(false);
+                              if (link.path.includes("#")) {
+                                const hash = link.path.split("#")[1];
+                                setTimeout(() => {
+                                  const element = document.getElementById(hash);
+                                  if (element) element.scrollIntoView({ behavior: "smooth" });
+                                }, 100);
+                              }
+                            }}
                             className="group flex items-center justify-between text-2xl md:text-4xl font-light text-black hover:text-[#C7913E] transition-colors py-2"
                           >
                             <span className="font-[Playfair_Display] italic">
@@ -222,7 +251,16 @@ const Navbar = () => {
                         >
                           <Link
                             to={link.path}
-                            onClick={() => setIsMenuOpen(false)}
+                            onClick={() => {
+                              setIsMenuOpen(false);
+                              if (link.path.includes("#")) {
+                                const hash = link.path.split("#")[1];
+                                setTimeout(() => {
+                                  const element = document.getElementById(hash);
+                                  if (element) element.scrollIntoView({ behavior: "smooth" });
+                                }, 100);
+                              }
+                            }}
                             className="group flex items-center justify-between text-2xl md:text-4xl font-light hover:text-[#C7913E] transition-colors py-2"
                           >
                             <span className="font-[Playfair_Display] italic">
@@ -237,27 +275,27 @@ const Navbar = () => {
 
                 {/* Sidebar / Featured Image */}
                 <div className="md:col-span-4 hidden md:block">
-                <Link to="/service" onClick={() => setIsMenuOpen(false)}>
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.6, duration: 0.8 }}
-                    className="h-full w-full bg-[#111] rounded-lg overflow-hidden relative group"
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80"
-                      alt="Featured"
-                      className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute bottom-8 left-8">
-                      <h4 className="text-white text-3xl font-[Playfair_Display] italic mb-2">
-                        Next Season
-                      </h4>
-                      <p className="text-gray-400 text-sm tracking-widest uppercase">
-                        Registration Open
-                      </p>
-                    </div>
-                  </motion.div>
+                  <Link to="/service" onClick={() => setIsMenuOpen(false)}>
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6, duration: 0.8 }}
+                      className="h-full w-full bg-[#111] rounded-lg overflow-hidden relative group"
+                    >
+                      <img
+                        src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80"
+                        alt="Featured"
+                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute bottom-8 left-8">
+                        <h4 className="text-white text-3xl font-[Playfair_Display] italic mb-2">
+                          Next Season
+                        </h4>
+                        <p className="text-gray-400 text-sm tracking-widest uppercase">
+                          Registration Open
+                        </p>
+                      </div>
+                    </motion.div>
                   </Link>
                 </div>
               </div>

@@ -251,7 +251,7 @@ export default function Footer() {
               </div>
 
               {/* Contact */}
-              <div>
+              <div id="get-in-touch">
                 <h3 className="text-xl font-bold mb-6">CONTACT</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-gray-400">
