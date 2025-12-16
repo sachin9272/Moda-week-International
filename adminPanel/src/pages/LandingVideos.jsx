@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, Video, ExternalLink, Loader } from 'lucide-react';
+import { baseURL } from '../config/api';
 
 const LandingVideos = () => {
     const [videos, setVideos] = useState([]);
@@ -15,7 +16,7 @@ const LandingVideos = () => {
 
     const fetchVideos = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/landing-videos');
+            const response = await fetch(`${baseURL}/api/landing-videos`);
             const data = await response.json();
             setVideos(data);
             setLoading(false);
@@ -68,8 +69,8 @@ const LandingVideos = () => {
             }
 
             const url = editingId
-                ? `http://localhost:5000/api/landing-videos/${editingId}`
-                : 'http://localhost:5000/api/landing-videos';
+                ? `${baseURL}/api/landing-videos/${editingId}`
+                : `${baseURL}/api/landing-videos`;
 
             const method = editingId ? 'PUT' : 'POST';
 
@@ -95,7 +96,7 @@ const LandingVideos = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this video?')) return;
         try {
-            const response = await fetch(`http://localhost:5000/api/landing-videos/${id}`, {
+            const response = await fetch(`${baseURL}/api/landing-videos/${id}`, {
                 method: 'DELETE'
             });
 
