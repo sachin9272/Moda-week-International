@@ -278,9 +278,11 @@ export default function LandingPage() {
           FASHION DESIGNERS APPLICATIONS NOW OPEN FOR <br /> FEBRUARY, JUNE &
           SEPTEMBER SS26/AW27
         </p>
+        <Link to="/service?tab=designer">
         <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">
           APPLY NOW
         </button>
+        </Link>
       </div>
 
       {/* MODA Week International */}
@@ -366,7 +368,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 flex items-end p-8  bg-linear-to-t from-black/90 to-transparent">
                 <div>
                   <h3 className="text-5xl font-bold mb-2">SCHEDULE</h3>
-                  <button className="grad-bg px-5 py-2">VIEW NOW</button>
+                  <button className="grad-bg px-5 py-2" onClick={() => navigate("/events")}>VIEW NOW</button>
                 </div>
               </div>
             </div>
@@ -435,9 +437,11 @@ export default function LandingPage() {
               <p className="mb-10">
                 Register to Attend Our Upcoming Global <br /> Fashion Showcases.{" "}
               </p>
+              <Link to="/events">
               <button className="bg-white text-black px-8 py-3 rounded hover:bg-gray-100 transition-colors font-semibold">
                 RSVP NOW
               </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -448,9 +452,11 @@ export default function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-12">
             <h2 className="text-2xl font-bold grad-text">FASHION CALENDAR</h2>
+            <Link to="/events">
             <button className="grad-text hover:text-yellow-500 font-semibold underline grad-bottom-border">
               VIEW ALL
             </button>
+            </Link>
           </div>
           <div className="grid md:grid-cols-3 gap-2">
             {upcomingEvents.map((event, idx) => (

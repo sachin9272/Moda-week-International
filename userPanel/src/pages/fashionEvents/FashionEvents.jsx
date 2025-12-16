@@ -325,7 +325,8 @@ export default function FashionEvents() {
       </div>
 
       {/* Get In Touch Section */}
-      <div className="py-20 px-4 bg-[#F5F5F5]">
+      {/* <div className="py-20 px-4 bg-[#F5F5F5]"> */}
+      <div id="contact-us" className="py-20 px-4 bg-[#F5F5F5]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-[Playfair_Display] text-[#C7913E] mb-4">

@@ -130,25 +130,25 @@ export default function Footer() {
                 </p>
                 <div className="flex gap-4">
                   <a
-                    href="#"
+                    href="https://www.instagram.com/modaweekinternationalofficial/"
                     className="w-10 h-10 border border-gray-600 rounded-full flex items-center justify-center hover:border-amber-600 hover:text-amber-600 transition-colors"
                   >
                     <Instagram size={18} className="text-[#9e6826]" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.facebook.com/modaweekinternational"
                     className="w-10 h-10 border border-gray-600 rounded-full flex items-center justify-center hover:border-amber-600 hover:text-amber-600 transition-colors"
                   >
                     <Facebook size={18} className="text-[#9e6826]" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.linkedin.com/company/moda-week-international/"
                     className="w-10 h-10 border border-gray-600 rounded-full flex items-center justify-center hover:border-amber-600 hover:text-amber-600 transition-colors"
                   >
                     <Linkedin size={18} className="text-[#9e6826]" />
                   </a>
                   <a
-                    href="#"
+                    href="https://www.youtube.com/@modaweekinternationalofficial"
                     className="w-10 h-10 border border-gray-600 rounded-full flex items-center justify-center hover:border-amber-600 hover:text-amber-600 transition-colors"
                   >
                     <Youtube size={18} className="text-[#9e6826]" />
@@ -170,7 +170,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/consulting"
+                      to="/service?tab=service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Consulting
@@ -178,7 +178,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/event-productions"
+                      to="/service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Event Productions
@@ -186,7 +186,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/fashion-calendar"
+                      to="/events"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Fashion Calendar
@@ -194,7 +194,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/marketing-exposure"
+                      to="/service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Marketing Exposure

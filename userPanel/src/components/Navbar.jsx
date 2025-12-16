@@ -56,7 +56,8 @@ const Navbar = () => {
     { name: "Services", path: "/service", category: "Business" },
     { name: "About Us", path: "/about", category: "Company" },
     { name: "Newsroom", path: "/news-room", category: "Company" },
-    { name: "Partners", path: "#", category: "Business" },
+    { name: "Contact Us", path: "/events", category: "Company" },
+    { name: "Buy Tickets", path: "#", category: "Business" },
     { name: "Designers", path: "/fashion-designers", category: "Experience" },
   ];
 
@@ -236,6 +237,7 @@ const Navbar = () => {
 
                 {/* Sidebar / Featured Image */}
                 <div className="md:col-span-4 hidden md:block">
+                <Link to="/service" onClick={() => setIsMenuOpen(false)}>
                   <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
@@ -256,6 +258,7 @@ const Navbar = () => {
                       </p>
                     </div>
                   </motion.div>
+                  </Link>
                 </div>
               </div>
             </div>
