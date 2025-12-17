@@ -57,17 +57,21 @@ function VideoSlider({ slides }) {
   const handleScroll = (e) => {
     if (scrollTimeout.current) return;
 
-    if (e.deltaY > 0) {
-      // Scroll Down -> Next
-      setCurrent((prev) => (prev + 1) % slides.length);
-    } else {
-      // Scroll Up -> Prev
-      setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
-    }
+    // Use deltaX for horizontal scrolling
+    // Add a small threshold to avoid accidental triggers from imperfect vertical scrolling
+    if (Math.abs(e.deltaX) > 20) {
+      if (e.deltaX > 0) {
+        // Scroll Right -> Next
+        setCurrent((prev) => (prev + 1) % slides.length);
+      } else {
+        // Scroll Left -> Prev
+        setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+      }
 
-    scrollTimeout.current = setTimeout(() => {
-      scrollTimeout.current = null;
-    }, 1000); // 1 second cooldown for scroll
+      scrollTimeout.current = setTimeout(() => {
+        scrollTimeout.current = null;
+      }, 1000); // 1 second cooldown for scroll
+    }
   };
 
   return (
@@ -94,7 +98,7 @@ function VideoSlider({ slides }) {
 
       {/* Dynamic Content (LEFT) */}
       <div className="relative z-10 container mx-auto h-full px-4 flex flex-col justify-end gap-10 pb-30 md:pb-20 pointer-events-none">
-        <h1 className="text-6xl md:text-6xl lg:text-7xl font-bold leading-tight text-white max-w-3xl md:ml-6 ml-4 whitespace-pre-line">
+        <h1 className="text-6xl md:text-6xl lg:text-[100px]  leading-tight text-white max-w-3xl md:ml-6 ml-4 whitespace-pre-line">
           {slides[current].title}
         </h1>
       </div>
