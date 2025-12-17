@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Navbar from "../../components/Navbar.jsx";
+import { Link } from "react-router-dom";
 import { Calendar, Mail, MapPin, Phone } from "lucide-react";
 import Footer from "../../components/Footer.jsx";
 import Pricing from "../../components/Pricing.jsx";
@@ -206,28 +207,29 @@ export default function FashionEvents() {
           {/* Events Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {events.map((event, index) => (
-              <div
-                key={index}
-                className="group relative h-64 md:h-80 overflow-hidden cursor-pointer"
-              >
+              <Link to={`/event-details?city=${event.city}`} key={index}>
                 <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
-                  style={{ backgroundImage: `url(${event.image})` }}
-                />
-                <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/90 group-hover:bg-black/40 transition-colors duration-500" />
+                  className="group relative h-64 md:h-80 overflow-hidden cursor-pointer"
+                >
+                  <div
+                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
+                    style={{ backgroundImage: `url(${event.image})` }}
+                  />
+                  <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/90 group-hover:bg-black/40 transition-colors duration-500" />
 
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
-                  <h2 className="text-2xl md:text-3xl font-light tracking-widest text-center mb-2 font-[Playfair_Display]">
-                    {event.city}
-                  </h2>
-                  {/* <div className="border-b border-[#BB8639] h-[8px] w-[15%] mb-2"></div> */}
-                  <div className="border-b-[1.5px] border-[#BB8639] w-[15%] mb-2"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
+                    <h2 className="text-2xl md:text-3xl font-light tracking-widest text-center mb-2 font-[Playfair_Display]">
+                      {event.city}
+                    </h2>
+                    {/* <div className="border-b border-[#BB8639] h-[8px] w-[15%] mb-2"></div> */}
+                    <div className="border-b-[1.5px] border-[#BB8639] w-[15%] mb-2"></div>
 
-                  <p className="text-sm tracking-[0.2em] font-light">
-                    {event.date}
-                  </p>
+                    <p className="text-sm tracking-[0.2em] font-light">
+                      {event.date}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

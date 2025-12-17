@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { ArrowRight } from "lucide-react";
@@ -83,7 +84,7 @@ export default function PastEvents() {
                     <div className="text-left md:text-left">
                         <p className="text-white text-lg md:text-xl leading-relaxed max-w-md ml-auto md:ml-0">
                             Celebrating our past and respectful supporters, collaborators
-                             and community
+                            and community
                         </p>
                     </div>
                 </div>
@@ -94,7 +95,7 @@ export default function PastEvents() {
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                         {events.map((event, index) => (
-                            <div key={index} className="group cursor-pointer flex flex-col h-full">
+                            <Link to={`/event-details?event=${encodeURIComponent(event.title)}`} key={index} className="group cursor-pointer flex flex-col h-full">
                                 {/* Image Container */}
                                 <div className="relative overflow-hidden aspect-[3/4] mb-6">
                                     <img
@@ -118,7 +119,7 @@ export default function PastEvents() {
                                         {event.description}
                                     </p>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
 
