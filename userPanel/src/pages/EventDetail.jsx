@@ -2,13 +2,7 @@ import React from "react";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import { useLocation } from "react-router-dom";
-import { Square } from 'lucide-react'; // Placeholder for logo icon
-
-// Importing some placeholder images (reusing existing assets for now)
-import designer1 from "../assets/designer1.jpg";
-import designer2 from "../assets/designer2.jpg";
-import designer3 from "../assets/designer3.jpg";
-import designer4 from "../assets/designer4.png";
+import { Square } from 'lucide-react';
 
 import el1 from "../assets/el1.png";
 import el2 from "../assets/el2.png";
@@ -48,6 +42,13 @@ import fo3 from "../assets/fo3.png";
 import fo4 from "../assets/fo4.png";
 import fo5 from "../assets/fo5.png";
 import fo6 from "../assets/fo6.png";
+import eventVideo from "../assets/eventVideo.mp4";
+
+import ec1 from "../assets/ec1.png";
+import ec2 from "../assets/ec2.png";
+import ec3 from "../assets/ec3.png";
+
+import emg1 from "../assets/emg1.png";
 
 export default function EventDetail() {
     const location = useLocation();
@@ -87,6 +88,11 @@ export default function EventDetail() {
             title: "FOLIE",
             subtitle: "STUDENT DESIGNER",
             images: [fo1, fo2, fo3, fo4, fo5, fo6]
+        },
+        {
+            title: "EVENT COVERING",
+            subtitle: "",
+            images: [ec1, ec2, ec3]
         }
     ];
 
@@ -94,26 +100,32 @@ export default function EventDetail() {
         <div className="bg-white min-h-screen text-black font-sans">
             <Navbar />
 
-            <div className="pt-20"> {/* Offset for fixed Navbar */}
+            <div className=""> {/* Offset for fixed Navbar */}
                 {/* Split Hero Section */}
-                <div className="flex flex-col md:flex-row h-[50vh] min-h-[400px]">
+                <div className="flex flex-col md:flex-row h-[100vh] min-h-[400px]">
                     {/* Left Side - Gold */}
-                    <div className="w-full md:w-1/2 bg-[#B8860B] flex flex-col justify-center items-center text-center p-8">
-                        <h1 className="text-4xl md:text-5xl font-bold text-white uppercase tracking-widest leading-tight">
-                            {city}<br />
-                            {eventName.replace(city, "").trim() || "FASHION WEEKEND"}
-                        </h1>
-                        <p className="text-white/80 mt-4 text-lg">{date}</p>
+                    <div className="w-full md:w-1/2 bg-gradient-to-b from-[#8C5D25] to-[#C7913E] flex flex-col justify-center items-center p-8">
+                        <div className="text-left">
+                            <h1 className="text-4xl md:text-5xl font-bold text-white uppercase tracking-widest leading-tight flex flex-col">
+                                <span>{city}</span>
+                                {(eventName.replace(city, "").trim() || "FASHION WEEKEND").split(" ").map((word, i) => (
+                                    <span key={i}>{word}</span>
+                                ))}
+                            </h1>
+                            <p className="text-white/80 mt-2 text-lg">{date}</p>
+                        </div>
                     </div>
 
-                    {/* Right Side - Black */}
-                    <div className="w-full md:w-1/2 bg-black flex flex-col justify-center items-center text-center p-8 relative">
-                        <div className="border-4 border-gray-400 p-4 mb-6">
-                            <Square size={64} className="text-gray-400" />
-                        </div>
-                        <h2 className="text-2xl text-gray-400 tracking-[0.5em] font-light uppercase">
-                            ESMERALDS
-                        </h2>
+                    {/* Right Side - Video */}
+                    <div className="w-full md:w-1/2 h-full">
+                        <video
+                            src={eventVideo}
+                            className="w-full h-full object-cover"
+                            autoPlay
+                            loop
+                            muted
+                            playsInline
+                        />
                     </div>
                 </div>
             </div>
@@ -139,25 +151,72 @@ export default function EventDetail() {
                             {/* Image Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {collection.images.map((img, imgIdx) => (
-                                    <div key={imgIdx} className="aspect-[2/3] overflow-hidden group">
+                                    <div key={imgIdx} className={`overflow-hidden group ${collection.title === "EVENT COVERING" ? "h-[367px]" : "aspect-[2/3]"}`}>
                                         <img
                                             src={img}
                                             alt={`Model ${imgIdx}`}
                                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
-                                        {/* Optional: Add overlay content if needed */}
-                                        <div className="absolute inset-0 pointer-events-none border border-transparent group-hover:border-black/10 transition-colors"></div>
-
-                                        {/* Logo Overlay Style from image (Bottom corners) */}
-                                        <div className="relative -mt-16 ml-4 text-white font-bold text-3xl opacity-80 mix-blend-overlay pointer-events-none">
-                                            MODA
-                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
                 ))}
+            </div>
+
+            <div className="bg-[#F7F7F7] py-10">
+                <div className="container mx-auto px-18">
+                    <div className="flex flex-col md:flex-row gap-12 items-start">
+                        {/* Left Side - Image */}
+                        <div className="w-full md:w-1/3">
+                            <img src={emg1} alt="Syracuse Fashion Weekend" className="w-full h-[574px] object-cover h-auto shadow-lg" />
+                        </div>
+
+                        {/* Right Side - Content */}
+                        <div className="w-full md:w-2/3 text-[16px] md:text-base text-gray-800">
+                            <h3 className="font-bold uppercase text-lg mb-2">SYRACUSE FASHION WEEKEND</h3>
+                            <p className="">
+                                What an incredible journey we've had during the 2nd Annual Fashion Show at Syracuse
+                                Fashion Weekend, SPRING/SUMMER 13/14! Each of you brought your A-game, and the
+                                result? Absolutely FABULOUS!
+                            </p>
+                            <p className="">
+                                On October 11th, we came together to revel in the vibrant fusion of art, culture, and
+                                couture, creating unforgettable moments right here in Central New York for the very first
+                                Syracuse Fashion Weekend.
+                            </p>
+                            <p className="">
+                                The overwhelming success of the event fills us with immense joy and pride. Moda Week
+                                International, we want to extend our deepest gratitude to you for your hard work and
+                                invaluable contributions that played a pivotal role in making this inaugural event a
+                                resounding triumph.
+                            </p>
+                            <p className="">
+                                As we bid farewell to an unforgettable Syracuse Fashion Weekend, we are already
+                                bubbling with excitement for the future. Your collective efforts have laid a strong
+                                foundation, and we can't wait to turn next year's SFW into an even more spectacular
+                                success. We hope this journey was as enjoyable for you as it was for us, and we eagerly
+                                anticipate the chance to collaborate with you again in the coming year.
+                            </p>
+                            <p className="">
+                                Thank you for being an integral part of the success story that is Syracuse Fashion
+                                Weekend.
+                                <br />
+                                With gratitude and positivity,
+                            </p>
+
+                            <div className="mt-2">
+                                <p className="font-bold">-Esmeralda Harwood,</p>
+                                <p>Founder, Owner & CEO</p>
+                                <p>Moda Week International</p>
+                                <a href="https://www.modaweekinternational.com/syracusefashionweekend2013" className="underline hover:text-blue-600 break-all">
+                                    https://www.modaweekinternational.com/syracusefashionweekend2013
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <Footer />
