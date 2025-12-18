@@ -15,8 +15,8 @@ import pe6 from "../../assets/pe6.png";
 // Placeholder images - using generic fashion/event images from Unsplash
 const events = [
     {
-        title: "THE PREMIER SYRACUSE FASHION WEEKEND 2013",
-        date: "MAY 03, 2013",
+        title: "THE PREMIER SYRACUSE FASHION WEEKEND 2012",
+        date: "MAY 03, 2012",
         description: "The Premier, Syracuse Fashion Weekend. Your unwavering support, dedication, and passion for fashion have made this event an unforgettable experience. Here's to celebrating the artistry and creativity that the fashion industry.",
         image: pe1,
     },

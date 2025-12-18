@@ -97,7 +97,7 @@ function VideoSlider({ slides }) {
       <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black pointer-events-none"></div>
 
       {/* Dynamic Content (LEFT) */}
-      <div className="relative z-10 container mx-auto h-full px-4 flex flex-col justify-end gap-10 pb-30 md:pb-20 pointer-events-none">
+      <div className="relative z-10 container mx-auto h-full px-4 flex flex-col justify-end pb-5 md:pb-2 pointer-events-none">
         <h1 className="text-6xl md:text-6xl lg:text-[100px]  leading-tight text-white max-w-3xl md:ml-6 ml-4 whitespace-pre-line">
           {slides[current].title}
         </h1>
