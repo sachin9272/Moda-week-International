@@ -16,8 +16,8 @@ import petop from "../../assets/petop.jpg";
 // Placeholder images - using generic fashion/event images from Unsplash
 const events = [
     {
-        title: "THE PREMIER SYRACUSE FASHION WEEKEND 2013",
-        date: "MAY 03, 2013",
+        title: "THE PREMIER SYRACUSE FASHION WEEKEND 2012",
+        date: "MAY 03, 2012",
         description: "The Premier, Syracuse Fashion Weekend. Your unwavering support, dedication, and passion for fashion have made this event an unforgettable experience. Here's to celebrating the artistry and creativity that the fashion industry.",
         image: pe1,
     },
@@ -72,11 +72,11 @@ export default function PastEvents() {
                 <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-end md:p-20">
                     {/* Left Side - Title */}
                     <div className="text-left">
-                        <p className="text-white tracking-[0.1em] text-2xl md:text-base uppercase font-medium">
+                        {/* <p className="text-white tracking-[0.1em] text-2xl md:text-base uppercase font-medium">
                             PAST EVENTS
-                        </p>
+                        </p> */}
                         <h1 className="text-[44px] font-bold text-white">
-                            CLIENTELE
+                            PAST EVENTS
                         </h1>
                     </div>
 

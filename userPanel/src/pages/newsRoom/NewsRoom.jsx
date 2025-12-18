@@ -60,11 +60,11 @@ export default function NewsRoom() {
                 <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
                     {/* Left Side - Title */}
                     <div className="text-left">
-                        <p className="text-white tracking-[0.1em] text-sm md:text-base mb-2 uppercase font-medium">
+                        {/* <p className="text-white tracking-[0.1em] text-sm md:text-base mb-2 uppercase font-medium">
                             NEWSROOM & EVENTS
-                        </p>
+                        </p> */}
                         <h1 className="text-5xl md:text-7xl font-[Playfair_Display] font-bold text-white tracking-wide leading-none">
-                            NEWS UPDATES
+                            NEWSROOM & EVENTS UPDATES
                         </h1>
                     </div>
 
