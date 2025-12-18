@@ -81,32 +81,22 @@ export default function Service() {
   return (
     <div>
       <Navbar />
-      <section
-        className="relative w-full min-h-[90vh] flex items-center bg-cover bg-top"
-        style={{ backgroundImage: `url(${heroData.image})` }}
-      >
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/75"></div>
-
-        {/* Content */}
-        <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-2 py-8 md:gap-12 w-full max-w-6xl mx-auto px-6">
-          {/* Left Content */}
-          <div className="text-white flex flex-col justify-center mt-28">
-            <p className="text-xl tracking-widest mb-3 uppercase">{heroData.subtitle}</p>
-            <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-6 uppercase">
-              {heroData.title}
-            </h2>
-          </div>
-
-          {/* Right side empty — background image already covers */}
-          <div>
-            <p className="text-lg md:text-base leading-loose text-white">
-              {heroData.description}
-            </p>
-          </div>
-        </div>
-      </section>
-
+      <div className="h-auto md:h-[450px] w-full bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center py-10 md:py-0 px-6">
+                <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center md:px-16 px-4 mt-14 md:mt-0">
+                    <div className="flex flex-col gap-2">
+                        <p className="text-sm md:text-base">OUR SERVICES</p>
+                        <h2 className="text-3xl md:text-[44px] font-bold grad-text leading-tight uppercase">
+                            COLLABORATION & <br className="hidden md:block" />
+                            EXPOSURE PLATFORM
+                        </h2>
+                    </div>
+                    <div>
+                        <p className="text-[14px] md:text-[18px] text-black leading-7 text-justify mt-10">
+                            Moda Week International offers a premier platform for companies and brands to showcase their presence through our international fashion show productions and global promotional events. By participating, partners gain direct visibility to high value audiences, international designers, media, VIPs, and commerce industry, while accessing exclusive networking opportunities that foster long term collaboration. Through aligned sponsorships, branding, and co-produced initiatives, MWINTL creates meaningful mutual growth and global impact uniting fashion, culture, and business on an international stage platform.
+                        </p>
+                    </div>
+                </div>
+            </div>
       <section>
         <div className="p-8">
           <div className="font-bold pb-8">

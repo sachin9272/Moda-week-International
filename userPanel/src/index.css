@@ -6,6 +6,10 @@
 
 @import "tailwindcss";
 
+@theme {
+  --font-playfair: "Playfair Display", serif;
+}
+
 /* :root {
   --brand-grad: linear-gradient(to right, #8C5D25, #C7913E);
 } */
@@ -16,10 +20,10 @@
 
 /* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); */
 
-*{
+* {
   /* font-family: "Inter"; */
-    /* font-family: "Noto Sans", sans-serif; */
-    font-family: "Inter", sans-serif;
+  /* font-family: "Noto Sans", sans-serif; */
+  font-family: "Inter", sans-serif;
 }
 
 body {
@@ -44,7 +48,8 @@ body {
 }
 
 .grad-text-rev {
-  background: linear-gradient(to right, #C7913E, #8C5D25);;
+  background: linear-gradient(to right, #C7913E, #8C5D25);
+  ;
   -webkit-background-clip: text;
   color: transparent;
 }
@@ -54,7 +59,7 @@ body {
   border-image: var(--brand-grad) 1;
 }
 
-.grad-top-border{
+.grad-top-border {
   border-top: 0.5px solid transparent;
   border-image: var(--brand-grad) 1;
 }
@@ -62,16 +67,18 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
 .scrollbar-hide {
-  -ms-overflow-style: none;  
-  scrollbar-width: none;      
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 
-.grad-bottom-border{
+.grad-bottom-border {
   border-bottom: 1px solid transparent;
   border-image: var(--brand-grad) 1;
 }
+
 .marquee-wrapper {
   overflow: hidden;
   white-space: nowrap;
@@ -85,9 +92,12 @@ body {
 
 @keyframes marquee-right {
   0% {
-    transform: translateX(-50%); /* Start outside left */
+    transform: translateX(-50%);
+    /* Start outside left */
   }
+
   100% {
-    transform: translateX(0); /* End in center */
+    transform: translateX(0);
+    /* End in center */
   }
 }

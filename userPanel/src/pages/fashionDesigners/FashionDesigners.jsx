@@ -8,7 +8,6 @@ import designer1 from "../../assets/designer1.jpg";
 import designer2 from "../../assets/designer2.jpg";
 import designer3 from "../../assets/designer3.jpg";
 import designer4 from "../../assets/designer4.png";
-import designerstop from "../../assets/designerstop.jpg";
 import designers from "../../assets/designers.mp4"
 
 // Using a mix of imported and placeholder images for the grid
@@ -33,27 +32,21 @@ export default function FashionDesigners() {
             <Navbar />
 
             {/* Hero Section */}
-            <div className="relative h-[60vh] md:h-[562px] w-full overflow-hidden">
-                {/* Background - using a dark fashion runway style image */}
-                <div
-                    className="absolute inset-0 bg-cover bg-center "
-                    style={{
-                        backgroundImage:
-                            `url(${designerstop})`,
-                    }}
-                />
-                <div className="absolute inset-0 bg-black/60 shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]" />
-
-                <div className="relative z-10 container mx-auto px-6 h-full flex flex-col md:flex-row justify-center items-center text-white gap-4 md:gap-16">
-                    <h1 className="text-3xl md:text-4xl font-bold max-w-2xl mb-6 mt-7 md:-mt-8">
-                        MEET THE VISIONARY <br /> FASHION DESIGNER
-                    </h1>
-                    <p className="max-w-lg text-gray-200 text-sm md:text-base leading-relaxed">
-                        Members of Moda Week International’s platform, our fashion designers play a vital role for the future of the fashion industry. Their contributions extend beyond showcasing their talents and business acumen. Their commitment is entrusted with the responsibility and influencing the strategic direction that will define the industry.
-                    </p>
+            <div className="h-auto md:h-[450px] w-full bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center py-10 md:py-0 px-6">
+                <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center px-16">
+                    <div className="flex flex-col gap-2">
+                        <p className="text-sm md:text-base">OUR SERVICES</p>
+                        <h2 className="text-3xl md:text-[44px] font-bold grad-text leading-tight uppercase">
+                            COLLABORATION & <br className="hidden md:block" />
+                            EXPOSURE PLATFORM
+                        </h2>
+                    </div>
+                    <div>
+                        <p className="text-[14px] md:text-[18px] text-black leading-7 text-justify mt-10">
+                            Moda Week International offers a premier platform for companies and brands to showcase their presence through our international fashion show productions and global promotional events. By participating, partners gain direct visibility to high value audiences, international designers, media, VIPs, and commerce industry, while accessing exclusive networking opportunities that foster long term collaboration. Through aligned sponsorships, branding, and co-produced initiatives, MWINTL creates meaningful mutual growth and global impact uniting fashion, culture, and business on an international stage platform.
+                        </p>
+                    </div>
                 </div>
-
-
             </div>
 
             {/* Filters & Search */}

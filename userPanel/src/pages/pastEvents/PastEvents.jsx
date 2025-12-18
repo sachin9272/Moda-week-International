@@ -10,7 +10,6 @@ import pe3 from "../../assets/pe3.png";
 import pe4 from "../../assets/pe4.png";
 import pe5 from "../../assets/pe5.png";
 import pe6 from "../../assets/pe6.png";
-import petop from "../../assets/petop.jpg";
 
 
 // Placeholder images - using generic fashion/event images from Unsplash
@@ -58,40 +57,21 @@ export default function PastEvents() {
         <div className="bg-black text-white min-h-screen font-sans">
             <Navbar />
             {/* Hero Section */}
-            <div className="relative min-h-[80vh] flex items-center pt-32 pb-20 px-4 overflow-hidden">
-                {/* Background Image */}
-                <div className="absolute inset-0 z-0">
-                    <img
-                        src={petop}
-                        alt="Background"
-                        className="w-full h-full object-cover object-top opacity-50"
-                    />
-                    <div className="absolute inset-0 bg-black/60"></div>
-                </div>
-
-                <div className="relative z-10 max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-end md:p-20">
-                    {/* Left Side - Title */}
-                    <div className="text-left">
-                        <p className="text-white tracking-[0.1em] text-2xl md:text-base uppercase font-medium">
-                            PAST EVENTS
-                        </p>
-                        <h1 className="text-[44px] font-bold text-white">
-                            CLIENTELE
-                        </h1>
-                    </div>
-
-                    {/* Right Side - Description */}
-                    <div className="text-left md:text-left">
-                        <p className="text-white text-lg md:text-xl leading-relaxed max-w-md ml-auto md:ml-0">
-                            Celebrating our past and respectful supporters, collaborators
-                            and community
-                        </p>
-                    </div>
+            {/* Hero Section */}
+            <div className="h-[300px] bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center text-center px-4">
+                <div>
+                    <h2 className="text-black text-2xl tracking-wide uppercase mb-2">PAST EVENTS</h2>
+                    <h1 className="text-3xl md:text-[44px] font-bold bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent mb-4 uppercase">
+                        CLIENTELE
+                    </h1>
+                    <p className="text-black text-[18px] md:text-base max-w-2xl mx-auto">
+                        Celebrating our past and respectful supporters, collaborators and community
+                    </p>
                 </div>
             </div>
 
             {/* Events Grid */}
-            <div className="bg-white text-black py-20 px-10">
+            <div className="bg-white text-black py-6 px-10">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
                         {events.map((event, index) => (

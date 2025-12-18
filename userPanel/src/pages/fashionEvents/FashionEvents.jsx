@@ -183,55 +183,59 @@ export default function FashionEvents() {
       <Navbar />
 
       {/* Hero / Global Events Section */}
-      <div className="pt-28 pb-16 px-4 bg-white text-black">
-        <div className="max-w-7xl mx-auto">
+      <div className="bg-gradient-to-b from-[#C7913E] to-white text-black">
+        <div className="max-w-7xl mx-auto px-4 pt-28 pb-16">
           {/* Header */}
           <div className="text-center mb-16 max-w-2xl mx-auto">
-            <h1 className="relative inline-block md:text-5xl text-4xl font-light tracking-widest mb-6 bg-linear-to-b from-[#C7913E] to-[#8C5D25] bg-clip-text text-transparent font-[Playfair_Display]">
+            <h1 className="relative inline-block md:text-5xl text-4xl font-light tracking-widest mb-10 bg-linear-to-b from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
               GLOBAL EVENTS
-              <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#C7913E] to-[#8C5D25]"></span>
+              <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#3C2306] to-[#C7913E]"></span>
             </h1>
 
-            <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed text-sm mb-3">
+            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-3 font-medium">
               Experience world-class fashion events in the most iconic cities across the globe.
             </p>
-            <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed text-sm mb-3">
+            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-3 font-medium">
               Don’t miss this strategic business opportunity to elevate your brand, gain visibility, and connect with industry leaders. Stay informed about upcoming fashion events, partnership opportunities, and participation options.
             </p>
-            <p className="text-gray-600 max-w-3xl mx-auto leading-relaxed text-sm mb-3">
+            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-3 font-medium">
               For custom inquiries, collaborations, or corporate engagement, contact us at: <br />
               info@modaweekinternational.com <br />
               We are here to enhance and amplify your company’s brand presence.            </p>
           </div>
 
           {/* Events Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {events.map((event, index) => (
-              <Link to={`/event-details?city=${event.city}`} key={index}>
+        </div>
+      </div>
+
+      {/* Events Grid */}
+      <div className="max-w-7xl mx-auto px-4 pb-16  bg-white">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {events.map((event, index) => (
+            <Link to={`/event-details?city=${event.city}`} key={index}>
+              <div
+                className="group relative h-64 md:h-80 overflow-hidden cursor-pointer"
+              >
                 <div
-                  className="group relative h-64 md:h-80 overflow-hidden cursor-pointer"
-                >
-                  <div
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
-                    style={{ backgroundImage: `url(${event.image})` }}
-                  />
-                  <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/90 group-hover:bg-black/40 transition-colors duration-500" />
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
+                  style={{ backgroundImage: `url(${event.image})` }}
+                />
+                <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/90 group-hover:bg-black/40 transition-colors duration-500" />
 
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
-                    <h2 className="text-2xl md:text-3xl font-light tracking-widest text-center mb-2 font-[Playfair_Display]">
-                      {event.city}
-                    </h2>
-                    {/* <div className="border-b border-[#BB8639] h-[8px] w-[15%] mb-2"></div> */}
-                    <div className="border-b-[1.5px] border-[#BB8639] w-[15%] mb-2"></div>
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
+                  <h2 className="text-2xl md:text-3xl font-light tracking-widest text-center mb-2 !font-playfair">
+                    {event.city}
+                  </h2>
+                  {/* <div className="border-b border-[#BB8639] h-[8px] w-[15%] mb-2"></div> */}
+                  <div className="border-b-[1.5px] border-[#BB8639] w-[15%] mb-2"></div>
 
-                    <p className="text-sm tracking-[0.2em] font-light">
-                      {event.date}
-                    </p>
-                  </div>
+                  <p className="text-sm tracking-[0.2em] font-light">
+                    {event.date}
+                  </p>
                 </div>
-              </Link>
-            ))}
-          </div>
+              </div>
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -424,6 +428,6 @@ export default function FashionEvents() {
       </div>
 
       <Footer />
-    </div>
+    </div >
   );
 }
