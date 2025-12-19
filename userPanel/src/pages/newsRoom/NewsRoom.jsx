@@ -49,11 +49,11 @@ export default function NewsRoom() {
             {/* Hero Section */}
             <div className="bg-gradient-to-b from-[#C7913E] to-white text-black py-0 px-4 h-[300px]">
                 <div className="max-w-4xl mx-auto text-center pt-20">
-                    <p className="text-2xl tracking-wide mb-4 font-medium uppercase">
+                    {/* <p className="text-2xl tracking-wide mb-4 font-medium uppercase">
                         NEWSROOM & EVENTS
-                    </p>
+                    </p> */}
                     <h1 className="text-4xl tracking-wide md:text-[44px] font-bold mb-8 bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent font-playfair">
-                        NEWS UPDATES
+                        NEWSROOM & EVENTS UPDATES
                     </h1>
                     <p className="text-black max-w-2xl mx-auto leading-relaxed text-[18px]">
                         Stay updated with the latest news from Moda Week International and explore our archive of past fashion events from around the world.

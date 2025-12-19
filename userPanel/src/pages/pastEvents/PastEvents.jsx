@@ -60,9 +60,9 @@ export default function PastEvents() {
             {/* Hero Section */}
             <div className="h-[300px] bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center text-center px-4">
                 <div>
-                    <h2 className="text-black text-2xl tracking-wide uppercase mb-2">PAST EVENTS</h2>
+                    {/* <h2 className="text-black text-2xl tracking-wide uppercase mb-2">PAST EVENTS</h2> */}
                     <h1 className="text-3xl md:text-[44px] font-bold bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent mb-4 uppercase">
-                        CLIENTELE
+                        PAST EVENTS
                     </h1>
                     <p className="text-black text-[18px] md:text-base max-w-2xl mx-auto">
                         Celebrating our past and respectful supporters, collaborators and community
