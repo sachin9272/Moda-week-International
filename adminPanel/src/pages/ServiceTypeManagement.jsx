@@ -17,7 +17,7 @@ const ServiceTypeManagement = () => {
 
     const fetchServices = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/service-types');
+            const response = await fetch('https://api.modaweekinternational.com/api/service-types');
             const data = await response.json();
             setServices(data);
             setLoading(false);
@@ -72,8 +72,8 @@ const ServiceTypeManagement = () => {
             }
 
             const url = editingId
-                ? `http://localhost:5000/api/service-types/${editingId}`
-                : 'http://localhost:5000/api/service-types';
+                ? `https://api.modaweekinternational.com/api/service-types/${editingId}`
+                : 'https://api.modaweekinternational.com/api/service-types';
 
             const method = editingId ? 'PUT' : 'POST';
 
@@ -100,7 +100,7 @@ const ServiceTypeManagement = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure?')) return;
         try {
-            const response = await fetch(`http://localhost:5000/api/service-types/${id}`, {
+            const response = await fetch(`https://api.modaweekinternational.com/api/service-types/${id}`, {
                 method: 'DELETE'
             });
 

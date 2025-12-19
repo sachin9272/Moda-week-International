@@ -4,7 +4,7 @@ import Footer from "../../components/Footer";
 import { ArrowRight } from "lucide-react";
 import CtaSection from "../../components/CtaSection";
 // Using the same top image as PastEvents for consistency or a placeholder
-import petop from "../../assets/petop.jpg";
+//import petop from "../../assets/petop.jpg";
 import news1 from "../../assets/news1.jpg";
 import news2 from "../../assets/news2.jpg";
 import news3 from "../../assets/news3.jpg";
