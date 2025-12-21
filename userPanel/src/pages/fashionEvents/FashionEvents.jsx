@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar.jsx";
 import { Link } from "react-router-dom";
 import { Calendar, Mail, MapPin, Phone } from "lucide-react";
@@ -178,30 +178,31 @@ export default function FashionEvents() {
   const calendarData = activeTab === "upcoming" ? upcomingEvents : pastEvents;
 
   return (
-    <div className="bg-black text-white min-h-screen font-sans">
+    <div className="text-white min-h-screen font-sans">
       {/* Navbar */}
       <Navbar />
 
       {/* Hero / Global Events Section */}
-      <div className="bg-gradient-to-b from-[#C7913E] to-white text-black">
+      <div className="bg-gradient-to-b from-[#C7913E] to-white text-black h-[460px]">
         <div className="max-w-7xl mx-auto px-4 pt-28 pb-16">
           {/* Header */}
-          <div className="text-center mb-16 max-w-2xl mx-auto">
-            <h1 className="relative inline-block md:text-5xl text-4xl font-light tracking-widest mb-10 bg-linear-to-b from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
+          <div className="text-center mb-16 max-w-9xl mx-auto">
+            <h1 className="relative inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-10 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
               GLOBAL EVENTS
               <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#3C2306] to-[#C7913E]"></span>
             </h1>
 
-            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-3 font-medium">
+            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-4 !font-montserrat">
               Experience world-class fashion events in the most iconic cities across the globe.
             </p>
-            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-3 font-medium">
+            <p className="text-black max-w-4xl mx-auto leading-relaxed mb-4 !font-montserrat">
               Don’t miss this strategic business opportunity to elevate your brand, gain visibility, and connect with industry leaders. Stay informed about upcoming fashion events, partnership opportunities, and participation options.
             </p>
-            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-3 font-medium">
+            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-4 !font-montserrat">
               For custom inquiries, collaborations, or corporate engagement, contact us at: <br />
               info@modaweekinternational.com <br />
-              We are here to enhance and amplify your company’s brand presence.            </p>
+              We are here to enhance and amplify your company’s brand presence.
+            </p>
           </div>
 
           {/* Events Grid */}
@@ -253,7 +254,7 @@ export default function FashionEvents() {
           {/* Content Wrapper */}
           <div className="relative z-10 max-w-6xl mx-auto">
 
-            <h2 className="text-center text-4xl md:text-5xl font-[Playfair_Display] mb-8 grad-text-rev">
+            <h2 className="text-center text-4xl md:text-5xl !font-playfair mb-8 grad-text-rev grad-bg">
               RUNWAY CALENDAR
             </h2>
 
@@ -335,11 +336,11 @@ export default function FashionEvents() {
       <div id="contact-us" className="py-20 px-4 bg-[#F5F5F5]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-[Playfair_Display] text-[#C7913E] mb-4">
+            <h2 className="text-4xl md:text-5xl !font-playfair text-[#C7913E] mb-4">
               GET IN TOUCH
             </h2>
             <div className="w-24 h-px grad-bg mx-auto mb-4"></div>
-            <p className="text-gray-500 tracking-widest text-sm">
+            <p className="text-gray-500">
               Connect with us to learn more about MODA Week International
             </p>
           </div>
