@@ -150,7 +150,7 @@ export default function ModaWeekSite() {
                 ‘’At Moda Week International, our diverse and extensive experiences around the world allow us to produce iconic events that positively impact communities globally. Our bold mission is to shape many communities around the globe through philanthropic educational projects. God willing, we will continue to make a difference."
 
               </p>
-              <p className="md:text-sm italic">— Karina Fay Hernandez / CEO</p>
+              <p className="md:text-sm italic">— Esmeralda Harwood | CEO</p>
             </div>
           </div>
         </div>
