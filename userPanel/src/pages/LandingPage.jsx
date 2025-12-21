@@ -87,6 +87,7 @@ function VideoSlider({ slides }) {
             playsInline
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000
                           ${current === index ? "opacity-100" : "opacity-0"}
+                          ${index === 1 ? "object-top" : ""}
                       `}
             onEnded={handleEnded}
           />
@@ -97,8 +98,8 @@ function VideoSlider({ slides }) {
       <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black pointer-events-none"></div>
 
       {/* Dynamic Content (LEFT) */}
-      <div className="relative z-10 container mx-auto h-full px-4 flex flex-col justify-end pb-5 md:pb-2 pointer-events-none">
-        <h1 className="text-6xl md:text-6xl lg:text-[100px]  leading-tight text-white max-w-3xl md:ml-6 ml-4 whitespace-pre-line">
+      <div className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-2 pointer-events-none">
+        <h1 className="text-6xl md:text-6xl lg:text-[100px]  leading-tight text-white max-w-3xl ml-10 whitespace-pre-line">
           {slides[current].title}
         </h1>
       </div>
