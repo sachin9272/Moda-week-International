@@ -81,7 +81,7 @@ const Navbar = () => {
           : "bg-linear-to-b from-black/90 to-transparent"
           } !font-[sans-serif]`}
       >
-        <div className="container px-6 h-20 flex justify-between items-center">
+        <div className="w-full px-6 h-20 flex justify-between items-center">
           {/* Menu Toggle - Left */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
