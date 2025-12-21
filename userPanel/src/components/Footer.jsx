@@ -252,7 +252,7 @@ export default function Footer() {
 
               {/* Contact */}
               <div id="get-in-touch">
-                <h3 className="text-xl font-bold mb-6">CONTACT</h3>
+                <h3 className="text-xl font-bold mb-6">CONTACT INQUIRY</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-gray-400">
                     <Mail size={20} className="mt-1 shrink-0 text-[#9e6826]" />
@@ -273,9 +273,6 @@ export default function Footer() {
                     </div>
                   </li>
                 </ul>
-                <button className="mt-6 w-full px-6 py-3 grad-text grad-border hover:text-white font-semibold rounded transition-colors">
-                  CONTACT INQUIRY
-                </button>
               </div>
             </div>
           </div>
