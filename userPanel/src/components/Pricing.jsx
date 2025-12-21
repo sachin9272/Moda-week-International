@@ -213,7 +213,7 @@ const PricingComponent = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-5xl md:text-6xl font-serif bg-linear-to-b from-[#BC8739] to-[#563E1A] bg-clip-text text-transparent tracking-wide">
+          <h1 className="text-5xl md:text-6xl !font-playfair bg-linear-to-b from-[#BC8739] to-[#563E1A] bg-clip-text text-transparent tracking-wide">
             PRICING
           </h1>
 
