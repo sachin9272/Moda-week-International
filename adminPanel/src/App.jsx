@@ -11,6 +11,10 @@ import LandingVideos from './pages/LandingVideos';
 import ServiceTypeManagement from './pages/ServiceTypeManagement';
 import ServiceHeroManager from './pages/ServiceHeroManager';
 import NewsManager from './pages/news/NewsManager';
+import Events from './pages/events/Events';
+import AddEvent from './pages/events/AddEvent';
+import EditEvent from './pages/events/EditEvent';
+import EventPreview from './pages/events/EventPreview';
 import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -39,7 +43,16 @@ function App() {
             <Route path="service-types" element={<ServiceTypeManagement />} />
             <Route path="service-hero" element={<ServiceHeroManager />} />
             <Route path="news" element={<NewsManager />} />
+            <Route path="events" element={<Events />} />
+            <Route path="events/add" element={<AddEvent />} />
+            <Route path="events/edit/:id" element={<EditEvent />} />
           </Route>
+
+          <Route path="/events/preview/:id" element={
+            <ProtectedRoute>
+              <EventPreview />
+            </ProtectedRoute>
+          } />
         </Routes>
       </Router>
     </AuthProvider>
