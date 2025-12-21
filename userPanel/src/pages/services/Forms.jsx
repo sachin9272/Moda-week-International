@@ -6,7 +6,7 @@ import { baseURL } from "../../config/api";
 
 const ApplicationForm = () => {
   const [searchParams] = useSearchParams();
-  const initialTab = searchParams.get("tab") || "service";
+  const initialTab = searchParams.get("tab") || "buyer";
   const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
