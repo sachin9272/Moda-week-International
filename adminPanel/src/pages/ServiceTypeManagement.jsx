@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, Edit2, Loader } from 'lucide-react';
+import { baseURL } from '../config/api';
 
 const ServiceTypeManagement = () => {
     const [services, setServices] = useState([]);
@@ -17,7 +18,7 @@ const ServiceTypeManagement = () => {
 
     const fetchServices = async () => {
         try {
-            const response = await fetch('https://api.modaweekinternational.com/api/service-types');
+            const response = await fetch(`${baseURL}/api/service-types`);
             const data = await response.json();
             setServices(data);
             setLoading(false);
@@ -72,8 +73,8 @@ const ServiceTypeManagement = () => {
             }
 
             const url = editingId
-                ? `https://api.modaweekinternational.com/api/service-types/${editingId}`
-                : 'https://api.modaweekinternational.com/api/service-types';
+                ? `${baseURL}/api/service-types/${editingId}`
+                : `${baseURL}/api/service-types`;
 
             const method = editingId ? 'PUT' : 'POST';
 
@@ -100,7 +101,7 @@ const ServiceTypeManagement = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure?')) return;
         try {
-            const response = await fetch(`https://api.modaweekinternational.com/api/service-types/${id}`, {
+            const response = await fetch(`${baseURL}/api/service-types/${id}`, {
                 method: 'DELETE'
             });
 

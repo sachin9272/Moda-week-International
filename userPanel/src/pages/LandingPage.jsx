@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar.jsx";
 import { Calendar, MapPin, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
+import { baseURL } from "../config/api";
 import Eventrsvp from "../assets/eventrsvp.jpg";
 import video1 from "../assets/video1.mp4";
 import video2 from "../assets/video2.mp4";
@@ -127,7 +128,7 @@ export default function LandingPage() {
   const getVideoSrc = (url) => {
     if (!url) return '';
     if (url.startsWith('http')) return url; // Already full URL (or old drive link if any remain)
-    return `https://api.modaweekinternational.com${url}`; // Prepend backend URL for local paths
+    return `${baseURL}${url}`; // Prepend backend URL for local paths
   };
 
   const [slides, setSlides] = useState([
@@ -148,7 +149,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch('https://api.modaweekinternational.com/api/landing-videos');
+        const response = await fetch(`${baseURL}/api/landing-videos`);
         const data = await response.json();
 
         if (data && data.length > 0) {
