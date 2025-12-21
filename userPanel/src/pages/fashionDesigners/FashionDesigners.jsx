@@ -35,15 +35,13 @@ export default function FashionDesigners() {
             <div className="h-auto md:h-[450px] w-full bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center py-10 md:py-0 px-6">
                 <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center px-16">
                     <div className="flex flex-col gap-2">
-                        <p className="text-sm md:text-base">OUR SERVICES</p>
                         <h2 className="text-3xl md:text-[44px] font-bold grad-text leading-tight uppercase">
-                            COLLABORATION & <br className="hidden md:block" />
-                            EXPOSURE PLATFORM
+                            MEET THE VISIONARY <br /> FASHION DESIGNER
                         </h2>
                     </div>
                     <div>
                         <p className="text-[14px] md:text-[18px] text-black leading-7 text-justify mt-10">
-                            Moda Week International offers a premier platform for companies and brands to showcase their presence through our international fashion show productions and global promotional events. By participating, partners gain direct visibility to high value audiences, international designers, media, VIPs, and commerce industry, while accessing exclusive networking opportunities that foster long term collaboration. Through aligned sponsorships, branding, and co-produced initiatives, MWINTL creates meaningful mutual growth and global impact uniting fashion, culture, and business on an international stage platform.
+                        Members of Moda Week International’s platform, our fashion designers play a vital role for the future of the fashion industry. Their contributions extend beyond showcasing their talents and business acumen. Their commitment is entrusted with the responsibility and influencing the strategic direction that will define the industry.
                         </p>
                     </div>
                 </div>
