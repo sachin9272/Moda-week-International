@@ -127,7 +127,7 @@ export default function LandingPage() {
   const getVideoSrc = (url) => {
     if (!url) return '';
     if (url.startsWith('http')) return url; // Already full URL (or old drive link if any remain)
-    return `http://localhost:5000${url}`; // Prepend backend URL for local paths
+    return `https://api.modaweekinternational.com${url}`; // Prepend backend URL for local paths
   };
 
   const [slides, setSlides] = useState([
@@ -148,7 +148,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/landing-videos');
+        const response = await fetch('https://api.modaweekinternational.com/api/landing-videos');
         const data = await response.json();
 
         if (data && data.length > 0) {
