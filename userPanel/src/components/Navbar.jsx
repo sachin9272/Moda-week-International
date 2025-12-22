@@ -68,6 +68,7 @@ const Navbar = () => {
     { name: "About Us", path: "/about", category: "Company" },
     { name: "Newsroom", path: "/news-room", category: "Company" },
     { name: "Contact Us", path: "/events#contact-us", category: "Company" },
+    { name: "Membership Program", path: "#", category: "Business" },
     { name: "Buy Tickets", path: "#", category: "Business" },
     { name: "Designers", path: "/fashion-designers", category: "Experience" },
   ];
