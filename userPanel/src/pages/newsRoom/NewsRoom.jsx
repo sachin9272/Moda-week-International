@@ -61,7 +61,7 @@ export default function NewsRoom() {
             </div>
             {/* News Grid Section */}
             <div className="w-full py-20 pt-15 overflow-hidden text-black">
-                <div className="max-w-7xl mx-auto px-4 mb-12">
+                <div className="mb-12 px-4">
                     <h2 className="text-4xl md:text-5xl font-semibold uppercase">NEWS ROOM</h2>
                 </div>
 
