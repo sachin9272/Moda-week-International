@@ -281,8 +281,7 @@ export default function LandingPage() {
 
       <div className="bg-black mb-10 ml-10">
         <p>
-          FASHION DESIGNERS APPLICATIONS NOW OPEN FOR <br /> FEBRUARY, JUNE &
-          SEPTEMBER SS26/AW27
+          FASHION DESIGNERS APPLICATIONS NOW OPEN FOR <br /> SEPTEMBER SS26/AW27
         </p>
         <Link to="/service?tab=designer">
           <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">
