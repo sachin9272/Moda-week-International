@@ -21,26 +21,26 @@ export default function FashionEvents() {
       image: event1,
     },
 
-    {
-      city: "LETICIA, AMAZONAS COLOMBIA",
-      date: "JUNE 03, 2026",
-      image: event2,
-    },
-    {
-      city: "TABATINGA, AMAZONAS BRASIL",
-      date: "JUNE 13, 2026",
-      image: event3,
-    },
-    {
-      city: "IQUITOS, PERU",
-      date: "JUNE 20, 2026",
-      image: event4,
-    },
-    {
-      city: "HUAMBOYA, ECUADOR",
-      date: "JUNE 27, 2026",
-      image: event5,
-    },
+    // {
+    //   city: "LETICIA, AMAZONAS COLOMBIA",
+    //   date: "JUNE 03, 2026",
+    //   image: event2,
+    // },
+    // {
+    //   city: "TABATINGA, AMAZONAS BRASIL",
+    //   date: "JUNE 13, 2026",
+    //   image: event3,
+    // },
+    // {
+    //   city: "IQUITOS, PERU",
+    //   date: "JUNE 20, 2026",
+    //   image: event4,
+    // },
+    // {
+    //   city: "HUAMBOYA, ECUADOR",
+    //   date: "JUNE 27, 2026",
+    //   image: event5,
+    // },
     {
       city: "NEW YORK CITY",
       date: "SEPT 2026",
@@ -112,36 +112,36 @@ export default function FashionEvents() {
       city: "TOKYO",
       event: "TOKYO FASHION WEEK",
     },
-    {
-      date: "MAY 12-14, 2026",
-      city: "BOGOTA, COLOMBIA",
-      event: "BOGOTA FASHION WEEK",
-    },
-    {
-      date: "JUNE 6, 2026",
-      city: "LETICIA, AMAZONAS COLOMBIA",
-      event: "MWINTL | AFW",
-    },
-    {
-      date: "JUNE 13, 2026",
-      city: "TABATINGA, AMAZONAS BRASIL",
-      event: "MWINTL | AFW",
-    },
-    {
-      date: "JUNE 20, 2026",
-      city: "IQUITOS, PERU",
-      event: "MWINTL | AFW",
-    },
-    {
-      date: "JUNE 27, 2026",
-      city: "HUAMBOYA, ECUADOR",
-      event: "MWINTL | AFW",
-    },
-    {
-      date: "NOVEMBER 1-5, 2026",
-      city: "TORONTO",
-      event: "TORONTO FASHION WEEK",
-    },
+    // {
+    //   date: "MAY 12-14, 2026",
+    //   city: "BOGOTA, COLOMBIA",
+    //   event: "BOGOTA FASHION WEEK",
+    // },
+    // {
+    //   date: "JUNE 6, 2026",
+    //   city: "LETICIA, AMAZONAS COLOMBIA",
+    //   event: "MWINTL | AFW",
+    // },
+    // {
+    //   date: "JUNE 13, 2026",
+    //   city: "TABATINGA, AMAZONAS BRASIL",
+    //   event: "MWINTL | AFW",
+    // },
+    // {
+    //   date: "JUNE 20, 2026",
+    //   city: "IQUITOS, PERU",
+    //   event: "MWINTL | AFW",
+    // },
+    // {
+    //   date: "JUNE 27, 2026",
+    //   city: "HUAMBOYA, ECUADOR",
+    //   event: "MWINTL | AFW",
+    // },
+    // {
+    //   date: "NOVEMBER 1-5, 2026",
+    //   city: "TORONTO",
+    //   event: "TORONTO FASHION WEEK",
+    // },
     {
       date: "JULY 6-9, 2026",
       city: "PARIS",

@@ -244,22 +244,22 @@ export default function LandingPage() {
       image: calender1,
       status: "SEATS AVAILABLE",
     },
-    {
-      title: "APW | LETICIA, COLOMBIA",
-      date: "APW | LETICIA, COLOMBIA",
-      location: "LETICIA, COLOMBIA",
-      time: "08:00 - 17:00",
-      image: calender2,
-      status: "SOLD OUT",
-    },
-    {
-      title: "APW | TABATINGA, BRAZIL",
-      date: "JUN 15, 2018",
-      location: "TABATINGA, BRAZIL",
-      time: "08:00 - 17:00",
-      image: calender3,
-      status: "AVAILABLE SOON",
-    },
+    // {
+    //   title: "APW | LETICIA, COLOMBIA",
+    //   date: "APW | LETICIA, COLOMBIA",
+    //   location: "LETICIA, COLOMBIA",
+    //   time: "08:00 - 17:00",
+    //   image: calender2,
+    //   status: "SOLD OUT",
+    // },
+    // {
+    //   title: "APW | TABATINGA, BRAZIL",
+    //   date: "JUN 15, 2018",
+    //   location: "TABATINGA, BRAZIL",
+    //   time: "08:00 - 17:00",
+    //   image: calender3,
+    //   status: "AVAILABLE SOON",
+    // },
   ];
 
   return (
