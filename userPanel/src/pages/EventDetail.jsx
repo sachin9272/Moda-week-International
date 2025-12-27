@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import CtaSection from '../components/CtaSection';
+import Footer from '../components/Footer';
 import { ChevronRight } from 'lucide-react';
 import { baseURL as API_BASE_URL } from '../config/api';
 
@@ -301,6 +303,11 @@ const EventDetail = () => {
                     </div>
                 </div>
             )}
+
+            <div className='!text-white mb-10'>
+            <CtaSection />
+            </div>
+            <Footer />
         </div>
     );
 };
