@@ -290,7 +290,7 @@ const EventDetail = () => {
                             <h2 className="text-4xl md:text-6xl font-playfair font-bold text-black mb-8 leading-tight">
                                 {event.bottomSection.title}
                             </h2>
-                            <p className="text-gray-400 leading-relaxed text-lg font-light">
+                            <p className="text-black leading-relaxed text-lg font-light">
                                 {event.bottomSection.text}
                             </p>
                         </div>
