@@ -283,7 +283,7 @@ const EventDetail = () => {
                 {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
             </div>
 
-            {event.bottomSection && (
+            {event.bottomSection && (event.bottomSection.title || event.bottomSection.text || event.bottomSection.image) && (
                 <div className="py-20 px-8 bg-white relative overflow-hidden">
                     <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
                         <div className="w-full md:w-1/2">
@@ -305,7 +305,7 @@ const EventDetail = () => {
             )}
 
             <div className='!text-white mb-10'>
-            <CtaSection />
+                <CtaSection />
             </div>
             <Footer />
         </div>
