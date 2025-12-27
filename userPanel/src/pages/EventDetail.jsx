@@ -1,225 +1,308 @@
-import React from "react";
-import Navbar from "../components/Navbar.jsx";
-import Footer from "../components/Footer.jsx";
-import { useLocation } from "react-router-dom";
-import { Square } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import Navbar from '../components/Navbar';
+import { ChevronRight } from 'lucide-react';
+import { baseURL as API_BASE_URL } from '../config/api';
 
-import el1 from "../assets/el1.png";
-import el2 from "../assets/el2.png";
-import el3 from "../assets/el3.png";
-import el4 from "../assets/el4.png";
-import el5 from "../assets/el5.png";
-import el6 from "../assets/el6.png";
+const EventDetail = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [event, setEvent] = useState(null);
+    const [loading, setLoading] = useState(true);
 
-import mr1 from "../assets/mr1.png";
-import mr2 from "../assets/mr2.png";
-import mr3 from "../assets/mr3.png";
-import mr4 from "../assets/mr4.png";
-import mr5 from "../assets/mr5.png";
-import mr6 from "../assets/mr6.png";
+    useEffect(() => {
+        const fetchEvent = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/events/${id}`);
+                setEvent(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching event details:", error);
+                setLoading(false);
+            }
+        };
 
-import wa1 from "../assets/wa1.png";
-import wa2 from "../assets/wa2.png";
-import wa3 from "../assets/wa3.png";
-import wa4 from "../assets/wa4.png";
-import wa5 from "../assets/wa5.png";
-import wa6 from "../assets/wa6.png";
+        fetchEvent();
+    }, [id]);
 
-import ch1 from "../assets/ch1.png";
-import ch2 from "../assets/ch2.png";
-import ch3 from "../assets/ch3.png";
-import ch4 from "../assets/ch4.png";
-import ch5 from "../assets/ch5.png";
-import ch6 from "../assets/ch6.png";
+    if (loading) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Loading...</div>;
+    if (!event) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Event not found</div>;
 
-import qu1 from "../assets/qu1.png";
-import qu2 from "../assets/qu2.png";
-import qu3 from "../assets/qu3.png";
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString; // Return original if invalid
 
-import fo1 from "../assets/fo1.png";
-import fo2 from "../assets/fo2.png";
-import fo3 from "../assets/fo3.png";
-import fo4 from "../assets/fo4.png";
-import fo5 from "../assets/fo5.png";
-import fo6 from "../assets/fo6.png";
-import eventVideo from "../assets/eventVideo.mp4";
+        const day = date.getDate();
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
 
-import ec1 from "../assets/ec1.png";
-import ec2 from "../assets/ec2.png";
-import ec3 from "../assets/ec3.png";
+        const getOrdinal = (n) => {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        };
 
-import emg1 from "../assets/emg1.png";
+        return `${month} ${getOrdinal(day)}, ${year}`;
+    };
 
-export default function EventDetail() {
-    const location = useLocation();
-    const queryParams = new URLSearchParams(location.search);
-    const city = queryParams.get("city") || "SYRACUSE";
-    const eventName = queryParams.get("event") || "FASHION WEEKEND";
-    const date = "October 11th, 2013"; // Mock date for now
+    const renderHero = () => {
+        const headerVideoUrl = event.headerVideo?.url || event.headerVideo;
+        const thumbnailUrl = event.thumbnail?.url || event.thumbnail;
 
-    // Mock data for the collections
-    const collections = [
-        {
-            title: "ELMADAWY",
-            subtitle: "Fashion Designer",
-            images: [el1, el2, el3, el4, el5, el6]
-        },
-        {
-            title: "MR SHOP",
-            subtitle: "COLLECTION",
-            images: [mr1, mr2, mr3, mr4, mr5, mr6]
-        },
-        {
-            title: "WALID ATALLAH",
-            subtitle: "FASHION DESIGNER",
-            images: [wa1, wa2, wa3, wa4, wa5, wa6]
-        },
-        {
-            title: "CHLOE SCHNELL",
-            subtitle: "STUDENT DESIGNER",
-            images: [ch1, ch2, ch3, ch4, ch5, ch6]
-        },
-        {
-            title: "QUEESHA",
-            subtitle: "STUDENT DESIGNER",
-            images: [qu1, qu2, qu3]
-        },
-        {
-            title: "FOLIE",
-            subtitle: "STUDENT DESIGNER",
-            images: [fo1, fo2, fo3, fo4, fo5, fo6]
-        },
-        {
-            title: "EVENT COVERING",
-            subtitle: "",
-            images: [ec1, ec2, ec3]
+        if (event.heroLayout === 'full') {
+            return (
+                <div className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+                    {headerVideoUrl ? (
+                        <video autoPlay loop muted className="absolute inset-0 w-full h-full object-cover object-top">
+                            <source src={headerVideoUrl} type="video/mp4" />
+                        </video>
+                    ) : (
+                        <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url(${thumbnailUrl})` }}></div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center z-20 md:px-6 px-2 py-4 max-w-9xl md:max-w-9xl">
+                        <h2 className="text-2xl md:text-4xl font-bold text-white uppercase tracking-wider mb-2 drop-shadow-md break-words">
+                            {event.eventName}
+                        </h2>
+                        <p className="text-white text-sm md:text-2xl uppercase tracking-[0.2em] font-light drop-shadow-md">
+                            {formatDate(event.date)}
+                        </p>
+                    </div>
+                </div>
+            );
+        } else if (event.heroLayout === 'minimal') {
+            return (
+                <div className="relative h-[60vh] w-full flex items-center justify-center bg-white">
+                    <div className="text-center px-4">
+                        <p className="text-[#C7913E] text-lg uppercase tracking-[0.3em] mb-4">{formatDate(event.date)}</p>
+                        <h1 className="text-5xl md:text-7xl font-playfair font-bold text-black mb-4">{event.eventName}</h1>
+                        <p className="text-xl font-light text-gray-600">{event.city}</p>
+                    </div>
+                </div>
+            );
+        } else {
+            // Default Split
+            const gradientClass = {
+                'none': 'bg-white',
+                'purple-pink': 'bg-gradient-to-r from-[#A10F01] to-[#5E25EC] text-white',
+                'blue-cyan': 'bg-gradient-to-l from-blue-900 to-cyan-800 text-white',
+                'sunset': 'bg-gradient-to-br from-orange-700 to-yellow-600 text-white',
+                'midnight': 'bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white',
+            }[event.heroGradient || 'none'];
+
+            const hasGradient = event.heroGradient && event.heroGradient !== 'none';
+            const textColorClass = hasGradient ? 'text-white' : 'text-black';
+            const subTextColorClass = hasGradient ? 'text-gray-200' : 'text-gray-600';
+            const buttonColorClass = hasGradient ? 'text-white border-white hover:text-gray-200' : 'text-black border-[#C7913E] hover:text-[#C7913E]';
+
+            return (
+                <div className="relative min-h-screen flex flex-col md:flex-row">
+                    <div className={`w-full md:w-1/2 flex flex-col justify-center px-8 md:px-24 py-20 z-10 ${gradientClass}`}>
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-4">
+                                <div className="h-[1px] w-12 bg-[#C7913E]"></div>
+                                <span className="text-[#C7913E] uppercase tracking-[0.2em] text-sm">{formatDate(event.date)}</span>
+                            </div>
+                            <h1 className={`text-5xl md:text-6xl font-bold leading-[1.1] ${textColorClass} max-w-2xl`}>
+                                {event.eventName}
+                            </h1>
+                        </div>
+                    </div>
+                    <div className="w-full md:w-1/2 h-[50vh] md:h-screen relative">
+                        {headerVideoUrl ? (
+                            <video autoPlay loop muted className="absolute inset-0 w-full h-full object-cover">
+                                <source src={headerVideoUrl} type="video/mp4" />
+                            </video>
+                        ) : (
+                            <img src={thumbnailUrl} alt={event.eventName} className="absolute inset-0 w-full h-full object-cover" />
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent md:w-1/2"></div>
+                    </div>
+                </div>
+            );
         }
-    ];
+    };
+
+    const renderCollection = (collection, index) => {
+        const layout = collection.layout || 'grid';
+        // Handle images array (objects or strings)
+        const images = collection.images.map(img => img?.url || img);
+
+        if (layout === 'masonry') {
+            return (
+                <div key={index} className="py-20 px-4 md:px-12 bg-white">
+                    <div className="max-w-7xl mx-auto mb-12 text-center">
+                        <h2 className="text-4xl md:text-5xl font-playfair text-black mb-4">{collection.title}</h2>
+                        {collection.subtitle && <p className="text-black tracking-widest uppercase text-sm">{collection.subtitle}</p>}
+                    </div>
+                    <div className="columns-1 md:columns-3 gap-8 space-y-8">
+                        {images.map((img, i) => (
+                            <div key={i} className="break-inside-avoid relative group">
+                                <img src={img} alt={`Collection ${i}`} className="w-full transition-all duration-700" />
+                                <div className="absolute inset-0 group-hover:bg-transparent transition-all"></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        } else if (layout === 'highlight') {
+            return (
+                <div key={index} className="py-20 px-4 md:px-12 bg-white">
+                    <div className="max-w-7xl mx-auto mb-16 flex flex-col md:flex-row items-end gap-6 border-b border-gray-200 pb-8">
+                        <h2 className="text-4xl md:text-6xl font-playfair text-black leading-none">{collection.title}</h2>
+                        {collection.subtitle && <p className="text-gray-600 pb-2 text-lg font-light italic">{collection.subtitle}</p>}
+                    </div>
+                    <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Large Highlight */}
+                        {images[0] && (
+                            <div className="md:row-span-2 relative group overflow-hidden">
+                                <img src={images[0]} alt="Highlight" className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" />
+                            </div>
+                        )}
+                        <div className="grid grid-cols-2 gap-4 md:gap-8">
+                            {images.slice(1).map((img, i) => (
+                                <div key={i} className="aspect-[3/4] overflow-hidden group">
+                                    <img src={img} alt={`Detail ${i}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        } else {
+            // Determine aspect ratio from collection settings
+            const ratioMap = {
+                'portrait': '3/4',
+                'landscape': '4/3',
+                'square': '1/1',
+                'auto': 'auto'
+            };
+            const ratio = ratioMap[collection.gridAspectRatio] || '3/4';
+            const itemStyle = (ratio === 'auto' || ratio == 'portrait') ? { height: '650px' } : { aspectRatio: ratio };
+            // const itemStyle = { height: '650px' };
+
+            return (
+                <div key={index} className="py-4 px-4 bg-white">
+                    <div className=" mx-auto">
+                        <div className="mb-4 border-b border-gray-400 pb-2 flex flex-wrap items-baseline gap-3">
+                            <h2 className="text-2xl md:text-3xl font-bold uppercase grad-text">{collection.title}</h2>
+                            {collection.subtitle && <span className="text-gray-500 uppercase text-lg md:text-xl">{collection.subtitle}</span>}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {images.map((img, i) => (
+                                <div key={i} className="relative group overflow-hidden object-cover" style={itemStyle}>
+                                    <img src={img} alt={`Walk ${i}`} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+    };
+
+    const renderTickets = () => {
+        if (!event.hasTickets || !event.tickets || event.tickets.length === 0) return null;
+
+        const ticketPoster = event.thumbnail?.url || event.thumbnail;
+
+        return (
+            <div className="w-full text-black py-16">
+                <div className="max-w-7xl mx-auto px-4">
+                    <div className="flex flex-col md:flex-row gap-8 items-stretch">
+                        {/* Poster Side */}
+                        <div className="w-full md:w-1/3">
+                            <div className="h-full min-h-[500px] relative overflow-hidden">
+                                <img
+                                    src={ticketPoster}
+                                    alt="Event Poster"
+                                    className="absolute inset-0 w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                                <div className="absolute bottom-8 left-8">
+                                    <h3 className="text-3xl font-playfair font-bold text-white mb-2">{event.eventName}</h3>
+                                    <p className="text-[#C7913E] uppercase tracking-wider font-semibold">{formatDate(event.date)}</p>
+                                    <div className="h-[1px] w-16 bg-[#C7913E] mt-4"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Tickets List Side */}
+                        <div className="w-full md:w-2/3 flex flex-col gap-6 justify-center">
+                            {event.tickets.map((ticket, idx) => {
+                                const ticketImgUrl = ticket.image?.url || ticket.image;
+                                return (
+                                    <div
+                                        key={idx}
+                                        className="block relative group overflow-hidden rounded-sm transition-transform duration-300 hover:scale-[1.02] hover:shadow-xl shadow-[#C7913E]/10"
+                                    >
+                                        <div className="w-full h-auto">
+                                            <img
+                                                src={ticketImgUrl}
+                                                alt={`Ticket ${idx + 1}`}
+                                                className="w-full h-auto object-cover"
+                                            />
+                                        </div>
+                                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     return (
-        <div className="bg-white min-h-screen text-black font-sans">
+        <div className="bg-white min-h-screen text-black">
             <Navbar />
 
-            <div className=""> {/* Offset for fixed Navbar */}
-                {/* Split Hero Section */}
-                <div className="flex flex-col md:flex-row h-[100vh] min-h-[400px]">
-                    {/* Left Side - Gold */}
-                    <div className="w-full md:w-1/2 bg-gradient-to-b from-[#8C5D25] to-[#C7913E] flex flex-col justify-center items-center p-8">
-                        <div className="text-left">
-                            <h1 className="text-4xl md:text-5xl font-bold text-white uppercase tracking-widest leading-tight flex flex-col">
-                                <span>{city}</span>
-                                {(eventName.replace(city, "").trim() || "FASHION WEEKEND").split(" ").map((word, i) => (
-                                    <span key={i}>{word}</span>
-                                ))}
-                            </h1>
-                            <p className="text-white/80 mt-2 text-lg">{date}</p>
-                        </div>
-                    </div>
+            {renderHero()}
 
-                    {/* Right Side - Video */}
-                    <div className="w-full md:w-1/2 h-full">
-                        <video
-                            src={eventVideo}
-                            className="w-full h-full object-cover"
-                            autoPlay
-                            loop
-                            muted
-                            playsInline
-                        />
+            {event.descriptionSection && event.descriptionSection.isVisible && (
+                <div className="bg-white pt-6 pb-0 px-4">
+                    <div className="max-w-9xl mx-auto">
+                        <h2 className="text-2xl text-black mb-4 uppercase tracking-wider max-w-3xl">
+                            {event.descriptionSection.title}
+                        </h2>
+                        <p className="text-gray-600 leading-relaxed font-light">
+                            {event.descriptionSection.text}
+                        </p>
                     </div>
                 </div>
+            )}
+
+            {renderTickets()}
+
+            <div className="mt-10 bg-white">
+                {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
             </div>
 
-            <div className="mt-10">
-                {/* Collections */}
-                {collections.map((collection, idx) => (
-                    <div key={idx} className="mb-16">
-                        <div className="container mx-auto px-4">
-                            {/* Section Header */}
-                            <div className="flex items-center gap-4 mb-2">
-                                <h2 className="font-bold text-2xl uppercase grad-text">
-                                    {collection.title}
-                                </h2>
-                                <span className="text-[#595959] uppercase text-2xl">{collection.subtitle}</span>
-                            </div>
+            {event.bottomSection && (
+                <div className="py-20 px-8 bg-white relative overflow-hidden">
+                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
+                        <div className="w-full md:w-1/2">
+                            <h2 className="text-4xl md:text-6xl font-playfair font-bold text-black mb-8 leading-tight">
+                                {event.bottomSection.title}
+                            </h2>
+                            <p className="text-gray-400 leading-relaxed text-lg font-light">
+                                {event.bottomSection.text}
+                            </p>
                         </div>
-
-                        {/* Full Width Border */}
-                        <div className="h-[0.3px] bg-gray-900 w-full mb-6"></div>
-
-                        <div className="container mx-auto px-4">
-                            {/* Image Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {collection.images.map((img, imgIdx) => (
-                                    <div key={imgIdx} className={`overflow-hidden group ${collection.title === "EVENT COVERING" ? "h-[367px]" : "aspect-[2/3]"}`}>
-                                        <img
-                                            src={img}
-                                            alt={`Model ${imgIdx}`}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <div className="bg-[#F7F7F7] py-10">
-                <div className="container mx-auto px-18">
-                    <div className="flex flex-col md:flex-row gap-12 items-start">
-                        {/* Left Side - Image */}
-                        <div className="w-full md:w-1/3">
-                            <img src={emg1} alt="Syracuse Fashion Weekend" className="w-full h-[574px] object-cover h-auto shadow-lg" />
-                        </div>
-
-                        {/* Right Side - Content */}
-                        <div className="w-full md:w-2/3 text-[16px] md:text-base text-gray-800">
-                            <h3 className="font-bold uppercase text-lg mb-2">SYRACUSE FASHION WEEKEND</h3>
-                            <p className="">
-                                What an incredible journey we've had during the 2nd Annual Fashion Show at Syracuse
-                                Fashion Weekend, SPRING/SUMMER 13/14! Each of you brought your A-game, and the
-                                result? Absolutely FABULOUS!
-                            </p>
-                            <p className="">
-                                On October 11th, we came together to revel in the vibrant fusion of art, culture, and
-                                couture, creating unforgettable moments right here in Central New York for the very first
-                                Syracuse Fashion Weekend.
-                            </p>
-                            <p className="">
-                                The overwhelming success of the event fills us with immense joy and pride. Moda Week
-                                International, we want to extend our deepest gratitude to you for your hard work and
-                                invaluable contributions that played a pivotal role in making this inaugural event a
-                                resounding triumph.
-                            </p>
-                            <p className="">
-                                As we bid farewell to an unforgettable Syracuse Fashion Weekend, we are already
-                                bubbling with excitement for the future. Your collective efforts have laid a strong
-                                foundation, and we can't wait to turn next year's SFW into an even more spectacular
-                                success. We hope this journey was as enjoyable for you as it was for us, and we eagerly
-                                anticipate the chance to collaborate with you again in the coming year.
-                            </p>
-                            <p className="">
-                                Thank you for being an integral part of the success story that is Syracuse Fashion
-                                Weekend.
-                                <br />
-                                With gratitude and positivity,
-                            </p>
-
-                            <div className="mt-2">
-                                <p className="font-bold">-Esmeralda Harwood,</p>
-                                <p>Founder, Owner & CEO</p>
-                                <p>Moda Week International</p>
-                                <a href="https://www.modaweekinternational.com/syracusefashionweekend2013" className="underline hover:text-blue-600 break-all">
-                                    https://www.modaweekinternational.com/syracusefashionweekend2013
-                                </a>
-                            </div>
+                        <div className="w-full md:w-1/2 h-[500px] relative">
+                            {event.bottomSection.image && (
+                                <img src={event.bottomSection.image?.url || event.bottomSection.image} alt="Recap" className="absolute inset-0 w-full h-full object-cover rounded-sm grayscale-[50%] hover:grayscale-0 transition-all duration-700" />
+                            )}
+                            <div className="absolute -inset-4 border border-[#C7913E]/30 z-0 pointer-events-none"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <Footer />
+            )}
         </div>
     );
-}
+};
+
+export default EventDetail;
