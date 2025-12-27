@@ -6,43 +6,45 @@ import Footer from "../../components/Footer.jsx";
 import Pricing from "../../components/Pricing.jsx";
 import runnaway from "../../assets/runnaway.jpg";
 
+import event1 from "../../assets/Events.jpg";
+import event2 from "../../assets/Events-1.jpg";
+import event3 from "../../assets/Events-2.jpg";
+import event4 from "../../assets/Events-3.jpg";
+import event5 from "../../assets/Events-4.jpg";
+import event6 from "../../assets/Events-5.jpg";
+
 export default function FashionEvents() {
   const events = [
     {
       city: "NEW YORK CITY",
       date: "FEB 2026",
-      image:
-        "https://cdn.britannica.com/48/179448-138-40EABF32/Overview-New-York-City.jpg",
+      image: event1,
     },
-    // {
-    //   city: "LETICIA, AMAZONAS COLOMBIA",
-    //   date: "JUNE 08, 2026",
-    //   image:
-    //     "https://cdn.britannica.com/48/179448-138-40EABF32/Overview-New-York-City.jpg",
-    // },
-    // {
-    //   city: "TABATINGA, AMAZONAS BRASIL",
-    //   date: "JUNE 15, 2026",
-    //   image:
-    //     "https://images.unsplash.com/photo-1541698444083-023c97d3f4b6?w=800&q=80",
-    // },
-    // {
-    //   city: "IQUITOS, PERU",
-    //   date: "JUNE 20, 2026",
-    //   image:
-    //     "https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=800&q=80",
-    // },
-    // {
-    //   city: "HUAMBOYA, ECUADOR",
-    //   date: "JUNE 29, 2026",
-    //   image:
-    //     "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&q=80",
-    // },
+
+    {
+      city: "LETICIA, AMAZONAS COLOMBIA",
+      date: "JUNE 03, 2026",
+      image: event2,
+    },
+    {
+      city: "TABATINGA, AMAZONAS BRASIL",
+      date: "JUNE 13, 2026",
+      image: event3,
+    },
+    {
+      city: "IQUITOS, PERU",
+      date: "JUNE 20, 2026",
+      image: event4,
+    },
+    {
+      city: "HUAMBOYA, ECUADOR",
+      date: "JUNE 27, 2026",
+      image: event5,
+    },
     {
       city: "NEW YORK CITY",
-      date: "SEPT 2026",
-      image:
-        "https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?w=800&q=80",
+      date: "SEPT 2026",
+      image: event6,
     },
   ];
 
