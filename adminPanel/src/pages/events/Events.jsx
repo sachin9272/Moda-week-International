@@ -59,7 +59,7 @@ const Events = () => {
                                     {event.eventType || 'upcoming'}
                                 </span>
                             </div>
-                            <img src={event.thumbnail} alt={event.city} className="w-full h-48 object-cover" />
+                            <img src={event.thumbnail?.url || event.thumbnail} alt={event.city} className="w-full h-48 object-cover" />
                             <div className="p-4">
                                 <Link to={`/events/preview/${event._id}`} className="hover:underline">
                                     <h2 className="text-xl font-bold mb-2 text-white">{event.city}</h2>
