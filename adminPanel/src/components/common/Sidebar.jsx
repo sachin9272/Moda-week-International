@@ -34,7 +34,7 @@ const Sidebar = () => {
     ];
 
     return (
-        <div className="h-screen w-64 bg-slate-900 text-white flex flex-col fixed left-0 top-0">
+        <div className="h-screen w-64 bg-slate-900 text-white flex flex-col fixed left-0 top-0 z-50">
             <div className="p-6 border-b border-slate-800">
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
                     Moda Admin
