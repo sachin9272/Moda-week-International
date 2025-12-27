@@ -73,7 +73,7 @@ export default function PastEvents() {
                                             {event.date}
                                         </p>
                                         <p className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-3">
-                                            {event.bottomSection?.text || event.description || "View event details for more information."}
+                                            {event.bottomSection?.text || event.description || event.descriptionSection.text}
                                         </p>
                                     </div>
                                 </Link>
