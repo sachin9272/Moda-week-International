@@ -287,7 +287,7 @@ const EventDetail = () => {
                 <div className="py-20 px-8 bg-white relative overflow-hidden">
                     <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
                         <div className="w-full md:w-1/2">
-                            <h2 className="text-4xl md:text-6xl font-playfair font-bold text-black mb-8 leading-tight">
+                            <h2 className="text-2xl md:text-3xl font-playfair font-bold text-black mb-8 leading-tight">
                                 {event.bottomSection.title}
                             </h2>
                             <p className="text-black leading-relaxed text-lg font-light">
