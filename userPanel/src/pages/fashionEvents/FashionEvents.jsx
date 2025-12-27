@@ -14,30 +14,30 @@ export default function FashionEvents() {
       image:
         "https://cdn.britannica.com/48/179448-138-40EABF32/Overview-New-York-City.jpg",
     },
-    {
-      city: "LETICIA, AMAZONAS COLOMBIA",
-      date: "JUNE 08, 2026",
-      image:
-        "https://cdn.britannica.com/48/179448-138-40EABF32/Overview-New-York-City.jpg",
-    },
-    {
-      city: "TABATINGA, AMAZONAS BRASIL",
-      date: "JUNE 15, 2026",
-      image:
-        "https://images.unsplash.com/photo-1541698444083-023c97d3f4b6?w=800&q=80",
-    },
-    {
-      city: "IQUITOS, PERU",
-      date: "JUNE 20, 2026",
-      image:
-        "https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=800&q=80",
-    },
-    {
-      city: "HUAMBOYA, ECUADOR",
-      date: "JUNE 29, 2026",
-      image:
-        "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&q=80",
-    },
+    // {
+    //   city: "LETICIA, AMAZONAS COLOMBIA",
+    //   date: "JUNE 08, 2026",
+    //   image:
+    //     "https://cdn.britannica.com/48/179448-138-40EABF32/Overview-New-York-City.jpg",
+    // },
+    // {
+    //   city: "TABATINGA, AMAZONAS BRASIL",
+    //   date: "JUNE 15, 2026",
+    //   image:
+    //     "https://images.unsplash.com/photo-1541698444083-023c97d3f4b6?w=800&q=80",
+    // },
+    // {
+    //   city: "IQUITOS, PERU",
+    //   date: "JUNE 20, 2026",
+    //   image:
+    //     "https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=800&q=80",
+    // },
+    // {
+    //   city: "HUAMBOYA, ECUADOR",
+    //   date: "JUNE 29, 2026",
+    //   image:
+    //     "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?w=800&q=80",
+    // },
     {
       city: "NEW YORK CITY",
       date: "SEPT 2026",
