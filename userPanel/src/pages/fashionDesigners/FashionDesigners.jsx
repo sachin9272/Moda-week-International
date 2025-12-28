@@ -8,7 +8,6 @@ import designer1 from "../../assets/designer1.jpg";
 import designer2 from "../../assets/designer2.jpg";
 import designer3 from "../../assets/designer3.jpg";
 import designer4 from "../../assets/designer4.png";
-import designers from "../../assets/designers.mp4"
 
 // Using a mix of imported and placeholder images for the grid
 const designersData = [
@@ -112,17 +111,6 @@ export default function FashionDesigners() {
                     </button>
                 </div>
             </div>
-
-            <div className="w-full h-auto overflow-hidden mb-10">
-                <video
-                    src={designers}
-                    autoPlay
-                    loop
-                    muted
-                    className="w-full h-full object-cover"
-                />
-            </div>
-
             <Footer />
         </div>
     );
