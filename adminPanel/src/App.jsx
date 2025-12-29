@@ -15,6 +15,7 @@ import Events from './pages/events/Events';
 import AddEvent from './pages/events/AddEvent';
 import EditEvent from './pages/events/EditEvent';
 import EventPreview from './pages/events/EventPreview';
+import FashionDesigners from './pages/FashionDesigners';
 import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -46,6 +47,7 @@ function App() {
             <Route path="events" element={<Events />} />
             <Route path="events/add" element={<AddEvent />} />
             <Route path="events/edit/:id" element={<EditEvent />} />
+            <Route path="fashion-designers" element={<FashionDesigners />} />
           </Route>
 
           <Route path="/events/preview/:id" element={

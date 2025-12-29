@@ -1,32 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { Search } from "lucide-react";
 
 // Placeholder images - using available assets where possible or placeholders
-import designer1 from "../../assets/designer1.jpg";
-import designer2 from "../../assets/designer2.jpg";
-import designer3 from "../../assets/designer3.jpg";
-import designer4 from "../../assets/designer4.png";
-import takla from "../../assets/takla.avif";
+// Placeholder images - using available assets where possible or placeholders
 
 // Using a mix of imported and placeholder images for the grid
-const designersData = [
-    { name: "ASMEA CHARIZ", image: designer1 },
-    { name: "ANA PAULA", image: designer2 },
-    { name: "ANA MILENA", image: designer3 },
-    { name: "AMR ELBANNA", image: designer4 },
-    // { name: "ADRIAN ALICEA", image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80" },
-    // { name: "ALEX JIMENEZ", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80" },
-    // { name: "ANDRES AQUINO", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80" },
-    // { name: "ELMADAWY", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80" },
-    // { name: "ESTUARDO & MEDA CO", image: "https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=800&q=80" },
-    // { name: "GULZANA", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" },
-    { name: "GLENROY MARCH", image: takla },
-];
+import axios from "axios";
+import { baseURL } from "../../config/api";
 
 export default function FashionDesigners() {
     const [activeFilter, setActiveFilter] = useState("All");
+    const [designers, setDesigners] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchDesigners = async () => {
+            try {
+                console.log("Fetching designers from:", `${baseURL}/api/fashion-designers`);
+                const response = await axios.get(`${baseURL}/api/fashion-designers`);
+                console.log("Designers data fetched:", response.data);
+                setDesigners(response.data);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching designers:", error);
+                setError(error.message);
+                setLoading(false);
+            }
+        };
+        fetchDesigners();
+    }, []);
 
     return (
         <div className="bg-white min-h-screen">
@@ -54,7 +60,7 @@ export default function FashionDesigners() {
                     {/* Filter Buttons */}
                     <div className="md:w-[15%] w-0"></div>
                     <div className="flex flex-wrap gap-3">
-                        {["All", "Year", "Country", "Event"].map((filter) => (
+                        {["All", "Country", "Event"].map((filter) => (
                             <button
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
@@ -82,29 +88,33 @@ export default function FashionDesigners() {
 
             {/* Designers Grid */}
             <div className="container mx-auto px-6 pb-20">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:grid-cols-3 gap-6">
-                    {designersData.map((designer, idx) => (
-                        <div
-                            key={idx}
-                            className="group relative h-[300px] md:h-[400px] overflow-hidden cursor-pointer"
-                        >
-                            <img
-                                src={designer.image}
-                                alt={designer.name}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                            />
-                            {/* Overlay Gradient */}
-                            <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-
-                            {/* Name */}
-                            <div className="absolute bottom-0 left-0 right-0 p-6 flex justify-center items-end bg-black/60 backdrop-blur-xs h-16 transition-all duration-300">
-                                <h3 className="text-white text-sm font-bold tracking-widest uppercase text-center">
-                                    {designer.name}
-                                </h3>
+                {loading ? (
+                    <div className="text-center py-20 text-gray-500">Loading designers...</div>
+                ) : error ? (
+                    <div className="text-center py-20 text-red-500">Error: {error}</div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:grid-cols-3 gap-6">
+                        {designers.map((designer, idx) => (
+                            <div
+                                key={idx}
+                                className="group relative h-[300px] md:h-[400px] overflow-hidden cursor-pointer"
+                            >
+                                <img
+                                    src={designer.image?.url || designer.image}
+                                    alt={designer.name}
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                                {/* Overlay Gradient */}
+                                <div className="absolute bottom-0 left-0 right-0 p-6 flex justify-center items-end bg-black/60 backdrop-blur-xs h-16 transition-all duration-300">
+                                    <h3 className="text-white text-sm font-bold tracking-widest uppercase text-center">
+                                        {designer.name}
+                                    </h3>
+                                </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Load More */}
                 <div className="flex justify-center mt-12">
@@ -114,6 +124,6 @@ export default function FashionDesigners() {
                 </div>
             </div>
             <Footer />
-        </div>
+        </div >
     );
 }
