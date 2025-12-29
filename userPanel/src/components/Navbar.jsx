@@ -68,7 +68,7 @@ const Navbar = () => {
     { name: "About Us", path: "/about", category: "Company" },
     { name: "Newsroom", path: "/news-room", category: "Company" },
     { name: "Contact Us", path: "/events#contact-us", category: "Company" },
-    { name: "Membership Programs", path: "#", category: "Business" },
+    { name: "Membership Programs", path: "/membership-program", category: "Business" },
     { name: "Buy Tickets", path: "#", category: "Business" },
     { name: "Designers", path: "/fashion-designers", category: "Experience" },
   ];
@@ -178,7 +178,7 @@ const Navbar = () => {
                             }}
                             className="group flex items-center justify-between text-2xl md:text-4xl font-light text-black hover:text-[#C7913E] transition-colors py-2"
                           >
-                            <span className="font-[Playfair_Display] italic">
+                            <span className="font-[Playfair_Display]">
                               {link.name}
                             </span>
                             <ChevronRight className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#C7913E]" />
@@ -221,7 +221,7 @@ const Navbar = () => {
                             }}
                             className="group flex items-center justify-between text-2xl md:text-4xl font-light text-black hover:text-[#C7913E] transition-colors py-2"
                           >
-                            <span className="font-[Playfair_Display] italic">
+                            <span className="font-[Playfair_Display]">
                               {link.name}
                             </span>
                             <ChevronRight className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#C7913E]" />
@@ -264,7 +264,7 @@ const Navbar = () => {
                             }}
                             className="group flex items-center justify-between text-2xl md:text-4xl font-light hover:text-[#C7913E] transition-colors py-2"
                           >
-                            <span className="font-[Playfair_Display] italic">
+                            <span className="font-[Playfair_Display]">
                               {link.name}
                             </span>
                             <ChevronRight className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#C7913E]" />
