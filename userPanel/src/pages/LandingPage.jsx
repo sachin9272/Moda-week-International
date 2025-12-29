@@ -420,7 +420,7 @@ export default function LandingPage() {
       </section>
 
       {/* RSVP Section */}
-      <section className="flex flex-col md:flex-row">
+      <section className="flex flex-col md:flex-row py-10 bg-white">
         {/* Left side */}
         <div className="md:w-1/2">
           <img
@@ -453,7 +453,7 @@ export default function LandingPage() {
       </section>
 
       {/* Fashion Calendar */}
-      <section className="py-20 bg-[#f0f0f0]">
+      {/* <section className="py-20 bg-[#f0f0f0]">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-12">
             <h2 className="text-2xl font-bold grad-text">FASHION CALENDAR</h2>
@@ -496,7 +496,7 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Footer */}
       <Footer />
