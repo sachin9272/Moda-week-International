@@ -454,15 +454,17 @@ const EditEvent = () => {
                         </div>
 
                         {currentCollection.images.length > 0 && (
-                            <div className="flex gap-2 bg-gray-900 p-2 overflow-x-auto rounded">
+                            <div className="grid grid-cols-3 md:grid-cols-4 gap-4 bg-gray-900 p-4 max-h-96 overflow-y-auto rounded border border-gray-600">
                                 {currentCollection.images.map((file, idx) => (
-                                    <div key={idx} className="relative shrink-0">
+                                    <div key={idx} className="relative group">
                                         <img
                                             src={typeof file === 'string' ? file : URL.createObjectURL(file)}
                                             alt="Preview"
-                                            className="h-20 w-auto object-cover rounded"
+                                            className="w-full h-32 object-cover rounded border border-gray-700"
                                         />
-                                        <button type="button" onClick={() => removeCollectionImage(idx)} className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-0.5"><X size={12} /></button>
+                                        <button type="button" onClick={() => removeCollectionImage(idx)} className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-md transition-colors">
+                                            <X size={14} />
+                                        </button>
                                     </div>
                                 ))}
                             </div>
