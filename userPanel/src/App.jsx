@@ -10,6 +10,7 @@ import FashionDesigners from "./pages/fashionDesigners/FashionDesigners.jsx";
 import PastEvents from "./pages/pastEvents/PastEvents.jsx";
 import NewsRoom from "./pages/newsRoom/NewsRoom.jsx";
 import EventDetail from "./pages/EventDetail.jsx";
+import MembershipProgram from "./pages/MembershipProgram.jsx";
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
@@ -32,6 +33,7 @@ function App() {
         <Route path="/news-room" element={<NewsRoom />} />
         <Route path="/event-details" element={<EventDetail />} />
         <Route path="/event-details/:id" element={<EventDetail />} />
+        <Route path="/membership-program" element={<MembershipProgram />} />
       </Routes>
     </Router>
   );

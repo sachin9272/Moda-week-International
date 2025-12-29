@@ -48,6 +48,12 @@ body {
   color: transparent;
 }
 
+.grad-text-up {
+  background: linear-gradient(to right, #3C2306, #C7913E);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
 .grad-text-rev {
   background: linear-gradient(to right, #C7913E, #8C5D25);
   ;
