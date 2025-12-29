@@ -195,10 +195,10 @@ export default function LandingPage() {
       name: "LAMIA LATROUS",
       image: designer1,
     },
-    {
-      name: "NIA & ROSE",
-      image: designer2,
-    },
+    // {
+    //   name: "NIA & ROSE",
+    //   image: designer2,
+    // },
     {
       name: "PIETRO PARADISO",
       image: designer3,
