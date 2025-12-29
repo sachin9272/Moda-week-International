@@ -8,6 +8,7 @@ import landingVideoRoutes from './routes/landingVideoRoutes.js';
 import serviceTypeRoutes from './routes/serviceTypeRoutes.js';
 import serviceHeroRoutes from './routes/serviceHeroRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
+import fashionDesignerRoutes from './routes/fashionDesignerRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -39,6 +40,7 @@ app.use('/api/service-types', serviceTypeRoutes);
 app.use('/api/service-hero', serviceHeroRoutes); // Added route usage
 app.use('/api/events', eventRoutes);
 app.use('/api/forms', applicationRoutes);
+app.use('/api/fashion-designers', fashionDesignerRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
