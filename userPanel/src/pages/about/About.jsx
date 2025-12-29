@@ -1,4 +1,3 @@
-import AboutUsTop from "../../assets/aboutustop.png";
 import AboutUs1 from "../../assets/aboutus1.png";
 import Founder from "../../assets/founder.png";
 import Founder2 from "../../assets/founder2.jpg";
@@ -34,53 +33,41 @@ export default function ModaWeekSite() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen text-black">
       <Navbar />
       {/* Hero Section */}
-      <section
-        className="relative h-screen flex items-center justify-center"
-        style={{
-          backgroundImage: `url(${AboutUsTop})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          height: "539.4px",
-        }}
-      >
-        <div className="absolute inset-0 bg-linear-to-b from-black/20 to-black/90 z-10"></div>
-        <div className="relative z-20 text-center px-4">
-          <h2 className="text-4xl font-bold mb-6 tracking-wider">
-            WHAT IS MODA WEEK INTERNATIONAL
-          </h2>
-          <span className="absolute w-[50%] left-1/4 md:bottom-32 h-px bg-linear-to-r from-transparent via-yellow-500 to-transparent"></span>
+      <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[400px] flex flex-col items-center justify-center">
+        <h1 className="text-4xl md:text-[44px] font-bold mb-2 tracking-wide uppercase grad-text-up">
+          WHAT IS MODA WEEK INTERNATIONAL
+        </h1>
+        <span className="w-[50%] h-[2px] bg-gradient-to-r from-transparent via-[#C7913E] to-transparent mb-10"></span>
 
-          <p className="max-w-2xl mx-auto text-lg md:text-xl leading-relaxed mt-24 md:mt-10">
-            INTERNATIONAL FASHION SHOW PRODUCTION ORGANIZATION WITH THE PURPOSE
-            OF CONVEYING GLAMOROUS EVENTS, EDUCATION & COMMUNITY SUPPORT.
-          </p>
-          <ChevronDown className="text-[#A87530] absolute left-1/2 md:bottom-[-90px] -bottom-10" />
-        </div>
-      </section>
+        <p className="max-w-2xl mx-auto text-base md:text-md">
+          INTERNATIONAL FASHION SHOW PRODUCTION ORGANIZATION WITH THE PURPOSE
+          OF CONVEYING GLAMOROUS EVENTS, EDUCATION & COMMUNITY SUPPORT.
+        </p>
+      </header>
 
       {/* Moda Week International Section */}
-      <section className="p-10 bg-white text-gray-900">
+      <section className="px-10 pb-10 pt-4 bg-white text-gray-900">
         <div className="max-w-9xl w-full">
           <h2 className="text-4xl md:text-5xl font-bold mb-8 grad-text">
             MODA WEEK INTERNATIONAL
           </h2>
-          <p className="text-lg mb-4 leading-relaxed">
+          <p className="mb-4 leading-relaxed">
             Moda Week International (MWINTL) is a prestigious philanthropic
             fashion show production and global business commerce platform that
             brings together distinguished fashion designers, world-class
             performances, industry leaders, and influential audiences, combining
             philanthropy, business, and cultural leadership.
           </p>
-          <p className="text-lg mb-4 leading-relaxed">
+          <p className="mb-4 leading-relaxed">
             Participants and partners of MWINTL gain privileged access to
             exclusive business opportunities, strategic industry connections and
             elite media exposure. Benefits include high-visibility recognition
             and market influence.
           </p>
-          <p className="text-lg mb-4 leading-relaxed">
+          <p className="mb-4 leading-relaxed">
             MWINTL beyond glamour and commerce, is rooted in a higher purpose.
             Our mission is to produce iconic fashion events with meaningful
             impact, empowering lives through education, communities advancement,
@@ -89,7 +76,7 @@ export default function ModaWeekSite() {
             transformation.
           </p>
 
-          <p className="text-lg mb-4 leading-relaxed">
+          <p className="mb-4 leading-relaxed">
             MWINTL where fashion meets purpose, business meets impact, every
             fashion show runway open doors to a brighter and powerful
             improvement to the world.
