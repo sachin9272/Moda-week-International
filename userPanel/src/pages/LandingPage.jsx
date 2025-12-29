@@ -5,6 +5,7 @@ import { Calendar, MapPin, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
 import { baseURL } from "../config/api";
+import axios from "axios";
 import Eventrsvp from "../assets/eventrsvp.jpg";
 import video1 from "../assets/video1.mp4";
 import video2 from "../assets/video2.mp4";
@@ -16,13 +17,7 @@ import designer3 from "../assets/designer3.jpg";
 import designer4 from "../assets/designer4.png";
 import ourservice from "../assets/ourservice.jpg";
 import schedule from "../assets/schedule.jpg";
-import pastevent1 from "../assets/pastevent1.jpg";
-import pastevent2 from "../assets/pastevent2.jpg";
-import pastevent3 from "../assets/pastevent3.jpg";
-import pastevent4 from "../assets/pastevent4.png";
-import calender1 from "../assets/calender1.jpg";
-import calender2 from "../assets/calender2.jpg";
-import calender3 from "../assets/calender3.png";
+
 
 
 
@@ -168,6 +163,31 @@ export default function LandingPage() {
     fetchVideos();
   }, []);
 
+  const [pastEvents, setPastEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/api/events/all`);
+        const allEvents = response.data;
+        // Filter for past events
+        const past = allEvents.filter(e => e.eventType === 'past');
+
+        // Map to expected format (if needed) or just use the event object directly in render
+        const formattedEvents = past.map(e => ({
+          id: e._id,
+          title: e.eventName,
+          image: e.thumbnail?.url || e.thumbnail // Handle potential object vs string
+        }));
+
+        setPastEvents(formattedEvents);
+      } catch (error) {
+        console.error("Failed to fetch past events", error);
+      }
+    };
+    fetchEvents();
+  }, []);
+
 
   const designers = [
     {
@@ -200,67 +220,34 @@ export default function LandingPage() {
     },
   ];
 
-  const pastEvents = [
-    {
-      title: "THE PREMIER - SYRACUSE FASHION WEEKEND 2012",
-      image: pastevent1
-    },
-    {
-      title: "SYRACUSE FASHION WEEKEND 2013",
-      image: pastevent2
-    },
-    {
-      title: "SYRACUSE FASHION WEEKEND 2014",
-      image: pastevent3
-    },
-    {
-      title: "SYRACUSE FASHION WEEKEND 2016",
-      image: pastevent4
-    },
-    {
-      title: "SYRACUSE FASHION WEEKEND 2014",
-      image: pastevent3
-    },
-    {
-      title: "SYRACUSE FASHION WEEKEND 2016",
-      image: pastevent4
-    },
-    {
-      title: "SYRACUSE FASHION WEEKEND 2014",
-      image: pastevent3
-    },
-    {
-      title: "SYRACUSE FASHION WEEKEND 2016",
-      image: pastevent4
-    }
-  ];
 
-  const upcomingEvents = [
+
+  /* const upcomingEvents = [
     {
       title: "NEW YORK CITY FASHION SHOW",
       date: "JUN 15, 2018",
       location: "NEW YORK",
       time: "08:00 - 17:00",
-      image: calender1,
+      image: null, // calender1
       status: "SEATS AVAILABLE",
     },
-    // {
-    //   title: "APW | LETICIA, COLOMBIA",
-    //   date: "APW | LETICIA, COLOMBIA",
-    //   location: "LETICIA, COLOMBIA",
-    //   time: "08:00 - 17:00",
-    //   image: calender2,
-    //   status: "SOLD OUT",
-    // },
-    // {
-    //   title: "APW | TABATINGA, BRAZIL",
-    //   date: "JUN 15, 2018",
-    //   location: "TABATINGA, BRAZIL",
-    //   time: "08:00 - 17:00",
-    //   image: calender3,
-    //   status: "AVAILABLE SOON",
-    // },
-  ];
+     {
+       title: "APW | LETICIA, COLOMBIA",
+       date: "APW | LETICIA, COLOMBIA",
+       location: "LETICIA, COLOMBIA",
+       time: "08:00 - 17:00",
+       image: null, // calender2
+       status: "SOLD OUT",
+     },
+     {
+       title: "APW | TABATINGA, BRAZIL",
+       date: "JUN 15, 2018",
+       location: "TABATINGA, BRAZIL",
+       time: "08:00 - 17:00",
+       image: null, // calender3
+       status: "AVAILABLE SOON",
+     },
+  ]; */
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -397,7 +384,8 @@ export default function LandingPage() {
           <div className="overflow-x-auto scrollbar-hide pl-4">
             <div className="flex gap-2.5 snap-x snap-mandatory">
               {pastEvents.map((event, idx) => (
-                <div
+                <Link
+                  to={`/event-details/${event.id}`}
                   key={idx}
                   className="group cursor-pointer shrink-0 w-88 snap-start"
                 >
@@ -412,7 +400,7 @@ export default function LandingPage() {
                   <h3 className="text-sm text-black font-inter">
                     {event.title}
                   </h3>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
