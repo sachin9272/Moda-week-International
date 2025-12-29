@@ -188,11 +188,7 @@ export default function LandingPage() {
     };
     fetchEvents();
   }, []);
-
-
-<<<<<<< HEAD
   const [designers, setDesigners] = useState([]);
-
   useEffect(() => {
     const fetchDesigners = async () => {
       try {
@@ -206,32 +202,6 @@ export default function LandingPage() {
     };
     fetchDesigners();
   }, []);
-=======
-  const designers = [
-    {
-      name: "LAMIA LATROUS",
-      image: designer1,
-    },
-    // {
-    //   name: "NIA & ROSE",
-    //   image: designer2,
-    // },
-    {
-      name: "PIETRO PARADISO",
-      image: designer3,
-    },
-    {
-      name: "WALID ATALLAH",
-      image: designer4,
-    },
-    {
-      name: "GLENROY MARCH",
-      image: takla,
-    },
-  ];
->>>>>>> ec2968ccbfdc1f33526e8857b5b314526073d2ba
-
-
 
   /* const upcomingEvents = [
     {
