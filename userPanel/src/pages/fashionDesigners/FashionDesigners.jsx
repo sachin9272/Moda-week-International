@@ -13,7 +13,7 @@ import takla from "../../assets/takla.avif";
 // Using a mix of imported and placeholder images for the grid
 const designersData = [
     { name: "ASMEA CHARIZ", image: designer1 },
-    { name: "ANA PAULA", image: designer2 },
+    // { name: "ANA PAULA", image: designer2 },
     { name: "ANA MILENA", image: designer3 },
     { name: "AMR ELBANNA", image: designer4 },
     // { name: "ADRIAN ALICEA", image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80" },
