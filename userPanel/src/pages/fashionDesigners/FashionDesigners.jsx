@@ -22,7 +22,7 @@ const designersData = [
     // { name: "ELMADAWY", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80" },
     // { name: "ESTUARDO & MEDA CO", image: "https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=800&q=80" },
     // { name: "GULZANA", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" },
-    { name: "TAKLA", image: takla },
+    { name: "GLENROY MARCH", image: takla },
 ];
 
 export default function FashionDesigners() {

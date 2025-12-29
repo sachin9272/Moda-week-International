@@ -208,7 +208,7 @@ export default function LandingPage() {
       image: designer4,
     },
     {
-      name: "TAKLA",
+      name: "GLENROY MARCH",
       image: takla,
     },
   ];
