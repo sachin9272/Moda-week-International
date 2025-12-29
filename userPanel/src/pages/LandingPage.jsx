@@ -17,6 +17,7 @@ import designer3 from "../assets/designer3.jpg";
 import designer4 from "../assets/designer4.png";
 import ourservice from "../assets/ourservice.jpg";
 import schedule from "../assets/schedule.jpg";
+import takla from "../assets/takla.avif";
 
 
 
@@ -207,16 +208,8 @@ export default function LandingPage() {
       image: designer4,
     },
     {
-      name: "NIA & ROSE",
-      image: designer2,
-    },
-    {
-      name: "PIETRO PARADISO",
-      image: designer3,
-    },
-    {
-      name: "WALID ATALLAH",
-      image: designer4,
+      name: "TAKLA",
+      image: takla,
     },
   ];
 

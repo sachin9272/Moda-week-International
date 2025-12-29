@@ -8,6 +8,7 @@ import designer1 from "../../assets/designer1.jpg";
 import designer2 from "../../assets/designer2.jpg";
 import designer3 from "../../assets/designer3.jpg";
 import designer4 from "../../assets/designer4.png";
+import takla from "../../assets/takla.avif";
 
 // Using a mix of imported and placeholder images for the grid
 const designersData = [
@@ -15,12 +16,13 @@ const designersData = [
     { name: "ANA PAULA", image: designer2 },
     { name: "ANA MILENA", image: designer3 },
     { name: "AMR ELBANNA", image: designer4 },
-    { name: "ADRIAN ALICEA", image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80" },
-    { name: "ALEX JIMENEZ", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80" },
-    { name: "ANDRES AQUINO", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80" },
-    { name: "ELMADAWY", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80" },
-    { name: "ESTUARDO & MEDA CO", image: "https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=800&q=80" },
-    { name: "GULZANA", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" },
+    // { name: "ADRIAN ALICEA", image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=800&q=80" },
+    // { name: "ALEX JIMENEZ", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=800&q=80" },
+    // { name: "ANDRES AQUINO", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&q=80" },
+    // { name: "ELMADAWY", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80" },
+    // { name: "ESTUARDO & MEDA CO", image: "https://images.unsplash.com/photo-1534030347209-467a5b0ad3e6?w=800&q=80" },
+    // { name: "GULZANA", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" },
+    { name: "TAKLA", image: takla },
 ];
 
 export default function FashionDesigners() {
@@ -40,7 +42,7 @@ export default function FashionDesigners() {
                     </div>
                     <div>
                         <p className="text-[14px] md:text-[18px] text-black leading-7 text-justify mt-10">
-                        Members of Moda Week International’s platform, our fashion designers play a vital role for the future of the fashion industry. Their contributions extend beyond showcasing their talents and business acumen. Their commitment is entrusted with the responsibility and influencing the strategic direction that will define the industry.
+                            Members of Moda Week International’s platform, our fashion designers play a vital role for the future of the fashion industry. Their contributions extend beyond showcasing their talents and business acumen. Their commitment is entrusted with the responsibility and influencing the strategic direction that will define the industry.
                         </p>
                     </div>
                 </div>
