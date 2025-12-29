@@ -190,28 +190,21 @@ export default function LandingPage() {
   }, []);
 
 
-  const designers = [
-    {
-      name: "LAMIA LATROUS",
-      image: designer1,
-    },
-    {
-      name: "NIA & ROSE",
-      image: designer2,
-    },
-    {
-      name: "PIETRO PARADISO",
-      image: designer3,
-    },
-    {
-      name: "WALID ATALLAH",
-      image: designer4,
-    },
-    {
-      name: "GLENROY MARCH",
-      image: takla,
-    },
-  ];
+  const [designers, setDesigners] = useState([]);
+
+  useEffect(() => {
+    const fetchDesigners = async () => {
+      try {
+        console.log("Fetching designers for Landing Page...");
+        const response = await axios.get(`${baseURL}/api/fashion-designers`);
+        console.log("Landing Page designers fetched:", response.data);
+        setDesigners(response.data);
+      } catch (error) {
+        console.error("Error fetching designers:", error);
+      }
+    };
+    fetchDesigners();
+  }, []);
 
 
 
@@ -307,7 +300,7 @@ export default function LandingPage() {
                 >
                   <div className="relative overflow-hidden mb-4 aspect-3/4">
                     <img
-                      src={designer.image}
+                      src={designer.image?.url || designer.image}
                       alt={designer.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
