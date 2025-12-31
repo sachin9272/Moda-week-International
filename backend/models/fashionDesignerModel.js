@@ -9,6 +9,14 @@ const fashionDesignerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    countryCode: {
+        type: String, // ISO code e.g. "US"
+        required: false // Optional for backward compatibility
+    },
+    socialMedia: {
+        type: String,
+        required: false
+    },
     image: {
         url: String,
         publicId: String
