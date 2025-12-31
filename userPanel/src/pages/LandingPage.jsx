@@ -193,9 +193,10 @@ export default function LandingPage() {
     const fetchDesigners = async () => {
       try {
         console.log("Fetching designers for Landing Page...");
-        const response = await axios.get(`${baseURL}/api/fashion-designers`);
+        const response = await axios.get(`${baseURL}/api/fashion-designers?limit=10`);
         console.log("Landing Page designers fetched:", response.data);
-        setDesigners(response.data);
+        const designersData = response.data.designers || response.data;
+        setDesigners(Array.isArray(designersData) ? designersData : []);
       } catch (error) {
         console.error("Error fetching designers:", error);
       }
@@ -293,7 +294,12 @@ export default function LandingPage() {
                   key={idx}
                   className="group cursor-pointer shrink-0 w-94 snap-start"
                 >
-                  <div className="relative overflow-hidden mb-4 aspect-3/4">
+                  <a
+                    href={designer.socialMedia || "#"}
+                    target={designer.socialMedia ? "_blank" : "_self"}
+                    rel="noopener noreferrer"
+                    className="block relative overflow-hidden mb-4 aspect-3/4"
+                  >
                     <img
                       src={designer.image?.url || designer.image}
                       alt={designer.name}
@@ -302,10 +308,19 @@ export default function LandingPage() {
 
                     <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/80 to-transparent"></div>
 
-                    <p className="absolute bottom-3 left-3 text-white text-sm font-medium tracking-wide">
-                      {designer.name}
-                    </p>
-                  </div>
+                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                      {designer.countryCode && (
+                        <img
+                          src={`https://flagcdn.com/w20/${designer.countryCode.toLowerCase()}.png`}
+                          alt={designer.country}
+                          className="w-5 h-auto rounded-sm"
+                        />
+                      )}
+                      <p className="text-white text-sm font-medium tracking-wide">
+                        {designer.name}
+                      </p>
+                    </div>
+                  </a>
                 </div>
               ))}
             </div>
