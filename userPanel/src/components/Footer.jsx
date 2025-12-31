@@ -115,10 +115,10 @@ export default function Footer() {
 
           {/* Content */}
           <div className="relative z-10 container mx-auto px-6 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 mt-8">
               {/* --- Your sections remain same --- */}
               {/* About Section */}
-              <div>
+              <div className="lg:col-span-3">
                 <div className="mb-6">
                   <img src={logo} alt="" />
                 </div>
@@ -157,7 +157,7 @@ export default function Footer() {
               </div>
 
               {/* Services */}
-              <div>
+              <div className="lg:col-span-2">
                 <h3 className="text-xl font-bold mb-6">SERVICES</h3>
                 <ul className="space-y-3">
                   <li>
@@ -204,7 +204,7 @@ export default function Footer() {
               </div>
 
               {/* Quick Links */}
-              <div>
+              <div className="lg:col-span-2">
                 <h3 className="text-xl font-bold mb-6">QUICK LINKS</h3>
                 <ul className="space-y-3">
                   <li>
@@ -213,22 +213,6 @@ export default function Footer() {
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       About MWINTL
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/service?tab=designer"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Apply as Designer
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/service?tab=sponsor"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Apply as Sponsor
                     </Link>
                   </li>
                   <li>
@@ -250,8 +234,47 @@ export default function Footer() {
                 </ul>
               </div>
 
+              {/* Careers */}
+              <div className="lg:col-span-2">
+                <h3 className="text-xl font-bold mb-6">CAREERS</h3>
+                <ul className="space-y-3">
+                  <li>
+                    <Link
+                      to="/service?tab=designer"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Apply as Designer
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/service?tab=sponsor"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Apply as Sponsor
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/terms-and-conditions"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Terms and Conditions
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/privacy-policy"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Privacy Policy
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
               {/* Contact */}
-              <div id="get-in-touch">
+              <div id="get-in-touch" className="lg:col-span-2">
                 <h3 className="text-xl font-bold mb-6">CONTACT INQUIRY</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-gray-400">
