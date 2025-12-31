@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Upload, X, Trash2, Plus } from 'lucide-react';
+import { Upload, X, Trash2, Plus, Pencil } from 'lucide-react';
 import { baseURL } from '../config/api';
+import { countries } from '../utils/countries';
 
 const FashionDesigners = () => {
     const [designers, setDesigners] = useState([]);
@@ -12,10 +13,14 @@ const FashionDesigners = () => {
     const [formData, setFormData] = useState({
         name: '',
         country: '',
+        countryCode: '',
+        socialMedia: '',
         image: null
     });
     const [previewUrl, setPreviewUrl] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editId, setEditId] = useState(null);
 
     useEffect(() => {
         fetchDesigners();
@@ -23,8 +28,9 @@ const FashionDesigners = () => {
 
     const fetchDesigners = async () => {
         try {
-            const response = await axios.get(`${baseURL}/api/fashion-designers`);
-            setDesigners(response.data);
+            const response = await axios.get(`${baseURL}/api/fashion-designers?limit=1000`);
+            const designersData = response.data.designers || response.data;
+            setDesigners(Array.isArray(designersData) ? designersData : []);
             setLoading(false);
         } catch (error) {
             console.error("Error fetching designers:", error);
@@ -33,7 +39,17 @@ const FashionDesigners = () => {
     };
 
     const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'country') {
+            const selectedCountry = countries.find(c => c.name === value);
+            setFormData({
+                ...formData,
+                country: value,
+                countryCode: selectedCountry?.code || ''
+            });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleFileChange = (e) => {
@@ -51,20 +67,28 @@ const FashionDesigners = () => {
         const data = new FormData();
         data.append('name', formData.name);
         data.append('country', formData.country);
+        data.append('countryCode', formData.countryCode);
+        data.append('socialMedia', formData.socialMedia);
         if (formData.image) {
             data.append('image', formData.image);
         }
 
         try {
-            await axios.post(`${baseURL}/api/fashion-designers`, data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            if (isEditing) {
+                await axios.put(`${baseURL}/api/fashion-designers/${editId}`, data, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            } else {
+                await axios.post(`${baseURL}/api/fashion-designers`, data, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
             fetchDesigners();
             setShowAddModal(false);
             resetForm();
         } catch (error) {
-            console.error("Error creating designer:", error);
-            alert("Failed to create designer");
+            console.error("Error creating/updating designer:", error);
+            alert("Failed to save designer");
         } finally {
             setSubmitting(false);
         }
@@ -82,9 +106,25 @@ const FashionDesigners = () => {
         }
     };
 
+    const handleEdit = (designer) => {
+        setFormData({
+            name: designer.name,
+            country: designer.country,
+            countryCode: designer.countryCode || '',
+            socialMedia: designer.socialMedia || '',
+            image: designer.image // Keep reference for logic, though file input won't show it
+        });
+        setPreviewUrl(designer.image?.url);
+        setIsEditing(true);
+        setEditId(designer._id);
+        setShowAddModal(true);
+    };
+
     const resetForm = () => {
-        setFormData({ name: '', country: '', image: null });
+        setFormData({ name: '', country: '', countryCode: '', socialMedia: '', image: null });
         setPreviewUrl(null);
+        setIsEditing(false);
+        setEditId(null);
     };
 
     return (
@@ -104,7 +144,7 @@ const FashionDesigners = () => {
                 <div className="text-center py-10">Loading...</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {designers.map((designer) => (
+                    {designers?.map((designer) => (
                         <div key={designer._id} className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden group">
                             <div className="relative aspect-[3/4]">
                                 <img
@@ -112,7 +152,13 @@ const FashionDesigners = () => {
                                     alt={designer.name}
                                     className="w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                    <button
+                                        onClick={() => handleEdit(designer)}
+                                        className="p-2 bg-white rounded-full text-blue-600 hover:bg-blue-50 transition-colors"
+                                    >
+                                        <Pencil size={20} />
+                                    </button>
                                     <button
                                         onClick={() => handleDelete(designer._id)}
                                         className="p-2 bg-white rounded-full text-red-600 hover:bg-red-50 transition-colors"
@@ -127,7 +173,7 @@ const FashionDesigners = () => {
                             </div>
                         </div>
                     ))}
-                    {designers.length === 0 && (
+                    {designers?.length === 0 && (
                         <div className="col-span-full text-center py-10 text-slate-500 bg-white rounded-xl">
                             No designers found. Add one to get started.
                         </div>
@@ -138,15 +184,15 @@ const FashionDesigners = () => {
             {/* Add Modal */}
             {showAddModal && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-slate-800">Add New Designer</h2>
+                    <div className="bg-white rounded-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b border-slate-100 flex justify-between items-center shrink-0">
+                            <h2 className="text-xl font-bold text-slate-800">{isEditing ? 'Edit Designer' : 'Add New Designer'}</h2>
                             <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
                                 <X size={24} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Designer Name</label>
                                 <input
@@ -162,14 +208,31 @@ const FashionDesigners = () => {
 
                             <div>
                                 <label className="block text-sm font-medium text-slate-700 mb-1">Country</label>
-                                <input
-                                    type="text"
+                                <select
                                     name="country"
                                     value={formData.country}
                                     onChange={handleInputChange}
                                     required
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                >
+                                    <option value="">Select Country</option>
+                                    {countries.map((c) => (
+                                        <option key={c.code} value={c.name}>
+                                            {c.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Social Media Link (Optional)</label>
+                                <input
+                                    type="url"
+                                    name="socialMedia"
+                                    value={formData.socialMedia}
+                                    onChange={handleInputChange}
                                     className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="e.g. Italy"
+                                    placeholder="e.g. https://instagram.com/designer"
                                 />
                             </div>
 
@@ -203,10 +266,10 @@ const FashionDesigners = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={submitting || !formData.image}
+                                    disabled={submitting || (!isEditing && !formData.image)}
                                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {submitting ? 'Adding...' : 'Add Designer'}
+                                    {submitting ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save Changes' : 'Add Designer')}
                                 </button>
                             </div>
                         </form>
