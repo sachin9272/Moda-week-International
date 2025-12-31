@@ -11,6 +11,8 @@ import PastEvents from "./pages/pastEvents/PastEvents.jsx";
 import NewsRoom from "./pages/newsRoom/NewsRoom.jsx";
 import EventDetail from "./pages/EventDetail.jsx";
 import MembershipProgram from "./pages/MembershipProgram.jsx";
+import TermsConditions from "./pages/TermsConditions.jsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
@@ -34,6 +36,8 @@ function App() {
         <Route path="/event-details" element={<EventDetail />} />
         <Route path="/event-details/:id" element={<EventDetail />} />
         <Route path="/membership-program" element={<MembershipProgram />} />
+        <Route path="/terms-and-conditions" element={<TermsConditions />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
       </Routes>
     </Router>
   );
