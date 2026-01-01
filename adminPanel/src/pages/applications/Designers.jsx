@@ -1,9 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Table from '../../components/ui/Table';
 import { baseURL } from '../../config/api';
+import { ArrowLeft } from 'lucide-react';
 
 const Designers = () => {
+    const navigate = useNavigate();
     const [designers, setDesigners] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -92,9 +95,18 @@ const Designers = () => {
     return (
         <div>
             <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800">Designers Management</h1>
-                    <p className="text-slate-500">Review and manage designer applications</p>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                        title="Go Back"
+                    >
+                        <ArrowLeft className="w-6 h-6 text-slate-600" />
+                    </button>
+                    <div>
+                        <h1 className="text-2xl font-bold text-slate-800">Designers Management</h1>
+                        <p className="text-slate-500">Review and manage designer applications</p>
+                    </div>
                 </div>
                 <div className="flex gap-2">
                     <input

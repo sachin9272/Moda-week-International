@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, ArrowLeft } from 'lucide-react';
 
 const AddEvent = () => {
     const navigate = useNavigate();
@@ -226,7 +226,16 @@ const AddEvent = () => {
 
     return (
         <div className="p-6 min-h-screen text-black">
-            <h1 className="text-3xl font-bold mb-6">Add New Event</h1>
+            <div className="flex items-center gap-4 mb-6">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                    title="Go Back"
+                >
+                    <ArrowLeft className="w-6 h-6" />
+                </button>
+                <h1 className="text-3xl font-bold">Add New Event</h1>
+            </div>
 
             <form onSubmit={handleSubmit} className="max-w-4xl space-y-8">
                 <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
@@ -241,6 +250,7 @@ const AddEvent = () => {
                             <input type="text" name="eventName" value={formData.eventName} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" required />
                         </div>
                         <div>
+                            <label className="block text-gray-400 mb-1">Date</label>
                             <input type="text" name="date" value={formData.date} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" required />
                         </div>
                         <div>
