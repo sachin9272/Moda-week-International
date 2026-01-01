@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
-import { Upload, X } from 'lucide-react';
+import { Upload, X, ArrowLeft } from 'lucide-react';
 
 const EditEvent = () => {
     const { id } = useParams();
@@ -326,7 +326,16 @@ const EditEvent = () => {
 
     return (
         <div className="p-6 min-h-screen text-black">
-            <h1 className="text-3xl font-bold mb-6">Edit Event</h1>
+            <div className="flex items-center gap-4 mb-6">
+                <button
+                    onClick={() => navigate(-1)}
+                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                    title="Go Back"
+                >
+                    <ArrowLeft className="w-6 h-6" />
+                </button>
+                <h1 className="text-3xl font-bold">Edit Event</h1>
+            </div>
 
             <form onSubmit={handleSubmit} className="max-w-4xl space-y-8">
                 <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
