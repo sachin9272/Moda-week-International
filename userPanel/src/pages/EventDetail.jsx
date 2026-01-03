@@ -4,7 +4,7 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import CtaSection from '../components/CtaSection';
 import Footer from '../components/Footer';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { baseURL as API_BASE_URL } from '../config/api';
 
 const EventDetail = () => {
@@ -86,28 +86,15 @@ const EventDetail = () => {
             );
         } else {
             // Default Split
-            const gradientClass = {
-                'none': 'bg-white',
-                'purple-pink': 'bg-gradient-to-r from-[#A10F01] to-[#5E25EC] text-white',
-                'blue-cyan': 'bg-gradient-to-l from-blue-900 to-cyan-800 text-white',
-                'sunset': 'bg-gradient-to-br from-orange-700 to-yellow-600 text-white',
-                'midnight': 'bg-gradient-to-br from-[#0f172a] to-[#1e293b] text-white',
-            }[event.heroGradient || 'none'];
-
-            const hasGradient = event.heroGradient && event.heroGradient !== 'none';
-            const textColorClass = hasGradient ? 'text-white' : 'text-black';
-            const subTextColorClass = hasGradient ? 'text-gray-200' : 'text-gray-600';
-            const buttonColorClass = hasGradient ? 'text-white border-white hover:text-gray-200' : 'text-black border-[#C7913E] hover:text-[#C7913E]';
-
             return (
                 <div className="relative min-h-screen flex flex-col md:flex-row">
-                    <div className={`w-full md:w-1/2 flex flex-col justify-center px-8 md:px-24 py-20 z-10 ${gradientClass}`}>
+                    <div className="w-full md:w-1/2 flex flex-col justify-center px-8 md:px-24 py-20 z-10 bg-white">
                         <div className="space-y-6">
                             <div className="flex items-center gap-4">
                                 <div className="h-[1px] w-12 bg-[#C7913E]"></div>
                                 <span className="text-[#C7913E] uppercase tracking-[0.2em] text-sm">{formatDate(event.date)}</span>
                             </div>
-                            <h1 className={`text-5xl md:text-6xl font-bold leading-[1.1] ${textColorClass} max-w-2xl`}>
+                            <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] text-black max-w-2xl">
                                 {event.eventName}
                             </h1>
                         </div>
@@ -169,6 +156,74 @@ const EventDetail = () => {
                                     <img src={img} alt={`Detail ${i}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
                                 </div>
                             ))}
+                        </div>
+                    </div>
+                </div>
+            );
+        } else if (layout === 'carousel') {
+            // Designer Profile Layout
+            const designerImageUrl = collection.designerImage?.url || collection.designerImage;
+            return (
+                <div key={index} className="py-20 bg-white">
+                    <div className="max-w-[85%] mx-auto font-sans">
+                        {/* Designer Header Section */}
+                        <div className="flex flex-col md:flex-row gap-12 items-start mb-20 border-b border-black pb-12">
+                            {/* Left: Designer Image */}
+                            {designerImageUrl && (
+                                <div className="w-full md:w-[400px] shrink-0">
+                                    <div className="relative aspect-[3/4] overflow-hidden shadow-sm">
+                                        <img src={designerImageUrl} alt={collection.title} className="w-full h-full object-cover object-top" />
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Right: Bio */}
+                            <div className="flex-1 space-y-8 pt-4">
+                                <div className="space-y-1">
+                                    <h2 className="text-4xl font-bold uppercase tracking-wide border-b-2 border-orange-400 inline-block pb-1">{collection.title}</h2>
+                                    {collection.subtitle && <p className="text-xl uppercase tracking-widest text-gray-800">{collection.subtitle}</p>}
+                                </div>
+
+                                {collection.description ? (
+                                    <div className="prose max-w-none text-gray-700 text-lg leading-relaxed space-y-6 text-justify">
+                                        {/* Simple formatting: preserve line breaks */}
+                                        {collection.description.split('\n').map((para, i) => (
+                                            <p key={i}>{para}</p>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-400 italic">No biography available.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Collection Images (Bottom) - Infinite Marquee (Right-to-Left) */}
+                        <div className="w-full relative group overflow-hidden">
+                            <div className="marquee-wrapper py-8">
+                                <div className="marquee-track gap-4" style={{ animation: 'marquee-left 15s linear infinite' }}>
+                                    {/* Original list */}
+                                    {images.map((img, i) => (
+                                        <div key={i} className="h-[300px] w-auto relative shrink-0">
+                                            <img
+                                                src={img}
+                                                alt={`Collection ${i}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ))}
+
+                                    {/* Duplicate list for infinite scroll */}
+                                    {images.map((img, i) => (
+                                        <div key={`dup-${i}`} className="h-[300px] w-auto relative shrink-0">
+                                            <img
+                                                src={img}
+                                                alt={`Collection Duplicate ${i}`}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
