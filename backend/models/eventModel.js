@@ -30,9 +30,14 @@ const eventSchema = new mongoose.Schema({
         {
             title: { type: String, required: true },
             subtitle: { type: String, required: false },
+            description: { type: String, required: false }, // Designer Biography
+            designerImage: {
+                url: { type: String },
+                publicId: { type: String }
+            },
             layout: {
                 type: String,
-                enum: ['grid', 'masonry', 'highlight'],
+                enum: ['grid', 'masonry', 'highlight', 'carousel'],
                 default: 'grid'
             },
             gridAspectRatio: {
@@ -71,10 +76,6 @@ const eventSchema = new mongoose.Schema({
             },
         }
     ],
-    heroGradient: {
-        type: String,
-        default: 'none' // 'purple-pink', 'blue-cyan', 'sun-set', 'none'
-    },
     descriptionSection: {
         title: { type: String },
         text: { type: String },
@@ -96,6 +97,7 @@ eventSchema.set('toJSON', {
         // Remove publicId from collections
         if (ret.collections && Array.isArray(ret.collections)) {
             ret.collections.forEach(col => {
+                if (col.designerImage) delete col.designerImage.publicId;
                 if (col.images && Array.isArray(col.images)) {
                     col.images.forEach(img => {
                         if (img) delete img.publicId;
