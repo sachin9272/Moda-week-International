@@ -15,7 +15,6 @@ const EditEvent = () => {
         date: '',
         eventType: 'upcoming',
         heroLayout: 'split', // Default layout
-        heroGradient: 'none',
         thumbnail: null, // string (url) or file
         headerVideo: null, // string (url) or file
         descriptionSection: {
@@ -40,6 +39,8 @@ const EditEvent = () => {
     const [currentCollection, setCurrentCollection] = useState({
         title: '',
         subtitle: '',
+        description: '',
+        designerImage: null,
         layout: 'grid', // Default collection layout
         gridAspectRatio: 'portrait',
         images: []
@@ -56,12 +57,12 @@ const EditEvent = () => {
                     date: event.date,
                     eventType: event.eventType || 'upcoming',
                     heroLayout: event.heroLayout || 'split',
-                    heroGradient: event.heroGradient || 'none',
                     // Handle object vs string for backward compatibility
                     thumbnail: event.thumbnail?.url || event.thumbnail,
                     headerVideo: event.headerVideo?.url || event.headerVideo,
                     collections: event.collections.map(col => ({
                         ...col,
+                        designerImage: col.designerImage?.url || col.designerImage,
                         gridAspectRatio: col.gridAspectRatio || 'portrait',
                         images: col.images.map(img => {
                             if (typeof img === 'string') return img;
@@ -193,6 +194,12 @@ const EditEvent = () => {
         }));
     };
 
+    const handleDesignerImage = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setCurrentCollection(prev => ({ ...prev, designerImage: e.target.files[0] }));
+        }
+    };
+
     const saveCollection = () => {
         if (currentCollection.title && currentCollection.images.length > 0) {
             if (editingIndex !== null) {
@@ -210,10 +217,12 @@ const EditEvent = () => {
                     collections: [...prev.collections, currentCollection]
                 }));
             }
-            setCurrentCollection({ title: '', subtitle: '', layout: 'grid', gridAspectRatio: 'portrait', images: [] });
+            setCurrentCollection({ title: '', subtitle: '', description: '', designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', images: [] });
             // Reset file input if possible
             const fileInput = document.getElementById('collectionImagesInput');
             if (fileInput) fileInput.value = '';
+            const diInput = document.getElementById('designerImageInput');
+            if (diInput) diInput.value = '';
         } else {
             alert("Collection must have a title and at least one image.");
         }
@@ -229,7 +238,7 @@ const EditEvent = () => {
 
     const cancelEditCollection = () => {
         setEditingIndex(null);
-        setCurrentCollection({ title: '', subtitle: '', layout: 'grid', gridAspectRatio: 'portrait', images: [] });
+        setCurrentCollection({ title: '', subtitle: '', description: '', designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', images: [] });
     };
 
     const removeCollection = (index) => {
@@ -252,7 +261,6 @@ const EditEvent = () => {
         data.append('date', formData.date);
         data.append('eventType', formData.eventType);
         data.append('heroLayout', formData.heroLayout);
-        data.append('heroGradient', formData.heroGradient);
         data.append('descriptionSection', JSON.stringify(formData.descriptionSection));
 
         if (formData.thumbnail && typeof formData.thumbnail !== 'string') {
@@ -279,7 +287,9 @@ const EditEvent = () => {
         const collectionsMeta = formData.collections.map(col => ({
             title: col.title,
             subtitle: col.subtitle,
+            description: col.description,
             layout: col.layout,
+            designerImage: typeof col.designerImage === 'string' ? col.designerImage : undefined,
             gridAspectRatio: col.gridAspectRatio,
             images: col.images.filter(img => typeof img === 'string') // Only pass existing URLs in metadata
         }));
@@ -291,6 +301,9 @@ const EditEvent = () => {
                     data.append(`collectionImages_${index}`, file);
                 }
             });
+            if (col.designerImage && typeof col.designerImage !== 'string') {
+                data.append(`collectionDesignerImage_${index}`, col.designerImage);
+            }
         });
 
         // Add Tickets Data
@@ -370,16 +383,6 @@ const EditEvent = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-gray-400 mb-1">Hero Gradient (Split Layout)</label>
-                            <select name="heroGradient" value={formData.heroGradient} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white">
-                                <option value="none">Default (White/None)</option>
-                                <option value="purple-pink">Purple to Pink</option>
-                                <option value="blue-cyan">Blue to Cyan</option>
-                                <option value="sunset">Sunset Orange</option>
-                                <option value="midnight">Midnight Blue</option>
-                            </select>
-                        </div>
-                        <div>
                             <label className="block text-gray-400 mb-1">Thumbnail Image</label>
                             {typeof formData.thumbnail === 'string' && (
                                 <div className="mb-2">
@@ -436,6 +439,7 @@ const EditEvent = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="text" name="title" value={currentCollection.title} onChange={handleCollectionChange} placeholder="Title (e.g., Designer Name)" className="w-full p-2 bg-gray-700 rounded text-white" />
                             <input type="text" name="subtitle" value={currentCollection.subtitle} onChange={handleCollectionChange} placeholder="Subtitle (optional)" className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <textarea name="description" value={currentCollection.description || ''} onChange={handleCollectionChange} placeholder="Description / Biography (Optional)" rows="3" className="w-full p-2 bg-gray-700 rounded text-white md:col-span-2"></textarea>
                             <div className="md:col-span-2 grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-gray-400 mb-1 text-sm">Collection Layout</label>
@@ -443,6 +447,7 @@ const EditEvent = () => {
                                         <option value="grid">Standard Grid (3 Columns)</option>
                                         <option value="masonry">Masonry / Pinterest Style</option>
                                         <option value="highlight">Feature Highlight (Large First Image)</option>
+                                        <option value="carousel">Carousel / Marquee (Designer Profile)</option>
                                     </select>
                                 </div>
                                 <div>
@@ -455,6 +460,16 @@ const EditEvent = () => {
                                     </select>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="block text-gray-400 text-sm">Designer Profile Image (Use for Carousel Layout)</label>
+                            {currentCollection.designerImage && typeof currentCollection.designerImage === 'string' && (
+                                <div className="mb-2">
+                                    <img src={currentCollection.designerImage} alt="Designer" className="h-16 w-16 rounded-full object-cover border border-gray-500" />
+                                </div>
+                            )}
+                            <input id="designerImageInput" type="file" accept="image/*" onChange={handleDesignerImage} className="w-full p-2 bg-gray-700 rounded text-white" />
                         </div>
 
                         <div className="space-y-2">
