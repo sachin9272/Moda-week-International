@@ -55,9 +55,14 @@ export const createEvent = async (req, res) => {
             const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
             const newImages = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
 
+            const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
+            const designerImage = designerImageFile ? { url: designerImageFile.path, publicId: designerImageFile.filename } : null;
+
             return {
                 ...col,
+                description: col.description,
                 images: newImages,
+                designerImage,
                 gridAspectRatio: col.gridAspectRatio || 'portrait'
             };
         });
@@ -88,7 +93,6 @@ export const createEvent = async (req, res) => {
             thumbnail: thumbnail, // Now an object
             headerVideo: headerVideo, // Now an object
             heroLayout: heroLayout || 'split',
-            heroGradient: req.body.heroGradient || 'none',
             collections: collectionsWithImages,
             bottomSection,
             descriptionSection,
@@ -127,6 +131,7 @@ export const updateEvent = async (req, res) => {
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
+        console.log(`Updating event: ${id}`);
 
         // Normalize legacy string data for thumbnail/headerVideo to prevent validation errors
         if (event.thumbnail && typeof event.thumbnail === 'string') {
@@ -161,6 +166,48 @@ export const updateEvent = async (req, res) => {
             return file ? { url: file.path, publicId: file.filename } : null;
         };
 
+        // Helper to reconstruct url from character map object
+        const getSafeImage = (img) => {
+            if (!img) return null;
+
+            // Convert Mongoose doc to plain object if needed
+            let plainImg = img;
+            if (img.toObject && typeof img.toObject === 'function') {
+                plainImg = img.toObject();
+            }
+
+            if (!plainImg) return null;
+
+            // If it's a proper object with url
+            if (plainImg.url && typeof plainImg.url === 'string') return plainImg;
+
+            // If it's the corrupted character map (numeric keys)
+            // We check if it has keys "0", "1", "2"...
+            if (typeof plainImg === 'object' && '0' in plainImg && '1' in plainImg) {
+                // Reconstruct string
+                try {
+                    const sortedKeys = Object.keys(plainImg).filter(k => !isNaN(k)).sort((a, b) => parseInt(a) - parseInt(b));
+                    const url = sortedKeys.map(k => plainImg[k]).join('');
+
+                    const parts = url.split('/upload/');
+                    let publicId = undefined;
+                    if (parts.length > 1) {
+                        const afterUpload = parts[1];
+                        // remove version if present (v123123/)
+                        const withoutVersion = afterUpload.replace(/^v\d+\//, '');
+                        // remove extension
+                        publicId = withoutVersion.substring(0, withoutVersion.lastIndexOf('.'));
+                    }
+                    console.log("Reconstructed corrupted image:", url);
+                    return { url, publicId };
+                } catch (e) {
+                    console.error("Failed to reconstruct corrupted image", e);
+                    return null;
+                }
+            }
+            return null;
+        };
+
         // 1. Identify kept images to avoid deletion
         const keptImageUrls = new Set();
 
@@ -173,6 +220,10 @@ export const updateEvent = async (req, res) => {
                     if (c.images) c.images.forEach(imgUrl => {
                         if (typeof imgUrl === 'string') keptImageUrls.add(imgUrl);
                     });
+                    // Also check for kept designerImage
+                    if (c.designerImage && typeof c.designerImage === 'string') {
+                        keptImageUrls.add(c.designerImage);
+                    }
                 });
             } catch (e) {
                 console.error("Error parsing collections JSON:", e);
@@ -221,14 +272,20 @@ export const updateEvent = async (req, res) => {
         // 4. Handle Collections (Delete removed images)
         if (event.collections) {
             for (const col of event.collections) {
+                if (!col) continue;
+                // Delete removed collection images
                 if (col.images) {
                     for (const img of col.images) {
-                        // Check if this existing image URL is present in the `keptImageUrls`
-                        // If NOT, delete it from Cloudinary
-                        // Also, we need check if it has a publicId
-                        if (img.url && !keptImageUrls.has(img.url) && img.publicId) {
+                        if (img && img.url && !keptImageUrls.has(img.url) && img.publicId) {
                             await deleteAsset(img.publicId, 'image');
                         }
+                    }
+                }
+                // Delete removed designerImage
+                if (col.designerImage && col.designerImage.publicId) {
+                    const diUrl = col.designerImage.url;
+                    if (diUrl && !keptImageUrls.has(diUrl)) {
+                        await deleteAsset(col.designerImage.publicId, 'image');
                     }
                 }
             }
@@ -239,74 +296,52 @@ export const updateEvent = async (req, res) => {
             const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
             const newImagesParts = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
 
-            // Existing images: The frontend sends an array of URLs (strings).
-            // We need to convert these strings back to the full Object {url, publicId} from the DB.
-            // But finding them is inefficient if we just search everything.
-            // Better: We can filter the CURRENT event's images to find matches.
+            // Handle Designer Image
+            const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
+            let designerImage = null;
 
-            // Helper to reconstruct url from character map object
-            const getSafeImage = (img) => {
-                if (!img) return null;
-
-                // Convert Mongoose doc to plain object if needed
-                let plainImg = img;
-                if (img.toObject && typeof img.toObject === 'function') {
-                    plainImg = img.toObject();
-                }
-
-                // If it's a proper object with url
-                if (plainImg.url && typeof plainImg.url === 'string') return plainImg;
-
-                // If it's the corrupted character map (numeric keys)
-                // We check if it has keys "0", "1", "2"...
-                if (typeof plainImg === 'object' && '0' in plainImg && '1' in plainImg) {
-                    // Reconstruct string
-                    try {
-                        const sortedKeys = Object.keys(plainImg).filter(k => !isNaN(k)).sort((a, b) => parseInt(a) - parseInt(b));
-                        const url = sortedKeys.map(k => plainImg[k]).join('');
-
-                        const parts = url.split('/upload/');
-                        let publicId = undefined;
-                        if (parts.length > 1) {
-                            const afterUpload = parts[1];
-                            // remove version if present (v123123/)
-                            const withoutVersion = afterUpload.replace(/^v\d+\//, '');
-                            // remove extension
-                            publicId = withoutVersion.substring(0, withoutVersion.lastIndexOf('.'));
-                        }
-                        console.log("Reconstructed corrupted image:", url);
-                        return { url, publicId };
-                    } catch (e) {
-                        console.error("Failed to reconstruct corrupted image", e);
-                        return null;
+            if (designerImageFile) {
+                // New file uploaded
+                designerImage = { url: designerImageFile.path, publicId: designerImageFile.filename };
+            } else {
+                // Check if kept
+                if (col.designerImage && typeof col.designerImage === 'string') {
+                    // Find matching old designer image
+                    let foundDI = null;
+                    if (event.collections) {
+                        event.collections.forEach(oldCol => {
+                            if (!oldCol) return;
+                            const safeDI = getSafeImage(oldCol.designerImage);
+                            if (safeDI && safeDI.url === col.designerImage) {
+                                foundDI = safeDI;
+                            }
+                        });
                     }
+                    designerImage = foundDI;
+                } else if (col.designerImage && col.designerImage.url) {
+                    designerImage = col.designerImage;
                 }
-                return null;
-            };
+            }
 
+            // Existing images
             const existingImagesObjects = [];
             if (col.images) {
                 col.images.forEach(urlStr => {
-                    // Find this URL in the OLD event data
                     let found = null;
                     if (event.collections) {
                         event.collections.forEach(oldCol => {
-                            if (oldCol.images) {
-                                const match = oldCol.images.find(oldImg => {
-                                    const safeImg = getSafeImage(oldImg);
-                                    return safeImg && safeImg.url === urlStr;
-                                });
-                                if (match) {
-                                    // Use the SAFE image (reconstructed), not the original corrupted one if it was corrupted
-                                    found = getSafeImage(match);
-                                }
+                            if (!oldCol || !oldCol.images) return;
+                            const match = oldCol.images.find(oldImg => {
+                                const safeImg = getSafeImage(oldImg);
+                                return safeImg && safeImg.url === urlStr;
+                            });
+                            if (match) {
+                                found = getSafeImage(match);
                             }
                         });
                     }
                     if (found) {
                         existingImagesObjects.push(found);
-                    } else {
-                        console.log("Warning: Could not find existing image match for:", urlStr);
                     }
                 });
             }
@@ -314,7 +349,9 @@ export const updateEvent = async (req, res) => {
             return {
                 title: col.title,
                 subtitle: col.subtitle,
+                description: col.description,
                 layout: col.layout,
+                designerImage,
                 gridAspectRatio: col.gridAspectRatio || 'portrait',
                 images: [...existingImagesObjects, ...newImagesParts]
             };
@@ -368,7 +405,7 @@ export const updateEvent = async (req, res) => {
         // Check removed tickets
         if (event.tickets) {
             event.tickets.forEach(ticket => {
-                if (ticket.image && ticket.image.url && ticket.image.publicId) {
+                if (ticket && ticket.image && ticket.image.url && ticket.image.publicId) {
                     // Check if url is kept
                     // It's checked via `keptImageUrls` gathered from `incomingTickets`?
                     // Wait, incomingTickets logic above added to `keptImageUrls`.
@@ -387,7 +424,7 @@ export const updateEvent = async (req, res) => {
             } else {
                 // Existing. URL string passed?
                 // Find original object
-                let found = event.tickets.find(t => t.image && t.image.url === ticket.image || t.image === ticket.image);
+                let found = event.tickets ? event.tickets.find(t => t && (t.image && t.image.url === ticket.image || t.image === ticket.image)) : null;
                 // If frontend sent object? handled. If string? found.
                 if (ticket.image && typeof ticket.image === 'object' && ticket.image.url) {
                     // Frontend sent the object back?
@@ -405,7 +442,7 @@ export const updateEvent = async (req, res) => {
         if (date) event.date = date;
         if (eventType) event.eventType = eventType;
         if (heroLayout) event.heroLayout = heroLayout;
-        if (req.body.heroGradient) event.heroGradient = req.body.heroGradient;
+        if (heroLayout) event.heroLayout = heroLayout;
         if (req.body.descriptionSection) {
             try {
                 event.descriptionSection = JSON.parse(req.body.descriptionSection);
