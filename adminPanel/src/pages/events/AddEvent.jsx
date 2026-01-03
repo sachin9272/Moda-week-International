@@ -13,7 +13,6 @@ const AddEvent = () => {
         date: '',
         eventType: 'upcoming',
         heroLayout: 'split', // Default layout
-        heroGradient: 'none', // Default gradient
         thumbnail: null,
         headerVideo: null,
         descriptionSection: {
@@ -38,6 +37,7 @@ const AddEvent = () => {
     const [currentCollection, setCurrentCollection] = useState({
         title: '',
         subtitle: '',
+        description: '',
         layout: 'grid', // Default collection layout
         gridAspectRatio: 'portrait',
         images: []
@@ -113,7 +113,7 @@ const AddEvent = () => {
                 ...prev,
                 collections: [...prev.collections, currentCollection]
             }));
-            setCurrentCollection({ title: '', subtitle: '', layout: 'grid', gridAspectRatio: 'portrait', images: [] });
+            setCurrentCollection({ title: '', subtitle: '', description: '', layout: 'grid', gridAspectRatio: 'portrait', images: [] });
         } else {
             alert("Collection must have a title and at least one image.");
         }
@@ -180,12 +180,12 @@ const AddEvent = () => {
             data.append('bottomSectionImage', formData.bottomSection.image);
         }
 
-        data.append('heroGradient', formData.heroGradient);
         data.append('descriptionSection', JSON.stringify(formData.descriptionSection));
 
         const collectionsMeta = formData.collections.map(col => ({
             title: col.title,
             subtitle: col.subtitle,
+            description: col.description,
             layout: col.layout,
             gridAspectRatio: col.gridAspectRatio
         }));
@@ -270,16 +270,6 @@ const AddEvent = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-gray-400 mb-1">Hero Gradient (Split Layout)</label>
-                            <select name="heroGradient" value={formData.heroGradient} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white">
-                                <option value="none">Default (White/None)</option>
-                                <option value="purple-pink">Purple to Pink</option>
-                                <option value="blue-cyan">Blue to Cyan</option>
-                                <option value="sunset">Sunset Orange</option>
-                                <option value="midnight">Midnight Blue</option>
-                            </select>
-                        </div>
-                        <div>
                             <label className="block text-gray-400 mb-1">Thumbnail Image</label>
                             <input type="file" name="thumbnail" accept="image/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" required />
                         </div>
@@ -329,6 +319,7 @@ const AddEvent = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="text" name="title" value={currentCollection.title} onChange={handleCollectionChange} placeholder="Title (e.g., Designer Name)" className="w-full p-2 bg-gray-700 rounded text-white" />
                             <input type="text" name="subtitle" value={currentCollection.subtitle} onChange={handleCollectionChange} placeholder="Subtitle (optional)" className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <textarea name="description" value={currentCollection.description} onChange={handleCollectionChange} placeholder="Description / Biography (Optional)" rows="3" className="w-full p-2 bg-gray-700 rounded text-white md:col-span-2"></textarea>
                             <div className="md:col-span-2 grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-gray-400 mb-1 text-sm">Collection Layout</label>
