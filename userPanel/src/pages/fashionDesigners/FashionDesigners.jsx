@@ -23,18 +23,24 @@ export default function FashionDesigners() {
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [availableCountries, setAvailableCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
+    const [events, setEvents] = useState([]);
+    const [selectedEventId, setSelectedEventId] = useState(null);
 
-    // Fetch available countries
+    // Fetch available countries and events
     useEffect(() => {
-        const fetchCountries = async () => {
+        const fetchFilters = async () => {
             try {
-                const response = await axios.get(`${baseURL}/api/fashion-designers/countries`);
-                setAvailableCountries(response.data);
+                const [countriesRes, eventsRes] = await Promise.all([
+                    axios.get(`${baseURL}/api/fashion-designers/countries`),
+                    axios.get(`${baseURL}/api/events/all`) // Ensure this endpoint exists
+                ]);
+                setAvailableCountries(countriesRes.data);
+                setEvents(eventsRes.data);
             } catch (error) {
-                console.error("Error fetching countries:", error);
+                console.error("Error fetching filters:", error);
             }
         };
-        fetchCountries();
+        fetchFilters();
     }, []);
 
     // Debounce search term
@@ -77,6 +83,57 @@ export default function FashionDesigners() {
             setError(error.message);
             setLoading(false);
             setLoadingMore(false);
+        }
+    };
+
+    const fetchEventDesigners = async (eventId) => {
+        setLoading(true);
+        try {
+            const response = await axios.get(`${baseURL}/api/events/${eventId}`);
+            const event = response.data;
+
+            // Extract unique designers from collections
+            // We use a Map to ensure uniqueness by Designer ID (if available) or Name
+            const uniqueDesignersMap = new Map();
+
+            event.collections.forEach(col => {
+                if (col.designerId) {
+                    // We have an ID, but we only have name/image/desc in collection.
+                    // Ideally we would fetch the full designer profile, but for now let's use what we have in the collection
+                    // OR verify if we can get the full object.
+                    // Since we want social media links to work, we ideally need the real Designer object.
+                    // But we can construct a partial one.
+                    if (!uniqueDesignersMap.has(col.designerId)) {
+                        uniqueDesignersMap.set(col.designerId, {
+                            _id: col.designerId,
+                            name: col.title,
+                            image: col.designerImage || col.images[0], // Fallback to first image
+                            socialMedia: "", // We don't have this in collection :(
+                            country: "",
+                            countryCode: ""
+                        });
+                    }
+                } else {
+                    // Legacy collections without ID, key by name
+                    if (!uniqueDesignersMap.has(col.title)) {
+                        uniqueDesignersMap.set(col.title, {
+                            _id: 'legacy-' + Math.random(),
+                            name: col.title,
+                            image: col.designerImage || col.images[0],
+                            school: ""
+                        });
+                    }
+                }
+            });
+
+            const eventDesigners = Array.from(uniqueDesignersMap.values());
+            setDesigners(eventDesigners);
+            setHasMore(false); // Disable infinite scroll for event view
+        } catch (err) {
+            console.error("Error fetching event designers:", err);
+            setError("Failed to load event designers");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -175,6 +232,28 @@ export default function FashionDesigners() {
                                 ))
                             ) : (
                                 <div className="text-sm text-gray-500 italic">No countries found.</div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Event List (Visible when Event filter active) */}
+                    {activeFilter === "Event" && (
+                        <div className="w-full mt-4 flex flex-wrap gap-2 animate-fadeIn">
+                            {events.length > 0 ? (
+                                events.map((event) => (
+                                    <button
+                                        key={event._id}
+                                        onClick={() => handleEventSelect(event._id)}
+                                        className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedEventId === event._id
+                                            ? "bg-[#C7913E] text-white border-[#C7913E]"
+                                            : "bg-gray-50 text-gray-700 border-gray-200 hover:border-[#C7913E] hover:text-[#C7913E]"
+                                            }`}
+                                    >
+                                        {event.eventName}
+                                    </button>
+                                ))
+                            ) : (
+                                <div className="text-sm text-gray-500 italic">No events found.</div>
                             )}
                         </div>
                     )}
