@@ -38,10 +38,42 @@ const AddEvent = () => {
         title: '',
         subtitle: '',
         description: '',
+        designerId: null, // Store selected designer ID
+        designerImage: null, // Add ability to store designer image URL
         layout: 'grid', // Default collection layout
         gridAspectRatio: 'portrait',
         images: []
     });
+
+    const [designers, setDesigners] = useState([]);
+
+    React.useEffect(() => {
+        const fetchDesigners = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/fashion-designers?limit=100`);
+                setDesigners(response.data.designers || []);
+            } catch (error) {
+                console.error("Error fetching designers:", error);
+            }
+        };
+        fetchDesigners();
+    }, []);
+
+    const handleDesignerSelect = (e) => {
+        const selectedId = e.target.value;
+        if (!selectedId) return;
+
+        const designer = designers.find(d => d._id === selectedId);
+        if (designer) {
+            setCurrentCollection(prev => ({
+                ...prev,
+                title: designer.name,
+                description: designer.bio,
+                designerId: designer._id, // Save ID
+                designerImage: designer.image?.url // Auto-fill image if available
+            }));
+        }
+    };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -186,6 +218,7 @@ const AddEvent = () => {
             title: col.title,
             subtitle: col.subtitle,
             description: col.description,
+            designerId: col.designerId, // Include ID
             layout: col.layout,
             gridAspectRatio: col.gridAspectRatio
         }));
@@ -316,6 +349,17 @@ const AddEvent = () => {
 
                     <div className="mb-4 space-y-4 border p-4 border-gray-600 rounded">
                         <h3 className="font-semibold">Add New Collection</h3>
+
+                        <div className="mb-4">
+                            <label className="block text-gray-400 mb-1 text-sm">Select Designer (Auto-fill)</label>
+                            <select onChange={handleDesignerSelect} className="w-full p-2 bg-gray-700 rounded text-white border border-gray-600 focus:border-blue-500">
+                                <option value="">-- Choose a Vendor/Designer --</option>
+                                {designers.map(d => (
+                                    <option key={d._id} value={d._id}>{d.name}</option>
+                                ))}
+                            </select>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="text" name="title" value={currentCollection.title} onChange={handleCollectionChange} placeholder="Title (e.g., Designer Name)" className="w-full p-2 bg-gray-700 rounded text-white" />
                             <input type="text" name="subtitle" value={currentCollection.subtitle} onChange={handleCollectionChange} placeholder="Subtitle (optional)" className="w-full p-2 bg-gray-700 rounded text-white" />
