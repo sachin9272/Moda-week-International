@@ -9,6 +9,7 @@ import serviceTypeRoutes from './routes/serviceTypeRoutes.js';
 import serviceHeroRoutes from './routes/serviceHeroRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import fashionDesignerRoutes from './routes/fashionDesignerRoutes.js';
+import instagramRoutes from './routes/instagramRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -27,6 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Serve static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // Routes
 app.get('/', (req, res) => {
@@ -41,6 +43,7 @@ app.use('/api/service-hero', serviceHeroRoutes); // Added route usage
 app.use('/api/events', eventRoutes);
 app.use('/api/forms', applicationRoutes);
 app.use('/api/fashion-designers', fashionDesignerRoutes);
+app.use('/api/instagram', instagramRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

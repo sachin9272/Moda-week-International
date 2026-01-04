@@ -29,6 +29,7 @@ const eventSchema = new mongoose.Schema({
     collections: [
         {
             title: { type: String, required: true },
+            designerId: { type: mongoose.Schema.Types.ObjectId, ref: 'FashionDesigner' }, // Link to Designer
             subtitle: { type: String, required: false },
             description: { type: String, required: false }, // Designer Biography
             designerImage: {
