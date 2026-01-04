@@ -45,12 +45,14 @@ body {
 .grad-text {
   background: var(--brand-grad);
   -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
 }
 
 .grad-text-up {
   background: linear-gradient(to right, #3C2306, #C7913E);
   -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
 }
 
@@ -58,6 +60,7 @@ body {
   background: linear-gradient(to right, #C7913E, #8C5D25);
   ;
   -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
 }
 
@@ -117,4 +120,8 @@ body {
   100% {
     transform: translateX(-50%);
   }
+}
+
+.animate-marquee {
+  animation: marquee-left 20s linear infinite;
 }
