@@ -7,6 +7,72 @@ import Footer from '../components/Footer';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { baseURL as API_BASE_URL } from '../config/api';
 
+const AutoScrollCarousel = ({ images }) => {
+    const scrollRef = React.useRef(null);
+    const [isInteracting, setIsInteracting] = React.useState(false);
+
+    React.useEffect(() => {
+        const scrollContainer = scrollRef.current;
+        if (!scrollContainer) return;
+
+        let animationFrameId;
+        const scrollSpeed = 1; // Adjust speed as needed
+
+        const scroll = () => {
+            if (!isInteracting && scrollContainer) {
+                if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+                    scrollContainer.scrollLeft = 0;
+                } else {
+                    scrollContainer.scrollLeft += scrollSpeed;
+                }
+            }
+            animationFrameId = requestAnimationFrame(scroll);
+        };
+
+        animationFrameId = requestAnimationFrame(scroll);
+
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isInteracting]);
+
+    return (
+        <div
+            className="w-full relative group"
+            onTouchStart={() => setIsInteracting(true)}
+            onTouchEnd={() => setIsInteracting(false)}
+        >
+            <div
+                ref={scrollRef}
+                className="flex overflow-x-auto gap-[10px] pb-0 scrollbar-hide px-0"
+                style={{ scrollBehavior: 'auto' }} // auto needed for seamless jump
+            >
+                {/* Original list */}
+                {images.map((img, i) => (
+                    <div key={`orig-${i}`} className="h-[500px] w-auto relative shrink-0">
+                        <img
+                            src={img}
+                            alt={`Collection ${i}`}
+                            className="w-full h-full object-cover select-none"
+                            draggable="false"
+                        />
+                    </div>
+                ))}
+
+                {/* Duplicate list for infinite scroll */}
+                {images.map((img, i) => (
+                    <div key={`dup-${i}`} className="h-[500px] w-auto relative shrink-0">
+                        <img
+                            src={img}
+                            alt={`Collection Duplicate ${i}`}
+                            className="w-full h-full object-cover select-none"
+                            draggable="false"
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const EventDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -164,8 +230,8 @@ const EventDetail = () => {
             // Designer Profile Layout
             const designerImageUrl = collection.designerImage?.url || collection.designerImage;
             return (
-                <div key={index} className="py-20 bg-white">
-                    <div className="max-w-[85%] mx-auto font-sans">
+                <div key={index} className="py-10 bg-white">
+                    <div className="max-w-[95%] mx-auto font-sans">
                         {/* Designer Header Section */}
                         <div className="flex flex-col md:flex-row gap-12 items-start mb-20 border-b border-black pb-12">
                             {/* Left: Designer Image */}
@@ -196,36 +262,10 @@ const EventDetail = () => {
                                 )}
                             </div>
                         </div>
-
-                        {/* Collection Images (Bottom) - Infinite Marquee (Right-to-Left) */}
-                        <div className="w-full relative group overflow-hidden">
-                            <div className="marquee-wrapper py-8">
-                                <div className="marquee-track gap-4" style={{ animation: 'marquee-left 15s linear infinite' }}>
-                                    {/* Original list */}
-                                    {images.map((img, i) => (
-                                        <div key={i} className="h-[300px] w-auto relative shrink-0">
-                                            <img
-                                                src={img}
-                                                alt={`Collection ${i}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    ))}
-
-                                    {/* Duplicate list for infinite scroll */}
-                                    {images.map((img, i) => (
-                                        <div key={`dup-${i}`} className="h-[300px] w-auto relative shrink-0">
-                                            <img
-                                                src={img}
-                                                alt={`Collection Duplicate ${i}`}
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
                     </div>
+
+                    {/* Collection Images (Bottom) - Auto Scroll Carousel */}
+                    <AutoScrollCarousel images={images} />
                 </div>
             );
         } else {
