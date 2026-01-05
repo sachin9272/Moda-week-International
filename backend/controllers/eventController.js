@@ -262,7 +262,12 @@ export const updateEvent = async (req, res) => {
 
         // 3. Handle Header Video
         const headerVideoFile = getFile('headerVideo');
-        if (headerVideoFile) {
+        if (req.body.removeHeaderVideo === 'true') {
+            if (event.headerVideo && event.headerVideo.publicId) {
+                await deleteAsset(event.headerVideo.publicId, 'video');
+            }
+            event.headerVideo = null;
+        } else if (headerVideoFile) {
             if (event.headerVideo && event.headerVideo.publicId) {
                 await deleteAsset(event.headerVideo.publicId, 'video');
             }

@@ -51,6 +51,8 @@ const EditEvent = () => {
 
     const [designers, setDesigners] = useState([]);
 
+    const [removeHeaderVideo, setRemoveHeaderVideo] = useState(false);
+
     React.useEffect(() => {
         const fetchDesigners = async () => {
             try {
@@ -342,6 +344,9 @@ const EditEvent = () => {
         if (formData.headerVideo && typeof formData.headerVideo !== 'string') {
             data.append('headerVideo', formData.headerVideo);
         }
+        if (removeHeaderVideo) {
+            data.append('removeHeaderVideo', 'true');
+        }
 
         const bottomSectionData = {
             title: formData.bottomSection.title,
@@ -469,7 +474,19 @@ const EditEvent = () => {
                         <div>
                             <label className="block text-gray-400 mb-1">Header Video (Optional)</label>
                             {typeof formData.headerVideo === 'string' && (
-                                <div className="mb-2 text-blue-300 text-sm">Current Video: ...{formData.headerVideo.slice(-20)}</div>
+                                <div className="mb-2 flex items-center justify-between bg-gray-900 p-2 rounded">
+                                    <span className="text-blue-300 text-sm truncate">...{formData.headerVideo.slice(-25)}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setFormData(prev => ({ ...prev, headerVideo: null }));
+                                            setRemoveHeaderVideo(true);
+                                        }}
+                                        className="text-red-400 hover:text-red-300 text-xs uppercase font-bold px-2"
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
                             )}
                             <input type="file" name="headerVideo" accept="video/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
                         </div>
