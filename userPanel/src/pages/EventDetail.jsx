@@ -119,6 +119,20 @@ const EventDetail = () => {
         const headerVideoUrl = event.headerVideo?.url || event.headerVideo;
         const thumbnailUrl = event.thumbnail?.url || event.thumbnail;
 
+        // Fallback: Standard Header if no video
+        if (!headerVideoUrl) {
+            return (
+                <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[300px] flex flex-col justify-center items-center">
+                    <h1 className="text-3xl md:text-[44px] font-bold uppercase tracking-wider mb-2 grad-text-up">
+                        {event.eventName}
+                    </h1>
+                    <p className="text-sm md:text-lg font-medium tracking-wide mb-4 text-black">
+                        {formatDate(event.date)}
+                    </p>
+                </header>
+            );
+        }
+
         if (event.heroLayout === 'full') {
             return (
                 <div className="relative h-screen w-full flex items-center justify-center overflow-hidden">
@@ -251,7 +265,7 @@ const EventDetail = () => {
                                 </div>
 
                                 {collection.description ? (
-                                    <div className="prose max-w-none text-gray-700 text-lg leading-relaxed space-y-6 text-justify">
+                                    <div className="prose max-w-none text-gray-700 text-base leading-relaxed space-y-6 text-justify">
                                         {/* Simple formatting: preserve line breaks */}
                                         {collection.description.split('\n').map((para, i) => (
                                             <p key={i}>{para}</p>
@@ -365,9 +379,10 @@ const EventDetail = () => {
                         <h2 className="text-2xl text-black mb-4 uppercase tracking-wider max-w-3xl">
                             {event.descriptionSection.title}
                         </h2>
-                        <p className="text-gray-600 leading-relaxed font-light">
-                            {event.descriptionSection.text}
-                        </p>
+                        <div
+                            className="rich-text-content text-gray-600 leading-relaxed font-light"
+                            dangerouslySetInnerHTML={{ __html: event.descriptionSection.text }}
+                        />
                     </div>
                 </div>
             )}
@@ -378,23 +393,55 @@ const EventDetail = () => {
                 {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
             </div>
 
-            {event.bottomSection && (event.bottomSection.title || event.bottomSection.text || event.bottomSection.image) && (
-                <div className="py-20 px-8 bg-white relative overflow-hidden">
-                    <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
-                        <div className="w-full md:w-1/2">
-                            <h2 className="text-2xl md:text-3xl font-playfair font-bold text-black mb-8 leading-tight">
-                                {event.bottomSection.title}
-                            </h2>
-                            <p className="text-black leading-relaxed text-lg font-light">
-                                {event.bottomSection.text}
-                            </p>
-                        </div>
-                        <div className="w-full md:w-1/2 h-[500px] relative">
-                            {event.bottomSection.image && (
-                                <img src={event.bottomSection.image?.url || event.bottomSection.image} alt="Recap" className="absolute inset-0 w-full h-full object-cover rounded-sm grayscale-[50%] hover:grayscale-0 transition-all duration-700" />
+            {event.bottomSection && (event.bottomSection.title || event.bottomSection.text || event.bottomSection.image || event.bottomSection.credits) && (
+                <div className="py-6 px-8 bg-white relative overflow-hidden">
+                    <div className="max-w-7xl mx-auto flex flex-col gap-10">
+                        {/* Top: Title & Recap Text */}
+                        {/* Top: Title & Recap Text */}
+                        <div className="w-full text-center md:text-left">
+                            {/* {event.bottomSection.title && (
+                                <h2 className="text-3xl md:text-4xl font-playfair font-bold text-black mb-8 leading-tight uppercase tracking-wider">
+                                    {event.bottomSection.title}
+                                </h2>
+                            )} */}
+                            {event.bottomSection.text && (
+                                <div
+                                    className="!text-base rich-text-content text-black leading-relaxed text-lg font-light text-justify"
+                                    dangerouslySetInnerHTML={{ __html: event.bottomSection.text }}
+                                />
                             )}
-                            <div className="absolute -inset-4 border border-[#C7913E]/30 z-0 pointer-events-none"></div>
                         </div>
+
+                        {/* Bottom Split: Image (Left) & Credits (Right) */}
+                        {(() => {
+                            const bottomImage = event.bottomSection.image || event.thumbnail;
+                            const bottomImageUrl = bottomImage?.url || bottomImage;
+
+                            // Only render split section if there are credits or an image
+                            if (!bottomImageUrl && !event.bottomSection.credits) return null;
+
+                            return (
+                                <div className="flex flex-col md:flex-row gap-12 items-start">
+                                    {bottomImageUrl && (
+                                        <div className="w-full md:w-1/2 relative">
+                                            <div className="relative aspect-[3/4] shadow-xl">
+                                                <img src={bottomImageUrl} alt="Recap" className="w-full h-full object-cover rounded-sm" />
+                                                <div className="absolute -inset-4 border border-[#C7913E]/30 z-0 pointer-events-none"></div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className={`w-full ${bottomImageUrl ? 'md:w-1/2' : 'md:w-full'}`}>
+                                        {event.bottomSection.credits && (
+                                            <div
+                                                className="rich-text-content text-black leading-relaxed text-base font-light tracking-wide space-y-2"
+                                                dangerouslySetInnerHTML={{ __html: event.bottomSection.credits }}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })()}
                     </div>
                 </div>
             )}
