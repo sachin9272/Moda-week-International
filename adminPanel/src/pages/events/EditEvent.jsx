@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
 import { Upload, X, ArrowLeft } from 'lucide-react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const EditEvent = () => {
     const { id } = useParams();
@@ -61,6 +63,51 @@ const EditEvent = () => {
         fetchDesigners();
     }, []);
 
+    const imageHandler = React.useCallback(function () {
+        const input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('accept', 'image/*');
+        input.click();
+
+        input.onchange = async () => {
+            const file = input.files[0];
+            if (file) {
+                const fd = new FormData();
+                fd.append('image', file);
+
+                try {
+                    const res = await axios.post(`${API_BASE_URL}/api/upload`, fd, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+
+                    const url = res.data.url;
+                    // @ts-ignore
+                    const quill = this.quill;
+                    const range = quill.getSelection();
+                    quill.insertEmbed(range.index, 'image', url);
+                } catch (err) {
+                    console.error('Image upload error:', err);
+                    alert("Image upload failed");
+                }
+            }
+        };
+    }, []);
+
+    const modules = React.useMemo(() => ({
+        toolbar: {
+            container: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link', 'image'],
+                ['clean']
+            ],
+            handlers: {
+                image: imageHandler
+            }
+        }
+    }), [imageHandler]);
+
     const handleDesignerSelect = (e) => {
         const selectedId = e.target.value;
         if (!selectedId) return;
@@ -104,13 +151,8 @@ const EditEvent = () => {
                         ...event.bottomSection,
                         image: event.bottomSection?.image?.url || event.bottomSection?.image,
                         title: event.bottomSection?.title || '',
-                        text: event.bottomSection?.text || ''
-                    },
-                    bottomSection: {
-                        ...event.bottomSection,
-                        image: event.bottomSection?.image?.url || event.bottomSection?.image,
-                        title: event.bottomSection?.title || '',
-                        text: event.bottomSection?.text || ''
+                        text: event.bottomSection?.text || '',
+                        credits: event.bottomSection?.credits || ''
                     },
                     descriptionSection: event.descriptionSection || { title: '', text: '', isVisible: false },
                     hasTickets: event.hasTickets || false,
@@ -304,6 +346,7 @@ const EditEvent = () => {
         const bottomSectionData = {
             title: formData.bottomSection.title,
             text: formData.bottomSection.text,
+            credits: formData.bottomSection.credits,
             image: typeof formData.bottomSection.image === 'string' ? formData.bottomSection.image : undefined
         };
         data.append('bottomSection', JSON.stringify(bottomSectionData));
@@ -456,8 +499,19 @@ const EditEvent = () => {
                                 <input type="text" name="descriptionSection.title" value={formData.descriptionSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
                             </div>
                             <div>
+// ReactQuill imports are handled in the import replacement
                                 <label className="block text-gray-400 mb-1">Description Text</label>
-                                <textarea name="descriptionSection.text" value={formData.descriptionSection.text} onChange={handleInputChange} rows="4" className="w-full p-2 bg-gray-700 rounded text-white"></textarea>
+
+                                <ReactQuill
+                                    theme="snow"
+                                    value={formData.descriptionSection.text}
+                                    onChange={(value) => setFormData(prev => ({
+                                        ...prev,
+                                        descriptionSection: { ...prev.descriptionSection, text: value }
+                                    }))}
+                                    modules={modules}
+                                    className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px]"
+                                />
                             </div>
                         </div>
                     )}
@@ -471,7 +525,7 @@ const EditEvent = () => {
 
                         <div className="mb-4">
                             <label className="block text-gray-400 mb-1 text-sm">Select Designer (Auto-fill)</label>
-                            <select onChange={handleDesignerSelect} className="w-full p-2 bg-gray-700 rounded text-white border border-gray-600 focus:border-blue-500">
+                            <select name="designerId" value={currentCollection.designerId || ''} onChange={handleDesignerSelect} className="w-full p-2 bg-gray-700 rounded text-white border border-gray-600 focus:border-blue-500">
                                 <option value="">-- Choose a Vendor/Designer --</option>
                                 {designers.map(d => (
                                     <option key={d._id} value={d._id}>{d.name}</option>
@@ -567,7 +621,6 @@ const EditEvent = () => {
                     )}
                 </div>
 
-                {/* Tickets Section */}
                 <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-blue-400">Event Tickets</h2>
@@ -617,8 +670,30 @@ const EditEvent = () => {
                             </div>
                         )}
                         <input type="file" name="bottomSection.image" accept="image/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
-                        <input type="text" name="bottomSection.title" value={formData.bottomSection.title} onChange={handleInputChange} placeholder="Title" className="w-full p-2 bg-gray-700 rounded text-white" />
-                        <textarea name="bottomSection.text" value={formData.bottomSection.text} onChange={handleInputChange} placeholder="Description Text" rows="4" className="w-full p-2 bg-gray-700 rounded text-white" />
+
+                        <ReactQuill
+                            theme="snow"
+                            value={formData.bottomSection.text}
+                            onChange={(value) => setFormData(prev => ({
+                                ...prev,
+                                bottomSection: { ...prev.bottomSection, text: value }
+                            }))}
+                            placeholder="Recap Text"
+                            modules={modules}
+                            className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px] mb-4"
+                        />
+                        <label className="block text-gray-400 mb-1">Credits / Production Team</label>
+                        <ReactQuill
+                            theme="snow"
+                            value={formData.bottomSection.credits}
+                            onChange={(value) => setFormData(prev => ({
+                                ...prev,
+                                bottomSection: { ...prev.bottomSection, credits: value }
+                            }))}
+                            placeholder="Credits / Production Team List"
+                            modules={modules}
+                            className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px]"
+                        />
                     </div>
                 </div>
 
