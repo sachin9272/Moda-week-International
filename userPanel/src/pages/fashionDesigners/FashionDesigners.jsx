@@ -92,43 +92,31 @@ export default function FashionDesigners() {
             const response = await axios.get(`${baseURL}/api/events/${eventId}`);
             const event = response.data;
 
-            // Extract unique designers from collections
-            // We use a Map to ensure uniqueness by Designer ID (if available) or Name
-            const uniqueDesignersMap = new Map();
-
+            // Extract unique designer IDs
+            const designerIds = new Set();
             event.collections.forEach(col => {
                 if (col.designerId) {
-                    // We have an ID, but we only have name/image/desc in collection.
-                    // Ideally we would fetch the full designer profile, but for now let's use what we have in the collection
-                    // OR verify if we can get the full object.
-                    // Since we want social media links to work, we ideally need the real Designer object.
-                    // But we can construct a partial one.
-                    if (!uniqueDesignersMap.has(col.designerId)) {
-                        uniqueDesignersMap.set(col.designerId, {
-                            _id: col.designerId,
-                            name: col.title,
-                            image: col.designerImage || col.images[0], // Fallback to first image
-                            socialMedia: "", // We don't have this in collection :(
-                            country: "",
-                            countryCode: ""
-                        });
-                    }
-                } else {
-                    // Legacy collections without ID, key by name
-                    if (!uniqueDesignersMap.has(col.title)) {
-                        uniqueDesignersMap.set(col.title, {
-                            _id: 'legacy-' + Math.random(),
-                            name: col.title,
-                            image: col.designerImage || col.images[0],
-                            school: ""
-                        });
-                    }
+                    designerIds.add(col.designerId);
                 }
             });
 
-            const eventDesigners = Array.from(uniqueDesignersMap.values());
-            setDesigners(eventDesigners);
-            setHasMore(false); // Disable infinite scroll for event view
+            // Fetch full details for each designer
+            const designerPromises = Array.from(designerIds).map(id =>
+                axios.get(`${baseURL}/api/fashion-designers/${id}`)
+                    .then(res => res.data)
+                    .catch(err => {
+                        console.error(`Failed to fetch designer ${id}:`, err);
+                        return null;
+                    })
+            );
+
+            const fetchedDesigners = await Promise.all(designerPromises);
+
+            // Filter out nulls (failed fetches)
+            const validDesigners = fetchedDesigners.filter(d => d !== null);
+
+            setDesigners(validDesigners);
+            setHasMore(false);
         } catch (err) {
             console.error("Error fetching event designers:", err);
             setError("Failed to load event designers");
@@ -150,13 +138,15 @@ export default function FashionDesigners() {
         setPage(1);
         if (filter === "All") {
             setSelectedCountry(null);
+            setSelectedEventId(null);
             fetchDesigners(1, debouncedSearch, "");
         } else if (filter === "Country") {
-            // Don't fetch yet, wait for user to select a country? 
-            // Or show all initially? Let's wait for selection to filter, but maybe show all by default until then? 
-            // Better UX: Show country buttons. If no country selected yet, maybe show all (or empty?). 
-            // Let's show all designers until a specific country is clicked.
             setSelectedCountry(null);
+            setSelectedEventId(null);
+            fetchDesigners(1, debouncedSearch, "");
+        } else if (filter === "Event") {
+            setSelectedCountry(null);
+            setSelectedEventId(null);
             fetchDesigners(1, debouncedSearch, "");
         }
     };
@@ -165,6 +155,12 @@ export default function FashionDesigners() {
         setSelectedCountry(country);
         setPage(1);
         fetchDesigners(1, debouncedSearch, country);
+    };
+
+    const handleEventSelect = (eventId) => {
+        setSelectedEventId(eventId);
+        setPage(1);
+        fetchEventDesigners(eventId);
     };
 
     const handleLoadMore = () => {
