@@ -117,19 +117,18 @@ export default function NewsRoom() {
             <Navbar />
 
             {/* Ticker Section */}
-            <div className="bg-black text-white text-[10px] md:text-xs py-2 overflow-hidden whitespace-nowrap tracking-widest uppercase border-b border-gray-100 mt-20 md:mt-0">
+            {/* <div className="bg-black text-white text-[10px] md:text-xs py-2 overflow-hidden whitespace-nowrap tracking-widest uppercase border-b border-gray-100 mt-20 md:mt-0">
                 <div className="inline-flex gap-8 animate-marquee">
                     <span className="font-bold text-[#C7913E]">TRENDING NOW:</span>
                     {trendingTopics.map((topic, i) => (
                         <span key={i} className="opacity-80 hover:opacity-100 cursor-pointer">{topic} •</span>
                     ))}
-                    {/* Duplicate for seamless scroll effect (simplified) */}
                     <span className="font-bold text-[#C7913E] ml-8">TRENDING NOW:</span>
                     {trendingTopics.map((topic, i) => (
                         <span key={`dup-${i}`} className="opacity-80 hover:opacity-100 cursor-pointer">{topic} •</span>
                     ))}
                 </div>
-            </div>
+            </div> */}
 
             {/* Custom Header */}
             <header className="py-8 md:py-12 px-4 border-b border-gray-200">
