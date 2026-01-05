@@ -113,6 +113,23 @@ export const getDesigners = async (req, res) => {
     }
 };
 
+// Get single designer by ID
+export const getDesignerById = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const designer = await FashionDesigner.findById(id);
+
+        if (!designer) {
+            return res.status(404).json({ message: "Designer not found" });
+        }
+
+        res.status(200).json(designer);
+    } catch (error) {
+        console.error("Error fetching designer:", error);
+        res.status(500).json({ message: "Failed to fetch designer", error: error.message });
+    }
+};
+
 // Get list of unique countries with designers
 export const getDesignerCountries = async (req, res) => {
     try {
