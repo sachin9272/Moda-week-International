@@ -59,6 +59,7 @@ const eventSchema = new mongoose.Schema({
         },
         title: { type: String },
         text: { type: String },
+        credits: { type: String }, // For Production Team / Credits list
     },
     eventType: {
         type: String,

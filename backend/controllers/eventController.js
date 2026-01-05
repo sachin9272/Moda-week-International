@@ -350,6 +350,7 @@ export const updateEvent = async (req, res) => {
                 title: col.title,
                 subtitle: col.subtitle,
                 description: col.description,
+                designerId: col.designerId,
                 layout: col.layout,
                 designerImage,
                 gridAspectRatio: col.gridAspectRatio || 'portrait',
@@ -393,6 +394,7 @@ export const updateEvent = async (req, res) => {
         event.bottomSection = {
             title: bottomSection.title,
             text: bottomSection.text,
+            credits: bottomSection.credits,
             image: bottomSection.image
         };
 

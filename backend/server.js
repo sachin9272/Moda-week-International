@@ -10,6 +10,7 @@ import serviceHeroRoutes from './routes/serviceHeroRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import fashionDesignerRoutes from './routes/fashionDesignerRoutes.js';
 import instagramRoutes from './routes/instagramRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -44,6 +45,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/forms', applicationRoutes);
 app.use('/api/fashion-designers', fashionDesignerRoutes);
 app.use('/api/instagram', instagramRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
