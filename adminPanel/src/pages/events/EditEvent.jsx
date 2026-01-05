@@ -119,7 +119,7 @@ const EditEvent = () => {
             setCurrentCollection(prev => ({
                 ...prev,
                 title: designer.name,
-                description: designer.bio,
+                description: designer.bio || prev.description,
                 designerId: designer._id, // Save ID
                 designerImage: designer.image?.url // Auto-fill image if available
             }));
