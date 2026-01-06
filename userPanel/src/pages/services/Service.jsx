@@ -1,10 +1,6 @@
 import React from "react";
 import Navbar from "../../components/Navbar";
 import Service1 from "../../assets/services1.jpg";
-import services1 from "../../assets/service1.jpg";
-import services2 from "../../assets/service2.jpg";
-import services3 from "../../assets/service3.png";
-import services4 from "../../assets/service4.png";
 import ServiceCard from "./ServiceCard";
 import ApplicationForm from "./Forms";
 import CtaSection from "../../components/CtaSection";
@@ -69,13 +65,13 @@ export default function Service() {
     if (tab) {
       const element = document.getElementById("application-forms");
       if (element) {
-        // slight delay to allow layout to settle
+        // Scroll adjustment to handle dynamic content loading
         setTimeout(() => {
           element.scrollIntoView({ behavior: "smooth" });
-        }, 100);
+        }, 500);
       }
     }
-  }, [searchParams]);
+  }, [searchParams, services]);
 
 
   const handleCardClick = () => {
