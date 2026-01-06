@@ -26,6 +26,8 @@ export default function FashionDesigners() {
     const [events, setEvents] = useState([]);
     const [selectedEventId, setSelectedEventId] = useState(null);
 
+    const [activeModal, setActiveModal] = useState(null);
+
     // Fetch available countries and events
     useEffect(() => {
         const fetchFilters = async () => {
@@ -94,11 +96,19 @@ export default function FashionDesigners() {
 
             // Extract unique designer IDs
             const designerIds = new Set();
-            event.collections.forEach(col => {
-                if (col.designerId) {
-                    designerIds.add(col.designerId);
-                }
-            });
+            if (event.collections) {
+                event.collections.forEach(col => {
+                    if (col.designerId) {
+                        designerIds.add(col.designerId);
+                    }
+                });
+            }
+
+            if (designerIds.size === 0) {
+                setDesigners([]);
+                setLoading(false);
+                return;
+            }
 
             // Fetch full details for each designer
             const designerPromises = Array.from(designerIds).map(id =>
@@ -134,31 +144,32 @@ export default function FashionDesigners() {
     }, [debouncedSearch]);
 
     const handleFilterChange = (filter) => {
-        setActiveFilter(filter);
-        setPage(1);
         if (filter === "All") {
+            setActiveFilter("All");
+            setActiveModal(null);
             setSelectedCountry(null);
             setSelectedEventId(null);
+            setPage(1);
             fetchDesigners(1, debouncedSearch, "");
         } else if (filter === "Country") {
-            setSelectedCountry(null);
-            setSelectedEventId(null);
-            fetchDesigners(1, debouncedSearch, "");
+            setActiveModal("Country");
         } else if (filter === "Event") {
-            setSelectedCountry(null);
-            setSelectedEventId(null);
-            fetchDesigners(1, debouncedSearch, "");
+            setActiveModal("Event");
         }
     };
 
     const handleCountrySelect = (country) => {
         setSelectedCountry(country);
+        setActiveFilter("Country");
+        setActiveModal(null);
         setPage(1);
         fetchDesigners(1, debouncedSearch, country);
     };
 
     const handleEventSelect = (eventId) => {
         setSelectedEventId(eventId);
+        setActiveFilter("Event");
+        setActiveModal(null);
         setPage(1);
         fetchEventDesigners(eventId);
     };
@@ -195,7 +206,7 @@ export default function FashionDesigners() {
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     {/* Filter Buttons */}
                     <div className="md:w-[15%] w-0"></div>
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-3 relative">
                         {["All", "Country", "Event"].map((filter) => (
                             <button
                                 key={filter}
@@ -210,50 +221,6 @@ export default function FashionDesigners() {
                         ))}
                     </div>
 
-                    {/* Country List (Visible when Country filter active) */}
-                    {activeFilter === "Country" && (
-                        <div className="w-full mt-4 flex flex-wrap gap-2 animate-fadeIn">
-                            {availableCountries.length > 0 ? (
-                                availableCountries.map((country) => (
-                                    <button
-                                        key={country}
-                                        onClick={() => handleCountrySelect(country)}
-                                        className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedCountry === country
-                                            ? "bg-[#C7913E] text-white border-[#C7913E]"
-                                            : "bg-gray-50 text-gray-700 border-gray-200 hover:border-[#C7913E] hover:text-[#C7913E]"
-                                            }`}
-                                    >
-                                        {country}
-                                    </button>
-                                ))
-                            ) : (
-                                <div className="text-sm text-gray-500 italic">No countries found.</div>
-                            )}
-                        </div>
-                    )}
-
-                    {/* Event List (Visible when Event filter active) */}
-                    {activeFilter === "Event" && (
-                        <div className="w-full mt-4 flex flex-wrap gap-2 animate-fadeIn">
-                            {events.length > 0 ? (
-                                events.map((event) => (
-                                    <button
-                                        key={event._id}
-                                        onClick={() => handleEventSelect(event._id)}
-                                        className={`px-4 py-1.5 rounded-full text-xs font-medium border transition-colors ${selectedEventId === event._id
-                                            ? "bg-[#C7913E] text-white border-[#C7913E]"
-                                            : "bg-gray-50 text-gray-700 border-gray-200 hover:border-[#C7913E] hover:text-[#C7913E]"
-                                            }`}
-                                    >
-                                        {event.eventName}
-                                    </button>
-                                ))
-                            ) : (
-                                <div className="text-sm text-gray-500 italic">No events found.</div>
-                            )}
-                        </div>
-                    )}
-
                     {/* Search Bar */}
                     <div className="relative w-full md:w-64 mt-4 md:mt-0">
                         <input
@@ -267,6 +234,75 @@ export default function FashionDesigners() {
                     </div>
                 </div>
             </div>
+
+            {/* Filter Modal */}
+            {activeModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col animate-scaleIn">
+                        <div className="p-6 border-b flex justify-between items-center bg-gray-50">
+                            <h3 className="text-xl font-bold uppercase tracking-widest text-[#C7913E]">
+                                Select {activeModal}
+                            </h3>
+                            <button
+                                onClick={() => setActiveModal(null)}
+                                className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto custom-scrollbar bg-gray-50/50">
+                            <div className="flex flex-wrap gap-3">
+                                {activeModal === "Country" && (
+                                    availableCountries.length > 0 ? (
+                                        availableCountries.map((country) => (
+                                            <button
+                                                key={country}
+                                                onClick={() => handleCountrySelect(country)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all hover:scale-105 ${selectedCountry === country
+                                                    ? "bg-[#C7913E] text-white border-[#C7913E] shadow-lg"
+                                                    : "bg-white text-gray-700 border-gray-200 hover:border-[#C7913E] hover:text-[#C7913E]"
+                                                    }`}
+                                            >
+                                                {country}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="w-full text-center py-10 text-gray-500 italic">No countries found.</div>
+                                    )
+                                )}
+
+                                {activeModal === "Event" && (
+                                    events.length > 0 ? (
+                                        events.map((event) => (
+                                            <button
+                                                key={event._id}
+                                                onClick={() => handleEventSelect(event._id)}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium border transition-all hover:scale-105 ${selectedEventId === event._id
+                                                    ? "bg-[#C7913E] text-white border-[#C7913E] shadow-lg"
+                                                    : "bg-white text-gray-700 border-gray-200 hover:border-[#C7913E] hover:text-[#C7913E]"
+                                                    }`}
+                                            >
+                                                {event.eventName}
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className="w-full text-center py-10 text-gray-500 italic">No events found.</div>
+                                    )
+                                )}
+                            </div>
+                        </div>
+                        <div className="p-4 border-t bg-gray-50 flex justify-end">
+                            <button
+                                onClick={() => setActiveModal(null)}
+                                className="text-sm text-gray-500 hover:text-black underline transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Designers Grid */}
             <div className="container mx-auto px-6 pb-20">
@@ -318,7 +354,7 @@ export default function FashionDesigners() {
                         <button
                             onClick={handleLoadMore}
                             disabled={loadingMore}
-                            className="bg-black text-white px-8 py-3 text-sm font-medium tracking-wide hover:bg-gray-900 transition-colors disabled:opacity-50"
+                            className="bg-black text-white px-8 py-3 text-sm tracking-widest hover:bg-[#C7913E] transition-colors duration-300 uppercase disabled:opacity-50"
                         >
                             {loadingMore ? "LOADING..." : "LOAD MORE"}
                         </button>
