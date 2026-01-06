@@ -11,6 +11,7 @@ import eventRoutes from './routes/eventRoutes.js';
 import fashionDesignerRoutes from './routes/fashionDesignerRoutes.js';
 import instagramRoutes from './routes/instagramRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import partnerRoutes from './routes/partnerRoutes.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -46,6 +47,7 @@ app.use('/api/forms', applicationRoutes);
 app.use('/api/fashion-designers', fashionDesignerRoutes);
 app.use('/api/instagram', instagramRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/partners', partnerRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
