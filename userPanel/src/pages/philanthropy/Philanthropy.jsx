@@ -141,11 +141,6 @@ const Philanthropy = () => {
                                     className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity duration-500"
                                     autoPlay muted loop playsInline
                                 />
-                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                    <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/40">
-                                        <Play size={24} className="fill-white text-white ml-1" />
-                                    </div>
-                                </div>
                             </div>
                         </motion.div>
                         <motion.div
