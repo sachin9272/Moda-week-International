@@ -162,3 +162,24 @@ body {
   margin-top: 1.5em;
   margin-bottom: 0.5em;
 }
+
+.font-playfair {
+  font-family: var(--font-playfair);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #111;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
