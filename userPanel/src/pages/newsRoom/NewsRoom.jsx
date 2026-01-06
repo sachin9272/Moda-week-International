@@ -76,24 +76,25 @@ const latestNews = [
 ];
 
 const videoPlaylist = [
-    { id: 1, title: "RALPH LAUREN FALL/WINTER 2025", time: "LIVE NOW", image: news1 },
-    { id: 2, title: "CHANEL CRUISE COLLECTION", time: "2 HOURS AGO", image: news2 },
-    { id: 3, title: "SCHIAPARELLI HAUTE COUTURE", time: "YESTERDAY", image: news3 },
-    { id: 4, title: "DIOR MEN'S SUMMER 26", time: "2 DAYS AGO", image: news4 },
+    { id: 1, videoId: "j35XjyXPEN0", title: "GUCCI SPRING SUMMER 2025", time: "JUST IN", image: news1 }, // User Video 1
+    { id: 2, videoId: "NgVwGZanIeE", title: "CHANEL FALL-WINTER 2025/26", time: "PARIS", image: news2 }, // User Video 2
+    { id: 3, videoId: "xudDlJXglHs", title: "DIOR HOMME SUMMER 26", time: "HIGHLIGHTS", image: news3 }, // User Video 3
+    { id: 4, videoId: "j35XjyXPEN0", title: "DIOR FALL WINTER 2025", time: "RUNWAY", image: news4 }, // User Video 4 (Repeated as per request)
 ];
 
 
 const initialInstagramPosts = [
-    { id: 1, image: "https://instagram.flko10-2.fna.fbcdn.net/v/t51.2885-15/609407642_17950730367063223_1758858417182216267_n.jpg?stp=dst-jpg_e35_p640x640_sh0.08_tt6&_nc_ht=instagram.flko10-2.fna.fbcdn.net&_nc_cat=107&_nc_oc=Q6cZ2QHl5-pxn3s0mhO1eLxtv6-5KFDVzzEL5pLhqmLK5Rsx7FTSsnnm1-lye4OYp7b2s-zmNIQgPcjiqAHxjJ_2mHV3&_nc_ohc=M54s7jVfAskQ7kNvwHNHlpV&_nc_gid=yOfT4z8HXf2c_jzmNRhwCA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfqCynF_6P7TPgBUA-9hhaZ1DWD54GiUzYJLCDHk3mf_KQ&oe=69602416&_nc_sid=8b3546", likes: "10.2k" },
-    { id: 2, image: "https://instagram.flko10-2.fna.fbcdn.net/v/t51.2885-15/608420700_17950729476063223_8479624885926723316_n.jpg?stp=dst-jpg_e35_s640x640_sh0.08_tt6&_nc_ht=instagram.flko10-2.fna.fbcdn.net&_nc_cat=107&_nc_oc=Q6cZ2QHl5-pxn3s0mhO1eLxtv6-5KFDVzzEL5pLhqmLK5Rsx7FTSsnnm1-lye4OYp7b2s-zmNIQgPcjiqAHxjJ_2mHV3&_nc_ohc=ksc_qsmoDrQQ7kNvwFJHvay&_nc_gid=yOfT4z8HXf2c_jzmNRhwCA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_Afr2niWoo3zM2jM4HkvAN8lO6gnl5YVCMpU8sRh3tWoTkg&oe=69602B28&_nc_sid=8b3546", likes: "8.9k" },
-    { id: 3, image: "https://instagram.flko10-2.fna.fbcdn.net/v/t51.2885-15/606992474_17950728543063223_2000369146087062572_n.jpg?stp=dst-jpg_e35_p640x640_sh0.08_tt6&_nc_ht=instagram.flko10-2.fna.fbcdn.net&_nc_cat=107&_nc_oc=Q6cZ2QHl5-pxn3s0mhO1eLxtv6-5KFDVzzEL5pLhqmLK5Rsx7FTSsnnm1-lye4OYp7b2s-zmNIQgPcjiqAHxjJ_2mHV3&_nc_ohc=PWY3kskxvewQ7kNvwEjg5Tf&_nc_gid=yOfT4z8HXf2c_jzmNRhwCA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfpFbdZt4uPyGgU6lIQ6L38jV9xPUte9DKZKxus3r-6Q7A&oe=69602070&_nc_sid=8b3546", likes: "15.1k" },
-    { id: 4, image: "https://instagram.flko10-2.fna.fbcdn.net/v/t51.2885-15/607495987_17950724397063223_5497683692284423029_n.jpg?stp=dst-jpg_e35_p640x640_sh0.08_tt6&_nc_ht=instagram.flko10-2.fna.fbcdn.net&_nc_cat=107&_nc_oc=Q6cZ2QHl5-pxn3s0mhO1eLxtv6-5KFDVzzEL5pLhqmLK5Rsx7FTSsnnm1-lye4OYp7b2s-zmNIQgPcjiqAHxjJ_2mHV3&_nc_ohc=Nl6kJ9Cv6j8Q7kNvwHKAQED&_nc_gid=yOfT4z8HXf2c_jzmNRhwCA&edm=AOQ1c0wBAAAA&ccb=7-5&oh=00_AfoFdhy1BPITO6N98McpGwCPN2s4szM_fWGw0Pb03h5Ofg&oe=6960276C&_nc_sid=8b3546", likes: "12.4k" }
+    { id: 1, link: "https://www.instagram.com/p/DS63Br1jo8_/", image: news1, likes: "10.2k" },
+    { id: 2, link: "https://www.instagram.com/p/DS6s6kyjtas/", image: news2, likes: "8.9k" },
+    { id: 3, link: "https://www.instagram.com/p/DS6sMuSDgWx/", image: news3, likes: "15.1k" },
+    { id: 4, link: "https://www.instagram.com/p/DS6rnloDv8f/", image: news4, likes: "12.4k" }
 ];
 
 export default function NewsRoom() {
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const [followerCount, setFollowerCount] = useState("23.5k");
     const [instagramPosts, setInstagramPosts] = useState(initialInstagramPosts);
+    const [currentVideo, setCurrentVideo] = useState(videoPlaylist[0]);
 
     useEffect(() => {
         const fetchFollowers = async () => {
@@ -113,250 +114,263 @@ export default function NewsRoom() {
     }, []);
 
     return (
-        <div className="bg-white text-black min-h-screen font-sans">
+        <div className="bg-white text-black min-h-screen font-sans selection:bg-[#C7913E] selection:text-white">
             <Navbar />
 
-            {/* Ticker Section */}
-            {/* <div className="bg-black text-white text-[10px] md:text-xs py-2 overflow-hidden whitespace-nowrap tracking-widest uppercase border-b border-gray-100 mt-20 md:mt-0">
-                <div className="inline-flex gap-8 animate-marquee">
-                    <span className="font-bold text-[#C7913E]">TRENDING NOW:</span>
-                    {trendingTopics.map((topic, i) => (
-                        <span key={i} className="opacity-80 hover:opacity-100 cursor-pointer">{topic} •</span>
-                    ))}
-                    <span className="font-bold text-[#C7913E] ml-8">TRENDING NOW:</span>
-                    {trendingTopics.map((topic, i) => (
-                        <span key={`dup-${i}`} className="opacity-80 hover:opacity-100 cursor-pointer">{topic} •</span>
-                    ))}
-                </div>
-            </div> */}
+            {/* Header Section */}
+            <header className="pt-24 pb-12 px-4 border-b border-black/10">
+                <div className="max-w-[1400px] mx-auto text-center">
+                    <div className="flex flex-col items-center justify-center mb-8">
+                        <span className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4 text-[#C7913E]">The Official News Source</span>
+                        <h1 className="font-serif text-6xl md:text-8xl font-normal tracking-tight bg-gradient-to-b from-black to-gray-800 bg-clip-text text-transparent">
+                            MODA WEEK
+                        </h1>
+                        <div className="w-24 h-1 bg-[#C7913E] mt-6 mb-8"></div>
+                    </div>
 
-            {/* Custom Header */}
-            <header className="py-8 md:py-12 px-4 border-b border-gray-200">
-                <div className="max-w-7xl mx-auto text-center">
-                    <h1 className="font-serif text-5xl md:text-7xl font-bold tracking-tight mb-4">
-                        MODA WEEK <span className="text-[#C7913E]">NEWS</span>
-                    </h1>
-                    <div className="flex justify-center gap-6 md:gap-12 text-xs md:text-sm font-bold tracking-widest uppercase text-gray-500 mt-6">
-                        {["Fashion", "Beauty", "Culture", "Runway", "Shopping", "Video"].map((item) => (
-                            <a key={item} href="#" className="hover:text-black transition-colors border-b-2 border-transparent hover:border-black pb-1">
+                    <nav className="flex flex-wrap justify-center gap-8 md:gap-16 text-xs font-bold tracking-[0.15em] uppercase text-gray-500">
+                        {["Runway", "Backstage", "Designers", "Trends", "Sustainable", "Business"].map((item) => (
+                            <a key={item} href="#" className="hover:text-black transition-all duration-300 relative group">
                                 {item}
+                                <span className="absolute -bottom-2 left-0 w-0 h-0.5 bg-[#C7913E] transition-all duration-300 group-hover:w-full"></span>
                             </a>
                         ))}
-                    </div>
+                    </nav>
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+            <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-16">
 
-                {/* Featured Section (Magazine Layout) */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 mb-20">
-                    {/* Main Hero Article */}
-                    <div className="lg:col-span-8 relative group cursor-pointer overflow-hidden">
-                        <div className="relative aspect-[4/3] w-full overflow-hidden">
+                {/* Hero / Featured Section - Asymmetric Magazine Layout */}
+                <section className="mb-24">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 lg:h-[600px]">
+                        {/* Main Hero */}
+                        <div className="lg:col-span-8 h-[500px] lg:h-full relative group cursor-pointer overflow-hidden">
                             <img
                                 src={mainFeatured.image}
                                 alt={mainFeatured.title}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-90" />
-                            <div className="absolute bottom-0 left-0 p-6 md:p-10 text-white max-w-2xl">
-                                <span className="bg-[#C7913E] text-black text-[10px] font-bold px-2 py-1 uppercase tracking-widest mb-3 inline-block">
-                                    {mainFeatured.category}
-                                </span>
-                                <h2 className="font-serif text-3xl md:text-5xl font-bold leading-tight mb-4 group-hover:underline decoration-1 underline-offset-4">
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
+                            <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white max-w-3xl">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <span className="bg-[#C7913E] text-white text-[9px] font-bold px-3 py-1 uppercase tracking-widest">
+                                        {mainFeatured.category}
+                                    </span>
+                                    <span className="text-[10px] font-medium tracking-widest uppercase border-l border-white/30 pl-3">
+                                        {mainFeatured.date}
+                                    </span>
+                                </div>
+                                <h2 className="font-serif text-4xl md:text-6xl font-medium leading-none mb-6 group-hover:text-[#F0D1A8] transition-colors">
                                     {mainFeatured.title}
                                 </h2>
-                                <p className="text-gray-200 text-sm md:text-base hidden md:block mb-4 line-clamp-2">
+                                <p className="text-gray-200 text-sm md:text-base mb-6 font-light max-w-xl line-clamp-2">
                                     {mainFeatured.description}
                                 </p>
-                                <div className="text-[10px] font-bold tracking-widest uppercase text-gray-400">
-                                    {mainFeatured.author} • {mainFeatured.date}
+                                <div className="text-[10px] font-bold tracking-widest uppercase text-white/70">
+                                    {mainFeatured.author}
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Side Featured Articles */}
-                    <div className="lg:col-span-4 flex flex-col gap-1">
-                        {subFeatured.map((item) => (
-                            <div key={item.id} className="relative group cursor-pointer overflow-hidden h-full">
-                                <div className="relative aspect-[3/2] lg:aspect-auto lg:h-full w-full overflow-hidden">
+                        {/* Side Articles */}
+                        <div className="lg:col-span-4 flex flex-col gap-1 h-full">
+                            {subFeatured.map((item) => (
+                                <div key={item.id} className="relative flex-1 group cursor-pointer overflow-hidden min-h-[250px]">
                                     <img
                                         src={item.image}
                                         alt={item.title}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                        className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
                                     />
-                                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
-                                    <div className="absolute bottom-0 left-0 p-6 text-white">
-                                        <span className="text-[#C7913E] text-[10px] font-bold uppercase tracking-widest mb-2 block">
+                                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
+                                    <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
+                                        <span className="text-[#C7913E] text-[9px] font-bold uppercase tracking-widest mb-3">
                                             {item.category}
                                         </span>
-                                        <h3 className="font-serif text-xl md:text-2xl font-bold leading-tight group-hover:underline decoration-1 underline-offset-4">
+                                        <h3 className="font-serif text-2xl lg:text-3xl font-medium leading-tight group-hover:underline decoration-1 underline-offset-4 decoration-[#C7913E]">
                                             {item.title}
                                         </h3>
                                     </div>
                                 </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Ticker / Breaking */}
+                <div className="border-y border-black py-4 mb-24 overflow-hidden">
+                    <div className="flex items-center gap-8 animate-marquee whitespace-nowrap">
+                        {trendingTopics.map((topic, i) => (
+                            <div key={i} className="flex items-center gap-8">
+                                <span className="text-sm font-bold tracking-widest uppercase">{topic}</span>
+                                <span className="text-[#C7913E] text-xs">●</span>
+                            </div>
+                        ))}
+                        {trendingTopics.map((topic, i) => (
+                            <div key={`dup-${i}`} className="flex items-center gap-8">
+                                <span className="text-sm font-bold tracking-widest uppercase">{topic}</span>
+                                <span className="text-[#C7913E] text-xs">●</span>
                             </div>
                         ))}
                     </div>
                 </div>
 
-                {/* Live / Front Row Section */}
-                <div className="mb-20">
-                    <div className="flex items-end justify-between mb-8 border-b border-black pb-4">
-                        <h2 className="font-serif text-4xl md:text-6xl font-bold text-black">
-                            Live / Front Row
-                        </h2>
-                        <button className="text-xs font-bold uppercase tracking-widest hover:text-[#C7913E] transition-colors flex items-center gap-2">
-                            View All Shows <ArrowRight size={14} />
+                {/* Latest News - Minimalist List & Grid */}
+                <section className="mb-24">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                        {/* Section Header */}
+                        <div className="lg:col-span-3">
+                            <h2 className="font-serif text-4xl font-normal leading-tight mb-6">
+                                Latest <br /> Stories
+                            </h2>
+                            <div className="w-12 h-0.5 bg-black mb-6"></div>
+                            <p className="text-gray-500 text-sm leading-relaxed mb-8">
+                                Curated updates from the world of high fashion, luxury lifestyle, and cultural shifts.
+                            </p>
+                            <button className="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-[#C7913E] hover:border-[#C7913E] transition-colors">
+                                View Archive
+                            </button>
+                        </div>
+
+                        {/* List */}
+                        <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-16">
+                            {latestNews.map((item, idx) => (
+                                <div key={item.id} className="group cursor-pointer">
+                                    <div className="overflow-hidden mb-6 aspect-[16/10]">
+                                        <img
+                                            src={item.image}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-4 mb-3 border-t border-gray-200 pt-3">
+                                        <span className="text-[9px] font-bold text-[#C7913E] uppercase tracking-widest">
+                                            {item.category}
+                                        </span>
+                                        <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">
+                                            {item.date}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-serif text-2xl font-medium leading-snug mb-3 group-hover:text-[#C7913E] transition-colors">
+                                        {item.title}
+                                    </h3>
+                                    <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
+                                        {item.description}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                {/* Cinematic Live Section */}
+                <section className="mb-24 bg-[#050505] text-white p-1 md:p-8 lg:p-12 -mx-4 md:-mx-8 lg:rounded-sm">
+                    <div className="flex flex-col md:flex-row items-end justify-between mb-12 border-b border-white/20 pb-6 px-4">
+                        <div>
+                            <span className="text-[#C7913E] text-xs font-bold tracking-[0.2em] uppercase mb-2 block">Moda TV</span>
+                            <h2 className="font-serif text-4xl md:text-5xl font-normal">Runway & Shows</h2>
+                        </div>
+                        <button className="text-xs font-bold uppercase tracking-widest hover:text-[#C7913E] transition-colors mt-4 md:mt-0">
+                            Full Schedule <ArrowRight size={14} className="inline ml-1" />
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-0 border border-gray-200">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Main Video Player */}
-                        <div className="lg:col-span-2 bg-black relative aspect-video flex items-center justify-center group overflow-hidden cursor-pointer">
-                            <img
-                                src={news1}
-                                alt="Live Show"
-                                className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity"
-                            />
-                            <div className="relative z-10 flex flex-col items-center">
-                                <div className="w-20 h-20 rounded-full border-2 border-white/30 flex items-center justify-center backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                                    <Play size={32} className="fill-white text-white ml-2" />
-                                </div>
-                                <span className="mt-4 text-red-500 font-bold tracking-widest uppercase text-xs animate-pulse bg-white/10 px-3 py-1 rounded-full">
-                                    ● Live Broadcast
-                                </span>
-                            </div>
-                            <div className="absolute bottom-0 left-0 w-full p-6 bg-gradient-to-t from-black/90 to-transparent">
-                                <h3 className="text-white font-serif text-3xl font-bold">GUCCI FALL WINTER 2026</h3>
-                                <p className="text-gray-400 text-sm mt-1">Live from Milan Fashion Week</p>
-                            </div>
+                        <div className="lg:col-span-2 relative aspect-video group overflow-hidden border border-white/10 bg-black">
+                            <iframe
+                                className="w-full h-full"
+                                src={`https://www.youtube.com/embed/${currentVideo.videoId}?autoplay=1&rel=0&modestbranding=1`}
+                                title={currentVideo.title}
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            ></iframe>
                         </div>
 
-                        {/* Playlist Sidebar */}
-                        <div className="bg-[#111] text-white p-6 max-h-[500px] overflow-y-auto custom-scrollbar">
-                            <h3 className="text-xs font-bold tracking-widest uppercase text-gray-500 mb-6 border-b border-gray-800 pb-2">
-                                Up Next & Highlights
-                            </h3>
-                            <div className="flex flex-col gap-6">
-                                {videoPlaylist.map((video) => (
-                                    <div key={video.id} className="flex gap-4 group cursor-pointer hover:bg-white/5 p-2 rounded transition-colors">
-                                        <div className="w-24 h-16 bg-gray-800 shrink-0 overflow-hidden relative">
-                                            <img src={video.image} alt="" className="w-full h-full object-cover" />
-                                            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        {/* Playlist */}
+                        <div className="flex flex-col gap-0 border border-white/10 h-full">
+                            <div className="p-4 bg-white/5 border-b border-white/10">
+                                <h4 className="font-bold text-xs uppercase tracking-widest text-[#C7913E]">Up Next</h4>
+                            </div>
+                            <div className="overflow-y-auto custom-scrollbar flex-1 max-h-[400px]">
+                                {videoPlaylist.map((video, idx) => (
+                                    <div
+                                        key={video.id}
+                                        onClick={() => setCurrentVideo(video)}
+                                        className={`p-4 flex gap-4 hover:bg-white/5 transition-colors cursor-pointer border-b border-white/5 last:border-0 group ${currentVideo.id === video.id ? 'bg-white/10' : ''}`}
+                                    >
+                                        <div className="w-28 h-16 bg-gray-800 shrink-0 relative overflow-hidden">
+                                            <img src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                                            <div className="absolute inset-0 flex items-center justify-center">
                                                 <Play size={12} className="fill-white text-white" />
                                             </div>
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] text-[#C7913E] tracking-widest font-bold mb-1">{video.time}</p>
-                                            <h4 className="font-serif font-bold text-lg leading-none group-hover:text-gray-300 transition-colors">
-                                                {video.title}
-                                            </h4>
+                                        <div className="flex flex-col justify-center">
+                                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">{video.time}</span>
+                                            <h5 className="font-serif text-sm font-medium leading-tight group-hover:text-[#C7913E] transition-colors line-clamp-2">{video.title}</h5>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </div>
-                </div>
+                </section>
 
-                {/* Latest News Grid */}
-                <div className="mb-20">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="h-px bg-black flex-grow"></div>
-                        <h2 className="font-serif text-3xl font-bold uppercase tracking-wider">The Latest</h2>
-                        <div className="h-px bg-black flex-grow"></div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12">
-                        {latestNews.map((item) => (
-                            <div key={item.id} className="group cursor-pointer flex flex-col h-full">
-                                <div className="aspect-[3/4] overflow-hidden mb-4 relative">
-                                    <img
-                                        src={item.image}
-                                        alt={item.title}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 grayscale group-hover:grayscale-0"
-                                    />
-                                    <div className="absolute top-0 left-0 bg-black text-white text-[10px] font-bold px-2 py-1 uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {item.category}
-                                    </div>
-                                </div>
-                                <div className="flex flex-col grow">
-                                    <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
-                                        {item.date}
-                                    </div>
-                                    <h3 className="font-serif text-xl font-bold leading-tight mb-2 group-hover:text-[#C7913E] transition-colors">
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-gray-600 text-xs leading-relaxed line-clamp-3 mb-4">
-                                        {item.description}
-                                    </p>
-                                    <span className="mt-auto text-[10px] font-bold uppercase tracking-widest underline decoration-gray-300 underline-offset-4 group-hover:decoration-black transition-all">
-                                        Read More
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Instagram Section */}
-                <div className="bg-gray-50 border-t border-b border-gray-200 py-16 px-4 md:px-0 mb-20">
-                    <div className="max-w-6xl mx-auto">
-                        <div className="text-center mb-12">
-                            <h2 className="font-serif text-3xl md:text-5xl font-bold mb-6">
-                                Follow @FashionWeekOnline on Instagram for exclusive content
-                            </h2>
-                            <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-black text-white rounded-full flex items-center justify-center font-serif text-xl font-bold">
-                                        MW
-                                    </div>
-                                    <div className="text-left">
-                                        <div className="font-bold">@modaweekinternationalofficial</div>
-                                        <div className="text-xs text-gray-500">{followerCount} Followers</div>
-                                    </div>
-                                </div>
-                                <button className="bg-white text-black border border-black px-8 py-2 text-xs font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-colors flex items-center gap-2">
-                                    <Instagram size={16} /> Follow
-                                </button>
-                            </div>
+                {/* Newsletter / Instagram Compact */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-gray-50 p-8 md:p-16 border border-gray-100">
+                    <div className="flex flex-col justify-center">
+                        <span className="text-[10px] font-bold tracking-[0.2em] uppercase mb-4 text-[#C7913E]">Stay Connected</span>
+                        <h2 className="font-serif text-3xl md:text-4xl font-normal mb-6">Join the Inner Circle</h2>
+                        <p className="text-gray-500 mb-8 max-w-md text-sm leading-relaxed">
+                            Subscribe to our newsletter for exclusive access to backstage passes, designer interviews, and weekly trend reports.
+                        </p>
+                        <div className="flex gap-0 border-b border-black pb-2 max-w-sm">
+                            <input
+                                type="email"
+                                placeholder="YOUR EMAIL ADDRESS"
+                                className="bg-transparent border-none outline-none w-full text-xs font-bold tracking-widest uppercase placeholder:text-gray-400"
+                            />
+                            <button className="text-xs font-bold uppercase hover:text-[#C7913E]">Subscribe</button>
                         </div>
+                    </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4">
-                            {instagramPosts.map((post) => (
-                                <div key={post.id} className="relative aspect-square group cursor-pointer overflow-hidden bg-gray-200">
-                                    <img
-                                        src={post.image}
-                                        alt="Insta Post"
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                                        <div className="text-white flex flex-col items-center gap-2">
-                                            <Heart className="fill-white" size={24} />
-                                            <span className="font-bold text-sm">{post.likes}</span>
-                                        </div>
+                    <div className="relative">
+                        <div className="grid grid-cols-2 gap-2">
+                            {initialInstagramPosts.slice(0, 4).map((post) => (
+                                <div key={post.id} className="aspect-square relative group overflow-hidden">
+                                    <img src={post.image} alt="IG" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                        <Instagram className="text-white" />
                                     </div>
                                 </div>
                             ))}
                         </div>
-
-                        <div className="flex justify-center mt-8 gap-4">
-                            <button className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-blue-600 hover:text-white hover:border-transparent transition-all">
-                                <Share2 size={16} />
-                            </button>
-                            <button className="w-10 h-10 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-pink-600 hover:text-white hover:border-transparent transition-all">
-                                <Instagram size={16} />
-                            </button>
+                        <div className="absolute -bottom-4 -right-4 bg-white p-4 shadow-lg border border-gray-100 flex items-center gap-3">
+                            <div className="text-right">
+                                <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Follow Us</div>
+                                <div className="font-serif text-lg">@modaweek</div>
+                            </div>
+                            <div className="w-10 h-10 bg-black text-white flex items-center justify-center rounded-full">
+                                <Instagram size={18} />
+                            </div>
                         </div>
                     </div>
                 </div>
 
             </main>
-
-            <CtaSection />
+            <div className="text-white">
+                <CtaSection />
+            </div>
             <Footer />
         </div>
     );
+}
+
+function SocialLink({ icon, label }) {
+    return (
+        <a href="#" className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-[#C7913E] hover:border-[#C7913E] transition-all duration-300 group">
+            {React.cloneElement(icon, { size: 16, className: "group-hover:scale-110 transition-transform" })}
+        </a>
+    )
 }
