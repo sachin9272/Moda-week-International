@@ -13,6 +13,7 @@ import EventDetail from "./pages/EventDetail.jsx";
 import MembershipProgram from "./pages/MembershipProgram.jsx";
 import TermsConditions from "./pages/TermsConditions.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
+import Philanthropy from "./pages/philanthropy/Philanthropy.jsx";
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
@@ -38,6 +39,7 @@ function App() {
         <Route path="/membership-program" element={<MembershipProgram />} />
         <Route path="/terms-and-conditions" element={<TermsConditions />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/philanthropy" element={<Philanthropy />} />
       </Routes>
     </Router>
   );
