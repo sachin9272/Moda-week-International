@@ -11,7 +11,8 @@ import {
     LogOut,
     FolderOpen,
     Video,
-    Calendar
+    Calendar,
+    Image
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -25,11 +26,12 @@ const Sidebar = () => {
 
     const navItems = [
         { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-        { path: '/events', icon: Calendar, label: 'Events' }, // Added Events
+        { path: '/events', icon: Calendar, label: 'Events' },
         { path: '/applications', icon: FolderOpen, label: 'Applications' },
         { path: '/news', icon: Newspaper, label: 'News Management' },
         { path: '/landing-videos', icon: Video, label: 'Landing Videos' },
         { path: '/fashion-designers', icon: Users, label: 'Fashion Designers' },
+        { path: '/partners', icon: Image, label: 'Partners' },
         { path: '/service-types', icon: Briefcase, label: 'Service Types' },
         { path: '/service-hero', icon: Palette, label: 'Service Hero' },
     ];

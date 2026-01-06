@@ -18,8 +18,24 @@ import brand6 from "../assets/brand6.png";
 import logo from "../assets/glodenlogo.png";
 import { Link } from "react-router-dom";
 
+import axios from "axios";
+import { baseURL } from "../config/api";
+
 export default function Footer() {
   const [email, setEmail] = useState("");
+  const [partners, setPartners] = useState([]);
+
+  React.useEffect(() => {
+    const fetchPartners = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/api/partners`);
+        setPartners(response.data);
+      } catch (error) {
+        console.error("Error fetching partners:", error);
+      }
+    };
+    fetchPartners();
+  }, []);
 
   const handleSubscribe = () => {
     if (email) {
@@ -27,15 +43,6 @@ export default function Footer() {
       setEmail("");
     }
   };
-
-  const partners = [
-    { img: brand1, name: "Brand 1" },
-    { img: brand2, name: "Brand 2" },
-    { img: brand3, name: "Brand 3" },
-    { img: brand4, name: "Brand 4" },
-    { img: brand5, name: "Brand 5" },
-    { img: brand6, name: "Brand 6" },
-  ];
 
   return (
     <footer className="relative bg-black text-white">
@@ -50,20 +57,20 @@ export default function Footer() {
               {/* Original list */}
               {partners.map((brand, i) => (
                 <img
-                  key={i}
-                  src={brand.img}
+                  key={brand._id || i}
+                  src={brand.image?.url}
                   alt={brand.name}
-                  className="h-20 object-contain"
+                  className="h-20 object-contain mx-8"
                 />
               ))}
 
               {/* Duplicate list */}
               {partners.map((brand, i) => (
                 <img
-                  key={`dup-${i}`}
-                  src={brand.img}
+                  key={`dup-${brand._id || i}`}
+                  src={brand.image?.url}
                   alt={brand.name}
-                  className="h-20 object-contain"
+                  className="h-20 object-contain mx-8"
                 />
               ))}
             </div>
@@ -231,6 +238,22 @@ export default function Footer() {
                       Past Events
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      to="/terms-and-conditions"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Terms and Conditions
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/privacy-policy"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Privacy Policy
+                    </Link>
+                  </li>
                 </ul>
               </div>
 
@@ -256,18 +279,18 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/terms-and-conditions"
+                      to="/service?tab=service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Terms and Conditions
+                      Apply as Student
                     </Link>
                   </li>
                   <li>
                     <Link
-                      to="/privacy-policy"
+                      to="/membership-program"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Privacy Policy
+                      Membership
                     </Link>
                   </li>
                 </ul>
