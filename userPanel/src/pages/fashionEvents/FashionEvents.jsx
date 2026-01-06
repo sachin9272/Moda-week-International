@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar.jsx";
 import { Link } from "react-router-dom";
-import { Calendar, Mail, MapPin, Phone } from "lucide-react";
+import { Calendar, Mail, MapPin, Phone, Star, Check } from "lucide-react";
 import Footer from "../../components/Footer.jsx";
 import Pricing from "../../components/Pricing.jsx";
 import runnaway from "../../assets/runnaway.jpg";

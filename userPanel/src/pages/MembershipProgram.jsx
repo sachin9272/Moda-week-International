@@ -112,7 +112,7 @@ const MembershipProgram = () => {
                         <button className="w-full bg-[#D49E47] text-white font-bold py-3 uppercase tracking-widest hover:bg-[#b88636] transition-colors">Join Now</button>
                     </div>
                 </div>
-                
+
             </section>
 
             {/* Features Section */}
@@ -198,8 +198,8 @@ const MembershipProgram = () => {
                             </p>
                             <div className="mt-8">
                                 <span className="block text-gray-500 text-xs uppercase tracking-widest mb-2">Send your request to</span>
-                                <a href="mailto:philanthropists@modaweekinternational.com" className="text-[#8C5D25] font-bold text-lg hover:underline">
-                                    philanthropists@modaweekinternational.com
+                                <a href="mailto: info@modaweekinternational.com" className="text-[#8C5D25] font-bold text-lg hover:underline">
+                                    info@modaweekinternational.com
                                 </a>
                             </div>
                         </div>
@@ -208,29 +208,31 @@ const MembershipProgram = () => {
             </section>
 
             <section className="max-w-5xl h-[330px] mx-auto relative bg-black text-white overflow-hidden flex items-center justify-center">
-                    <div className="absolute inset-0 z-0">
-                        <img src={promote} alt="" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-l from-[#AE2E0A9E] to-black/70" />
+                <div className="absolute inset-0 z-0">
+                    <img src={promote} alt="" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-l from-[#AE2E0A9E] to-black/70" />
+                </div>
+
+                <div className="relative z-20 max-w-4xl mx-auto text-center px-4 w-full ">
+                    <h2 className="text-3xl md:text-[40px] font-bold mb-5 tracking-wide">READY TO PROMOTE YOUR EVENT?</h2>
+
+                    <div className="max-w-xl mx-auto bg-black/40 backdrop-blur-sm py-2 px-6 mb-6 flex items-center justify-between gap-4">
+                        <span className="text-gray-300 whitespace-nowrap">Send your request to:</span>
+                        <span className="text-[#C7913E] font-medium">info@modaweekinternational.com</span>
                     </div>
 
-                    <div className="relative z-20 max-w-4xl mx-auto text-center px-4 w-full ">
-                        <h2 className="text-3xl md:text-[40px] font-bold mb-5 tracking-wide">READY TO PROMOTE YOUR EVENT?</h2>
+                    <p className="text-gray-300 mb-8 max-w-2xl mx-auto tracking-wide">
+                        Our team will review your submission and provide next steps for publication.
+                    </p>
 
-                        <div className="max-w-xl mx-auto bg-black/40 backdrop-blur-sm py-2 px-6 mb-6 flex items-center justify-between gap-4">
-                            <span className="text-gray-300 whitespace-nowrap">Send your request to:</span>
-                            <span className="text-[#C7913E] font-medium">membership@modaweekinternational.com</span>
-                        </div>
-
-                        <p className="text-gray-300 mb-8 max-w-2xl mx-auto tracking-wide">
-                            Our team will review your submission and provide next steps for publication.
-                        </p>
-
+                    <Link to="/service?tab=buyer">
                         <button className="grad-bg text-white px-4 py-3 tracking-widest hover:bg-[#966b32] transition-colors uppercase">
                             Apply Now →
                         </button>
-                    </div>
-                </section>
-            
+                    </Link>
+                </div>
+            </section>
+
 
             {/* Promo Section */}
 
