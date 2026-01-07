@@ -519,16 +519,35 @@ export const getEvents = async (req, res) => {
 };
 
 // Get single event by ID
+// Get single event by ID
 export const getEventById = async (req, res) => {
     try {
         const { id } = req.params;
-        const event = await Event.findById(id);
+        const event = await Event.findById(id).populate('collections.designerId');
 
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
 
-        res.status(200).json(event);
+        // Convert to object to modify
+        const eventObj = event.toObject();
+
+        // Fallback Logic:
+        // If collection.designerImage is missing, use collection.designerId.image
+        if (eventObj.collections) {
+            eventObj.collections = eventObj.collections.map(col => {
+                if ((!col.designerImage || !col.designerImage.url) && col.designerId && col.designerId.image) {
+                    col.designerImage = col.designerId.image;
+                }
+
+                // Also ensuring title/subtitle fallback if needed in future (optional)
+                // For now, only image as requested.
+
+                return col;
+            });
+        }
+
+        res.status(200).json(eventObj);
     } catch (error) {
         console.error("Error fetching event:", error);
         res.status(500).json({ message: "Failed to fetch event", error: error.message });
