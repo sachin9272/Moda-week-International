@@ -14,7 +14,9 @@ const FashionDesigners = () => {
         name: '',
         country: '',
         countryCode: '',
-        socialMedia: '',
+        category: 'Designer',
+        instagram: '',
+        website: '',
         image: null
     });
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -68,7 +70,9 @@ const FashionDesigners = () => {
         data.append('name', formData.name);
         data.append('country', formData.country);
         data.append('countryCode', formData.countryCode);
-        data.append('socialMedia', formData.socialMedia);
+        data.append('category', formData.category);
+        data.append('instagram', formData.instagram);
+        data.append('website', formData.website);
         if (formData.image) {
             data.append('image', formData.image);
         }
@@ -111,7 +115,9 @@ const FashionDesigners = () => {
             name: designer.name,
             country: designer.country,
             countryCode: designer.countryCode || '',
-            socialMedia: designer.socialMedia || '',
+            category: designer.category || 'Designer',
+            instagram: designer.instagram || '',
+            website: designer.website || '',
             image: designer.image // Keep reference for logic, though file input won't show it
         });
         setPreviewUrl(designer.image?.url);
@@ -121,7 +127,7 @@ const FashionDesigners = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', country: '', countryCode: '', socialMedia: '', image: null });
+        setFormData({ name: '', country: '', countryCode: '', category: 'Designer', instagram: '', website: '', image: null });
         setPreviewUrl(null);
         setIsEditing(false);
         setEditId(null);
@@ -170,6 +176,9 @@ const FashionDesigners = () => {
                             <div className="p-4">
                                 <h3 className="font-bold text-lg text-slate-800">{designer.name}</h3>
                                 <p className="text-sm text-slate-500">{designer.country}</p>
+                                <span className="inline-block px-2 py-1 mt-2 text-xs font-semibold bg-gray-100 text-gray-600 rounded">
+                                    {designer.category || 'Designer'}
+                                </span>
                             </div>
                         </div>
                     ))}
@@ -224,15 +233,45 @@ const FashionDesigners = () => {
                                 </select>
                             </div>
 
+
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Social Media Link (Optional)</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                                <select
+                                    name="category"
+                                    value={formData.category}
+                                    onChange={handleInputChange}
+                                    required
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                                >
+                                    <option value="Designer">Designer</option>
+                                    <option value="Student">Student Designer</option>
+                                    <option value="Dancer">Dancer</option>
+                                    <option value="Fine Artist">Fine Artist</option>
+                                    <option value="Singer">Singer</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Instagram URL</label>
                                 <input
                                     type="url"
-                                    name="socialMedia"
-                                    value={formData.socialMedia}
+                                    name="instagram"
+                                    value={formData.instagram || ''}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     placeholder="e.g. https://instagram.com/designer"
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Website URL</label>
+                                <input
+                                    type="url"
+                                    name="website"
+                                    value={formData.website || ''}
+                                    onChange={handleInputChange}
+                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="e.g. https://designer-website.com"
                                 />
                             </div>
 
