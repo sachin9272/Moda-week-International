@@ -13,9 +13,19 @@ const fashionDesignerSchema = new mongoose.Schema({
         type: String, // ISO code e.g. "US"
         required: false // Optional for backward compatibility
     },
-    socialMedia: {
+    instagram: {
         type: String,
         required: false
+    },
+    website: {
+        type: String,
+        required: false
+    },
+    category: {
+        type: String,
+        enum: ['Designer', 'Student', 'Dancer', 'Fine Artist', 'Singer'],
+        default: 'Designer',
+        required: true
     },
     image: {
         url: String,

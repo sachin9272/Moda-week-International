@@ -4,7 +4,7 @@ import { cloudinary } from '../config/cloudinaryConfig.js';
 // Create a new designer
 export const createDesigner = async (req, res) => {
     try {
-        const { name, country, countryCode, socialMedia } = req.body;
+        const { name, country, countryCode, instagram, website, category } = req.body;
         const file = req.file;
 
         let image = null;
@@ -19,7 +19,9 @@ export const createDesigner = async (req, res) => {
             name,
             country,
             countryCode,
-            socialMedia,
+            instagram,
+            website,
+            category: category || 'Designer', // Default to Designer if not provided
             image
         });
 
@@ -35,7 +37,7 @@ export const createDesigner = async (req, res) => {
 export const updateDesigner = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, country, countryCode, socialMedia } = req.body;
+        const { name, country, countryCode, instagram, website, category } = req.body;
         const file = req.file;
 
         const designer = await FashionDesigner.findById(id);
@@ -47,7 +49,9 @@ export const updateDesigner = async (req, res) => {
         designer.name = name || designer.name;
         designer.country = country || designer.country;
         designer.countryCode = countryCode || designer.countryCode;
-        designer.socialMedia = socialMedia || designer.socialMedia;
+        if (instagram !== undefined) designer.instagram = instagram;
+        if (website !== undefined) designer.website = website;
+        if (category !== undefined) designer.category = category;
 
         // Handle image update
         if (file) {
@@ -82,9 +86,10 @@ export const getDesigners = async (req, res) => {
         const limit = parseInt(req.query.limit) || 12;
         const search = req.query.search || "";
         const country = req.query.country || "";
+        const category = req.query.category || "";
         const skip = (page - 1) * limit;
 
-        console.log(`Fetching designers - Page: ${page}, Limit: ${limit}, Search: "${search}", Country: "${country}"`);
+        console.log(`Fetching designers - Page: ${page}, Limit: ${limit}, Search: "${search}", Country: "${country}", Category: "${category}"`);
 
         const query = {};
         if (search) {
@@ -92,6 +97,9 @@ export const getDesigners = async (req, res) => {
         }
         if (country) {
             query.country = country;
+        }
+        if (category) {
+            query.category = { $regex: new RegExp(`^${category}$`, 'i') };
         }
 
         const designers = await FashionDesigner.find(query)
