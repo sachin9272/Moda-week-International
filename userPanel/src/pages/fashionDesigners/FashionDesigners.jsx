@@ -11,6 +11,7 @@ import axios from "axios";
 import { baseURL } from "../../config/api";
 
 export default function FashionDesigners() {
+    const [activeCategory, setActiveCategory] = useState("Designer"); // 'Designer' or 'Student'
     const [activeFilter, setActiveFilter] = useState("All");
     const [designers, setDesigners] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -59,8 +60,13 @@ export default function FashionDesigners() {
             if (pageNum === 1) setLoading(true);
             else setLoadingMore(true);
 
-            console.log(`Fetching designers page: ${pageNum}, search: "${search}", country: "${country}"`);
-            const response = await axios.get(`${baseURL}/api/fashion-designers?page=${pageNum}&limit=12&search=${encodeURIComponent(search)}&country=${encodeURIComponent(country)}`);
+            console.log(`Fetching designers page: ${pageNum}, search: "${search}", country: "${country}", category: "${activeCategory}"`);
+            // We need to pass category to backend. Note: Backend currently doesn't implement 'category' filter in `getDesigners` list API.
+            // Assuming we will rely on client side filtering FOR NOW if the list is small enough, OR we need to update backend to filter.
+            // BUT since this is paginated, client side filtering is buggy (page 1 might have 0 students).
+            // So we MUST pass category to backend. I will add `category=${activeCategory}` query param.
+            // I need to update backend controller to handle this param.
+            const response = await axios.get(`${baseURL}/api/fashion-designers?page=${pageNum}&limit=12&search=${encodeURIComponent(search)}&country=${encodeURIComponent(country)}&category=${encodeURIComponent(activeCategory)}`);
 
             console.log("Full Response Data:", response.data);
             const { designers: newDesigners, totalPages } = response.data;
@@ -87,6 +93,12 @@ export default function FashionDesigners() {
             setLoadingMore(false);
         }
     };
+
+    // Filter designers locally based on activeCategory
+    const filteredDesigners = designers.filter(designer => {
+        const designerCategory = designer.category || 'Designer'; // Default to Designer
+        return designerCategory === activeCategory;
+    });
 
     const fetchEventDesigners = async (eventId) => {
         setLoading(true);
@@ -135,13 +147,20 @@ export default function FashionDesigners() {
         }
     };
 
-    // Fetch when debounced search changes
+    // Fetch when debounced search or activeCategory changes
     useEffect(() => {
         setPage(1);
         // Keep selected country if active filter is Country, otherwise reset
         const country = activeFilter === "Country" ? selectedCountry : "";
+        // Reset list when category changes to clear mixed results
+        setDesigners([]);
         fetchDesigners(1, debouncedSearch, country || "");
-    }, [debouncedSearch]);
+    }, [debouncedSearch, activeCategory]);
+
+    const handleCategoryChange = (category) => {
+        setActiveCategory(category);
+        // Effects will trigger fetch
+    };
 
     const handleFilterChange = (filter) => {
         if (filter === "All") {
@@ -203,6 +222,30 @@ export default function FashionDesigners() {
 
             {/* Filters & Search */}
             <div className="container mx-auto px-6 py-12">
+                {/* Category Tabs */}
+                <div className="flex justify-center mb-12">
+                    <div className="flex bg-gray-100 p-1 rounded-full">
+                        <button
+                            onClick={() => handleCategoryChange("Designer")}
+                            className={`px-8 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeCategory === "Designer"
+                                ? "bg-black text-white shadow-lg"
+                                : "text-gray-500 hover:text-black"
+                                }`}
+                        >
+                            Designers
+                        </button>
+                        <button
+                            onClick={() => handleCategoryChange("Student")}
+                            className={`px-8 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeCategory === "Student"
+                                ? "bg-black text-white shadow-lg"
+                                : "text-gray-500 hover:text-black"
+                                }`}
+                        >
+                            Student Designers
+                        </button>
+                    </div>
+                </div>
+
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     {/* Filter Buttons */}
                     <div className="md:w-[15%] w-0"></div>
@@ -312,17 +355,12 @@ export default function FashionDesigners() {
                     <div className="text-center py-20 text-red-500">Error: {error}</div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:grid-cols-3 gap-6">
-                        {designers.map((designer, idx) => (
+                        {filteredDesigners.map((designer, idx) => (
                             <div
                                 key={idx}
-                                className="group relative h-[300px] md:h-[400px] overflow-hidden cursor-pointer"
+                                className="group relative h-[300px] md:h-[400px] overflow-hidden cursor-default"
                             >
-                                <a
-                                    href={designer.socialMedia || "#"}
-                                    target={designer.socialMedia ? "_blank" : "_self"}
-                                    rel="noopener noreferrer"
-                                    className="block w-full h-full"
-                                >
+                                <div className="w-full h-full">
                                     <img
                                         src={designer.image?.url || designer.image}
                                         alt={designer.name}
@@ -330,19 +368,47 @@ export default function FashionDesigners() {
                                     />
                                     <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
                                     {/* Overlay Gradient */}
-                                    <div className="absolute bottom-0 left-0 right-0 p-6 flex justify-center items-center gap-3 bg-black/60 backdrop-blur-xs h-16 transition-all duration-300">
-                                        <h3 className="text-white text-sm font-bold tracking-widest uppercase text-center">
-                                            {designer.name}
-                                        </h3>
-                                        {designer.countryCode && (
-                                            <img
-                                                src={`https://flagcdn.com/w20/${designer.countryCode.toLowerCase()}.png`}
-                                                alt={designer.country}
-                                                className="w-8 h-auto"
-                                            />
-                                        )}
+                                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-center items-center gap-3 bg-black/60 backdrop-blur-xs h-auto min-h-[4rem] transition-all duration-300">
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="text-white text-sm font-bold tracking-widest uppercase text-center">
+                                                {designer.name}
+                                            </h3>
+                                            {designer.countryCode && (
+                                                <img
+                                                    src={`https://flagcdn.com/w20/${designer.countryCode.toLowerCase()}.png`}
+                                                    alt={designer.country}
+                                                    className="w-6 h-auto"
+                                                />
+                                            )}
+                                        </div>
+
+                                        {/* Social Icons */}
+                                        <div className="flex items-center gap-4 mt-1">
+                                            {designer.instagram && (
+                                                <a
+                                                    href={designer.instagram}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-white hover:text-[#C7913E] transition-colors"
+                                                    title="Instagram"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                                                </a>
+                                            )}
+                                            {designer.website && (
+                                                <a
+                                                    href={designer.website}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-white hover:text-[#C7913E] transition-colors"
+                                                    title="Website"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                                </a>
+                                            )}
+                                        </div>
                                     </div>
-                                </a>
+                                </div>
                             </div>
                         ))}
                     </div>
