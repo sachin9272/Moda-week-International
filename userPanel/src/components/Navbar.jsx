@@ -72,6 +72,7 @@ const Navbar = () => {
     { name: "Membership Programs", path: "/membership-program", category: "Business" },
     { name: "Buy Tickets", path: "#", category: "Business" },
     { name: "Designers", path: "/fashion-designers", category: "Experience" },
+    { name: "Performance", path: "/performance", category: "Experience" },
   ];
 
   return (
@@ -275,9 +276,8 @@ const Navbar = () => {
                   </div>
                 </div>
 
-                {/* Sidebar / Featured Image */}
                 <div className="md:col-span-4 hidden md:block">
-                  <Link to="/service" onClick={() => setIsMenuOpen(false)}>
+                  <Link to="/service?tab=designer" onClick={() => setIsMenuOpen(false)}>
                     <motion.div
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
