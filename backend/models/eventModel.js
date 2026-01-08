@@ -72,10 +72,30 @@ const eventSchema = new mongoose.Schema({
     },
     tickets: [
         {
+            type: {
+                type: String,
+                enum: ['Student', 'General', 'VIP'],
+                required: true
+            },
+            price: {
+                type: Number,
+                required: true
+            },
+            currency: {
+                type: String,
+                default: 'USD'
+            },
+            amount: {
+                type: Number,
+                default: 100 // Available quantity
+            },
+            description: {
+                type: String
+            },
             image: {
                 url: { type: String },
                 publicId: { type: String }
-            },
+            }
         }
     ],
     descriptionSection: {
