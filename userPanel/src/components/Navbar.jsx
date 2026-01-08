@@ -70,7 +70,7 @@ const Navbar = () => {
     { name: "Philanthropy", path: "/philanthropy", category: "Company" },
     { name: "Contact Us", path: "/events#contact-us", category: "Company" },
     { name: "Membership Programs", path: "/membership-program", category: "Business" },
-    { name: "Buy Tickets", path: "#", category: "Business" },
+    { name: "Buy Tickets", path: "/buy-tickets", category: "Business" },
     { name: "Designers", path: "/fashion-designers", category: "Experience" },
     { name: "Performance", path: "/performance", category: "Experience" },
   ];
