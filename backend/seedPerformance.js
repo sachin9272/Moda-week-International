@@ -2,6 +2,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import FashionDesigner from './models/fashionDesignerModel.js';
+import Talent from './models/talentModel.js';
 
 dotenv.config();
 
@@ -73,13 +74,13 @@ const seedDB = async () => {
         console.log("Connected to DB");
 
         for (const data of dummyData) {
-            // Check if exists to avoid duplicates (by name)
-            const exists = await FashionDesigner.findOne({ name: data.name, category: data.category });
+            // Check if exists in Talent
+            const exists = await Talent.findOne({ name: data.name, category: data.category });
             if (!exists) {
-                await FashionDesigner.create(data);
-                console.log(`Added: ${data.name} (${data.category})`);
+                await Talent.create(data);
+                console.log(`Added to Talents: ${data.name} (${data.category})`);
             } else {
-                console.log(`Skipped: ${data.name} (Already exists)`);
+                console.log(`Skipped: ${data.name} (Already exists in Talents)`);
             }
         }
 
