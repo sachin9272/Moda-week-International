@@ -60,7 +60,7 @@ export default function Footer() {
                   key={brand._id || i}
                   src={brand.image?.url}
                   alt={brand.name}
-                  className="h-20 object-contain mx-8"
+                  className="h-20 object-contain mx-0"
                 />
               ))}
 
@@ -70,7 +70,7 @@ export default function Footer() {
                   key={`dup-${brand._id || i}`}
                   src={brand.image?.url}
                   alt={brand.name}
-                  className="h-20 object-contain mx-8"
+                  className="h-20 object-contain mx-0"
                 />
               ))}
             </div>
