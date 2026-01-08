@@ -4,7 +4,6 @@ import Founder2 from "../../assets/founder2.jpg";
 import CtaSection from "../../components/CtaSection";
 import Card from "./Card";
 import Footer from "../../components/Footer";
-import { ChevronDown } from "lucide-react";
 import Navbar from "../../components/Navbar";
 
 export default function ModaWeekSite() {
@@ -233,7 +232,9 @@ export default function ModaWeekSite() {
       </section>
 
       {/* CTA Section */}
+      <div className="!text-white">
       <CtaSection />
+      </div>
       <Footer />
     </div>
   );
