@@ -430,6 +430,7 @@ const AddEvent = () => {
                                         <option value="grid">Standard Grid (3 Columns)</option>
                                         <option value="masonry">Masonry / Pinterest Style</option>
                                         <option value="highlight">Feature Highlight (Large First Image)</option>
+                                        <option value="carousel">Carousel / Marquee (Designer Profile)</option>
                                     </select>
                                 </div>
                                 <div>
