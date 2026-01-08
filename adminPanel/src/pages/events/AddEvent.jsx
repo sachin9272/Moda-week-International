@@ -13,7 +13,7 @@ const AddEvent = () => {
         city: '',
         eventName: '',
         date: '',
-        eventType: 'upcoming',
+        eventType: 'past',
         heroLayout: 'split', // Default layout
         thumbnail: null,
         headerVideo: null,
@@ -148,6 +148,8 @@ const AddEvent = () => {
         }
     };
 
+    const [isDragging, setIsDragging] = useState(false);
+
     const handleFileChange = (e) => {
         const { name, files } = e.target;
         if (files && files[0]) {
@@ -162,6 +164,25 @@ const AddEvent = () => {
             } else {
                 setFormData(prev => ({ ...prev, [name]: files[0] }));
             }
+        }
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e, fieldName) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            setFormData(prev => ({ ...prev, [fieldName]: files[0] }));
         }
     };
 
@@ -343,21 +364,91 @@ const AddEvent = () => {
                                 <option value="global">Global</option>
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-gray-400 mb-1">Hero Layout</label>
-                            <select name="heroLayout" value={formData.heroLayout} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white">
-                                <option value="split">Split (Text Left, Video/Image Right)</option>
-                                <option value="full">Full Screen (Centered Text)</option>
-                                <option value="minimal">Minimal (Text Only)</option>
-                            </select>
-                        </div>
+
                         <div>
                             <label className="block text-gray-400 mb-1">Thumbnail Image</label>
-                            <input type="file" name="thumbnail" accept="image/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" required />
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.thumbnail ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, 'thumbnail')}
+                            >
+                                {formData.thumbnail ? (
+                                    <div className="relative w-full">
+                                        <img
+                                            src={URL.createObjectURL(formData.thumbnail)}
+                                            alt="Thumbnail Preview"
+                                            className="max-h-64 w-auto mx-auto rounded shadow-lg"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, thumbnail: null }))}
+                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                            title="Remove Image"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                        <p className="mt-2 text-sm text-gray-400">{formData.thumbnail.name}</p>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                        <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                        <span className="text-blue-400 font-medium hover:underline">Click to upload</span>
+                                        <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                                        <span className="text-gray-600 text-xs mt-2">SVG, PNG, JPG or GIF</span>
+                                        <input
+                                            type="file"
+                                            name="thumbnail"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                            required
+                                        />
+                                    </label>
+                                )}
+                            </div>
                         </div>
                         <div>
                             <label className="block text-gray-400 mb-1">Header Video (Optional)</label>
-                            <input type="file" name="headerVideo" accept="video/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.headerVideo ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, 'headerVideo')}
+                            >
+                                {formData.headerVideo ? (
+                                    <div className="relative w-full">
+                                        <video
+                                            src={URL.createObjectURL(formData.headerVideo)}
+                                            className="max-h-64 w-auto mx-auto rounded shadow-lg"
+                                            controls
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, headerVideo: null }))}
+                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                            title="Remove Video"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                        <p className="mt-2 text-sm text-gray-400">{formData.headerVideo.name}</p>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                        <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                        <span className="text-blue-400 font-medium hover:underline">Click to upload video</span>
+                                        <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                                        <span className="text-gray-600 text-xs mt-2">MP4, WebM (Max 100MB)</span>
+                                        <input
+                                            type="file"
+                                            name="headerVideo"
+                                            accept="video/*"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
