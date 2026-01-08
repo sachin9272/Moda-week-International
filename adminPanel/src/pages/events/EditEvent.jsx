@@ -454,14 +454,7 @@ const EditEvent = () => {
                                 <option value="global">Global</option>
                             </select>
                         </div>
-                        <div>
-                            <label className="block text-gray-400 mb-1">Hero Layout</label>
-                            <select name="heroLayout" value={formData.heroLayout} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white">
-                                <option value="split">Split (Text Left, Video/Image Right)</option>
-                                <option value="full">Full Screen (Centered Text)</option>
-                                <option value="minimal">Minimal (Text Only)</option>
-                            </select>
-                        </div>
+
                         <div>
                             <label className="block text-gray-400 mb-1">Thumbnail Image</label>
                             {typeof formData.thumbnail === 'string' && (
