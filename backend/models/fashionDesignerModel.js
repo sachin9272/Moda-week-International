@@ -23,7 +23,7 @@ const fashionDesignerSchema = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ['Designer', 'Student', 'Dancer', 'Fine Artist', 'Singer'],
+        enum: ['Designer', 'Student'],
         default: 'Designer',
         required: true
     },
