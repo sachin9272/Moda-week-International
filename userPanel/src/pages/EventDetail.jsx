@@ -133,65 +133,23 @@ const EventDetail = () => {
             );
         }
 
-        if (event.heroLayout === 'full') {
-            return (
-                <div className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-                    {headerVideoUrl ? (
-                        <video autoPlay loop muted className="absolute inset-0 w-full h-full object-cover object-top">
-                            <source src={headerVideoUrl} type="video/mp4" />
-                        </video>
-                    ) : (
-                        <div className="absolute inset-0 bg-cover bg-center opacity-60" style={{ backgroundImage: `url(${thumbnailUrl})` }}></div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
-                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center z-20 md:px-6 px-2 py-4 max-w-9xl md:max-w-9xl">
-                        <h2 className="text-2xl md:text-4xl font-bold text-white uppercase tracking-wider mb-2 drop-shadow-md break-words">
-                            {event.eventName}
-                        </h2>
-                        <p className="text-white text-sm md:text-2xl uppercase tracking-[0.2em] font-light drop-shadow-md">
-                            {formatDate(event.date)}
-                        </p>
-                    </div>
+        // Default Split (Video/Image Right)
+        return (
+            <div className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+                <video autoPlay loop muted className="absolute inset-0 w-full h-full object-cover object-top">
+                    <source src={headerVideoUrl} type="video/mp4" />
+                </video>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center z-20 md:px-6 px-2 py-4 max-w-9xl md:max-w-9xl">
+                    <h2 className="text-2xl md:text-4xl font-bold text-white uppercase tracking-wider mb-2 drop-shadow-md break-words">
+                        {event.eventName}
+                    </h2>
+                    <p className="text-white text-sm md:text-2xl uppercase tracking-[0.2em] font-light drop-shadow-md">
+                        {formatDate(event.date)}
+                    </p>
                 </div>
-            );
-        } else if (event.heroLayout === 'minimal') {
-            return (
-                <div className="relative h-[60vh] w-full flex items-center justify-center bg-white">
-                    <div className="text-center px-4">
-                        <p className="text-[#C7913E] text-lg uppercase tracking-[0.3em] mb-4">{formatDate(event.date)}</p>
-                        <h1 className="text-5xl md:text-7xl font-playfair font-bold text-black mb-4">{event.eventName}</h1>
-                        <p className="text-xl font-light text-gray-600">{event.city}</p>
-                    </div>
-                </div>
-            );
-        } else {
-            // Default Split
-            return (
-                <div className="relative min-h-screen flex flex-col md:flex-row">
-                    <div className="w-full md:w-1/2 flex flex-col justify-center px-8 md:px-24 py-20 z-10 bg-white">
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-4">
-                                <div className="h-[1px] w-12 bg-[#C7913E]"></div>
-                                <span className="text-[#C7913E] uppercase tracking-[0.2em] text-sm">{formatDate(event.date)}</span>
-                            </div>
-                            <h1 className="text-5xl md:text-6xl font-bold leading-[1.1] text-black max-w-2xl">
-                                {event.eventName}
-                            </h1>
-                        </div>
-                    </div>
-                    <div className="w-full md:w-1/2 h-[50vh] md:h-screen relative">
-                        {headerVideoUrl ? (
-                            <video autoPlay loop muted className="absolute inset-0 w-full h-full object-cover">
-                                <source src={headerVideoUrl} type="video/mp4" />
-                            </video>
-                        ) : (
-                            <img src={thumbnailUrl} alt={event.eventName} className="absolute inset-0 w-full h-full object-cover" />
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent md:w-1/2"></div>
-                    </div>
-                </div>
-            );
-        }
+            </div>
+        );
     };
 
     const renderCollection = (collection, index) => {
