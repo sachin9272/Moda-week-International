@@ -2,10 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { baseURL as API_BASE_URL } from '../../config/api';
+import { Pencil, Trash2 } from 'lucide-react';
+
+import toast from 'react-hot-toast';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [eventToDelete, setEventToDelete] = useState(null);
 
     useEffect(() => {
         fetchEvents();
@@ -22,15 +27,24 @@ const Events = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Are you sure you want to delete this event?")) {
-            try {
-                await axios.delete(`${API_BASE_URL}/api/events/delete/${id}`);
-                setEvents(events.filter(event => event._id !== id));
-            } catch (error) {
-                console.error("Error deleting event:", error);
-                alert("Failed to delete event");
-            }
+    const initiateDelete = (event) => {
+        setEventToDelete(event);
+        setIsDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!eventToDelete) return;
+
+        try {
+            await axios.delete(`${API_BASE_URL}/api/events/delete/${eventToDelete._id}`);
+            setEvents(events.filter(event => event._id !== eventToDelete._id));
+            toast.success('Event deleted successfully');
+        } catch (error) {
+            console.error("Error deleting event:", error);
+            toast.error("Failed to delete event");
+        } finally {
+            setIsDeleteModalOpen(false);
+            setEventToDelete(null);
         }
     };
 
@@ -67,18 +81,20 @@ const Events = () => {
                                 <p className="text-gray-400 mb-2">{event.eventName}</p>
                                 <p className="text-gray-500 text-sm mb-4">{event.date}</p>
 
-                                <div className="flex justify-between mt-4 border-t border-gray-700 pt-4">
+                                <div className="flex justify-between items-center mt-4 border-t border-gray-700 pt-4 gap-3">
                                     <Link
                                         to={`/events/edit/${event._id}`}
-                                        className="text-blue-400 hover:text-blue-300 font-semibold"
+                                        className="flex-1 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center gap-2 group"
                                     >
-                                        Edit
+                                        <Pencil size={16} className="group-hover:scale-110 transition-transform" />
+                                        <span className="font-medium">Edit</span>
                                     </Link>
                                     <button
-                                        onClick={() => handleDelete(event._id)}
-                                        className="text-red-400 hover:text-red-300 font-semibold"
+                                        onClick={() => initiateDelete(event)}
+                                        className="flex-1 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center gap-2 group"
                                     >
-                                        Delete
+                                        <Trash2 size={16} className="group-hover:scale-110 transition-transform" />
+                                        <span className="font-medium">Delete</span>
                                     </button>
                                 </div>
                             </div>
@@ -87,6 +103,32 @@ const Events = () => {
                     {events.length === 0 && (
                         <p className="text-gray-400">No events found.</p>
                     )}
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {isDeleteModalOpen && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full border border-gray-700">
+                        <h3 className="text-xl font-bold text-white mb-4">Confirm Delete</h3>
+                        <p className="text-gray-300 mb-6">
+                            Are you sure you want to delete <span className="font-semibold text-white">{eventToDelete?.eventName}</span>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-4 justify-end">
+                            <button
+                                onClick={() => setIsDeleteModalOpen(false)}
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
