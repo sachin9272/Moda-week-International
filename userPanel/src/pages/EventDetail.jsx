@@ -338,7 +338,7 @@ const EventDetail = () => {
                             {event.descriptionSection.title}
                         </h2>
                         <div
-                            className="rich-text-content text-gray-600 leading-relaxed font-light"
+                            className="rich-text-content text-black leading-relaxed font-light"
                             dangerouslySetInnerHTML={{ __html: event.descriptionSection.text }}
                         />
                     </div>
