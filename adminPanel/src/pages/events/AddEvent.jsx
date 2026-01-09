@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
 import { Upload, X, ArrowLeft } from 'lucide-react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import { Editor } from '@tinymce/tinymce-react';
+import toast from 'react-hot-toast';
 
 const AddEvent = () => {
     const navigate = useNavigate();
@@ -53,7 +53,12 @@ const AddEvent = () => {
     React.useEffect(() => {
         const fetchDesigners = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/api/fashion-designers?limit=100`);
+                // Debugging URL issue
+                console.log("API_BASE_URL:", API_BASE_URL);
+                const url = `${API_BASE_URL}/api/fashion-designers?limit=100`;
+                console.log("Fetching designers from:", url);
+
+                const response = await axios.get(url);
                 setDesigners(response.data.designers || []);
             } catch (error) {
                 console.error("Error fetching designers:", error);
@@ -62,50 +67,45 @@ const AddEvent = () => {
         fetchDesigners();
     }, []);
 
-    const imageHandler = React.useCallback(function () {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
-        input.click();
+    const handleImageUpload = (blobInfo, progress) => {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('image', blobInfo.blob(), blobInfo.filename());
 
-        input.onchange = async () => {
-            const file = input.files[0];
-            if (file) {
-                const fd = new FormData();
-                fd.append('image', file);
-
-                try {
-                    const res = await axios.post(`${API_BASE_URL}/api/upload`, fd, {
-                        headers: { 'Content-Type': 'multipart/form-data' }
-                    });
-
-                    const url = res.data.url;
-                    // @ts-ignore
-                    const quill = this.quill;
-                    const range = quill.getSelection();
-                    quill.insertEmbed(range.index, 'image', url);
-                } catch (err) {
-                    console.error('Image upload error:', err);
-                    alert("Image upload failed");
+            axios.post(`${API_BASE_URL}/api/upload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (e) => {
+                    progress(Math.round((e.loaded / e.total) * 100));
                 }
-            }
-        };
-    }, []);
+            })
+                .then(response => {
+                    resolve(response.data.url);
+                })
+                .catch(error => {
+                    reject('Image upload failed: ' + error.message);
+                });
+        });
+    };
 
-    const modules = React.useMemo(() => ({
-        toolbar: {
-            container: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                ['link', 'image'],
-                ['clean']
-            ],
-            handlers: {
-                image: imageHandler
-            }
-        }
-    }), [imageHandler]);
+    const editorConfig = {
+        height: 400,
+        menubar: true,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | blocks | ' +
+            'bold italic forecolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | image table link | help',
+        image_advtab: true,
+        image_title: true,
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } img { max-width: 100%; height: auto; }',
+        skin: 'oxide-dark',
+        content_css: 'dark',
+        images_upload_handler: handleImageUpload
+    };
 
     const handleDesignerSelect = (e) => {
         const selectedId = e.target.value;
@@ -201,6 +201,12 @@ const AddEvent = () => {
         }
     };
 
+    const handleDesignerImage = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setCurrentCollection(prev => ({ ...prev, designerImage: e.target.files[0] }));
+        }
+    };
+
     const removeCollectionImage = (index) => {
         setCurrentCollection(prev => ({
             ...prev,
@@ -216,7 +222,7 @@ const AddEvent = () => {
             }));
             setCurrentCollection({ title: '', subtitle: '', description: '', layout: 'grid', gridAspectRatio: 'portrait', images: [] });
         } else {
-            alert("Collection must have a title and at least one image.");
+            toast.error("Collection must have a title and at least one image.");
         }
     };
 
@@ -247,7 +253,7 @@ const AddEvent = () => {
             }));
             setCurrentTicket({ image: null });
         } else {
-            alert("Ticket must have an Image.");
+            toast.error("Ticket must have an Image.");
         }
     };
 
@@ -260,6 +266,36 @@ const AddEvent = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        console.log("handleSubmit triggered");
+
+        // Manual Validation
+        const requiredFields = [
+            { name: 'city', label: 'City' },
+            { name: 'eventName', label: 'Event Name' },
+            { name: 'date', label: 'Date' }
+        ];
+
+        for (const field of requiredFields) {
+            if (!formData[field.name]) {
+                toast.error(`${field.label} is required`);
+                const element = document.getElementsByName(field.name)[0];
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    element.focus();
+                }
+                return;
+            }
+        }
+
+        if (!formData.thumbnail) {
+            toast.error("Thumbnail Image is required");
+            const element = document.getElementById('thumbnail-section');
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+
         setLoading(true);
 
         const data = new FormData();
@@ -312,16 +348,19 @@ const AddEvent = () => {
         });
 
         try {
+            console.log("Sending request to:", `${API_BASE_URL}/api/events/create`);
             await axios.post(`${API_BASE_URL}/api/events/create`, data, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            alert('Event created successfully!');
-            navigate('/events');
+            toast.success('Event created successfully!');
+            setTimeout(() => {
+                navigate('/events');
+            }, 1000);
         } catch (error) {
             console.error('Error creating event:', error);
-            alert('Failed to create event. Check console for details.');
+            toast.error('Failed to create event. Check console for details.');
         } finally {
             setLoading(false);
         }
@@ -345,16 +384,16 @@ const AddEvent = () => {
                     <h2 className="text-xl font-bold mb-4 text-blue-400">Basic Information</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-gray-400 mb-1">City</label>
-                            <input type="text" name="city" value={formData.city} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" required />
+                            <label className="block text-gray-400 mb-1">City <span className="text-red-500">*</span></label>
+                            <input type="text" name="city" value={formData.city} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
                         </div>
                         <div>
-                            <label className="block text-gray-400 mb-1">Event Name</label>
-                            <input type="text" name="eventName" value={formData.eventName} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" required />
+                            <label className="block text-gray-400 mb-1">Event Name <span className="text-red-500">*</span></label>
+                            <input type="text" name="eventName" value={formData.eventName} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
                         </div>
                         <div>
-                            <label className="block text-gray-400 mb-1">Date</label>
-                            <input type="text" name="date" value={formData.date} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" required />
+                            <label className="block text-gray-400 mb-1">Date <span className="text-red-500">*</span></label>
+                            <input type="text" name="date" value={formData.date} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
                         </div>
                         <div>
                             <label className="block text-gray-400 mb-1">Event Type</label>
@@ -365,10 +404,10 @@ const AddEvent = () => {
                             </select>
                         </div>
 
-                        <div>
-                            <label className="block text-gray-400 mb-1">Thumbnail Image</label>
+                        <div id="thumbnail-section">
+                            <label className="block text-gray-400 mb-1">Thumbnail Image <span className="text-red-500">*</span></label>
                             <div
-                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.thumbnail ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                className={`border - 2 border - dashed rounded - lg p - 6 flex flex - col items - center justify - center text - center transition - colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.thumbnail ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')} `}
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={(e) => handleDrop(e, 'thumbnail')}
@@ -402,7 +441,6 @@ const AddEvent = () => {
                                             accept="image/*"
                                             onChange={handleFileChange}
                                             className="hidden"
-                                            required
                                         />
                                     </label>
                                 )}
@@ -411,7 +449,7 @@ const AddEvent = () => {
                         <div>
                             <label className="block text-gray-400 mb-1">Header Video (Optional)</label>
                             <div
-                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.headerVideo ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                className={`border - 2 border - dashed rounded - lg p - 6 flex flex - col items - center justify - center text - center transition - colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.headerVideo ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')} `}
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={(e) => handleDrop(e, 'headerVideo')}
@@ -477,17 +515,15 @@ const AddEvent = () => {
                                 <input type="text" name="descriptionSection.title" value={formData.descriptionSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
                             </div>
                             <div>
-// ReactQuill imports are handled in the import replacement
                                 <label className="block text-gray-400 mb-1">Description Text</label>
-                                <ReactQuill
-                                    theme="snow"
+                                <Editor
+                                    apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
                                     value={formData.descriptionSection.text}
-                                    onChange={(value) => setFormData(prev => ({
+                                    onEditorChange={(value) => setFormData(prev => ({
                                         ...prev,
                                         descriptionSection: { ...prev.descriptionSection, text: value }
                                     }))}
-                                    modules={modules}
-                                    className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px]"
+                                    init={editorConfig}
                                 />
                             </div>
                         </div>
@@ -537,15 +573,97 @@ const AddEvent = () => {
                         </div>
 
                         <div className="space-y-2">
+                            <label className="block text-gray-400 text-sm">Designer Profile Image (Use for Carousel Layout)</label>
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (currentCollection.designerImage ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setIsDragging(false);
+                                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                        setCurrentCollection(prev => ({ ...prev, designerImage: e.dataTransfer.files[0] }));
+                                    }
+                                }}
+                            >
+                                {currentCollection.designerImage ? (
+                                    <div className="relative w-full flex justify-center">
+                                        <div className="relative">
+                                            <img
+                                                src={typeof currentCollection.designerImage === 'string' ? currentCollection.designerImage : URL.createObjectURL(currentCollection.designerImage)}
+                                                alt="Designer Profile"
+                                                className="h-32 w-32 rounded-full object-cover border-4 border-gray-700 shadow-lg"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setCurrentCollection(prev => ({ ...prev, designerImage: null }))}
+                                                className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                title="Remove Image"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-2">
+                                        <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                        <span className="text-blue-400 font-medium hover:underline text-sm">Upload Profile Image</span>
+                                        <span className="text-gray-500 text-xs mt-1">or drag and drop</span>
+                                        <input
+                                            id="designerImageInput"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleDesignerImage}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
                             <label className="block text-gray-400 text-sm">Upload Images</label>
-                            <input type="file" multiple accept="image/*" onChange={handleCollectionImages} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50'}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setIsDragging(false);
+                                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                        const newFiles = Array.from(e.dataTransfer.files);
+                                        setCurrentCollection(prev => ({
+                                            ...prev,
+                                            images: [...prev.images, ...newFiles]
+                                        }));
+                                    }
+                                }}
+                            >
+                                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                    <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                    <span className="text-blue-400 font-medium hover:underline">Click to upload images</span>
+                                    <span className="text-gray-500 text-sm mt-1">or drag and drop (multiple allowed)</span>
+                                    <input
+                                        id="collectionImagesInput"
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleCollectionImages}
+                                        className="hidden"
+                                    />
+                                </label>
+                            </div>
                         </div>
 
                         {currentCollection.images.length > 0 && (
                             <div className="grid grid-cols-3 md:grid-cols-4 gap-4 bg-gray-900 p-4 max-h-96 overflow-y-auto rounded border border-gray-600">
                                 {currentCollection.images.map((file, idx) => (
                                     <div key={idx} className="relative group">
-                                        <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-32 object-cover rounded border border-gray-700" />
+                                        <img
+                                            src={typeof file === 'string' ? file : URL.createObjectURL(file)}
+                                            alt="Preview"
+                                            className="w-full h-32 object-cover rounded border border-gray-700"
+                                        />
                                         <button type="button" onClick={() => removeCollectionImage(idx)} className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-md transition-colors">
                                             <X size={14} />
                                         </button>
@@ -593,7 +711,51 @@ const AddEvent = () => {
                             <h3 className="font-semibold">Add New Ticket</h3>
                             <div className="grid grid-cols-1 gap-4">
                                 <label className="block text-gray-400 text-sm">Ticket Image (Visual Stub)</label>
-                                <input type="file" accept="image/*" onChange={handleTicketImage} className="w-full p-2 bg-gray-700 rounded text-white" />
+                                <div
+                                    className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (currentTicket.image ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        setIsDragging(false);
+                                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                            setCurrentTicket(prev => ({ ...prev, image: e.dataTransfer.files[0] }));
+                                        }
+                                    }}
+                                >
+                                    {currentTicket.image ? (
+                                        <div className="relative w-full flex justify-center">
+                                            <div className="relative">
+                                                <img
+                                                    src={URL.createObjectURL(currentTicket.image)}
+                                                    alt="Ticket"
+                                                    className="w-32 h-auto rounded border-4 border-gray-700 shadow-lg"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCurrentTicket(prev => ({ ...prev, image: null }))}
+                                                    className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                    title="Remove Image"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-2">
+                                            <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                            <span className="text-blue-400 font-medium hover:underline text-sm">Upload Ticket Image</span>
+                                            <span className="text-gray-500 text-xs mt-1">or drag and drop</span>
+                                            <input
+                                                id="ticketImageInput"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleTicketImage}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                    )}
+                                </div>
                             </div>
                             <button type="button" onClick={addTicket} className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded mt-2">Add Ticket</button>
 
@@ -613,36 +775,34 @@ const AddEvent = () => {
                     )}
                 </div>
 
-                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                {/* <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
                     <h2 className="text-xl font-bold mb-4 text-blue-400">Bottom Section (Recap)</h2>
                     <div className="grid grid-cols-1 gap-4">
                         <input type="file" name="bottomSection.image" accept="image/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
 
-                        <ReactQuill
-                            theme="snow"
+                        <Editor
+                            apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
                             value={formData.bottomSection.text}
-                            onChange={(value) => setFormData(prev => ({
+                            onEditorChange={(value) => setFormData(prev => ({
                                 ...prev,
                                 bottomSection: { ...prev.bottomSection, text: value }
                             }))}
                             placeholder="Recap Text"
-                            modules={modules}
-                            className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px] mb-4"
+                            init={editorConfig}
                         />
                         <label className="block text-gray-400 mb-1">Credits / Production Team</label>
-                        <ReactQuill
-                            theme="snow"
+                        <Editor
+                            apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
                             value={formData.bottomSection.credits}
-                            onChange={(value) => setFormData(prev => ({
+                            onEditorChange={(value) => setFormData(prev => ({
                                 ...prev,
                                 bottomSection: { ...prev.bottomSection, credits: value }
                             }))}
                             placeholder="Credits / Production Team List"
-                            modules={modules}
-                            className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px]"
+                            init={editorConfig}
                         />
                     </div>
-                </div>
+                </div> */}
 
                 <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-bold py-4 rounded text-lg flex justify-center items-center">
                     {loading ? 'Creating Event & Uploading...' : 'Create Event'}
