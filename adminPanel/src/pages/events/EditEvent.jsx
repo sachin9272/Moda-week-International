@@ -3,8 +3,8 @@ import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
 import { Upload, X, ArrowLeft } from 'lucide-react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import { Editor } from '@tinymce/tinymce-react';
+import toast from 'react-hot-toast';
 
 const EditEvent = () => {
     const { id } = useParams();
@@ -65,50 +65,45 @@ const EditEvent = () => {
         fetchDesigners();
     }, []);
 
-    const imageHandler = React.useCallback(function () {
-        const input = document.createElement('input');
-        input.setAttribute('type', 'file');
-        input.setAttribute('accept', 'image/*');
-        input.click();
+    const handleImageUpload = (blobInfo, progress) => {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('image', blobInfo.blob(), blobInfo.filename());
 
-        input.onchange = async () => {
-            const file = input.files[0];
-            if (file) {
-                const fd = new FormData();
-                fd.append('image', file);
-
-                try {
-                    const res = await axios.post(`${API_BASE_URL}/api/upload`, fd, {
-                        headers: { 'Content-Type': 'multipart/form-data' }
-                    });
-
-                    const url = res.data.url;
-                    // @ts-ignore
-                    const quill = this.quill;
-                    const range = quill.getSelection();
-                    quill.insertEmbed(range.index, 'image', url);
-                } catch (err) {
-                    console.error('Image upload error:', err);
-                    alert("Image upload failed");
+            axios.post(`${API_BASE_URL}/api/upload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (e) => {
+                    progress(Math.round((e.loaded / e.total) * 100));
                 }
-            }
-        };
-    }, []);
+            })
+                .then(response => {
+                    resolve(response.data.url);
+                })
+                .catch(error => {
+                    reject('Image upload failed: ' + error.message);
+                });
+        });
+    };
 
-    const modules = React.useMemo(() => ({
-        toolbar: {
-            container: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline', 'strike'],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                ['link', 'image'],
-                ['clean']
-            ],
-            handlers: {
-                image: imageHandler
-            }
-        }
-    }), [imageHandler]);
+    const editorConfig = {
+        height: 400,
+        menubar: true,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | blocks | ' +
+            'bold italic forecolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | image table link | help',
+        image_advtab: true,
+        image_title: true,
+        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } img { max-width: 100%; height: auto; }',
+        skin: 'oxide-dark',
+        content_css: 'dark',
+        images_upload_handler: handleImageUpload
+    };
 
     const handleDesignerSelect = (e) => {
         const selectedId = e.target.value;
@@ -164,7 +159,7 @@ const EditEvent = () => {
                 });
             } catch (error) {
                 console.error("Error fetching event:", error);
-                alert("Failed to fetch event details");
+                toast.error("Failed to fetch event details");
             } finally {
                 setFetching(false);
             }
@@ -214,6 +209,27 @@ const EditEvent = () => {
         }
     };
 
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = (e, fieldName) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            setFormData(prev => ({ ...prev, [fieldName]: files[0] }));
+        }
+    };
+
     const [editingIndex, setEditingIndex] = useState(null);
 
     const handleCollectionChange = (e) => {
@@ -258,7 +274,7 @@ const EditEvent = () => {
             }));
             setCurrentTicket({ image: null });
         } else {
-            alert("Ticket must have an Image.");
+            toast.error("Ticket must have an Image.");
         }
     };
 
@@ -299,7 +315,7 @@ const EditEvent = () => {
             const diInput = document.getElementById('designerImageInput');
             if (diInput) diInput.value = '';
         } else {
-            alert("Collection must have a title and at least one image.");
+            toast.error("Collection must have a title and at least one image.");
         }
     };
 
@@ -405,11 +421,13 @@ const EditEvent = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            alert('Event updated successfully!');
-            navigate('/events');
+            toast.success('Event updated successfully!');
+            setTimeout(() => {
+                navigate('/events');
+            }, 1000);
         } catch (error) {
             console.error('Error updating event:', error);
-            alert('Failed to update event. Check console for details.');
+            toast.error('Failed to update event. Check console for details.');
         } finally {
             setLoading(false);
         }
@@ -457,31 +475,90 @@ const EditEvent = () => {
 
                         <div>
                             <label className="block text-gray-400 mb-1">Thumbnail Image</label>
-                            {typeof formData.thumbnail === 'string' && (
-                                <div className="mb-2">
-                                    <img src={formData.thumbnail} alt="Current Thumbnail" className="h-20 w-auto rounded" />
-                                </div>
-                            )}
-                            <input type="file" name="thumbnail" accept="image/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.thumbnail ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, 'thumbnail')}
+                            >
+                                {formData.thumbnail ? (
+                                    <div className="relative w-full">
+                                        <img
+                                            src={typeof formData.thumbnail === 'string' ? formData.thumbnail : URL.createObjectURL(formData.thumbnail)}
+                                            alt="Thumbnail Preview"
+                                            className="max-h-64 w-auto mx-auto rounded shadow-lg"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, thumbnail: null }))}
+                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                            title="Remove Image"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                        <p className="mt-2 text-sm text-gray-400">{typeof formData.thumbnail === 'string' ? 'Current Image' : formData.thumbnail.name}</p>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                        <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                        <span className="text-blue-400 font-medium hover:underline">Click to upload</span>
+                                        <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                                        <span className="text-gray-600 text-xs mt-2">SVG, PNG, JPG or GIF</span>
+                                        <input
+                                            type="file"
+                                            name="thumbnail"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                )}
+                            </div>
                         </div>
                         <div>
                             <label className="block text-gray-400 mb-1">Header Video (Optional)</label>
-                            {typeof formData.headerVideo === 'string' && (
-                                <div className="mb-2 flex items-center justify-between bg-gray-900 p-2 rounded">
-                                    <span className="text-blue-300 text-sm truncate">...{formData.headerVideo.slice(-25)}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setFormData(prev => ({ ...prev, headerVideo: null }));
-                                            setRemoveHeaderVideo(true);
-                                        }}
-                                        className="text-red-400 hover:text-red-300 text-xs uppercase font-bold px-2"
-                                    >
-                                        Remove
-                                    </button>
-                                </div>
-                            )}
-                            <input type="file" name="headerVideo" accept="video/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.headerVideo ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, 'headerVideo')}
+                            >
+                                {formData.headerVideo ? (
+                                    <div className="relative w-full">
+                                        <video
+                                            src={typeof formData.headerVideo === 'string' ? formData.headerVideo : URL.createObjectURL(formData.headerVideo)}
+                                            className="max-h-64 w-auto mx-auto rounded shadow-lg"
+                                            controls
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setFormData(prev => ({ ...prev, headerVideo: null }));
+                                                setRemoveHeaderVideo(true);
+                                            }}
+                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                            title="Remove Video"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                        <p className="mt-2 text-sm text-gray-400">{typeof formData.headerVideo === 'string' ? 'Current Video' : formData.headerVideo.name}</p>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                        <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                        <span className="text-blue-400 font-medium hover:underline">Click to upload video</span>
+                                        <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                                        <span className="text-gray-600 text-xs mt-2">MP4, WebM (Max 100MB)</span>
+                                        <input
+                                            type="file"
+                                            name="headerVideo"
+                                            accept="video/*"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -509,18 +586,16 @@ const EditEvent = () => {
                                 <input type="text" name="descriptionSection.title" value={formData.descriptionSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
                             </div>
                             <div>
-// ReactQuill imports are handled in the import replacement
                                 <label className="block text-gray-400 mb-1">Description Text</label>
 
-                                <ReactQuill
-                                    theme="snow"
+                                <Editor
+                                    apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
                                     value={formData.descriptionSection.text}
-                                    onChange={(value) => setFormData(prev => ({
+                                    onEditorChange={(value) => setFormData(prev => ({
                                         ...prev,
                                         descriptionSection: { ...prev.descriptionSection, text: value }
                                     }))}
-                                    modules={modules}
-                                    className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px]"
+                                    init={editorConfig}
                                 />
                             </div>
                         </div>
@@ -571,17 +646,85 @@ const EditEvent = () => {
 
                         <div className="space-y-2">
                             <label className="block text-gray-400 text-sm">Designer Profile Image (Use for Carousel Layout)</label>
-                            {currentCollection.designerImage && typeof currentCollection.designerImage === 'string' && (
-                                <div className="mb-2">
-                                    <img src={currentCollection.designerImage} alt="Designer" className="h-16 w-16 rounded-full object-cover border border-gray-500" />
-                                </div>
-                            )}
-                            <input id="designerImageInput" type="file" accept="image/*" onChange={handleDesignerImage} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (currentCollection.designerImage ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setIsDragging(false);
+                                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                        setCurrentCollection(prev => ({ ...prev, designerImage: e.dataTransfer.files[0] }));
+                                    }
+                                }}
+                            >
+                                {currentCollection.designerImage ? (
+                                    <div className="relative w-full flex justify-center">
+                                        <div className="relative">
+                                            <img
+                                                src={typeof currentCollection.designerImage === 'string' ? currentCollection.designerImage : URL.createObjectURL(currentCollection.designerImage)}
+                                                alt="Designer Profile"
+                                                className="h-32 w-32 rounded-full object-cover border-4 border-gray-700 shadow-lg"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setCurrentCollection(prev => ({ ...prev, designerImage: null }))}
+                                                className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                title="Remove Image"
+                                            >
+                                                <X size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-2">
+                                        <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                        <span className="text-blue-400 font-medium hover:underline text-sm">Upload Profile Image</span>
+                                        <span className="text-gray-500 text-xs mt-1">or drag and drop</span>
+                                        <input
+                                            id="designerImageInput"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleDesignerImage}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                )}
+                            </div>
                         </div>
 
                         <div className="space-y-2">
                             <label className="block text-gray-400 text-sm">Upload Images</label>
-                            <input id="collectionImagesInput" type="file" multiple accept="image/*" onChange={handleCollectionImages} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50'}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    setIsDragging(false);
+                                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                                        const newFiles = Array.from(e.dataTransfer.files);
+                                        setCurrentCollection(prev => ({
+                                            ...prev,
+                                            images: [...prev.images, ...newFiles]
+                                        }));
+                                    }
+                                }}
+                            >
+                                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                    <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                    <span className="text-blue-400 font-medium hover:underline">Click to upload images</span>
+                                    <span className="text-gray-500 text-sm mt-1">or drag and drop (multiple allowed)</span>
+                                    <input
+                                        id="collectionImagesInput"
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleCollectionImages}
+                                        className="hidden"
+                                    />
+                                </label>
+                            </div>
                         </div>
 
                         {currentCollection.images.length > 0 && (
@@ -651,7 +794,51 @@ const EditEvent = () => {
                             <h3 className="font-semibold text-white">Add New Ticket</h3>
                             <div className="grid grid-cols-1 gap-4">
                                 <label className="block text-gray-400 text-sm">Ticket Image (Visual Stub)</label>
-                                <input type="file" accept="image/*" onChange={handleTicketImage} className="w-full p-2 bg-gray-700 rounded text-white" />
+                                <div
+                                    className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (currentTicket.image ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => {
+                                        e.preventDefault();
+                                        setIsDragging(false);
+                                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                                            setCurrentTicket(prev => ({ ...prev, image: e.dataTransfer.files[0] }));
+                                        }
+                                    }}
+                                >
+                                    {currentTicket.image ? (
+                                        <div className="relative w-full flex justify-center">
+                                            <div className="relative">
+                                                <img
+                                                    src={typeof currentTicket.image === 'string' ? currentTicket.image : URL.createObjectURL(currentTicket.image)}
+                                                    alt="Ticket"
+                                                    className="w-32 h-auto rounded border-4 border-gray-700 shadow-lg"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCurrentTicket(prev => ({ ...prev, image: null }))}
+                                                    className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                    title="Remove Image"
+                                                >
+                                                    <X size={14} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-2">
+                                            <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                                            <span className="text-blue-400 font-medium hover:underline text-sm">Upload Ticket Image</span>
+                                            <span className="text-gray-500 text-xs mt-1">or drag and drop</span>
+                                            <input
+                                                id="ticketImageInput"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleTicketImage}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                    )}
+                                </div>
                             </div>
                             <button type="button" onClick={addTicket} className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded mt-2 text-white">Add Ticket</button>
 
@@ -671,7 +858,7 @@ const EditEvent = () => {
                     )}
                 </div>
 
-                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                {/* <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
                     <h2 className="text-xl font-bold mb-4 text-blue-400">Bottom Section (Recap)</h2>
                     <div className="grid grid-cols-1 gap-4">
                         {typeof formData.bottomSection.image === 'string' && (
@@ -681,31 +868,29 @@ const EditEvent = () => {
                         )}
                         <input type="file" name="bottomSection.image" accept="image/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
 
-                        <ReactQuill
-                            theme="snow"
+                        <Editor
+                            apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
                             value={formData.bottomSection.text}
-                            onChange={(value) => setFormData(prev => ({
+                            onEditorChange={(value) => setFormData(prev => ({
                                 ...prev,
                                 bottomSection: { ...prev.bottomSection, text: value }
                             }))}
                             placeholder="Recap Text"
-                            modules={modules}
-                            className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px] mb-4"
+                            init={editorConfig}
                         />
                         <label className="block text-gray-400 mb-1">Credits / Production Team</label>
-                        <ReactQuill
-                            theme="snow"
+                        <Editor
+                            apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
                             value={formData.bottomSection.credits}
-                            onChange={(value) => setFormData(prev => ({
+                            onEditorChange={(value) => setFormData(prev => ({
                                 ...prev,
                                 bottomSection: { ...prev.bottomSection, credits: value }
                             }))}
                             placeholder="Credits / Production Team List"
-                            modules={modules}
-                            className="bg-gray-700 text-white rounded [&_.ql-toolbar]:bg-gray-200 [&_.ql-toolbar]:rounded-t [&_.ql-container]:rounded-b [&_.ql-editor]:min-h-[150px]"
+                            init={editorConfig}
                         />
                     </div>
-                </div>
+                </div> */}
 
                 <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-bold py-4 rounded text-lg flex justify-center items-center">
                     {loading ? 'Updating Event...' : 'Update Event'}
