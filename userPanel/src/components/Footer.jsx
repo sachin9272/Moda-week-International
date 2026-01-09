@@ -122,10 +122,10 @@ export default function Footer() {
 
           {/* Content */}
           <div className="relative z-10 container mx-auto px-6 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mt-8">
               {/* --- Your sections remain same --- */}
               {/* About Section */}
-              <div className="lg:col-span-3">
+              <div className="">
                 <div className="mb-6">
                   <img src={logo} alt="" />
                 </div>
@@ -164,23 +164,15 @@ export default function Footer() {
               </div>
 
               {/* Services */}
-              <div className="lg:col-span-2">
+              <div className="">
                 <h3 className="text-xl font-bold mb-6">SERVICES</h3>
                 <ul className="space-y-3">
-                  <li>
-                    <Link
-                      to="/buy-tickets"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Buy Tickets
-                    </Link>
-                  </li>
                   <li>
                     <Link
                       to="/service?tab=service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Consulting
+                      Consulting Services
                     </Link>
                   </li>
                   <li>
@@ -188,15 +180,7 @@ export default function Footer() {
                       to="/service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Event Productions
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/events"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Fashion Calendar
+                      Digital Marketing
                     </Link>
                   </li>
                   <li>
@@ -204,14 +188,30 @@ export default function Footer() {
                       to="/service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Marketing Exposure
+                      Fashion Show Production
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/membership-program"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Membership Programs
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/service?tab=sponsor"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Sponsors Partnerships
                     </Link>
                   </li>
                 </ul>
               </div>
 
               {/* Quick Links */}
-              <div className="lg:col-span-2">
+              <div className="">
                 <h3 className="text-xl font-bold mb-6">QUICK LINKS</h3>
                 <ul className="space-y-3">
                   <li>
@@ -224,10 +224,18 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
+                      to="/events"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Fashion Calendar
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       to="/news-room"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Newsroom
+                      Fashion News
                     </Link>
                   </li>
                   <li>
@@ -240,41 +248,33 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/terms-and-conditions"
+                      to="/press-media"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Terms and Conditions
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/privacy-policy"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Privacy Policy
+                      Press & Media
                     </Link>
                   </li>
                 </ul>
               </div>
 
-              {/* Careers */}
-              <div className="lg:col-span-2">
-                <h3 className="text-xl font-bold mb-6">CAREERS</h3>
+              {/* Career */}
+              <div className="">
+                <h3 className="text-xl font-bold mb-6">CAREER</h3>
                 <ul className="space-y-3">
+                  <li>
+                    <Link
+                      to="/service?tab=buyer"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Apply as Buyer
+                    </Link>
+                  </li>
                   <li>
                     <Link
                       to="/service?tab=designer"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Apply as Designer
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/service?tab=sponsor"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Apply as Sponsor
                     </Link>
                   </li>
                   <li>
@@ -287,17 +287,72 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/membership-program"
+                      to="/service?tab=service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Membership
+                      Apply as Model
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/service?tab=service"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Apply as Volunteer
                     </Link>
                   </li>
                 </ul>
               </div>
 
-              {/* Contact */}
-              <div id="get-in-touch" className="lg:col-span-2">
+              {/* Legal */}
+              <div className="">
+                <h3 className="text-xl font-bold mb-6">LEGAL</h3>
+                <ul className="space-y-3">
+                  <li>
+                    <Link
+                      to="/code-of-conduct"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Code of Conduct
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/data-protection"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Data Protection (GDPR Compliance)
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/media-release-policy"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Media Release Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/privacy-policy"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Privacy Policy
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/terms-and-conditions"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Terms & Conditions
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Contact Inquiry - Commented out as requested */}
+              {/* <div id="get-in-touch" className="lg:col-span-2">
                 <h3 className="text-xl font-bold mb-6">CONTACT INQUIRY</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-gray-400">
@@ -319,7 +374,7 @@ export default function Footer() {
                     </div>
                   </li>
                 </ul>
-              </div>
+              </div> */}
             </div>
           </div>
 
