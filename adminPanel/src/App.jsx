@@ -21,9 +21,17 @@ import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   return (
     <AuthProvider>
+      <Toaster
+        position="top-right"
+        containerStyle={{
+          zIndex: 999999,
+        }}
+      />
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
