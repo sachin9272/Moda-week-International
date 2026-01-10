@@ -13,7 +13,8 @@ const AddEvent = () => {
         city: '',
         eventName: '',
         date: '',
-        eventType: 'past',
+        eventType: 'upcoming',
+        status: 'draft', // Default status
         heroLayout: 'split', // Default layout
         thumbnail: null,
         headerVideo: null,
@@ -101,7 +102,20 @@ const AddEvent = () => {
             'removeformat | image table link | help',
         image_advtab: true,
         image_title: true,
-        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } img { max-width: 100%; height: auto; }',
+        image_caption: true,
+        image_class_list: [
+            { title: 'None', value: '' },
+            { title: 'Left (Text wraps right)', value: 'float-left mr-6 mb-4' },
+            { title: 'Right (Text wraps left)', value: 'float-right ml-6 mb-4' },
+            { title: 'Center', value: 'block mx-auto' }
+        ],
+        content_style: `
+            body { font-family:Helvetica,Arial,sans-serif; font-size:14px }
+            img { max-width: 100%; height: auto; }
+            .float-left { float: left; margin-right: 15px; margin-bottom: 10px; }
+            .float-right { float: right; margin-left: 15px; margin-bottom: 10px; }
+            .align-center { display: block; margin-left: auto; margin-right: auto; }
+        `,
         skin: 'oxide-dark',
         content_css: 'dark',
         images_upload_handler: handleImageUpload
@@ -302,7 +316,9 @@ const AddEvent = () => {
         data.append('city', formData.city);
         data.append('eventName', formData.eventName);
         data.append('date', formData.date);
+        data.append('date', formData.date);
         data.append('eventType', formData.eventType);
+        data.append('status', formData.status);
         data.append('heroLayout', formData.heroLayout);
 
         if (formData.thumbnail) data.append('thumbnail', formData.thumbnail);
@@ -403,6 +419,7 @@ const AddEvent = () => {
                                 <option value="global">Global</option>
                             </select>
                         </div>
+
 
                         <div id="thumbnail-section">
                             <label className="block text-gray-400 mb-1">Thumbnail Image <span className="text-red-500">*</span></label>

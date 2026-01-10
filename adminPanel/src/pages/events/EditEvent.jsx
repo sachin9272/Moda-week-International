@@ -16,6 +16,7 @@ const EditEvent = () => {
         eventName: '',
         date: '',
         eventType: 'upcoming',
+        status: 'draft',
         heroLayout: 'split', // Default layout
         thumbnail: null, // string (url) or file
         headerVideo: null, // string (url) or file
@@ -99,7 +100,20 @@ const EditEvent = () => {
             'removeformat | image table link | help',
         image_advtab: true,
         image_title: true,
-        content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px } img { max-width: 100%; height: auto; }',
+        image_caption: true,
+        image_class_list: [
+            { title: 'None', value: '' },
+            { title: 'Left (Text wraps right)', value: 'float-left mr-6 mb-4' },
+            { title: 'Right (Text wraps left)', value: 'float-right ml-6 mb-4' },
+            { title: 'Center', value: 'block mx-auto' }
+        ],
+        content_style: `
+            body { font-family:Helvetica,Arial,sans-serif; font-size:14px }
+            img { max-width: 100%; height: auto; }
+            .float-left { float: left; margin-right: 15px; margin-bottom: 10px; }
+            .float-right { float: right; margin-left: 15px; margin-bottom: 10px; }
+            .align-center { display: block; margin-left: auto; margin-right: auto; }
+        `,
         skin: 'oxide-dark',
         content_css: 'dark',
         images_upload_handler: handleImageUpload
@@ -131,6 +145,7 @@ const EditEvent = () => {
                     eventName: event.eventName,
                     date: event.date,
                     eventType: event.eventType || 'upcoming',
+                    status: event.status || 'draft',
                     heroLayout: event.heroLayout || 'split',
                     // Handle object vs string for backward compatibility
                     thumbnail: event.thumbnail?.url || event.thumbnail,
@@ -350,7 +365,9 @@ const EditEvent = () => {
         data.append('city', formData.city);
         data.append('eventName', formData.eventName);
         data.append('date', formData.date);
+        data.append('date', formData.date);
         data.append('eventType', formData.eventType);
+        data.append('status', formData.status); // Add status
         data.append('heroLayout', formData.heroLayout);
         data.append('descriptionSection', JSON.stringify(formData.descriptionSection));
 
@@ -472,6 +489,7 @@ const EditEvent = () => {
                                 <option value="global">Global</option>
                             </select>
                         </div>
+
 
                         <div>
                             <label className="block text-gray-400 mb-1">Thumbnail Image</label>

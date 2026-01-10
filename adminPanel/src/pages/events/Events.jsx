@@ -48,6 +48,22 @@ const Events = () => {
         }
     };
 
+    const toggleStatus = async (event) => {
+        try {
+            const newStatus = event.status === 'published' ? 'draft' : 'published';
+            const response = await axios.patch(`${API_BASE_URL}/api/events/update-status/${event._id}`, {
+                status: newStatus
+            });
+
+            // Update local state
+            setEvents(events.map(e => e._id === event._id ? { ...e, status: newStatus } : e));
+            toast.success(`Event ${newStatus === 'published' ? 'Published' : 'Drafted'}`);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast.error("Failed to update status");
+        }
+    };
+
     return (
         <div className="p-6 min-h-screen text-black">
             <div className="flex justify-between items-center mb-6">
@@ -75,9 +91,20 @@ const Events = () => {
                             </div>
                             <img src={event.thumbnail?.url || event.thumbnail} alt={event.city} className="w-full h-48 object-cover" />
                             <div className="p-4">
-                                <Link to={`/events/preview/${event._id}`} className="hover:underline">
-                                    <h2 className="text-xl font-bold mb-2 text-white">{event.city}</h2>
-                                </Link>
+                                <div className="flex justify-between items-start mb-2">
+                                    <Link to={`/events/preview/${event._id}`} className="hover:underline">
+                                        <h2 className="text-xl font-bold text-white">{event.city}</h2>
+                                    </Link>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-gray-400 uppercase">{event.status === 'published' ? 'Live' : 'Hidden'}</span>
+                                        <button
+                                            onClick={() => toggleStatus(event)}
+                                            className={`w-10 h-5 rounded-full flex items-center transition-colors p-1 ${event.status === 'published' ? 'bg-green-500' : 'bg-gray-600'}`}
+                                        >
+                                            <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${event.status === 'published' ? 'translate-x-5' : 'translate-x-0'}`} />
+                                        </button>
+                                    </div>
+                                </div>
                                 <p className="text-gray-400 mb-2">{event.eventName}</p>
                                 <p className="text-gray-500 text-sm mb-4">{event.date}</p>
 
@@ -107,31 +134,33 @@ const Events = () => {
             )}
 
             {/* Delete Confirmation Modal */}
-            {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-                    <div className="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full border border-gray-700">
-                        <h3 className="text-xl font-bold text-white mb-4">Confirm Delete</h3>
-                        <p className="text-gray-300 mb-6">
-                            Are you sure you want to delete <span className="font-semibold text-white">{eventToDelete?.eventName}</span>? This action cannot be undone.
-                        </p>
-                        <div className="flex gap-4 justify-end">
-                            <button
-                                onClick={() => setIsDeleteModalOpen(false)}
-                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={confirmDelete}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
-                            >
-                                Delete
-                            </button>
+            {
+                isDeleteModalOpen && (
+                    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                        <div className="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full border border-gray-700">
+                            <h3 className="text-xl font-bold text-white mb-4">Confirm Delete</h3>
+                            <p className="text-gray-300 mb-6">
+                                Are you sure you want to delete <span className="font-semibold text-white">{eventToDelete?.eventName}</span>? This action cannot be undone.
+                            </p>
+                            <div className="flex gap-4 justify-end">
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(false)}
+                                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmDelete}
+                                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 };
 

@@ -14,7 +14,7 @@ export default function PastEvents() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/events/all`);
+        const response = await axios.get(`${baseURL}/api/events/all?status=published`);
         const pastEvents = response.data.filter(
           (event) => event.eventType === "past"
         );
