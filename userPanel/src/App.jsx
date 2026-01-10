@@ -18,6 +18,9 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 import Philanthropy from "./pages/philanthropy/Philanthropy.jsx";
 import BuyTickets from "./pages/BuyTickets.jsx";
 import EventTicketDetails from "./pages/EventTicketDetails.jsx";
+import CodeOfConduct from "./pages/CodeOfConduct.jsx";
+import DataProtection from "./pages/DataProtection.jsx";
+import MediaReleasePolicy from "./pages/MediaReleasePolicy.jsx";
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
@@ -45,6 +48,9 @@ function App() {
         <Route path="/membership-program" element={<MembershipProgram />} />
         <Route path="/terms-and-conditions" element={<TermsConditions />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/code-of-conduct" element={<CodeOfConduct />} />
+        <Route path="/data-protection" element={<DataProtection />} />
+        <Route path="/media-release-policy" element={<MediaReleasePolicy />} />
         <Route path="/philanthropy" element={<Philanthropy />} />
 
         {/* Ticket Routes */}
