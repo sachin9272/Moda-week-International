@@ -169,7 +169,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/events/all`);
+        const response = await axios.get(`${baseURL}/api/events/all?status=published`);
         const allEvents = response.data;
         // Filter for past events
         const past = allEvents.filter(e => e.eventType === 'past');
