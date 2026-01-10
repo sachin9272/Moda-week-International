@@ -105,16 +105,16 @@ const AddEvent = () => {
         image_caption: true,
         image_class_list: [
             { title: 'None', value: '' },
-            { title: 'Left (Text wraps right)', value: 'float-left mr-6 mb-4' },
-            { title: 'Right (Text wraps left)', value: 'float-right ml-6 mb-4' },
-            { title: 'Center', value: 'block mx-auto' }
+            { title: 'Left (Text wraps right)', value: 'float-left' },
+            { title: 'Right (Text wraps left)', value: 'float-right' },
+            { title: 'Center', value: 'align-center' }
         ],
         content_style: `
-            body { font-family:Helvetica,Arial,sans-serif; font-size:14px }
+            body { font-family:Helvetica,Arial,sans-serif; font-size:14px; background-color: #333; color: #fff; }
             img { max-width: 100%; height: auto; }
-            .float-left { float: left; margin-right: 15px; margin-bottom: 10px; }
-            .float-right { float: right; margin-left: 15px; margin-bottom: 10px; }
-            .align-center { display: block; margin-left: auto; margin-right: auto; }
+            .float-left { float: left; margin-right: 20px; margin-bottom: 20px; clear: none; }
+            .float-right { float: right; margin-left: 20px; margin-bottom: 20px; clear: none; }
+            .align-center { display: block; margin-left: auto; margin-right: auto; clear: both; }
         `,
         skin: 'oxide-dark',
         content_css: 'dark',
@@ -316,7 +316,7 @@ const AddEvent = () => {
         data.append('city', formData.city);
         data.append('eventName', formData.eventName);
         data.append('date', formData.date);
-        data.append('date', formData.date);
+
         data.append('eventType', formData.eventType);
         data.append('status', formData.status);
         data.append('heroLayout', formData.heroLayout);

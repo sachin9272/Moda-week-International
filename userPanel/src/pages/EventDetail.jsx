@@ -332,7 +332,7 @@ const EventDetail = () => {
             {renderHero()}
 
             {event.descriptionSection && event.descriptionSection.isVisible && (
-                <div className="bg-white pt-6 pb-0 px-4">
+                <div className="bg-white pt-6 pb-0 px-4 mb-8">
                     <div className="max-w-9xl mx-auto">
                         <h2 className="text-2xl text-black mb-4 uppercase tracking-wider max-w-3xl">
                             {event.descriptionSection.title}
@@ -404,9 +404,9 @@ const EventDetail = () => {
                 </div>
             )}
 
-            <div className='!text-white mb-10'>
+            {/* <div className='!text-white mb-10'>
                 <CtaSection />
-            </div>
+            </div> */}
             <Footer />
         </div>
     );
