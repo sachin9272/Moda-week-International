@@ -66,6 +66,11 @@ const eventSchema = new mongoose.Schema({
         enum: ['past', 'upcoming', 'global'],
         default: 'upcoming'
     },
+    status: {
+        type: String,
+        enum: ['draft', 'published'],
+        default: 'draft'
+    },
     hasTickets: {
         type: Boolean,
         default: false

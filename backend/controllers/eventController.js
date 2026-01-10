@@ -6,7 +6,7 @@ import { cloudinary } from '../config/cloudinaryConfig.js';
 // Create a new event
 export const createEvent = async (req, res) => {
     try {
-        const { city, eventName, date, eventType, heroLayout } = req.body;
+        const { city, eventName, date, eventType, heroLayout, status } = req.body;
 
         let collections = [];
         if (req.body.collections) {
@@ -94,10 +94,10 @@ export const createEvent = async (req, res) => {
             headerVideo: headerVideo, // Now an object
             heroLayout: heroLayout || 'split',
             collections: collectionsWithImages,
-            bottomSection,
             descriptionSection,
             hasTickets: req.body.hasTickets === 'true',
             tickets: ticketsWithImages,
+            status: status || 'draft'
         });
 
         const savedEvent = await newEvent.save();
@@ -125,7 +125,7 @@ const deleteAsset = async (publicId, type = 'image') => {
 export const updateEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { city, eventName, date, eventType, heroLayout } = req.body;
+        const { city, eventName, date, eventType, heroLayout, status } = req.body;
 
         const event = await Event.findById(id);
         if (!event) {
@@ -449,7 +449,7 @@ export const updateEvent = async (req, res) => {
         if (date) event.date = date;
         if (eventType) event.eventType = eventType;
         if (heroLayout) event.heroLayout = heroLayout;
-        if (heroLayout) event.heroLayout = heroLayout;
+        if (status) event.status = status;
         if (req.body.descriptionSection) {
             try {
                 event.descriptionSection = JSON.parse(req.body.descriptionSection);
@@ -463,6 +463,33 @@ export const updateEvent = async (req, res) => {
     } catch (error) {
         console.error("Error updating event:", error);
         res.status(500).json({ message: "Failed to update event", error: error.message });
+    }
+};
+
+// Update event status
+export const updateEventStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+
+        if (!['draft', 'published'].includes(status)) {
+            return res.status(400).json({ message: "Invalid status" });
+        }
+
+        const event = await Event.findByIdAndUpdate(
+            id,
+            { status },
+            { new: true }
+        );
+
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+
+        res.status(200).json(event);
+    } catch (error) {
+        console.error("Error updating event status:", error);
+        res.status(500).json({ message: "Failed to update event status", error: error.message });
     }
 };
 
@@ -509,8 +536,26 @@ export const deleteEvent = async (req, res) => {
 // Get all events
 export const getEvents = async (req, res) => {
     try {
-        console.log("Fetching events...");
-        const events = await Event.find().sort({ createdAt: -1 });
+        console.log("Fetching events with query:", req.query);
+        let query = {};
+
+        // If status filter is requested
+        if (req.query.status) {
+            if (req.query.status === 'published') {
+                // Return published events AND events with no status (backwards compatibility)
+                query = {
+                    $or: [
+                        { status: 'published' },
+                        { status: { $exists: false } },
+                        { status: null }
+                    ]
+                };
+            } else {
+                query.status = req.query.status;
+            }
+        }
+
+        const events = await Event.find(query).sort({ createdAt: -1 });
         res.status(200).json(events);
     } catch (error) {
         console.error("Error fetching events:", error);
