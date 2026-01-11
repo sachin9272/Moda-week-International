@@ -23,7 +23,15 @@ const EditEvent = () => {
         descriptionSection: {
             title: '',
             text: '',
-            isVisible: false
+            isVisible: false,
+            imageSize: 'medium'
+        },
+        videoSection: {
+            type: 'youtube', // 'youtube' or 'upload'
+            url: '',
+            title: '',
+            isVisible: true,
+            file: null
         },
         collections: [],
         bottomSection: {
@@ -166,7 +174,21 @@ const EditEvent = () => {
                         text: event.bottomSection?.text || '',
                         credits: event.bottomSection?.credits || ''
                     },
-                    descriptionSection: event.descriptionSection || { title: '', text: '', isVisible: false },
+                    descriptionSection: {
+                        title: event.descriptionSection?.title || '',
+                        text: event.descriptionSection?.text || '',
+                        credits: event.descriptionSection?.credits || '',
+                        image: event.descriptionSection?.image?.url || event.descriptionSection?.image,
+                        isVisible: event.descriptionSection?.isVisible || false,
+                        imageSize: event.descriptionSection?.imageSize || 'medium'
+                    },
+                    videoSection: {
+                        type: event.videoSection?.type || 'youtube',
+                        url: event.videoSection?.url || '',
+                        title: event.videoSection?.title || '',
+                        isVisible: event.videoSection?.isVisible !== false,
+                        file: null
+                    },
                     hasTickets: event.hasTickets || false,
                     tickets: (event.tickets || []).map(t => ({
                         image: t.image?.url || t.image
@@ -202,6 +224,15 @@ const EditEvent = () => {
                     [field]: value
                 }
             }));
+        } else if (name.startsWith('videoSection.')) {
+            const field = name.split('.')[1];
+            setFormData(prev => ({
+                ...prev,
+                videoSection: {
+                    ...prev.videoSection,
+                    [field]: value
+                }
+            }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -216,6 +247,22 @@ const EditEvent = () => {
                     bottomSection: {
                         ...prev.bottomSection,
                         image: files[0]
+                    }
+                }));
+            } else if (name === 'descriptionSection.image') {
+                setFormData(prev => ({
+                    ...prev,
+                    descriptionSection: {
+                        ...prev.descriptionSection,
+                        image: files[0]
+                    }
+                }));
+            } else if (name === 'videoSection.file') {
+                setFormData(prev => ({
+                    ...prev,
+                    videoSection: {
+                        ...prev.videoSection,
+                        file: files[0]
                     }
                 }));
             } else {
@@ -241,7 +288,33 @@ const EditEvent = () => {
         setIsDragging(false);
         const files = e.dataTransfer.files;
         if (files && files[0]) {
-            setFormData(prev => ({ ...prev, [fieldName]: files[0] }));
+            if (fieldName === 'descriptionSection.image') {
+                setFormData(prev => ({
+                    ...prev,
+                    descriptionSection: {
+                        ...prev.descriptionSection,
+                        image: files[0]
+                    }
+                }));
+            } else if (fieldName === 'videoSection.file') {
+                setFormData(prev => ({
+                    ...prev,
+                    videoSection: {
+                        ...prev.videoSection,
+                        file: files[0]
+                    }
+                }));
+            } else if (fieldName === 'bottomSection.image') {
+                setFormData(prev => ({
+                    ...prev,
+                    bottomSection: {
+                        ...prev.bottomSection,
+                        image: files[0]
+                    }
+                }));
+            } else {
+                setFormData(prev => ({ ...prev, [fieldName]: files[0] }));
+            }
         }
     };
 
@@ -369,7 +442,55 @@ const EditEvent = () => {
         data.append('eventType', formData.eventType);
         data.append('status', formData.status); // Add status
         data.append('heroLayout', formData.heroLayout);
-        data.append('descriptionSection', JSON.stringify(formData.descriptionSection));
+
+        console.log('EditEvent - Submit - Image State:', formData.descriptionSection.image);
+        console.log('EditEvent - Submit - Image Type:', typeof formData.descriptionSection.image);
+        if (formData.descriptionSection.image && typeof formData.descriptionSection.image === 'object') {
+            console.log('EditEvent - Submit - Image Object Keys:', Object.keys(formData.descriptionSection.image));
+            console.log('EditEvent - Submit - Image URL:', formData.descriptionSection.image.url);
+        }
+
+        const descriptionSectionData = {
+            title: formData.descriptionSection.title,
+            text: formData.descriptionSection.text,
+            credits: formData.descriptionSection.credits,
+            isVisible: formData.descriptionSection.isVisible,
+            imageSize: formData.descriptionSection.imageSize,
+            image: undefined
+        };
+
+        // Determine image value to send in JSON
+        if (typeof formData.descriptionSection.image === 'string') {
+            descriptionSectionData.image = formData.descriptionSection.image;
+        } else if (formData.descriptionSection.image && formData.descriptionSection.image.url) {
+            // If state has the image object (e.g. from fetch), send the URL
+            descriptionSectionData.image = formData.descriptionSection.image.url;
+        }
+        // If it's a File object (upload), we leave image as undefined in JSON and let file upload handle it
+
+        data.append('descriptionSection', JSON.stringify(descriptionSectionData));
+
+        if (formData.descriptionSection.image instanceof File) {
+            data.append('descriptionSectionImage', formData.descriptionSection.image);
+        } else if (formData.descriptionSection.image && typeof formData.descriptionSection.image !== 'string' && !formData.descriptionSection.image.url) {
+            // Fallback for file if instanceof check fails or other object types
+            // But really we should rely on instanceof File or standard check
+            if (formData.descriptionSection.image.name) { // It's likely a file
+                data.append('descriptionSectionImage', formData.descriptionSection.image);
+            }
+        }
+
+        const videoSectionData = {
+            type: formData.videoSection.type,
+            url: formData.videoSection.type === 'youtube' ? formData.videoSection.url :
+                (formData.videoSection.file ? '' : formData.videoSection.url),
+            title: formData.videoSection.title,
+            isVisible: formData.videoSection.isVisible
+        };
+        data.append('videoSection', JSON.stringify(videoSectionData));
+        if (formData.videoSection.type === 'upload' && formData.videoSection.file) {
+            data.append('videoSectionFile', formData.videoSection.file);
+        }
 
         if (formData.thumbnail && typeof formData.thumbnail !== 'string') {
             data.append('thumbnail', formData.thumbnail);
@@ -604,7 +725,54 @@ const EditEvent = () => {
                                 <input type="text" name="descriptionSection.title" value={formData.descriptionSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
                             </div>
                             <div>
-                                <label className="block text-gray-400 mb-1">Description Text</label>
+                                <label className="block text-gray-400 mb-1">Description Image (Left Side)</label>
+                                <div
+                                    className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.descriptionSection.image ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                    onDragOver={handleDragOver}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, 'descriptionSection.image')}
+                                >
+                                    {formData.descriptionSection.image ? (
+                                        <div className="relative w-full">
+                                            <img
+                                                src={typeof formData.descriptionSection.image === 'string' ? formData.descriptionSection.image : (formData.descriptionSection.image.url || URL.createObjectURL(formData.descriptionSection.image))}
+                                                alt="Description Preview"
+                                                className="max-h-64 w-auto mx-auto rounded shadow-lg"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, descriptionSection: { ...prev.descriptionSection, image: null } }))}
+                                                className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                title="Remove Image"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                            <p className="mt-2 text-sm text-gray-400">
+                                                {typeof formData.descriptionSection.image === 'string'
+                                                    ? 'Current Image'
+                                                    : (formData.descriptionSection.image.url ? 'Current Image' : formData.descriptionSection.image.name)}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                            <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                            <span className="text-blue-400 font-medium hover:underline">Click to upload</span>
+                                            <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                                            <span className="text-gray-600 text-xs mt-2">SVG, PNG, JPG or GIF</span>
+                                            <input
+                                                type="file"
+                                                name="descriptionSection.image"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-400 mb-1">Description Text (Top Section)</label>
 
                                 <Editor
                                     apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
@@ -615,6 +783,140 @@ const EditEvent = () => {
                                     }))}
                                     init={editorConfig}
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-400 mb-1">Description Side Text (Right Section)</label>
+                                <Editor
+                                    apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
+                                    value={formData.descriptionSection.credits}
+                                    onEditorChange={(value) => setFormData(prev => ({
+                                        ...prev,
+                                        descriptionSection: { ...prev.descriptionSection, credits: value }
+                                    }))}
+                                    init={editorConfig}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-400 mb-1">Image Size in Description</label>
+                                <select
+                                    name="descriptionSection.imageSize"
+                                    value={formData.descriptionSection.imageSize}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 bg-gray-700 rounded text-white"
+                                >
+                                    <option value="small">Small (33% Image, 66% Text)</option>
+                                    <option value="medium">Medium (50% Image, 50% Text)</option>
+                                    <option value="large">Large (66% Image, 33% Text)</option>
+                                </select>
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold text-blue-400">Video Section (Below Description)</h2>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                id="hasVideoSection"
+                                checked={formData.videoSection.isVisible}
+                                onChange={(e) => setFormData(prev => ({ ...prev, videoSection: { ...prev.videoSection, isVisible: e.target.checked } }))}
+                                className="w-5 h-5"
+                            />
+                            <label htmlFor="hasVideoSection" className="text-white cursor-pointer select-none">Enable Video Section</label>
+                        </div>
+                    </div>
+
+                    {formData.videoSection.isVisible && (
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-gray-400 mb-1">Section Title (Optional)</label>
+                                <input type="text" name="videoSection.title" value={formData.videoSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-400 mb-2">Video Source</label>
+                                <div className="flex gap-4 mb-4">
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="videoSection.type"
+                                            value="youtube"
+                                            checked={formData.videoSection.type === 'youtube'}
+                                            onChange={handleInputChange}
+                                            className="w-4 h-4"
+                                        />
+                                        <span className="text-white">YouTube Link</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer">
+                                        <input
+                                            type="radio"
+                                            name="videoSection.type"
+                                            value="upload"
+                                            checked={formData.videoSection.type === 'upload'}
+                                            onChange={handleInputChange}
+                                            className="w-4 h-4"
+                                        />
+                                        <span className="text-white">Upload Video</span>
+                                    </label>
+                                </div>
+
+                                {formData.videoSection.type === 'youtube' ? (
+                                    <div>
+                                        <label className="block text-gray-400 mb-1">YouTube URL</label>
+                                        <input
+                                            type="text"
+                                            name="videoSection.url"
+                                            value={formData.videoSection.url}
+                                            onChange={handleInputChange}
+                                            placeholder="https://www.youtube.com/watch?v=..."
+                                            className="w-full p-2 bg-gray-700 rounded text-white"
+                                        />
+                                    </div>
+                                ) : (
+                                    <div
+                                        className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.videoSection.file || formData.videoSection.url ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={(e) => handleDrop(e, 'videoSection.file')}
+                                    >
+                                        {(formData.videoSection.file || (formData.videoSection.url && typeof formData.videoSection.url === 'string')) ? (
+                                            <div className="relative w-full">
+                                                <video
+                                                    src={formData.videoSection.file ? URL.createObjectURL(formData.videoSection.file) : formData.videoSection.url}
+                                                    className="max-h-64 w-auto mx-auto rounded shadow-lg"
+                                                    controls
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, videoSection: { ...prev.videoSection, file: null, url: '' } }))} // Clear both
+                                                    className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                    title="Remove Video"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                                <p className="mt-2 text-sm text-gray-400">{formData.videoSection.file ? formData.videoSection.file.name : 'Current Video'}</p>
+                                            </div>
+                                        ) : (
+                                            <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                                <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                                <span className="text-blue-400 font-medium hover:underline">Click to upload video</span>
+                                                <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                                                <span className="text-gray-600 text-xs mt-2">MP4, WebM (Max 100MB)</span>
+                                                <input
+                                                    type="file"
+                                                    name="videoSection.file"
+                                                    accept="video/*"
+                                                    onChange={handleFileChange}
+                                                    className="hidden"
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -877,8 +1179,12 @@ const EditEvent = () => {
                 </div>
 
                 {/* <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h2 className="text-xl font-bold mb-4 text-blue-400">Bottom Section (Recap)</h2>
+                    <h2 className="text-xl font-bold mb-4 text-blue-400">Bottom Section (Recap & Credits)</h2>
                     <div className="grid grid-cols-1 gap-4">
+                        <label className="block text-gray-400 mb-1">Section Title (Optional)</label>
+                        <input type="text" name="bottomSection.title" value={formData.bottomSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" placeholder="e.g. SYRACUSE FASHION WEEKEND 2016" />
+
+                        <label className="block text-gray-400 mb-1">Recap Image (Left Side)</label>
                         {typeof formData.bottomSection.image === 'string' && (
                             <div className="mb-2">
                                 <img src={formData.bottomSection.image} alt="Current Bottom Image" className="h-20 w-auto rounded" />
@@ -886,6 +1192,7 @@ const EditEvent = () => {
                         )}
                         <input type="file" name="bottomSection.image" accept="image/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
 
+                        <label className="block text-gray-400 mb-1">Recap Text (Top Section)</label>
                         <Editor
                             apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
                             value={formData.bottomSection.text}
@@ -896,7 +1203,7 @@ const EditEvent = () => {
                             placeholder="Recap Text"
                             init={editorConfig}
                         />
-                        <label className="block text-gray-400 mb-1">Credits / Production Team</label>
+                        <label className="block text-gray-400 mb-1">Credits / Right Text</label>
                         <Editor
                             apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
                             value={formData.bottomSection.credits}
