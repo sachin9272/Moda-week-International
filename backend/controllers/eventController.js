@@ -1,6 +1,7 @@
 import Event from '../models/eventModel.js';
 import { cloudinary } from '../config/cloudinaryConfig.js';
 
+
 // Create a new event
 // Create a new event
 // Create a new event
@@ -37,6 +38,7 @@ export const createEvent = async (req, res) => {
 
         const files = req.files || [];
 
+
         // Helper to get file object
         const getFile = (fieldname) => {
             const file = files.find(f => f.fieldname === fieldname);
@@ -46,9 +48,38 @@ export const createEvent = async (req, res) => {
         const thumbnail = getFile('thumbnail');
         const headerVideo = getFile('headerVideo');
         const bottomSectionImage = getFile('bottomSectionImage');
+        const descriptionSectionImage = getFile('descriptionSectionImage');
 
         if (bottomSectionImage) {
             bottomSection.image = bottomSectionImage;
+        }
+
+        if (descriptionSectionImage) {
+            descriptionSection.image = descriptionSectionImage;
+        }
+
+        // Ensure imageSize defaults to medium if not present, and is included
+        descriptionSection.imageSize = descriptionSection.imageSize || 'medium';
+
+
+
+        // Handle Video Section
+        const videoSectionFile = getFile('videoSectionFile');
+        let videoSection = { type: 'youtube', isVisible: true, url: '' };
+        if (req.body.videoSection) {
+            try {
+                const parsed = JSON.parse(req.body.videoSection);
+                videoSection = { ...videoSection, ...parsed };
+            } catch (e) {
+                console.error("Error parsing videoSection JSON:", e);
+            }
+        }
+
+        if (videoSection.type === 'upload' && videoSectionFile) {
+            videoSection.url = videoSectionFile.url;
+            videoSection.publicId = videoSectionFile.publicId;
+        } else if (videoSection.type === 'youtube') {
+            videoSection.publicId = undefined;
         }
 
         const collectionsWithImages = collections.map((col, index) => {
@@ -95,6 +126,7 @@ export const createEvent = async (req, res) => {
             heroLayout: heroLayout || 'split',
             collections: collectionsWithImages,
             descriptionSection,
+            videoSection,
             hasTickets: req.body.hasTickets === 'true',
             tickets: ticketsWithImages,
             status: status || 'draft'
@@ -131,7 +163,7 @@ export const updateEvent = async (req, res) => {
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
-        console.log(`Updating event: ${id}`);
+
 
         // Normalize legacy string data for thumbnail/headerVideo to prevent validation errors
         if (event.thumbnail && typeof event.thumbnail === 'string') {
@@ -161,6 +193,8 @@ export const updateEvent = async (req, res) => {
         }
 
         const files = req.files || [];
+
+
         const getFile = (fieldname) => {
             const file = files.find(f => f.fieldname === fieldname);
             return file ? { url: file.path, publicId: file.filename } : null;
@@ -198,7 +232,7 @@ export const updateEvent = async (req, res) => {
                         // remove extension
                         publicId = withoutVersion.substring(0, withoutVersion.lastIndexOf('.'));
                     }
-                    console.log("Reconstructed corrupted image:", url);
+
                     return { url, publicId };
                 } catch (e) {
                     console.error("Failed to reconstruct corrupted image", e);
@@ -403,6 +437,131 @@ export const updateEvent = async (req, res) => {
             image: bottomSection.image
         };
 
+        // 5.5 Handle Description Section
+        const descriptionSectionFile = getFile('descriptionSectionImage');
+        let descriptionSection = { isVisible: false };
+        if (req.body.descriptionSection) descriptionSection = JSON.parse(req.body.descriptionSection);
+
+
+
+        // If new file
+        if (descriptionSectionFile) {
+
+            if (event.descriptionSection?.image?.publicId) await deleteAsset(event.descriptionSection.image.publicId, 'image');
+            descriptionSection.image = descriptionSectionFile;
+        } else {
+
+            // If keeping existing
+            if (descriptionSection.image && typeof descriptionSection.image === 'string') {
+
+
+                if (event.descriptionSection?.image?.url === descriptionSection.image) {
+                    descriptionSection.image = event.descriptionSection.image; // Keep the object
+                } else {
+                    descriptionSection.image = { url: descriptionSection.image };
+                    try {
+                        const parts = descriptionSection.image.url.split('/upload/');
+                        if (parts.length > 1) {
+                            const withoutVersion = parts[1].replace(/^v\d+\//, '');
+                            descriptionSection.image.publicId = withoutVersion.substring(0, withoutVersion.lastIndexOf('.'));
+                        }
+                    } catch (e) { }
+                }
+            } else if (!descriptionSection.image && event.descriptionSection?.image) {
+                // Fallback: If no image sent in JSON and no new file, keep existing image
+                // Fallback: If no image sent in JSON and no new file, keep existing image
+
+                // STRICT CHECK: Only preserve if it has a URL
+                if (event.descriptionSection.image && event.descriptionSection.image.url) {
+                    descriptionSection.image = {
+                        url: event.descriptionSection.image.url,
+                        publicId: event.descriptionSection.image.publicId
+                    };
+
+                } else {
+
+                    descriptionSection.image = undefined;
+                }
+            } else {
+
+                descriptionSection.image = undefined;
+            }
+        }
+
+        // Final sanity check before saving (to fix any lingering empty objects)
+        if (descriptionSection.image && !descriptionSection.image.url && !descriptionSection.image.publicId) {
+
+            descriptionSection.image = undefined;
+        }
+
+
+        if (!event.descriptionSection) event.descriptionSection = {};
+        event.descriptionSection.title = descriptionSection.title;
+        event.descriptionSection.text = descriptionSection.text;
+        event.descriptionSection.credits = descriptionSection.credits;
+        event.descriptionSection.isVisible = descriptionSection.isVisible;
+        event.descriptionSection.imageSize = descriptionSection.imageSize || 'medium';
+
+        if (descriptionSection.image && descriptionSection.image.url) {
+            // Explicitly create a new object to ensure Mongoose treats it as a change
+            event.descriptionSection.image = {
+                url: descriptionSection.image.url,
+                publicId: descriptionSection.image.publicId
+            };
+        } else {
+            event.descriptionSection.image = undefined;
+        }
+
+        event.markModified('descriptionSection');
+        event.markModified('descriptionSection.image'); // Explicitly mark image as modified
+
+
+        // 5.6 Handle Video Section
+        const videoSectionFile = getFile('videoSectionFile');
+        let incomingVideoSection = { type: 'youtube', isVisible: true };
+        if (req.body.videoSection) {
+            try {
+                incomingVideoSection = JSON.parse(req.body.videoSection);
+            } catch (e) { }
+        }
+
+        // Initialize if not present
+        if (!event.videoSection) event.videoSection = {};
+
+        // Prepare new state
+        event.videoSection.type = incomingVideoSection.type || 'youtube';
+        event.videoSection.title = incomingVideoSection.title || '';
+        event.videoSection.isVisible = incomingVideoSection.isVisible;
+
+        if (event.videoSection.type === 'upload') {
+            if (videoSectionFile) {
+                // New file uploaded
+                // Delete old if exists and was upload
+                if (event.videoSection.publicId) {
+                    await deleteAsset(event.videoSection.publicId, 'video');
+                }
+                event.videoSection.url = videoSectionFile.url;
+                event.videoSection.publicId = videoSectionFile.publicId;
+            } else {
+                // No new file. Check if keeping existing.
+                // If existing was youtube or didn't exist, and no file -> issue
+                if (!event.videoSection.url && !incomingVideoSection.url) {
+                    // Fallback or error? Just leave empty.
+                }
+                // If preserving existing upload, url is already there in event.videoSection.
+                // But incoming might have the url string.
+            }
+        } else {
+            // YouTube
+            // If previously upload, delete asset
+            if (event.videoSection.publicId) {
+                await deleteAsset(event.videoSection.publicId, 'video');
+                event.videoSection.publicId = undefined;
+            }
+            event.videoSection.url = incomingVideoSection.url;
+        }
+        event.markModified('videoSection');
+
 
         // 6. Handle Tickets
         // (Simplified: Delete old tickets if not kept? Logic similar to collections but simpler list)
@@ -450,14 +609,11 @@ export const updateEvent = async (req, res) => {
         if (eventType) event.eventType = eventType;
         if (heroLayout) event.heroLayout = heroLayout;
         if (status) event.status = status;
-        if (req.body.descriptionSection) {
-            try {
-                event.descriptionSection = JSON.parse(req.body.descriptionSection);
-            } catch (e) { }
-        }
+
         if (req.body.hasTickets !== undefined) event.hasTickets = req.body.hasTickets === 'true';
 
         const updatedEvent = await event.save({ validateBeforeSave: false });
+
         res.status(200).json(updatedEvent);
 
     } catch (error) {
@@ -507,6 +663,7 @@ export const deleteEvent = async (req, res) => {
         if (event.thumbnail?.publicId) await deleteAsset(event.thumbnail.publicId, 'image');
         if (event.headerVideo?.publicId) await deleteAsset(event.headerVideo.publicId, 'video');
         if (event.bottomSection?.image?.publicId) await deleteAsset(event.bottomSection.image.publicId, 'image');
+        if (event.videoSection?.publicId) await deleteAsset(event.videoSection.publicId, 'video');
 
         if (event.collections) {
             for (const col of event.collections) {
@@ -536,7 +693,7 @@ export const deleteEvent = async (req, res) => {
 // Get all events
 export const getEvents = async (req, res) => {
     try {
-        console.log("Fetching events with query:", req.query);
+
         let query = {};
 
         // If status filter is requested
@@ -573,6 +730,8 @@ export const getEventById = async (req, res) => {
         if (!event) {
             return res.status(404).json({ message: "Event not found" });
         }
+
+
 
         // Convert to object to modify
         const eventObj = event.toObject();
