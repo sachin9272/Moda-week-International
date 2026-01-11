@@ -106,7 +106,24 @@ const eventSchema = new mongoose.Schema({
     descriptionSection: {
         title: { type: String },
         text: { type: String },
-        isVisible: { type: Boolean, default: false }
+        image: {
+            url: { type: String },
+            publicId: { type: String }
+        },
+        credits: { type: String }, // Functioning as Right Text
+        isVisible: { type: Boolean, default: false },
+        imageSize: {
+            type: String,
+            enum: ['small', 'medium', 'large'],
+            default: 'medium'
+        }
+    },
+    videoSection: {
+        type: { type: String, enum: ['upload', 'youtube'], default: 'youtube' },
+        url: { type: String },
+        publicId: { type: String }, // For uploads
+        title: { type: String },
+        isVisible: { type: Boolean, default: true }
     }
 }, { timestamps: true });
 
@@ -120,6 +137,12 @@ eventSchema.set('toJSON', {
 
         // Remove publicId from bottomSection
         if (ret.bottomSection?.image) delete ret.bottomSection.image.publicId;
+
+        // Remove publicId from descriptionSection
+        if (ret.descriptionSection?.image) delete ret.descriptionSection.image.publicId;
+
+        // Remove publicId from videoSection
+        if (ret.videoSection) delete ret.videoSection.publicId;
 
         // Remove publicId from collections
         if (ret.collections && Array.isArray(ret.collections)) {
