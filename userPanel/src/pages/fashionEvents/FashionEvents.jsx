@@ -5,6 +5,7 @@ import { Calendar, Mail, MapPin, Phone, Star, Check } from "lucide-react";
 import Footer from "../../components/Footer.jsx";
 import Pricing from "../../components/Pricing.jsx";
 import runnaway from "../../assets/runnaway.jpg";
+import CtaSection from "../../components/CtaSection.jsx";
 
 import event1 from "../../assets/Events.jpg";
 import event2 from "../../assets/Events-1.jpg";
@@ -429,7 +430,9 @@ export default function FashionEvents() {
           </div>
         </div>
       </div>
-
+      <div className='!text-white mb-10'>
+        <CtaSection />
+      </div>
       <Footer />
     </div >
   );

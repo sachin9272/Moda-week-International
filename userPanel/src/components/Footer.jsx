@@ -122,7 +122,7 @@ export default function Footer() {
 
           {/* Content */}
           <div className="relative z-10 container mx-auto px-6 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 md:gap-2 mt-8">
               {/* --- Your sections remain same --- */}
               {/* About Section */}
               <div className="">
@@ -165,8 +165,8 @@ export default function Footer() {
 
               {/* Services */}
               <div className="">
-                <h3 className="text-xl font-bold mb-6">SERVICES</h3>
-                <ul className="space-y-3">
+                <h3 className="text-xl font-bold mb-2">SERVICES</h3>
+                <ul className="space-y-1">
                   <li>
                     <Link
                       to="/service?tab=service"
@@ -212,8 +212,8 @@ export default function Footer() {
 
               {/* Quick Links */}
               <div className="">
-                <h3 className="text-xl font-bold mb-6">QUICK LINKS</h3>
-                <ul className="space-y-3">
+                <h3 className="text-xl font-bold mb-2">QUICK LINKS</h3>
+                <ul className="space-y-1">
                   <li>
                     <Link
                       to="/about"
@@ -258,9 +258,9 @@ export default function Footer() {
               </div>
 
               {/* Career */}
-              <div className="">
-                <h3 className="text-xl font-bold mb-6">CAREER</h3>
-                <ul className="space-y-3">
+              <div className="md:-ml-10">
+                <h3 className="text-xl font-bold mb-2">CAREER</h3>
+                <ul className="space-y-1">
                   <li>
                     <Link
                       to="/service?tab=buyer"
@@ -305,9 +305,9 @@ export default function Footer() {
               </div>
 
               {/* Legal */}
-              <div className="">
-                <h3 className="text-xl font-bold mb-6">LEGAL</h3>
-                <ul className="space-y-3">
+              <div className="md:-ml-18">
+                <h3 className="text-xl font-bold mb-2">LEGAL</h3>
+                <ul className="space-y-1">
                   <li>
                     <Link
                       to="/code-of-conduct"
@@ -352,7 +352,7 @@ export default function Footer() {
               </div>
 
               {/* Contact Inquiry - Commented out as requested */}
-              {/* <div id="get-in-touch" className="lg:col-span-2">
+              <div id="get-in-touch" className="md:-ml-18">
                 <h3 className="text-xl font-bold mb-6">CONTACT INQUIRY</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-gray-400">
@@ -374,7 +374,7 @@ export default function Footer() {
                     </div>
                   </li>
                 </ul>
-              </div> */}
+              </div>
             </div>
           </div>
 
