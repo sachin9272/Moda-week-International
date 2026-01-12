@@ -97,7 +97,7 @@ body {
 .marquee-track {
   display: inline-flex;
   gap: 40px;
-  animation: marquee-right 5s linear infinite;
+  animation: marquee-right 10s linear infinite;
 }
 
 @keyframes marquee-right {

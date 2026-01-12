@@ -9,12 +9,6 @@ import {
   Youtube,
 } from "lucide-react";
 import footerBg from "../assets/footer.png";
-import brand1 from "../assets/brand1.png";
-import brand2 from "../assets/brand2.png";
-import brand3 from "../assets/brand3.png";
-import brand4 from "../assets/brand4.png";
-import brand5 from "../assets/brand5.png";
-import brand6 from "../assets/brand6.png";
 import logo from "../assets/glodenlogo.png";
 import { Link } from "react-router-dom";
 
@@ -55,23 +49,15 @@ export default function Footer() {
           <div className="marquee-wrapper py-8">
             <div className="marquee-track">
               {/* Original list */}
-              {partners.map((brand, i) => (
-                <img
-                  key={brand._id || i}
-                  src={brand.image?.url}
-                  alt={brand.name}
-                  className="h-20 object-contain mx-0"
-                />
-              ))}
-
-              {/* Duplicate list */}
-              {partners.map((brand, i) => (
-                <img
-                  key={`dup-${brand._id || i}`}
-                  src={brand.image?.url}
-                  alt={brand.name}
-                  className="h-20 object-contain mx-0"
-                />
+              {[...Array(6)].map((_, loopIndex) => (
+                partners.map((brand, i) => (
+                  <img
+                    key={`${loopIndex}-${brand._id || i}`}
+                    src={brand.image?.url}
+                    alt={brand.name}
+                    className="h-20 object-contain -mx-1" // Reduced horizontal margin to mx-2
+                  />
+                ))
               ))}
             </div>
           </div>
