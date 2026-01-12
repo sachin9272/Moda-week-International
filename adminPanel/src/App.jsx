@@ -11,11 +11,14 @@ import LandingVideos from './pages/LandingVideos';
 import ServiceTypeManagement from './pages/ServiceTypeManagement';
 import ServiceHeroManager from './pages/ServiceHeroManager';
 import NewsManager from './pages/news/NewsManager';
+import AddNews from './pages/news/AddNews';
+import EditNews from './pages/news/EditNews';
 import PartnerManager from './pages/PartnerManager';
 import Events from './pages/events/Events';
 import AddEvent from './pages/events/AddEvent';
 import EditEvent from './pages/events/EditEvent';
 import EventPreview from './pages/events/EventPreview';
+import NewsPreview from './pages/news/NewsPreview';
 import FashionDesigners from './pages/FashionDesigners';
 import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
@@ -53,6 +56,8 @@ function App() {
             <Route path="service-types" element={<ServiceTypeManagement />} />
             <Route path="service-hero" element={<ServiceHeroManager />} />
             <Route path="news" element={<NewsManager />} />
+            <Route path="news/add" element={<AddNews />} />
+            <Route path="news/edit/:id" element={<EditNews />} />
             <Route path="partners" element={<PartnerManager />} />
             <Route path="events" element={<Events />} />
             <Route path="events/add" element={<AddEvent />} />
@@ -63,6 +68,11 @@ function App() {
           <Route path="/events/preview/:id" element={
             <ProtectedRoute>
               <EventPreview />
+            </ProtectedRoute>
+          } />
+          <Route path="/news/preview/:id" element={
+            <ProtectedRoute>
+              <NewsPreview />
             </ProtectedRoute>
           } />
         </Routes>
