@@ -3,7 +3,7 @@ import { getAllNews, getNews } from '../controllers/newsController.js';
 
 const router = express.Router();
 
-// Public News Routes
+// Public News Routes (No Auth Required)
 router.get('/', getAllNews);
 router.get('/:id', getNews);
 

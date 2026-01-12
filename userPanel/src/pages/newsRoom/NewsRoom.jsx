@@ -71,7 +71,7 @@ export default function NewsRoom() {
         const fetchFollowers = async () => {
             try {
                 // Adjust URL based on your environment variable or proxy setup
-                const response = await axios.get('http://localhost:5000/api/instagram/followers');
+                const response = await axios.get(`${baseURL}/api/instagram/followers`);
                 if (response.data) {
                     if (response.data.followers) setFollowerCount(response.data.followers);
                     if (response.data.posts && response.data.posts.length > 0) setInstagramPosts(response.data.posts);
