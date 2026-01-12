@@ -56,7 +56,7 @@ app.use('/api/news', newsRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
-    res.status(500).send('Something broke!');
+    res.status(500).json({ message: err.message, stack: err.stack });
 });
 
 const PORT = process.env.PORT || 5000;

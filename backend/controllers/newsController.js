@@ -1,5 +1,5 @@
 import News from '../models/newsModel.js';
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
 
 // Get all news articles
 export const getAllNews = async (req, res) => {
@@ -43,7 +43,7 @@ export const getNews = async (req, res) => {
 export const createNews = async (req, res) => {
     console.log("Body------->", req.body);
     console.log("File------->", req.file);
-    const { title, content, category, date } = req.body;
+    const { title, content, category, date, status } = req.body;
 
     let imageData = {};
     if (req.file) {
@@ -59,6 +59,7 @@ export const createNews = async (req, res) => {
             content,
             category,
             date,
+            status: status || 'live',
             author: 'Admin',
             image: imageData
         });
@@ -90,7 +91,7 @@ export const updateNews = async (req, res) => {
             // Delete old image if exists
             const oldNews = await News.findById(req.params.id);
             if (oldNews && oldNews.image && oldNews.image.public_id) {
-                await cloudinary.uploader.destroy(oldNews.image.public_id);
+                await deleteCloudinaryAsset(oldNews.image.public_id);
             }
         }
 
@@ -130,7 +131,7 @@ export const deleteNews = async (req, res) => {
 
         // Delete image from Cloudinary
         if (news.image && news.image.public_id) {
-            await cloudinary.uploader.destroy(news.image.public_id);
+            await deleteCloudinaryAsset(news.image.public_id);
         }
 
         await News.findByIdAndDelete(req.params.id);
