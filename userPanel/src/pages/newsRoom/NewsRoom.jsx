@@ -10,9 +10,9 @@ import news1 from "../../assets/news1.jpg";
 import news2 from "../../assets/news2.jpg";
 import news3 from "../../assets/news3.jpg";
 import news4 from "../../assets/news4.jpg";
-import { mainFeatured, subFeatured, latestNews, allNewsItems } from "../../data/newsData";
+import { baseURL } from "../../config/api";
 
-// Mock Data
+// Mock Data (Video/Instagram still using assets)
 const trendingTopics = ["PARIS FASHION WEEK", "MILAN STREET STYLE", "NEW GUCCI COLLECTION", "SUSTAINABLE LUXURY", "MET GALA PREVIEW"];
 
 const CATEGORIES = ["ALL POSTS", "COSMETICS", "EDUCATION", "FASHION", "FINE ART", "PEFORMANCES", "PAST EVENTS", "TRAVEL"];
@@ -40,6 +40,33 @@ export default function NewsRoom() {
     const [currentVideo, setCurrentVideo] = useState(videoPlaylist[0]);
     const [selectedCategory, setSelectedCategory] = useState("ALL POSTS");
 
+    // Dynamic News State
+    const [allNewsItems, setAllNewsItems] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchNews = async () => {
+            try {
+                const { data } = await axios.get(`${baseURL}/api/news`);
+                if (data.status === 'success') {
+                    // Sort by date descending (parsing string date or using createdAt)
+                    const sorted = data.data.sort((a, b) => {
+                        const dateA = a.date ? new Date(a.date) : new Date(a.createdAt);
+                        const dateB = b.date ? new Date(b.date) : new Date(b.createdAt);
+                        return dateB - dateA;
+                    });
+                    setAllNewsItems(sorted);
+                }
+            } catch (error) {
+                console.error("Failed to fetch news", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchNews();
+    }, []);
+
     useEffect(() => {
         const fetchFollowers = async () => {
             try {
@@ -57,129 +84,60 @@ export default function NewsRoom() {
         fetchFollowers();
     }, []);
 
+    // Derived State
+    const mainFeatured = allNewsItems.length > 0 ? allNewsItems[0] : null;
+    const subFeatured = allNewsItems.length > 2 ? allNewsItems.slice(1, 3) : [];
+
     // Filter Logic
     const isAll = selectedCategory === "ALL POSTS";
-    const filteredItems = isAll ? latestNews : allNewsItems.filter(item => item.category === selectedCategory);
+    // Since Featured Section is removed, show ALL news in the list
+    const filteredItems = isAll ? allNewsItems : allNewsItems.filter(item => item.category === selectedCategory);
 
     return (
         <div className="bg-white text-black min-h-screen font-sans selection:bg-[#C7913E] selection:text-white">
             <Navbar />
 
-            {/* Header Section */}
-            <header className="pt-24 pb-0 px-0 border-b border-black/10">
-                <div className="max-w-[1400px] mx-auto text-center px-4 mb-12">
-                    <div className="flex flex-col items-center justify-center mb-8">
-                        <span className="text-[10px] font-bold tracking-[0.3em] uppercase mb-4 text-[#C7913E]">The Official News Source</span>
-                        <h1 className="font-serif text-6xl md:text-8xl font-normal tracking-tight bg-gradient-to-b from-black to-gray-800 bg-clip-text text-transparent">
-                            MODA WEEK
+            {/* Hero / Global Events Section */}
+            <div className="bg-gradient-to-b from-[#C7913E] to-white text-black h-[460px]">
+                <div className="max-w-7xl mx-auto px-4 pt-28 pb-16">
+                    {/* Header */}
+                    <div className="text-center mb-16 max-w-9xl mx-auto">
+                        <h1 className="relative inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-10 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
+                            FASHION NEWS
+                            <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#3C2306] to-[#C7913E]"></span>
                         </h1>
-                        <div className="w-24 h-1 bg-[#C7913E] mt-6 mb-8"></div>
+
+                        <p className="text-black max-w-3xl mx-auto leading-relaxed mb-4 !font-montserrat">
+                            The Official News Source. Curated updates from the world of high fashion, luxury lifestyle, and cultural shifts.
+                        </p>
                     </div>
                 </div>
+            </div>
 
-                {/* Categories Bar */}
-                <div className="bg-black py-4 w-full overflow-x-auto">
-                    <nav className="flex flex-nowrap md:flex-wrap justify-center gap-8 md:gap-16 text-xs font-bold tracking-[0.15em] uppercase min-w-max px-8">
-                        {CATEGORIES.map((item) => (
-                            <button
-                                key={item}
-                                onClick={() => setSelectedCategory(item)}
-                                className={`transition-all duration-300 relative group flex-shrink-0 ${selectedCategory === item ? "text-[#C7913E]" : "text-gray-400 hover:text-white"
-                                    }`}
-                            >
-                                {item}
-                                {selectedCategory === item && (
-                                    <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-[#C7913E]"></span>
-                                )}
-                            </button>
-                        ))}
-                    </nav>
-                </div>
-            </header>
+            {/* Categories Bar */}
+            <div className="bg-white py-4 w-full overflow-x-auto border-b border-gray-100">
+                <nav className="flex flex-nowrap md:flex-wrap justify-center gap-8 md:gap-16 text-xs font-bold tracking-[0.15em] uppercase min-w-max px-8">
+                    {CATEGORIES.map((item) => (
+                        <button
+                            key={item}
+                            onClick={() => setSelectedCategory(item)}
+                            className={`transition-all duration-300 relative group flex-shrink-0 ${selectedCategory === item ? "text-[#C7913E]" : "text-gray-500 hover:text-black"
+                                }`}
+                        >
+                            {item}
+                            {selectedCategory === item && (
+                                <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-[#C7913E]"></span>
+                            )}
+                        </button>
+                    ))}
+                </nav>
+            </div>
 
             <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-16">
 
-                {/* Featured Section - ONLY Show on ALL POSTS */}
-                {isAll && (
-                    <section className="mb-24">
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 lg:h-[600px]">
-                            {/* Main Hero */}
-                            <div
-                                className="lg:col-span-8 h-[500px] lg:h-full relative group cursor-pointer overflow-hidden"
-                                onClick={() => navigate(`/news-room/${mainFeatured.id}`)}
-                            >
-                                <img
-                                    src={mainFeatured.image}
-                                    alt={mainFeatured.title}
-                                    className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80" />
-                                <div className="absolute bottom-0 left-0 p-8 md:p-12 text-white max-w-3xl">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <span className="bg-[#C7913E] text-white text-[9px] font-bold px-3 py-1 uppercase tracking-widest">
-                                            {mainFeatured.category}
-                                        </span>
-                                        <span className="text-[10px] font-medium tracking-widest uppercase border-l border-white/30 pl-3">
-                                            {mainFeatured.date}
-                                        </span>
-                                    </div>
-                                    <h2 className="font-serif text-4xl md:text-6xl font-medium leading-none mb-6 group-hover:text-[#F0D1A8] transition-colors">
-                                        {mainFeatured.title}
-                                    </h2>
-                                    <p className="text-gray-200 text-sm md:text-base mb-6 font-light max-w-xl line-clamp-2">
-                                        {mainFeatured.description}
-                                    </p>
-                                    <div className="text-[10px] font-bold tracking-widest uppercase text-white/70">
-                                        {mainFeatured.author}
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div className="lg:col-span-4 flex flex-col gap-1 h-full">
-                                {subFeatured.map((item) => (
-                                    <div
-                                        key={item.id}
-                                        onClick={() => navigate(`/news-room/${item.id}`)}
-                                        className="relative flex-1 group cursor-pointer overflow-hidden min-h-[250px]"
-                                    >
-                                        <img
-                                            src={item.image}
-                                            alt={item.title}
-                                            className="w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105"
-                                        />
-                                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors" />
-                                        <div className="absolute inset-0 p-8 flex flex-col justify-end text-white">
-                                            <span className="text-[#C7913E] text-[9px] font-bold uppercase tracking-widest mb-3">
-                                                {item.category}
-                                            </span>
-                                            <h3 className="font-serif text-2xl lg:text-3xl font-medium leading-tight group-hover:underline decoration-1 underline-offset-4 decoration-[#C7913E]">
-                                                {item.title}
-                                            </h3>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </section>
-                )}
 
-                {/* Ticker / Breaking */}
-                <div className="border-y border-black py-4 mb-24 overflow-hidden">
-                    <div className="flex items-center gap-8 animate-marquee whitespace-nowrap">
-                        {trendingTopics.map((topic, i) => (
-                            <div key={i} className="flex items-center gap-8">
-                                <span className="text-sm font-bold tracking-widest uppercase">{topic}</span>
-                                <span className="text-[#C7913E] text-xs">●</span>
-                            </div>
-                        ))}
-                        {trendingTopics.map((topic, i) => (
-                            <div key={`dup-${i}`} className="flex items-center gap-8">
-                                <span className="text-sm font-bold tracking-widest uppercase">{topic}</span>
-                                <span className="text-[#C7913E] text-xs">●</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
+
 
                 {/* Latest News - Minimalist List & Grid */}
                 <section className="mb-24">
@@ -205,13 +163,13 @@ export default function NewsRoom() {
                             {filteredItems.length > 0 ? (
                                 filteredItems.map((item, idx) => (
                                     <div
-                                        key={item.id}
+                                        key={item._id}
                                         className="group cursor-pointer"
-                                        onClick={() => navigate(`/news-room/${item.id}`)}
+                                        onClick={() => navigate(`/news-room/${item._id}`)}
                                     >
                                         <div className="overflow-hidden mb-6 aspect-[16/10]">
                                             <img
-                                                src={item.image}
+                                                src={item.image?.url}
                                                 alt={item.title}
                                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
                                             />
@@ -296,6 +254,8 @@ export default function NewsRoom() {
                         </div>
                     </div>
                 </section>
+
+
 
                 {/* Newsletter / Instagram Compact */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-gray-50 p-8 md:p-16 border border-gray-100">
