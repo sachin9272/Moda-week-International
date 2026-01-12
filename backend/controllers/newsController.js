@@ -1,4 +1,5 @@
 import News from '../models/newsModel.js';
+import { cloudinary } from '../config/cloudinaryConfig.js';
 
 // Get all news articles
 export const getAllNews = async (req, res) => {
@@ -41,14 +42,32 @@ export const getNews = async (req, res) => {
 // Create new news article
 export const createNews = async (req, res) => {
     console.log("Body------->", req.body);
+    console.log("File------->", req.file);
     const { title, content, category, date } = req.body;
+
+    let imageData = {};
+    if (req.file) {
+        imageData = {
+            url: req.file.path,
+            public_id: req.file.filename
+        };
+    }
+
     try {
-        const news = await News.create({ title, content, category, date, author: 'Admin' });
+        const news = await News.create({
+            title,
+            content,
+            category,
+            date,
+            author: 'Admin',
+            image: imageData
+        });
         res.status(201).json({
             status: 'success',
             data: news
         });
     } catch (error) {
+        // If DB creation fails but image uploaded, delete it? (Optional optimization)
         res.status(400).json({
             status: 'fail',
             message: error.message
@@ -59,10 +78,27 @@ export const createNews = async (req, res) => {
 // Update news article
 export const updateNews = async (req, res) => {
     try {
-        const news = await News.findByIdAndUpdate(req.params.id, req.body, {
+        let updateData = { ...req.body };
+
+        // Handle Image Update
+        if (req.file) {
+            updateData.image = {
+                url: req.file.path,
+                public_id: req.file.filename
+            };
+
+            // Delete old image if exists
+            const oldNews = await News.findById(req.params.id);
+            if (oldNews && oldNews.image && oldNews.image.public_id) {
+                await cloudinary.uploader.destroy(oldNews.image.public_id);
+            }
+        }
+
+        const news = await News.findByIdAndUpdate(req.params.id, updateData, {
             new: true,
             runValidators: true
         });
+
         if (!news) {
             return res.status(404).json({
                 status: 'fail',
@@ -84,13 +120,21 @@ export const updateNews = async (req, res) => {
 // Delete news article
 export const deleteNews = async (req, res) => {
     try {
-        const news = await News.findByIdAndDelete(req.params.id);
+        const news = await News.findById(req.params.id);
         if (!news) {
             return res.status(404).json({
                 status: 'fail',
                 message: 'News article not found'
             });
         }
+
+        // Delete image from Cloudinary
+        if (news.image && news.image.public_id) {
+            await cloudinary.uploader.destroy(news.image.public_id);
+        }
+
+        await News.findByIdAndDelete(req.params.id);
+
         res.status(204).json({
             status: 'success',
             data: null
