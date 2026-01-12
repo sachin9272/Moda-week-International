@@ -1,14 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Table from '../../components/ui/Table';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import { Pencil, Trash2, Plus, Loader2, Eye } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { baseURL } from '../../config/api';
+import toast from 'react-hot-toast';
 
 const NewsManager = () => {
     const [news, setNews] = useState([]);
-    const [isEditing, setIsEditing] = useState(false);
-    const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null });
+    const [loading, setLoading] = useState(true);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [newsToDelete, setNewsToDelete] = useState(null);
+    const [updatingStatusId, setUpdatingStatusId] = useState(null);
+
+    // Filters
+    const [filterCategory, setFilterCategory] = useState('ALL');
+    const [filterStatus, setFilterStatus] = useState('ALL');
+
+    const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
 
     useEffect(() => {
         fetchNews();
@@ -17,121 +25,207 @@ const NewsManager = () => {
     const fetchNews = async () => {
         try {
             const res = await axios.get(`${baseURL}/api/admin/news/get-all`);
-            if (res.data.success) {
-                setNews(res.data.news);
+            if (res.data.status === 'success') {
+                setNews(res.data.data);
             }
         } catch (error) {
             console.error("Error fetching news:", error);
+            toast.error("Failed to load news");
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (window.confirm("Delete this news article?")) {
-            try {
-                await axios.delete(`${baseURL}/api/admin/news/delete/${id}`);
-                fetchNews();
-            } catch (error) {
-                alert("Failed to delete news");
-            }
-        }
+    const initiateDelete = (item) => {
+        setNewsToDelete(item);
+        setIsDeleteModalOpen(true);
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('title', currentNews.title);
-        formData.append('content', currentNews.content);
-        if (currentNews.image) formData.append('image', currentNews.image);
-
+    const confirmDelete = async () => {
+        if (!newsToDelete) return;
         try {
-            if (currentNews._id) {
-                await axios.put(`${baseURL}/api/admin/news/update/${currentNews._id}`, currentNews); // Note: Simple update might not need FormData for image unless changed logic, preserving original logic style
-            } else {
-                await axios.post(`${baseURL}/api/admin/news/create`, formData);
-            }
-            setIsEditing(false);
-            setCurrentNews({ title: '', content: '', image: null });
+            await axios.delete(`${baseURL}/api/admin/news/delete/${newsToDelete._id}`);
             fetchNews();
+            toast.success("News article deleted");
         } catch (error) {
             console.error(error);
-            alert("Failed to save news");
+            toast.error("Failed to delete news");
+        } finally {
+            setIsDeleteModalOpen(false);
+            setNewsToDelete(null);
         }
     };
 
-    const handleEdit = (item) => {
-        setCurrentNews(item);
-        setIsEditing(true);
+    const toggleStatus = async (item) => {
+        setUpdatingStatusId(item._id);
+        try {
+            const newStatus = item.status === 'live' ? 'hidden' : 'live';
+            await axios.put(`${baseURL}/api/admin/news/update/${item._id}`, {
+                status: newStatus
+            });
+
+            // Update local state
+            setNews(news.map(n => n._id === item._id ? { ...n, status: newStatus } : n));
+            toast.success(`News ${newStatus === 'live' ? 'Live' : 'Hidden'}`);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast.error("Failed to update status");
+        } finally {
+            setUpdatingStatusId(null);
+        }
     };
 
-    const columns = [
-        { header: 'Title', key: 'title' },
-        { header: 'Date', render: (item) => new Date(item.createdAt).toLocaleDateString() }
-    ];
+    const filteredNews = news.filter(item => {
+        const matchesCategory = filterCategory === 'ALL' || item.category === filterCategory;
+        const matchesStatus = filterStatus === 'ALL' || (filterStatus === 'live' ? item.status === 'live' : item.status !== 'live');
+        return matchesCategory && matchesStatus;
+    });
 
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-800">News Management</h1>
-                    <p className="text-slate-500">Create and manage news articles</p>
+        <div className="p-6 min-h-screen text-black">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <h1 className="text-3xl font-bold">News Management</h1>
+                <div className="flex flex-wrap gap-4 items-center w-full md:w-auto">
+                    {/* Category Filter */}
+                    <select
+                        value={filterCategory}
+                        onChange={(e) => setFilterCategory(e.target.value)}
+                        className="bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="ALL">All Categories</option>
+                        {CATEGORIES.map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                        ))}
+                    </select>
+
+                    {/* Status Filter */}
+                    <select
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                        className="bg-gray-700 text-white px-4 py-2 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        <option value="ALL">All Status</option>
+                        <option value="live">Live</option>
+                        <option value="hidden">Hidden</option>
+                    </select>
+
+                    <Link
+                        to="/news/add"
+                        className="flex items-center gap-2 font-bold py-2 px-4 rounded transition-colors bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                        <Plus size={20} /> Add News
+                    </Link>
                 </div>
-                <button
-                    onClick={() => { setIsEditing(!isEditing); setCurrentNews({ title: '', content: '', image: null }); }}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                >
-                    {isEditing ? 'Cancel' : 'Create News'}
-                </button>
             </div>
 
-            {isEditing ? (
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 mb-8">
-                    <h3 className="text-lg font-bold mb-4">{currentNews._id ? 'Edit News' : 'Create New Article'}</h3>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                value={currentNews.title}
-                                onChange={(e) => setCurrentNews({ ...currentNews, title: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Content</label>
-                            <ReactQuill
-                                theme="snow"
-                                value={currentNews.content}
-                                onChange={(content) => setCurrentNews({ ...currentNews, content })}
-                                className="h-64 mb-12"
-                            />
-                        </div>
-                        <div className="pt-8">
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Cover Image</label>
-                            <input
-                                type="file"
-                                onChange={(e) => setCurrentNews({ ...currentNews, image: e.target.files[0] })}
-                                className="block w-full text-sm text-slate-500
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-blue-50 file:text-blue-700
-                                hover:file:bg-blue-100"
-                            />
-                        </div>
-                        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
-                            Save Article
-                        </button>
-                    </form>
+            {loading ? (
+                <div className="flex justify-center items-center h-64">
+                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
                 </div>
             ) : (
-                <Table
-                    title="News Articles"
-                    columns={columns}
-                    data={news}
-                    onDelete={handleDelete}
-                    onView={handleEdit}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredNews.map((item) => (
+                        <div key={item._id} className="bg-gray-800 rounded-lg overflow-hidden shadow-lg border border-gray-700 relative flex flex-col h-full">
+                            <div className="relative h-48">
+                                {item.image && item.image.url ? (
+                                    <img src={item.image.url} alt={item.title} className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-gray-700 flex items-center justify-center text-gray-500">
+                                        No Image
+                                    </div>
+                                )}
+                                <div className="absolute top-2 right-2 flex gap-2">
+                                    <Link
+                                        to={`/news/preview/${item._id}`}
+                                        className="bg-black/50 hover:bg-black/80 text-white p-1 rounded transition-colors backdrop-blur-sm"
+                                        title="Preview News"
+                                    >
+                                        <Eye size={16} />
+                                    </Link>
+                                    <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-bold uppercase shadow-sm">
+                                        {item.category}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="p-4 flex flex-col flex-grow">
+                                <div className="flex justify-between items-start mb-2">
+                                    <h2 className="text-xl font-bold text-white line-clamp-1" title={item.title}>
+                                        {item.title}
+                                    </h2>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-xs text-gray-400 uppercase">{item.status === 'live' ? 'Live' : 'Hidden'}</span>
+                                        <button
+                                            onClick={() => toggleStatus(item)}
+                                            disabled={updatingStatusId === item._id}
+                                            className={`w-10 h-5 rounded-full flex items-center transition-colors p-1 ${item.status === 'live' ? 'bg-green-500' : 'bg-gray-600'} ${updatingStatusId === item._id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        >
+                                            {updatingStatusId === item._id ? (
+                                                <div className="w-full flex justify-center">
+                                                    <Loader2 className="w-3 h-3 text-white animate-spin" />
+                                                </div>
+                                            ) : (
+                                                <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${item.status === 'live' ? 'translate-x-5' : 'translate-x-0'}`} />
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                                <p className="text-gray-400 text-sm mb-4">
+                                    {item.date || new Date(item.createdAt).toLocaleDateString()}
+                                </p>
+                                <div className="text-gray-500 text-sm line-clamp-3 mb-4 flex-grow" dangerouslySetInnerHTML={{ __html: item.content }} />
+
+                                <div className="flex justify-between items-center mt-auto border-t border-gray-700 pt-4 gap-3">
+                                    <Link
+                                        to={`/news/edit/${item._id}`}
+                                        className="flex-1 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center gap-2 group"
+                                    >
+                                        <Pencil size={16} className="group-hover:scale-110 transition-transform" />
+                                        <span className="font-medium">Edit</span>
+                                    </Link>
+                                    <button
+                                        onClick={() => initiateDelete(item)}
+                                        className="flex-1 bg-red-600/10 hover:bg-red-600 text-red-500 hover:text-white py-2 px-4 rounded-md transition-all duration-300 flex items-center justify-center gap-2 group"
+                                    >
+                                        <Trash2 size={16} className="group-hover:scale-110 transition-transform" />
+                                        <span className="font-medium">Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    {filteredNews.length === 0 && !loading && (
+                        <div className="col-span-full text-center py-12">
+                            <p className="text-gray-400 text-lg">No news articles found matching your filters.</p>
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {isDeleteModalOpen && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 p-6 rounded-lg shadow-xl max-w-sm w-full border border-gray-700">
+                        <h3 className="text-xl font-bold text-white mb-4">Confirm Delete</h3>
+                        <p className="text-gray-300 mb-6">
+                            Are you sure you want to delete <span className="font-semibold text-white">{newsToDelete?.title}</span>? This action cannot be undone.
+                        </p>
+                        <div className="flex gap-4 justify-end">
+                            <button
+                                onClick={() => setIsDeleteModalOpen(false)}
+                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded transition-colors"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );
