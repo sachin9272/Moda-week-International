@@ -307,7 +307,7 @@ export default function Footer() {
                       to="/data-protection"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Data Protection (GDPR Compliance)
+                      Data Protection (GDPR <br /> Compliance)
                     </Link>
                   </li>
                   <li>
