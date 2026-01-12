@@ -107,7 +107,7 @@ export default function Footer() {
           <div className="absolute inset-0 bg-linear-to-b from-black/99 via-black/90 to-black/90"></div>
 
           {/* Content */}
-          <div className="relative z-10 container mx-auto px-6 py-6">
+          <div className="relative z-10 container mx-auto px-5 py-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 md:gap-2 mt-8">
               {/* --- Your sections remain same --- */}
               {/* About Section */}
@@ -115,7 +115,7 @@ export default function Footer() {
                 <div className="mb-6">
                   <img src={logo} alt="" />
                 </div>
-                <p className="text-gray-400 mb-6 leading-relaxed">
+                <p className="text-gray-400 mb-6 leading-relaxed max-w-4xl">
                   MWINTL. We specialize in international fashion show
                   productions that unite exceptional talent from around the
                   world. Through our global network, we connect strategic
