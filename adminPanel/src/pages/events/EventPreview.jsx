@@ -269,6 +269,8 @@ export default function EventPreview() {
         }
     };
 
+
+
     const renderTickets = () => {
         if (!event.hasTickets || !event.tickets || event.tickets.length === 0) return null;
 
@@ -308,7 +310,7 @@ export default function EventPreview() {
                                             <img
                                                 src={ticketImgUrl}
                                                 alt={`Ticket ${idx + 1}`}
-                                                className="w-full h-full object-contain"
+                                                className="w-full h-auto object-cover"
                                             />
                                         </div>
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
@@ -331,15 +333,111 @@ export default function EventPreview() {
             {renderHero()}
 
             {event.descriptionSection && event.descriptionSection.isVisible && (
-                <div className="bg-white pt-6 pb-0 px-4">
-                    <div className="max-w-9xl mx-auto">
-                        <h2 className="text-2xl text-black mb-4 uppercase tracking-wider max-w-3xl">
-                            {event.descriptionSection.title}
-                        </h2>
-                        <div
-                            className="rich-text-content text-black leading-relaxed font-light"
-                            dangerouslySetInnerHTML={{ __html: event.descriptionSection.text }}
-                        />
+                <div className="py-6 px-8 bg-white relative overflow-hidden mb-8">
+                    <div className="max-w-7xl mx-auto flex flex-col gap-10">
+                        {/* Top: Title & Top Text */}
+                        <div className="w-full text-center md:text-left">
+                            {event.descriptionSection.title && (
+                                <h2 className="text-3xl md:text-4xl font-playfair font-bold text-black mb-8 leading-tight uppercase tracking-wider">
+                                    {event.descriptionSection.title}
+                                </h2>
+                            )}
+                            {event.descriptionSection.text && (
+                                <div
+                                    className="!text-base rich-text-content text-black leading-relaxed text-lg font-light text-justify"
+                                    dangerouslySetInnerHTML={{ __html: event.descriptionSection.text }}
+                                />
+                            )}
+                        </div>
+
+                        {/* Split: Image (Left) & Credits (Right) */}
+                        {(() => {
+                            const descImage = event.descriptionSection.image;
+                            const descImageUrl = descImage?.url || descImage;
+
+                            if (!descImageUrl && !event.descriptionSection.credits) return null;
+
+                            const imageSize = event.descriptionSection.imageSize || 'medium';
+                            let imageWidthClass = 'md:w-1/2'; // Default medium
+                            let textWidthClass = 'md:w-1/2';
+
+                            if (imageSize === 'small') {
+                                imageWidthClass = 'md:w-1/3';
+                                textWidthClass = 'md:w-2/3';
+                            } else if (imageSize === 'large') {
+                                imageWidthClass = 'md:w-2/3';
+                                textWidthClass = 'md:w-1/3';
+                            }
+
+                            // If no image, text is always full width
+                            if (!descImageUrl) {
+                                textWidthClass = 'md:w-full';
+                            }
+
+                            return (
+                                <div className="flex flex-col md:flex-row gap-12 items-start">
+                                    <div className={`w-full ${textWidthClass}`}>
+                                        {event.descriptionSection.credits && (
+                                            <div
+                                                className="rich-text-content text-black leading-relaxed text-base font-light tracking-wide space-y-2"
+                                                dangerouslySetInnerHTML={{ __html: event.descriptionSection.credits }}
+                                            />
+                                        )}
+                                    </div>
+
+                                    {descImageUrl && (
+                                        <div className={`w-full ${imageWidthClass} relative`}>
+                                            <div className="relative aspect-[3/4] shadow-xl">
+                                                <img src={descImageUrl} alt="Description" className="w-full h-full object-cover rounded-sm" />
+                                                <div className="absolute -inset-4 border border-[#C7913E]/30 z-0 pointer-events-none"></div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })()}
+                    </div>
+                </div>
+            )}
+
+            {event.videoSection && event.videoSection.isVisible && (event.videoSection.url || event.videoSection.file) && (
+                <div className="py-16 px-8 bg-white relative overflow-hidden">
+                    <div className="max-w-5xl mx-auto flex flex-col gap-8 items-center">
+                        {event.videoSection.title && (
+                            <h2 className="text-3xl md:text-4xl font-playfair font-bold text-black text-center uppercase tracking-wider mb-4">
+                                {event.videoSection.title}
+                            </h2>
+                        )}
+                        <div className="w-full aspect-video relative shadow-2xl rounded-sm overflow-hidden bg-black">
+                            {event.videoSection.type === 'youtube' ? (
+                                <iframe
+                                    src={(() => {
+                                        const url = event.videoSection.url;
+                                        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+                                        const match = url.match(regExp);
+                                        const id = (match && match[2].length === 11) ? match[2] : null;
+                                        // Append autoplay and mute
+                                        return id ? `https://www.youtube.com/embed/${id}?autoplay=1&mute=1` : url;
+                                    })()}
+                                    title={event.videoSection.title || 'Event Video'}
+                                    className="absolute inset-0 w-full h-full"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
+                            ) : (
+                                <video
+                                    src={event.videoSection.url || event.videoSection.file} // Handle both just in case
+                                    className="w-full h-full object-contain"
+                                    controls
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                >
+                                    Your browser does not support the video tag.
+                                </video>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
@@ -350,51 +448,11 @@ export default function EventPreview() {
                 {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
             </div>
 
-            {event.bottomSection && (event.bottomSection.title || event.bottomSection.text || event.bottomSection.image || event.bottomSection.credits) && (
-                <div className="py-6 px-8 bg-white relative overflow-hidden mb-20">
-                    <div className="max-w-7xl mx-auto flex flex-col gap-10">
-                        {/* Top: Title & Recap Text */}
-                        <div className="w-full text-center md:text-left">
-                            {event.bottomSection.text && (
-                                <div
-                                    className="!text-base rich-text-content text-black leading-relaxed text-lg font-light text-justify"
-                                    dangerouslySetInnerHTML={{ __html: event.bottomSection.text }}
-                                />
-                            )}
-                        </div>
-
-                        {/* Bottom Split: Image (Left) & Credits (Right) */}
-                        {(() => {
-                            const bottomImage = event.bottomSection.image || event.thumbnail;
-                            const bottomImageUrl = bottomImage?.url || bottomImage;
-
-                            if (!bottomImageUrl && !event.bottomSection.credits) return null;
-
-                            return (
-                                <div className="flex flex-col md:flex-row gap-12 items-start">
-                                    {bottomImageUrl && (
-                                        <div className="w-full md:w-1/2 relative">
-                                            <div className="relative aspect-[3/4] shadow-xl">
-                                                <img src={bottomImageUrl} alt="Recap" className="w-full h-full object-cover rounded-sm" />
-                                                <div className="absolute -inset-4 border border-[#C7913E]/30 z-0 pointer-events-none"></div>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className={`w-full ${bottomImageUrl ? 'md:w-1/2' : 'md:w-full'}`}>
-                                        {event.bottomSection.credits && (
-                                            <div
-                                                className="rich-text-content text-black leading-relaxed text-base font-light tracking-wide space-y-2"
-                                                dangerouslySetInnerHTML={{ __html: event.bottomSection.credits }}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                            );
-                        })()}
-                    </div>
-                </div>
-            )}
+            {/* Bottom Section - keeping commented out to match User Panel or enabled if requested. User said "as it is in UserPanel" and usually that section is dynamic. I'll include the rendering logic but it depends on data visibility. UserPanel has it commented out in the file I read! So I will comment it out here too? 
+               Wait, in EventDetail.jsx lines 451-498 ARE commented out. 
+               However, I see I can probably leave it out entirely if it's commented out in source.
+               I will omit it to be safe and cleaner, matching UserPanel.
+            */}
         </div>
     );
 }

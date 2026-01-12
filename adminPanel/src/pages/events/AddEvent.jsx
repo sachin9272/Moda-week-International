@@ -13,7 +13,7 @@ const AddEvent = () => {
         city: '',
         eventName: '',
         date: '',
-        eventType: 'upcoming',
+        eventType: 'past',
         status: 'draft', // Default status
         heroLayout: 'split', // Default layout
         thumbnail: null,
