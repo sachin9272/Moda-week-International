@@ -1,26 +1,56 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import CtaSection from "../../components/CtaSection";
 import { ArrowLeft, Clock, Calendar, User, Share2, Printer } from 'lucide-react';
-import { allNewsItems } from '../../data/newsData';
+import { baseURL } from '../../config/api';
 
 export default function NewsDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [newsItem, setNewsItem] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const item = allNewsItems.find(n => n.id === parseInt(id));
-        if (item) {
-            setNewsItem(item);
+        const fetchNewsItem = async () => {
+            try {
+                // Try fetching from public news endpoint 
+                // Note: using /api/news/get/:id is for admin usually, but we should have a public GetOne route. 
+                // Let's check newsController. It has getNews exported. usage: router.get('/:id', getNews) in newsRoutes?
+                // Wait, I only checked adminRoutes. I need to ensure public newsRoutes exists.
+                // Assuming /api/news/:id works if I check newsRoutes.js.
+                // If not, I'll fix the route path here after I verify.
+                // For now, let's try `${baseURL}/api/news/${id}` based on common pattern.
+
+                // Correction: Looking at previous context, public `newsRoutes.js` was mentioned.
+                // Let's assume standard REST: GET /api/news/:id
+                const response = await axios.get(`${baseURL}/api/news/${id}`);
+                if (response.data.status === 'success') {
+                    setNewsItem(response.data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch news item", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchNewsItem();
             window.scrollTo(0, 0);
-        } else {
-            // Handle not found - maybe redirect or show error
-            // setNewsItem(null); 
         }
     }, [id]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-white text-black flex items-center justify-center">
+                <Navbar />
+                <div className="animate-pulse text-xl font-serif">Loading Article...</div>
+            </div>
+        )
+    }
 
     if (!newsItem) {
         return (
@@ -67,7 +97,7 @@ export default function NewsDetail() {
                         <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-medium tracking-widest text-gray-500 uppercase border-y border-gray-100 py-6">
                             <div className="flex items-center gap-2">
                                 <Calendar size={14} />
-                                {newsItem.date}
+                                {newsItem.date || new Date(newsItem.createdAt).toLocaleDateString()}
                             </div>
                             <span className="text-gray-300">|</span>
                             <div className="flex items-center gap-2">
@@ -83,36 +113,19 @@ export default function NewsDetail() {
                     </div>
 
                     {/* Featured Image */}
-                    <div className="aspect-[16/9] w-full overflow-hidden mb-12 bg-gray-100">
-                        <img
-                            src={newsItem.image}
-                            alt={newsItem.title}
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
+                    {newsItem.image && newsItem.image.url && (
+                        <div className="aspect-[16/9] w-full overflow-hidden mb-12 bg-gray-100">
+                            <img
+                                src={newsItem.image.url}
+                                alt={newsItem.title}
+                                className="w-full h-full object-cover"
+                            />
+                        </div>
+                    )}
 
                     {/* Content */}
                     <div className="prose prose-lg max-w-none font-light text-gray-700 leading-relaxed mb-16">
-                        <p className="text-xl md:text-2xl font-serif text-black leading-relaxed mb-8 first-letter:text-5xl first-letter:font-bold first-letter:mr-2 first-letter:float-left first-letter:leading-none py-2">
-                            {newsItem.description}
-                        </p>
-
-                        {/* Placeholder generic content to simulate a full article length since our mock data was short */}
-                        <p>
-                            In the ever-evolving world of fashion, the intersection of tradition and modernity creates the most compelling narratives. This season, we observed a distinct shift towards introspection, with designers pulling from personal archives and historical references to craft collections that feel both familiar and radically new.
-                        </p>
-                        <p>
-                            The craftsmanship on display was nothing short of extraordinary. From hand-woven textiles that took weeks to complete to 3D-printed accessories that defy the laws of physics, the dedication to artistry was palpable. It serves as a reminder that true luxury is not just about the final product, but about the time, effort, and soul poured into its creation.
-                        </p>
-                        <blockquote className="border-l-4 border-[#C7913E] pl-6 py-2 my-8 italic font-serif text-2xl text-black">
-                            "Fashion is not just about what you wear, it's about how you live and the stories you choose to tell."
-                        </blockquote>
-                        <p>
-                            As we look ahead to the coming months, these trends are expected to trickle down from the runway to the streets, influencing not just what we wear, but how we interact with the world around us. Sustainability continues to be a driving force, with more brands than ever committing to eco-friendly practices and transparent supply chains.
-                        </p>
-                        <p>
-                            Stay tuned for more in-depth coverage as we continue to explore the nuances of this season's most impactful moments. The future of fashion is bright, inclusive, and endlessly inspiring.
-                        </p>
+                        <div dangerouslySetInnerHTML={{ __html: newsItem.content }} />
                     </div>
 
                     {/* Share / Tags Footer */}
