@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
-import { Upload, X, ArrowLeft } from 'lucide-react';
+import { Upload, X, ArrowLeft, Pencil } from 'lucide-react';
+import ImageEditorModal from '../../components/ImageEditorModal';
 import { Editor } from '@tinymce/tinymce-react';
 import toast from 'react-hot-toast';
 
@@ -58,6 +59,61 @@ const AddEvent = () => {
     });
 
     const [designers, setDesigners] = useState([]);
+
+    // Image Editor State
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [currentEditingImage, setCurrentEditingImage] = useState(null); // { field: 'thumbnail', file: File/Blob, aspect: 16/9 }
+    const [editorImageSrc, setEditorImageSrc] = useState(null);
+
+    const handleEditClick = (field, file, aspect = 16 / 9, index = null) => {
+        if (file) {
+            const imageUrl = typeof file === 'string' ? file : URL.createObjectURL(file);
+            setEditorImageSrc(imageUrl);
+            setCurrentEditingImage({ field, file, aspect, index });
+            setEditorOpen(true);
+        }
+    };
+
+    const handleSaveEditedImage = (blob) => {
+        if (!currentEditingImage) return;
+
+        // Create a File object from the Blob
+        let fileName = 'edited_image.jpg';
+        let fileType = 'image/jpeg';
+        if (currentEditingImage.file instanceof File) {
+            fileName = currentEditingImage.file.name;
+            fileType = currentEditingImage.file.type;
+        }
+
+        const file = new File([blob], fileName, { type: fileType });
+        const { field, index } = currentEditingImage;
+
+        if (field === 'thumbnail') {
+            setFormData(prev => ({ ...prev, thumbnail: file }));
+        } else if (field === 'descriptionSection.image') {
+            setFormData(prev => ({ ...prev, descriptionSection: { ...prev.descriptionSection, image: file } }));
+        } else if (field === 'bottomSection.image') {
+            setFormData(prev => ({ ...prev, bottomSection: { ...prev.bottomSection, image: file } }));
+        } else if (field === 'currentCollection.designerImage') {
+            setCurrentCollection(prev => ({ ...prev, designerImage: file }));
+        } else if (field === 'currentCollection.image') {
+            setCurrentCollection(prev => {
+                const newImages = [...prev.images];
+                if (index !== null && newImages[index]) {
+                    newImages[index] = file;
+                }
+                return { ...prev, images: newImages };
+            });
+        } else if (field === 'currentTicket.image') {
+            setCurrentTicket(prev => ({ ...prev, image: file }));
+        }
+
+        // Clean up
+        if (editorImageSrc && typeof editorImageSrc !== 'string') URL.revokeObjectURL(editorImageSrc);
+        setEditorOpen(false);
+        setEditorImageSrc(null);
+        setCurrentEditingImage(null);
+    };
 
     React.useEffect(() => {
         const fetchDesigners = async () => {
@@ -478,6 +534,16 @@ const AddEvent = () => {
                 <h1 className="text-3xl font-bold">Add New Event</h1>
             </div>
 
+
+
+            <ImageEditorModal
+                isOpen={editorOpen}
+                onClose={() => setEditorOpen(false)}
+                onSave={handleSaveEditedImage}
+                image={editorImageSrc}
+                aspect={currentEditingImage?.aspect}
+            />
+
             <form onSubmit={handleSubmit} className="max-w-4xl space-y-8">
                 <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
                     <h2 className="text-xl font-bold mb-4 text-blue-400">Basic Information</h2>
@@ -519,14 +585,24 @@ const AddEvent = () => {
                                             alt="Thumbnail Preview"
                                             className="max-h-64 w-auto mx-auto rounded shadow-lg"
                                         />
-                                        <button
-                                            type="button"
-                                            onClick={() => setFormData(prev => ({ ...prev, thumbnail: null }))}
-                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
-                                            title="Remove Image"
-                                        >
-                                            <X size={16} />
-                                        </button>
+                                        <div className="absolute -top-2 -right-2 flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditClick('thumbnail', formData.thumbnail, 16 / 9)}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                title="Edit Image"
+                                            >
+                                                <Pencil size={16} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, thumbnail: null }))}
+                                                className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                title="Remove Image"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
                                         <p className="mt-2 text-sm text-gray-400">{formData.thumbnail.name}</p>
                                     </div>
                                 ) : (
@@ -630,14 +706,24 @@ const AddEvent = () => {
                                                 alt="Description Preview"
                                                 className="max-h-64 w-auto mx-auto rounded shadow-lg"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData(prev => ({ ...prev, descriptionSection: { ...prev.descriptionSection, image: null } }))}
-                                                className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
-                                                title="Remove Image"
-                                            >
-                                                <X size={16} />
-                                            </button>
+                                            <div className="absolute -top-2 -right-2 flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleEditClick('descriptionSection.image', formData.descriptionSection.image, 4 / 3)} // Assuming different aspect might be needed, or keep 16/9
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                    title="Edit Image"
+                                                >
+                                                    <Pencil size={16} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData(prev => ({ ...prev, descriptionSection: { ...prev.descriptionSection, image: null } }))}
+                                                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                    title="Remove Image"
+                                                >
+                                                    <X size={16} />
+                                                </button>
+                                            </div>
                                             <p className="mt-2 text-sm text-gray-400">
                                                 {typeof formData.descriptionSection.image === 'string' ? 'Current Image' : formData.descriptionSection.image.name}
                                             </p>
@@ -874,14 +960,24 @@ const AddEvent = () => {
                                                 alt="Designer Profile"
                                                 className="h-32 w-32 rounded-full object-cover border-4 border-gray-700 shadow-lg"
                                             />
-                                            <button
-                                                type="button"
-                                                onClick={() => setCurrentCollection(prev => ({ ...prev, designerImage: null }))}
-                                                className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
-                                                title="Remove Image"
-                                            >
-                                                <X size={14} />
-                                            </button>
+                                            <div className="absolute top-0 right-0 flex gap-1">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleEditClick('currentCollection.designerImage', currentCollection.designerImage, 1, null)}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1 shadow-md transition-transform hover:scale-110"
+                                                    title="Edit Image"
+                                                >
+                                                    <Pencil size={12} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setCurrentCollection(prev => ({ ...prev, designerImage: null }))}
+                                                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-md transition-transform hover:scale-110"
+                                                    title="Remove Image"
+                                                >
+                                                    <X size={12} />
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 ) : (
@@ -944,9 +1040,24 @@ const AddEvent = () => {
                                             alt="Preview"
                                             className="w-full h-32 object-cover rounded border border-gray-700"
                                         />
-                                        <button type="button" onClick={() => removeCollectionImage(idx)} className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-md transition-colors">
-                                            <X size={14} />
-                                        </button>
+                                        <div className="absolute top-1 right-1 flex gap-1">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditClick('currentCollection.image', file, 16 / 9, idx)}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1 shadow-md transition-colors"
+                                                title="Edit"
+                                            >
+                                                <Pencil size={12} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => removeCollectionImage(idx)}
+                                                className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-md transition-colors"
+                                                title="Remove"
+                                            >
+                                                <X size={12} />
+                                            </button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -1011,14 +1122,24 @@ const AddEvent = () => {
                                                     alt="Ticket"
                                                     className="w-32 h-auto rounded border-4 border-gray-700 shadow-lg"
                                                 />
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setCurrentTicket(prev => ({ ...prev, image: null }))}
-                                                    className="absolute top-0 right-0 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
-                                                    title="Remove Image"
-                                                >
-                                                    <X size={14} />
-                                                </button>
+                                                <div className="absolute top-0 right-0 flex gap-1">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleEditClick('currentTicket.image', currentTicket.image, 16 / 9)}
+                                                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1 shadow-md transition-transform hover:scale-110"
+                                                        title="Edit Image"
+                                                    >
+                                                        <Pencil size={12} />
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setCurrentTicket(prev => ({ ...prev, image: null }))}
+                                                        className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                        title="Remove Image"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
                                     ) : (
@@ -1055,14 +1176,62 @@ const AddEvent = () => {
                     )}
                 </div>
 
-                {/* <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
                     <h2 className="text-xl font-bold mb-4 text-blue-400">Bottom Section (Recap & Credits)</h2>
                     <div className="grid grid-cols-1 gap-4">
                         <label className="block text-gray-400 mb-1">Section Title (Optional)</label>
                         <input type="text" name="bottomSection.title" value={formData.bottomSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" placeholder="e.g. SYRACUSE FASHION WEEKEND 2016" />
 
                         <label className="block text-gray-400 mb-1">Recap Image (Left Side)</label>
-                        <input type="file" name="bottomSection.image" accept="image/*" onChange={handleFileChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                        <div
+                            className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.bottomSection.image ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={(e) => handleDrop(e, 'bottomSection.image')}
+                        >
+                            {formData.bottomSection.image ? (
+                                <div className="relative w-full">
+                                    <img
+                                        src={URL.createObjectURL(formData.bottomSection.image)}
+                                        alt="Bottom Section Preview"
+                                        className="max-h-64 w-auto mx-auto rounded shadow-lg"
+                                    />
+                                    <div className="absolute -top-2 -right-2 flex gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleEditClick('bottomSection.image', formData.bottomSection.image, 16 / 9)}
+                                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                            title="Edit Image"
+                                        >
+                                            <Pencil size={16} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFormData(prev => ({ ...prev, bottomSection: { ...prev.bottomSection, image: null } }))}
+                                            className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                            title="Remove Image"
+                                        >
+                                            <X size={16} />
+                                        </button>
+                                    </div>
+                                    <p className="mt-2 text-sm text-gray-400">{formData.bottomSection.image.name}</p>
+                                </div>
+                            ) : (
+                                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                    <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                    <span className="text-blue-400 font-medium hover:underline">Click to upload</span>
+                                    <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                                    <span className="text-gray-600 text-xs mt-2">SVG, PNG, JPG or GIF</span>
+                                    <input
+                                        type="file"
+                                        name="bottomSection.image"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        className="hidden"
+                                    />
+                                </label>
+                            )}
+                        </div>
 
                         <label className="block text-gray-400 mb-1">Recap Text (Top Section)</label>
                         <Editor
@@ -1087,7 +1256,7 @@ const AddEvent = () => {
                             init={editorConfig}
                         />
                     </div>
-                </div> */}
+                </div>
 
                 <button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 text-white font-bold py-4 rounded text-lg flex justify-center items-center">
                     {loading ? 'Creating Event & Uploading...' : 'Create Event'}

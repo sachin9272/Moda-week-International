@@ -223,7 +223,7 @@ const EventDetail = () => {
                                 </div>
 
                                 {collection.description ? (
-                                    <div className="prose max-w-none text-gray-700 text-base leading-relaxed space-y-6 text-justify">
+                                    <div className="prose max-w-none text-gray-700 text-base leading-normal space-y-1 text-justify">
                                         {/* Simple formatting: preserve line breaks */}
                                         {collection.description.split('\n').map((para, i) => (
                                             <p key={i}>{para}</p>

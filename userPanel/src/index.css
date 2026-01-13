@@ -128,7 +128,7 @@ body {
 
 /* Rich Text Content Styling */
 .rich-text-content p {
-  margin-bottom: 1em;
+  margin-bottom: 0.5em;
 }
 
 .rich-text-content ul {
