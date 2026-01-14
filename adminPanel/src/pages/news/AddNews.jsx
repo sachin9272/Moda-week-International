@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 const AddNews = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null, category: 'FASHION', status: 'hidden' });
+    const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null, category: 'FASHION', status: 'hidden', author: '', date: '' });
     const [isDragging, setIsDragging] = useState(false);
 
     const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
@@ -23,6 +23,8 @@ const AddNews = () => {
         formData.append('content', currentNews.content);
         formData.append('category', currentNews.category || 'FASHION');
         formData.append('status', currentNews.status || 'live');
+        formData.append('author', currentNews.author);
+        formData.append('date', currentNews.date);
 
         if (currentNews.image instanceof File) {
             formData.append('image', currentNews.image);
@@ -106,6 +108,28 @@ const AddNews = () => {
                             </select>
                         </div>
 
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div>
+                            <label className="block text-gray-400 mb-1">Author Name</label>
+                            <input
+                                type="text"
+                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                value={currentNews.author}
+                                onChange={(e) => setCurrentNews({ ...currentNews, author: e.target.value })}
+                                placeholder="e.g. Admin or Editor Name"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-400 mb-1">Post Date</label>
+                            <input
+                                type="date"
+                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                value={currentNews.date}
+                                onChange={(e) => setCurrentNews({ ...currentNews, date: e.target.value })}
+                            />
+                        </div>
                     </div>
 
                     <label className="block text-gray-400 mb-1">Content</label>
