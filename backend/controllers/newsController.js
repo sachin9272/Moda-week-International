@@ -17,6 +17,22 @@ export const getAllNews = async (req, res) => {
     }
 };
 
+// Get only live news articles
+export const getLiveNews = async (req, res) => {
+    try {
+        const news = await News.find({ status: 'live' });
+        res.status(200).json({
+            status: 'success',
+            data: news
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
 // Get single news article
 export const getNews = async (req, res) => {
     try {
@@ -43,7 +59,7 @@ export const getNews = async (req, res) => {
 export const createNews = async (req, res) => {
     console.log("Body------->", req.body);
     console.log("File------->", req.file);
-    const { title, content, category, date, status } = req.body;
+    const { title, content, category, date, status, author } = req.body;
 
     let imageData = {};
     if (req.file) {
@@ -60,7 +76,7 @@ export const createNews = async (req, res) => {
             category,
             date,
             status: status || 'live',
-            author: 'Admin',
+            author: author || 'Admin',
             image: imageData
         });
         res.status(201).json({
