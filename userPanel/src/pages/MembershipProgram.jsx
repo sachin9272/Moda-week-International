@@ -20,18 +20,76 @@ const MembershipProgram = () => {
             <Navbar />
 
             {/* Header Section */}
-            <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[400px]">
-                <h1 className="text-3xl md:text-[44px] font-bold uppercase tracking-wider mb-0 grad-text-up">
-                    Fashion Event Promotion Membership
-                </h1>
-                <p className="text-sm md:text-lg font-medium tracking-wide mb-4">
-                    Showcase Your Fashion Event to a Global Audience
-                </p>
-                <div className="max-w-8xl mx-auto space-y-4 text-sm md:text-[18px]">
-                    <p>A place where philanthropy is welcome by subscription only. Fashion with Purpose. Impact by Design.</p>
-                    <p>This digital membership is ideal for independent producers, boutique brands and emerging creators seeking international exposure through MWINTL's curated platform.</p>
+            <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent md:h-[500px]">
+                <div className='max-w-3xl mx-auto'>
+                    <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-widest mb-4 text-[#8C5D25]">
+                        Philanthropy with Purpose | Fashion with Global Reach
+                    </h2>
+                    <p className="text-lg md:text-xl font-medium italic text-gray-600 mb-8">
+                        A place where philanthropy is welcome by subscription only. Fashion with Purpose. Impact by Design.
+                    </p>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-16 max-w-4xl mx-auto">
+                        Welcome to the official membership of MODA WEEK INTERNATIONAL, a platform where global fashion, philanthropy, and purpose align. We offer two exclusive membership pathways for individuals, businesses, and institutions seeking meaningful global impact or elevated international visibility.
+                    </p>
                 </div>
             </header>
+
+            {/* Philanthropy Section */}
+            <section className="py-6 px-6 md:px-10 bg-white">
+                <div className="max-w-5xl mx-auto text-center">
+
+
+                    <div className="bg-gradient-to-b from-[#FFFDF9] to-[#FDF3E6] border border-[#E8C595] p-10 md:p-14 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#8C5D25] via-[#D49E47] to-[#8C5D25]"></div>
+
+                        <h3 className="text-2xl md:text-3xl font-playfair font-bold uppercase tracking-widest mb-2 text-[#8C5D25]">
+                            Philanthropy & Diplomatic Membership
+                        </h3>
+                        <p className="text-[#D49E47] text-sm md:text-base uppercase tracking-widest font-semibold mb-8">
+                            Become a Patron of Transformation
+                        </p>
+
+                        <p className="text-gray-700 mb-10 leading-relaxed max-w-3xl mx-auto">
+                            This exclusive membership is designed for those who wish to contribute to global change through high-impact fashion initiatives, educational empowerment, and humanitarian investment. As a member, you join a distinguished circle supporting MWINTL’s mission across continents.
+                        </p>
+
+                        <div className="bg-white/60 p-8 md:p-10 mb-10 max-w-2xl mx-auto border border-[#E8C595]/30">
+                            <h4 className="text-[#8C5D25] font-bold uppercase tracking-wide mb-6">We Welcome</h4>
+                            <ul className="text-left space-y-3 text-gray-700 inline-block mx-auto">
+                                <li className="flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 bg-[#D49E47] rounded-full"></div>
+                                    <span>Diplomats & Ambassadors</span>
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 bg-[#D49E47] rounded-full"></div>
+                                    <span>Philanthropists & Cultural Leaders</span>
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 bg-[#D49E47] rounded-full"></div>
+                                    <span>Institutions of legacy and global reach</span>
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <div className="w-1.5 h-1.5 bg-[#D49E47] rounded-full"></div>
+                                    <span>High-net-worth individuals committed to legacy-building</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div className="text-gray-600 text-sm space-y-4">
+                            <p className="font-medium">This membership program is available by private request only.</p>
+                            <p>
+                                Upon inquiry, a personalized catalog detailing all benefits, privileges, and philanthropic pathways will be provided, along with your official partnership contract.
+                            </p>
+                            <div className="mt-8">
+                                <span className="block text-gray-500 text-xs uppercase tracking-widest mb-2">Send your request to</span>
+                                <a href="mailto: info@modaweekinternational.com" className="text-[#8C5D25] font-bold text-lg hover:underline">
+                                    info@modaweekinternational.com
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* Pricing Section */}
             <section className="py-4 px-10 bg-gradient-to-br from-[#FFFDF9] via-[#FFFDF9] to-[#FDBD5C]">
@@ -142,70 +200,7 @@ const MembershipProgram = () => {
                 </div>
             </section>
 
-            {/* Philanthropy Section */}
-            <section className="py-6 px-6 md:px-10 bg-white">
-                <div className="max-w-5xl mx-auto text-center">
-                    <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-widest mb-4 text-[#8C5D25]">
-                        Philanthropy with Purpose | Fashion with Global Reach
-                    </h2>
-                    <p className="text-lg md:text-xl font-medium italic text-gray-600 mb-8">
-                        A place where philanthropy is welcome by subscription only. Fashion with Purpose. Impact by Design.
-                    </p>
-                    <p className="text-base md:text-lg text-gray-700 leading-relaxed mb-16 max-w-4xl mx-auto">
-                        Welcome to the official membership of MODA WEEK INTERNATIONAL, a platform where global fashion, philanthropy, and purpose align. We offer two exclusive membership pathways for individuals, businesses, and institutions seeking meaningful global impact or elevated international visibility.
-                    </p>
 
-                    <div className="bg-gradient-to-b from-[#FFFDF9] to-[#FDF3E6] border border-[#E8C595] p-10 md:p-14 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#8C5D25] via-[#D49E47] to-[#8C5D25]"></div>
-
-                        <h3 className="text-2xl md:text-3xl font-playfair font-bold uppercase tracking-widest mb-2 text-[#8C5D25]">
-                            Philanthropy & Diplomatic Membership
-                        </h3>
-                        <p className="text-[#D49E47] text-sm md:text-base uppercase tracking-widest font-semibold mb-8">
-                            Become a Patron of Transformation
-                        </p>
-
-                        <p className="text-gray-700 mb-10 leading-relaxed max-w-3xl mx-auto">
-                            This exclusive membership is designed for those who wish to contribute to global change through high-impact fashion initiatives, educational empowerment, and humanitarian investment. As a member, you join a distinguished circle supporting MWINTL’s mission across continents.
-                        </p>
-
-                        <div className="bg-white/60 p-8 md:p-10 mb-10 max-w-2xl mx-auto border border-[#E8C595]/30">
-                            <h4 className="text-[#8C5D25] font-bold uppercase tracking-wide mb-6">We Welcome</h4>
-                            <ul className="text-left space-y-3 text-gray-700 inline-block mx-auto">
-                                <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 bg-[#D49E47] rounded-full"></div>
-                                    <span>Diplomats & Ambassadors</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 bg-[#D49E47] rounded-full"></div>
-                                    <span>Philanthropists & Cultural Leaders</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 bg-[#D49E47] rounded-full"></div>
-                                    <span>Institutions of legacy and global reach</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <div className="w-1.5 h-1.5 bg-[#D49E47] rounded-full"></div>
-                                    <span>High-net-worth individuals committed to legacy-building</span>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="text-gray-600 text-sm space-y-4">
-                            <p className="font-medium">This membership program is available by private request only.</p>
-                            <p>
-                                Upon inquiry, a personalized catalog detailing all benefits, privileges, and philanthropic pathways will be provided, along with your official partnership contract.
-                            </p>
-                            <div className="mt-8">
-                                <span className="block text-gray-500 text-xs uppercase tracking-widest mb-2">Send your request to</span>
-                                <a href="mailto: info@modaweekinternational.com" className="text-[#8C5D25] font-bold text-lg hover:underline">
-                                    info@modaweekinternational.com
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             <section className="max-w-5xl h-[330px] mx-auto relative bg-black text-white overflow-hidden flex items-center justify-center">
                 <div className="absolute inset-0 z-0">
