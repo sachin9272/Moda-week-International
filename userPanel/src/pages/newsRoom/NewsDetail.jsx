@@ -11,24 +11,32 @@ export default function NewsDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [newsItem, setNewsItem] = useState(null);
+    const [relatedNews, setRelatedNews] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchNewsItem = async () => {
             try {
-                // Try fetching from public news endpoint 
-                // Note: using /api/news/get/:id is for admin usually, but we should have a public GetOne route. 
-                // Let's check newsController. It has getNews exported. usage: router.get('/:id', getNews) in newsRoutes?
-                // Wait, I only checked adminRoutes. I need to ensure public newsRoutes exists.
-                // Assuming /api/news/:id works if I check newsRoutes.js.
-                // If not, I'll fix the route path here after I verify.
-                // For now, let's try `${baseURL}/api/news/${id}` based on common pattern.
-
-                // Correction: Looking at previous context, public `newsRoutes.js` was mentioned.
-                // Let's assume standard REST: GET /api/news/:id
+                // Fetch current news item
                 const response = await axios.get(`${baseURL}/api/news/${id}`);
                 if (response.data.status === 'success') {
-                    setNewsItem(response.data.data);
+                    const current = response.data.data;
+                    setNewsItem(current);
+
+                    // Fetch all live news to find related items
+                    const allNewsResponse = await axios.get(`${baseURL}/api/news/live`);
+                    if (allNewsResponse.data.status === 'success') {
+                        const allNews = allNewsResponse.data.data;
+                        const related = allNews
+                            .filter(item => item.category === current.category && item._id !== current._id)
+                            .sort((a, b) => {
+                                const dateA = new Date(a.date || a.createdAt);
+                                const dateB = new Date(b.date || b.createdAt);
+                                return dateB - dateA;
+                            })
+                            .slice(0, 3);
+                        setRelatedNews(related);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to fetch news item", error);
@@ -97,7 +105,7 @@ export default function NewsDetail() {
                         <div className="flex flex-wrap items-center justify-center gap-6 text-xs font-medium tracking-widest text-gray-500 uppercase border-y border-gray-100 py-6">
                             <div className="flex items-center gap-2">
                                 <Calendar size={14} />
-                                {newsItem.date || new Date(newsItem.createdAt).toLocaleDateString()}
+                                {new Date(newsItem.date || newsItem.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                             </div>
                             <span className="text-gray-300">|</span>
                             <div className="flex items-center gap-2">
@@ -150,6 +158,55 @@ export default function NewsDetail() {
                         </div>
                     </div>
                 </article>
+
+                {/* Related News Section */}
+                {relatedNews.length > 0 && (
+                    <section className="max-w-7xl mx-auto px-4 md:px-8 mt-24 border-t border-gray-200 pt-16">
+                        <div className="flex items-end justify-between mb-12">
+                            <div>
+                                <span className="text-[#C7913E] text-xs font-bold tracking-[0.2em] uppercase mb-2 block">More from {newsItem.category}</span>
+                                <h2 className="font-serif text-3xl md:text-4xl font-normal">Related Stories</h2>
+                            </div>
+                            <button
+                                onClick={() => navigate('/news-room')}
+                                className="text-xs font-bold uppercase tracking-widest hover:text-[#C7913E] transition-colors"
+                            >
+                                View All
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-12">
+                            {relatedNews.map((item) => (
+                                <div
+                                    key={item._id}
+                                    className="group cursor-pointer"
+                                    onClick={() => {
+                                        navigate(`/news-room/${item._id}`);
+                                        window.scrollTo(0, 0);
+                                    }}
+                                >
+                                    <div className="overflow-hidden mb-6 aspect-[16/10]">
+                                        <img
+                                            src={item.image?.url}
+                                            alt={item.title}
+                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
+                                        />
+                                    </div>
+                                    <div className="flex items-center gap-4 mb-3 border-t border-gray-200 pt-3">
+                                        <span className="text-[9px] font-bold text-[#C7913E] uppercase tracking-widest">
+                                            {item.category}
+                                        </span>
+                                        <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">
+                                            {new Date(item.date || item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-serif text-xl font-medium leading-snug mb-2 group-hover:text-[#C7913E] transition-colors line-clamp-2">
+                                        {item.title}
+                                    </h3>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+                )}
             </main>
 
             <div className="text-white">

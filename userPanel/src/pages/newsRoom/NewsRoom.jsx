@@ -47,7 +47,7 @@ export default function NewsRoom() {
     useEffect(() => {
         const fetchNews = async () => {
             try {
-                const { data } = await axios.get(`${baseURL}/api/news`);
+                const { data } = await axios.get(`${baseURL}/api/news/live`);
                 if (data.status === 'success') {
                     // Sort by date descending (parsing string date or using createdAt)
                     const sorted = data.data.sort((a, b) => {
@@ -179,7 +179,7 @@ export default function NewsRoom() {
                                                 {item.category}
                                             </span>
                                             <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">
-                                                {item.date}
+                                                {new Date(item.date || item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                             </span>
                                         </div>
                                         <h3 className="font-serif text-2xl font-medium leading-snug mb-3 group-hover:text-[#C7913E] transition-colors">
