@@ -107,11 +107,11 @@ export default function Footer() {
           <div className="absolute inset-0 bg-linear-to-b from-black/99 via-black/90 to-black/90"></div>
 
           {/* Content */}
-          <div className="relative z-10 container mx-auto px-5 py-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 md:gap-2 mt-8">
+          <div className="w-full relative z-10 px-6 lg:px-5 py-6 text-sm">
+            <div className="flex flex-wrap lg:flex-nowrap justify-between gap-y-8 gap-x-2 md:gap-x-4 lg:gap-x-6 mt-8">
               {/* --- Your sections remain same --- */}
               {/* About Section */}
-              <div className="">
+              <div className="w-full lg:w-1/5 lg:ml-5">
                 <div className="mb-6">
                   <img src={logo} alt="" />
                 </div>
@@ -150,7 +150,7 @@ export default function Footer() {
               </div>
 
               {/* Services */}
-              <div className="">
+              <div className="w-full md:w-1/2 lg:w-auto lg:ml-6">
                 <h3 className="text-xl font-bold mb-2">SERVICES</h3>
                 <ul className="space-y-1">
                   <li>
@@ -197,7 +197,7 @@ export default function Footer() {
               </div>
 
               {/* Quick Links */}
-              <div className="">
+              <div className="w-full md:w-1/2 lg:w-auto">
                 <h3 className="text-xl font-bold mb-2">QUICK LINKS</h3>
                 <ul className="space-y-1">
                   <li>
@@ -234,7 +234,7 @@ export default function Footer() {
                   </li>
                   <li>
                     <Link
-                      to="/press-media"
+                      to="/news-room"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Press & Media
@@ -244,7 +244,7 @@ export default function Footer() {
               </div>
 
               {/* Career */}
-              <div className="md:-ml-10">
+              <div className="w-full md:w-1/2 lg:w-auto">
                 <h3 className="text-xl font-bold mb-2">CAREER</h3>
                 <ul className="space-y-1">
                   <li>
@@ -291,7 +291,7 @@ export default function Footer() {
               </div>
 
               {/* Legal */}
-              <div className="md:-ml-18">
+              <div className="w-full md:w-1/2 lg:w-auto">
                 <h3 className="text-xl font-bold mb-2">LEGAL</h3>
                 <ul className="space-y-1">
                   <li>
@@ -307,7 +307,7 @@ export default function Footer() {
                       to="/data-protection"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Data Protection (GDPR <br /> Compliance)
+                      Data Protection <br /> (GDPR Compliance)
                     </Link>
                   </li>
                   <li>
@@ -338,12 +338,12 @@ export default function Footer() {
               </div>
 
               {/* Contact Inquiry - Commented out as requested */}
-              <div id="get-in-touch" className="md:-ml-18">
+              <div id="get-in-touch" className="w-full md:w-1/2 lg:w-auto">
                 <h3 className="text-xl font-bold mb-6">CONTACT INQUIRY</h3>
                 <ul className="space-y-4">
                   <li className="flex items-start gap-3 text-gray-400">
                     <Mail size={20} className="mt-1 shrink-0 text-[#9e6826]" />
-                    <span>info@modaweekinternational.com</span>
+                    <span className="">info@modaweekinternational.com</span>
                   </li>
                   <li className="flex items-start gap-3 text-gray-400">
                     <Phone size={20} className="mt-1 shrink-0 text-[#9e6826]" />
