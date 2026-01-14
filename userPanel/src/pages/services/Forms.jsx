@@ -216,7 +216,8 @@ const ApplicationForm = () => {
     "Press & Media Accreditation",
     "Performances & Live Entertainment",
     "Top Models & Casting Opportunities",
-    "Volunteer & Internship Programs"
+    "Volunteer & Internship Programs",
+    "Logo Animation"
   ];
 
   const sponsorshipOptions = [
