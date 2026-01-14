@@ -9,12 +9,15 @@ import CommunityImg from "../../assets/Events-1.jpg";
 import GlobalImg from "../../assets/Events-3.jpg";
 import PurposeVideo from "../../assets/video1.mp4";
 
+// Import Slideshow
+import PhilanthropySlideshow from "../../components/PhilanthropySlideshow";
+
 const Philanthropy = () => {
     return (
         <div className="min-h-screen bg-white text-black font-sans selection:bg-[#C7913E] selection:text-white">
             <Navbar />
 
-            <div className="pb-20">
+            <div className="pb-20"> {/* Removed pb-20 to allow full width/height slideshow at bottom */}
                 {/* Header Section */}
                 <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[400px] flex flex-col items-center justify-center mb-10">
                     <motion.div
@@ -259,6 +262,11 @@ const Philanthropy = () => {
                     </motion.div>
 
                 </div>
+            </div>
+
+            {/* Slideshow Section */}
+            <div className="pb-20">
+                <PhilanthropySlideshow />
             </div>
 
             <Footer />
