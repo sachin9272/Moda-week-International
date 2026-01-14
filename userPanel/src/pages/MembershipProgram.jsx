@@ -108,7 +108,7 @@ const MembershipProgram = () => {
 
                         <div className="text-left text-sm space-y-3 mb-8">
                             <p className="text-[#BB5C39] mb-6">Includes:</p>
-                            <ul className="space-y-2 px-10">
+                            <ul className="space-y-2 md:px-10">
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>Event date placement on the MWINTL calendar</span></li>
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>Standard event listing and basic details (location, description, contact)</span></li>
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>Inclusion in the Global Fashion Events Directory</span></li>
@@ -132,7 +132,7 @@ const MembershipProgram = () => {
 
                         <div className="text-left text-sm space-y-3 mb-8 text-black">
                             <p className="text-[#BB5C39] mb-6">Includes everything in Basic, plus:</p>
-                            <ul className="space-y-2 px-10">
+                            <ul className="space-y-2 md:px-10">
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>Featured positioning on the MWINTL events feed</span></li>
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>Visual photo gallery inclusion</span></li>
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>RSVP / booking links for attendees</span></li>
@@ -158,7 +158,7 @@ const MembershipProgram = () => {
 
                         <div className="text-left text-sm space-y-3 mb-8">
                             <p className="text-[#BB5C39] mb-6">Includes everything in Premium, plus:</p>
-                            <ul className="space-y-2 px-10">
+                            <ul className="space-y-2 md:px-10">
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>12 months of platform visibility</span></li>
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>Priority featured placement across calendar and directory</span></li>
                                 <li className="flex items-start gap-2"><Check size={16} className="text-[#AE2E0A] mt-1 shrink-0" /> <span>Up to 5 event listings per year</span></li>
