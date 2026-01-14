@@ -188,7 +188,7 @@ const MediaReleasePolicy = () => {
                         </p>
                         <div className="bg-gray-100 p-6 rounded-lg">
                             <p className="font-bold text-[#C7913E] mb-2">Contact:</p>
-                            <p className="text-gray-800 mb-1">press@modaweekinternational.com</p>
+                            <p className="text-gray-800 mb-1">info@modaweekinternational.com</p>
                             <a href="http://www.modaweekinternational.com/press" className="text-gray-800 underline hover:text-[#C7913E]">www.modaweekinternational.com/press</a>
                         </div>
                     </section>
