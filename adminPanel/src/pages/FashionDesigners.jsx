@@ -49,13 +49,13 @@ const FashionDesigners = () => {
         const { name, value } = e.target;
         if (name === 'country') {
             const selectedCountry = countries.find(c => c.name === value);
-            setFormData({
-                ...formData,
+            setFormData(prev => ({
+                ...prev,
                 country: value,
                 countryCode: selectedCountry?.code || ''
-            });
+            }));
         } else {
-            setFormData({ ...formData, [name]: value });
+            setFormData(prev => ({ ...prev, [name]: value }));
         }
     };
 
@@ -72,7 +72,7 @@ const FashionDesigners = () => {
 
     const handleSaveEditedImage = (blob) => {
         const file = new File([blob], 'designer_image.jpg', { type: 'image/jpeg' });
-        setFormData({ ...formData, image: file });
+        setFormData(prev => ({ ...prev, image: file }));
         setPreviewUrl(URL.createObjectURL(file));
         setEditorOpen(false);
         setEditorImageSrc(null);

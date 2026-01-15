@@ -158,6 +158,7 @@ const ImageEditorModal = ({ image, isOpen, onClose, onSave, aspect = 16 / 9 }) =
                                 src={image}
                                 onLoad={onImageLoad}
                                 style={{ maxHeight: '60vh', objectFit: 'contain' }}
+                                crossOrigin="anonymous"
                             />
                         </ReactCrop>
                     )}
