@@ -1,78 +1,89 @@
-import React, { useState, useCallback } from 'react';
-import Cropper from 'react-easy-crop';
-import { X, Check, ZoomIn, RotateCw } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import ReactCrop, { centerCrop, makeAspectCrop } from 'react-image-crop';
+import { X, Check } from 'lucide-react';
+import 'react-image-crop/dist/ReactCrop.css';
+
+function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
+    return centerCrop(
+        makeAspectCrop(
+            {
+                unit: '%',
+                width: 90,
+            },
+            aspect,
+            mediaWidth,
+            mediaHeight,
+        ),
+        mediaWidth,
+        mediaHeight,
+    )
+}
 
 const ImageEditorModal = ({ image, isOpen, onClose, onSave, aspect = 16 / 9 }) => {
-    const [crop, setCrop] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [rotation, setRotation] = useState(0);
-    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [crop, setCrop] = useState();
+    const [completedCrop, setCompletedCrop] = useState();
+    const [aspectRatio, setAspectRatio] = useState(aspect);
+    const imgRef = useRef(null);
 
-    const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
-        setCroppedAreaPixels(croppedAreaPixels);
-    }, []);
+    // Reset internal aspect ratio when the modal opens or prop changes
+    useEffect(() => {
+        if (isOpen) {
+            setAspectRatio(aspect);
+        }
+    }, [isOpen, aspect]);
 
-    const createImage = (url) =>
-        new Promise((resolve, reject) => {
-            const image = new Image();
-            image.addEventListener('load', () => resolve(image));
-            image.addEventListener('error', (error) => reject(error));
-            image.setAttribute('crossOrigin', 'anonymous'); // needed to avoid cross-origin issues on CodeSandbox
-            image.src = url;
-        });
-
-    const getRadianAngle = (degreeValue) => {
-        return (degreeValue * Math.PI) / 180;
+    const onImageLoad = (e) => {
+        if (aspectRatio) {
+            const { width, height } = e.currentTarget;
+            setCrop(centerAspectCrop(width, height, aspectRatio));
+        } else {
+            const { width, height } = e.currentTarget;
+            setCrop({
+                unit: '%',
+                width: 90,
+                height: 90,
+                x: 5,
+                y: 5
+            });
+        }
     };
 
-    const getCroppedImg = async (imageSrc, pixelCrop, rotation = 0) => {
-        const image = await createImage(imageSrc);
+    const getCroppedImg = (image, crop) => {
         const canvas = document.createElement('canvas');
+        const scaleX = image.naturalWidth / image.width;
+        const scaleY = image.naturalHeight / image.height;
+        canvas.width = crop.width;
+        canvas.height = crop.height;
         const ctx = canvas.getContext('2d');
 
-        const maxSize = Math.max(image.width, image.height);
-        const safeArea = 2 * ((maxSize / 2) * Math.sqrt(2));
-
-        // set each dimensions to double largest dimension to allow for a safe area for the
-        // image to rotate in without being clipped by canvas context
-        canvas.width = safeArea;
-        canvas.height = safeArea;
-
-        // translate canvas context to a central location on image to allow rotating around the center.
-        ctx.translate(safeArea / 2, safeArea / 2);
-        ctx.rotate(getRadianAngle(rotation));
-        ctx.translate(-safeArea / 2, -safeArea / 2);
-
-        // draw rotated image and store data.
         ctx.drawImage(
             image,
-            safeArea / 2 - image.width * 0.5,
-            safeArea / 2 - image.height * 0.5
-        );
-        const data = ctx.getImageData(0, 0, safeArea, safeArea);
-
-        // set canvas width to final desired crop size - this will clear existing context
-        canvas.width = pixelCrop.width;
-        canvas.height = pixelCrop.height;
-
-        // paste generated rotate image with correct offsets for x,y crop values.
-        ctx.putImageData(
-            data,
-            Math.round(0 - safeArea / 2 + image.width * 0.5 - pixelCrop.x),
-            Math.round(0 - safeArea / 2 + image.height * 0.5 - pixelCrop.y)
+            crop.x * scaleX,
+            crop.y * scaleY,
+            crop.width * scaleX,
+            crop.height * scaleY,
+            0,
+            0,
+            crop.width,
+            crop.height
         );
 
-        // As a blob
-        return new Promise((resolve) => {
-            canvas.toBlob((file) => {
-                resolve(file);
+        return new Promise((resolve, reject) => {
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    reject(new Error('Canvas is empty'));
+                    return;
+                }
+                resolve(blob);
             }, 'image/jpeg');
         });
     };
 
     const handleSave = async () => {
+        if (!completedCrop || !imgRef.current) return;
+
         try {
-            const croppedImage = await getCroppedImg(image, croppedAreaPixels, rotation);
+            const croppedImage = await getCroppedImg(imgRef.current, completedCrop);
             onSave(croppedImage);
             onClose();
         } catch (e) {
@@ -80,69 +91,76 @@ const ImageEditorModal = ({ image, isOpen, onClose, onSave, aspect = 16 / 9 }) =
         }
     };
 
+    // Helper to change aspect and reset crop safely
+    const handleAspectChange = (newAspect) => {
+        setAspectRatio(newAspect);
+        if (imgRef.current) {
+            if (newAspect) {
+                setCrop(centerAspectCrop(imgRef.current.width, imgRef.current.height, newAspect));
+            } else {
+                // When switching to Free, keep current crop but allow resizing freely
+                // or reset to full. Let's keep current crop but remove aspect constraint.
+                // ReactCrop handles aspect remove automatically if undefined is passed.
+            }
+        }
+    };
+
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
             <div className="bg-gray-800 rounded-xl overflow-hidden shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh]">
                 <div className="shrink-0 p-4 border-b border-gray-700 flex justify-between items-center">
                     <h3 className="text-xl font-semibold text-white">Edit Image</h3>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleAspectChange(undefined)}
+                            className={`px-3 py-1 rounded text-sm ${!aspectRatio ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        >
+                            Free
+                        </button>
+                        <button
+                            onClick={() => handleAspectChange(16 / 9)}
+                            className={`px-3 py-1 rounded text-sm ${aspectRatio === 16 / 9 ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        >
+                            16:9
+                        </button>
+                        <button
+                            onClick={() => handleAspectChange(4 / 3)}
+                            className={`px-3 py-1 rounded text-sm ${aspectRatio === 4 / 3 ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        >
+                            4:3
+                        </button>
+                        <button
+                            onClick={() => handleAspectChange(1)}
+                            className={`px-3 py-1 rounded text-sm ${aspectRatio === 1 ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                        >
+                            1:1
+                        </button>
+                    </div>
                     <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
                         <X size={24} />
                     </button>
                 </div>
 
-                <div className="overflow-y-auto custom-scrollbar">
-                    <div className="relative bg-black w-full h-[500px]">
-                        <Cropper
-                            image={image}
+                <div className="overflow-y-auto custom-scrollbar flex items-center justify-center p-4 bg-black">
+                    {image && (
+                        <ReactCrop
                             crop={crop}
-                            zoom={zoom}
-                            rotation={rotation}
-                            aspect={aspect}
-                            onCropChange={setCrop}
-                            onCropComplete={onCropComplete}
-                            onZoomChange={setZoom}
-                            onRotationChange={setRotation}
-                            objectFit="contain"
-                        />
-                    </div>
-
-                    <div className="p-6 space-y-4 bg-gray-800">
-                        <div className="space-y-1">
-                            <div className="flex justify-between text-sm text-gray-400">
-                                <span className="flex items-center gap-2"><ZoomIn size={14} /> Zoom</span>
-                                <span>{zoom}x</span>
-                            </div>
-                            <input
-                                type="range"
-                                value={zoom}
-                                min={1}
-                                max={3}
-                                step={0.1}
-                                aria-labelledby="Zoom"
-                                onChange={(e) => setZoom(e.target.value)}
-                                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                            onChange={(_, percentCrop) => setCrop(percentCrop)}
+                            onComplete={(c) => setCompletedCrop(c)}
+                            aspect={aspectRatio}
+                            className="max-h-[60vh]"
+                        >
+                            <img
+                                ref={imgRef}
+                                alt="Crop me"
+                                src={image}
+                                onLoad={onImageLoad}
+                                style={{ maxHeight: '60vh', objectFit: 'contain' }}
                             />
-                        </div>
-
-                        <div className="space-y-1">
-                            <div className="flex justify-between text-sm text-gray-400">
-                                <span className="flex items-center gap-2"><RotateCw size={14} /> Rotation</span>
-                                <span>{rotation}°</span>
-                            </div>
-                            <input
-                                type="range"
-                                value={rotation}
-                                min={0}
-                                max={360}
-                                step={1}
-                                aria-labelledby="Rotation"
-                                onChange={(e) => setRotation(e.target.value)}
-                                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-blue-500"
-                            />
-                        </div>
-                    </div>
+                        </ReactCrop>
+                    )}
                 </div>
 
                 <div className="shrink-0 p-4 border-t border-gray-700 bg-gray-800 flex justify-end gap-3">
@@ -154,7 +172,8 @@ const ImageEditorModal = ({ image, isOpen, onClose, onSave, aspect = 16 / 9 }) =
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 transition-colors font-medium shadow-lg shadow-blue-500/20"
+                        disabled={!completedCrop}
+                        className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 transition-colors font-medium shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <Check size={18} />
                         Save Changes

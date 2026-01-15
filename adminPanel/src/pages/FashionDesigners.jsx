@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Upload, X, Trash2, Plus, Pencil } from 'lucide-react';
 import { baseURL } from '../config/api';
 import { countries } from '../utils/countries';
+import ImageEditorModal from '../components/ImageEditorModal';
 
 const FashionDesigners = () => {
     const [designers, setDesigners] = useState([]);
@@ -23,6 +24,10 @@ const FashionDesigners = () => {
     const [submitting, setSubmitting] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editId, setEditId] = useState(null);
+
+    // Image Editor State
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [editorImageSrc, setEditorImageSrc] = useState(null);
 
     useEffect(() => {
         fetchDesigners();
@@ -57,9 +62,20 @@ const FashionDesigners = () => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setFormData({ ...formData, image: file });
-            setPreviewUrl(URL.createObjectURL(file));
+            const imageUrl = URL.createObjectURL(file);
+            setEditorImageSrc(imageUrl);
+            setEditorOpen(true);
+            // Clear input so same file can be selected again if needed
+            e.target.value = '';
         }
+    };
+
+    const handleSaveEditedImage = (blob) => {
+        const file = new File([blob], 'designer_image.jpg', { type: 'image/jpeg' });
+        setFormData({ ...formData, image: file });
+        setPreviewUrl(URL.createObjectURL(file));
+        setEditorOpen(false);
+        setEditorImageSrc(null);
     };
 
     const handleSubmit = async (e) => {
@@ -73,7 +89,7 @@ const FashionDesigners = () => {
         data.append('category', formData.category);
         data.append('instagram', formData.instagram);
         data.append('website', formData.website);
-        if (formData.image) {
+        if (formData.image instanceof File) {
             data.append('image', formData.image);
         }
 
@@ -88,8 +104,7 @@ const FashionDesigners = () => {
                 });
             }
             fetchDesigners();
-            setShowAddModal(false);
-            resetForm();
+            resetForm(); // Reset closes modal too
         } catch (error) {
             console.error("Error creating/updating designer:", error);
             alert("Failed to save designer");
@@ -111,6 +126,7 @@ const FashionDesigners = () => {
     };
 
     const handleEdit = (designer) => {
+        resetForm(); // Ensure clean state before populating
         setFormData({
             name: designer.name,
             country: designer.country,
@@ -118,7 +134,7 @@ const FashionDesigners = () => {
             category: designer.category || 'Designer',
             instagram: designer.instagram || '',
             website: designer.website || '',
-            image: designer.image // Keep reference for logic, though file input won't show it
+            image: designer.image // Keep reference
         });
         setPreviewUrl(designer.image?.url);
         setIsEditing(true);
@@ -131,20 +147,36 @@ const FashionDesigners = () => {
         setPreviewUrl(null);
         setIsEditing(false);
         setEditId(null);
+        setShowAddModal(false);
+        setEditorImageSrc(null);
+        setEditorOpen(false);
     };
+
+    const handleAddClick = () => {
+        resetForm();
+        setShowAddModal(true);
+    }
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold text-slate-800">Fashion Designers</h1>
                 <button
-                    onClick={() => setShowAddModal(true)}
+                    onClick={handleAddClick}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                     <Plus size={20} />
                     Add Designer
                 </button>
             </div>
+
+            <ImageEditorModal
+                isOpen={editorOpen}
+                onClose={() => setEditorOpen(false)}
+                onSave={handleSaveEditedImage}
+                image={editorImageSrc}
+                aspect={3 / 4}
+            />
 
             {loading ? (
                 <div className="text-center py-10">Loading...</div>
@@ -196,7 +228,7 @@ const FashionDesigners = () => {
                     <div className="bg-white rounded-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
                         <div className="p-6 border-b border-slate-100 flex justify-between items-center shrink-0">
                             <h2 className="text-xl font-bold text-slate-800">{isEditing ? 'Edit Designer' : 'Add New Designer'}</h2>
-                            <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+                            <button onClick={resetForm} className="text-slate-400 hover:text-slate-600">
                                 <X size={24} />
                             </button>
                         </div>
@@ -282,10 +314,34 @@ const FashionDesigners = () => {
                                         type="file"
                                         accept="image/*"
                                         onChange={handleFileChange}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        className={`absolute inset-0 w-full h-full opacity-0 cursor-pointer ${previewUrl ? 'z-10' : ''}`}
                                     />
                                     {previewUrl ? (
-                                        <img src={previewUrl} alt="Preview" className="h-40 mx-auto object-cover rounded" />
+                                        <div className="relative">
+                                            <img src={previewUrl} alt="Preview" className="h-40 mx-auto object-cover rounded" />
+                                            <div className="absolute -top-2 -right-2 z-20">
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation(); // Stop file input click
+                                                        if (formData.image instanceof File) {
+                                                            setEditorImageSrc(URL.createObjectURL(formData.image));
+                                                            setEditorOpen(true);
+                                                        } else if (typeof formData.image === 'object' && formData.image.url) {
+                                                            setEditorImageSrc(formData.image.url);
+                                                            setEditorOpen(true);
+                                                        } else {
+                                                            // Fallback or handle null
+                                                            alert("No image to edit");
+                                                        }
+                                                    }}
+                                                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1.5 shadow-md"
+                                                >
+                                                    <Pencil size={16} />
+                                                </button>
+                                            </div>
+                                        </div>
                                     ) : (
                                         <div className="py-8 text-slate-400">
                                             <Upload className="mx-auto mb-2" size={32} />
@@ -298,7 +354,7 @@ const FashionDesigners = () => {
                             <div className="pt-4 flex gap-4">
                                 <button
                                     type="button"
-                                    onClick={() => setShowAddModal(false)}
+                                    onClick={resetForm}
                                     className="flex-1 px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors"
                                 >
                                     Cancel
