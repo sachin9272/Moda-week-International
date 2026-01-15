@@ -205,15 +205,15 @@ export default function FashionDesigners() {
             <Navbar />
 
             {/* Hero Section */}
-            <div className="h-auto md:h-[450px] w-full bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center py-10 md:py-0 px-6">
-                <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center px-16">
-                    <div className="flex flex-col gap-2">
+            <div className="h-auto md:h-[450px] w-full bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center py-10 md:py-0 px-4 md:px-6">
+                <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-16 items-center px-6 md:px-16">
+                    <div className="flex flex-col gap-2 text-center md:text-left mt-14 md:mt-0">
                         <h2 className="text-3xl md:text-[44px] font-bold grad-text leading-tight uppercase">
                             MEET THE VISIONARY <br /> FASHION DESIGNERS
                         </h2>
                     </div>
                     <div>
-                        <p className="text-[14px] md:text-[18px] text-black leading-7 text-justify mt-10">
+                        <p className="text-[14px] md:text-[18px] text-black leading-7 text-start md:text-justify mt-6 md:mt-10">
                             Members of Moda Week International’s platform, our fashion designers play a vital role for the future of the fashion industry. Their contributions extend beyond showcasing their talents and business acumen. Their commitment is entrusted with the responsibility and influencing the strategic direction that will define the industry.
                         </p>
                     </div>
@@ -357,7 +357,7 @@ export default function FashionDesigners() {
                                     <img
                                         src={designer.image?.url || designer.image}
                                         alt={designer.name}
-                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
                                     {/* Overlay Gradient */}

@@ -98,11 +98,11 @@ export default function NewsRoom() {
             <Navbar />
 
             {/* Hero / Global Events Section */}
-            <div className="bg-gradient-to-b from-[#C7913E] to-white text-black h-[460px]">
-                <div className="max-w-7xl mx-auto px-4 pt-28 pb-16">
+            <div className="bg-gradient-to-b from-[#C7913E] to-white text-black h-auto pb-8">
+                <div className="max-w-7xl mx-auto px-4 pt-20 pb-8">
                     {/* Header */}
-                    <div className="text-center mb-16 max-w-9xl mx-auto">
-                        <h1 className="relative inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-10 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
+                    <div className="text-center mb-8 max-w-9xl mx-auto">
+                        <h1 className="relative inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-6 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
                             FASHION NEWS
                             <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#3C2306] to-[#C7913E]"></span>
                         </h1>
