@@ -1,10 +1,7 @@
 import Event from '../models/eventModel.js';
 import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
+import slugify from 'slugify';
 
-
-// Create a new event
-// Create a new event
-// Create a new event
 export const createEvent = async (req, res) => {
     try {
         const { city, eventName, date, eventType, heroLayout, status } = req.body;
@@ -46,6 +43,7 @@ export const createEvent = async (req, res) => {
         };
 
         const thumbnail = getFile('thumbnail');
+        const poster = getFile('poster');
         const headerVideo = getFile('headerVideo');
         const bottomSectionImage = getFile('bottomSectionImage');
         const descriptionSectionImage = getFile('descriptionSectionImage');
@@ -119,9 +117,11 @@ export const createEvent = async (req, res) => {
         const newEvent = new Event({
             city,
             eventName,
+            slug: slugify(eventName, { lower: true, strict: true }),
             date,
             eventType: eventType || 'upcoming',
             thumbnail: thumbnail, // Now an object
+            poster: poster,
             headerVideo: headerVideo, // Now an object
             heroLayout: heroLayout || 'split',
             collections: collectionsWithImages,
@@ -283,6 +283,14 @@ export const updateEvent = async (req, res) => {
                 await deleteCloudinaryAsset(event.thumbnail.publicId, 'image');
             }
             event.thumbnail = thumbnailFile;
+        }
+
+        const posterFile = getFile('poster');
+        if (posterFile) {
+            if (event.poster && event.poster.publicId) {
+                await deleteCloudinaryAsset(event.poster.publicId, 'image');
+            }
+            event.poster = posterFile;
         }
 
         // 3. Handle Header Video
@@ -595,7 +603,10 @@ export const updateEvent = async (req, res) => {
 
         // Basic fields
         if (city) event.city = city;
-        if (eventName) event.eventName = eventName;
+        if (eventName) {
+            event.eventName = eventName;
+            event.slug = slugify(eventName, { lower: true, strict: true });
+        }
         if (date) event.date = date;
         if (eventType) event.eventType = eventType;
         if (heroLayout) event.heroLayout = heroLayout;
@@ -652,6 +663,7 @@ export const deleteEvent = async (req, res) => {
 
         // Delete all assets
         if (event.thumbnail?.publicId) await deleteCloudinaryAsset(event.thumbnail.publicId, 'image');
+        if (event.poster?.publicId) await deleteCloudinaryAsset(event.poster.publicId, 'image');
         if (event.headerVideo?.publicId) await deleteCloudinaryAsset(event.headerVideo.publicId, 'video');
         if (event.bottomSection?.image?.publicId) await deleteCloudinaryAsset(event.bottomSection.image.publicId, 'image');
         if (event.descriptionSection?.image?.publicId) await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
@@ -720,7 +732,17 @@ export const getEvents = async (req, res) => {
 export const getEventById = async (req, res) => {
     try {
         const { id } = req.params;
-        const event = await Event.findById(id).populate('collections.designerId');
+        let event;
+
+        // Check if id is a valid ObjectId
+        if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            event = await Event.findById(id).populate('collections.designerId');
+        }
+
+        // If not found by ID or id is not ObjectId, try finding by slug
+        if (!event) {
+            event = await Event.findOne({ slug: id }).populate('collections.designerId');
+        }
 
         if (!event) {
             return res.status(404).json({ message: "Event not found" });

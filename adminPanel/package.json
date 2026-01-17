@@ -23,6 +23,7 @@
     "react-image-crop": "^11.0.10",
     "react-quill-new": "^3.6.0",
     "react-router-dom": "^7.9.5",
+    "recharts": "^3.6.0",
     "tailwindcss": "^4.1.16"
   },
   "devDependencies": {
