@@ -91,6 +91,47 @@ const MembershipProgram = () => {
                 </div>
             </section>
 
+            {/* Fashion Event Promotion Membership Section */}
+            <section className="py-16 px-6 md:px-10 bg-white !text-black">
+                <div className="max-w-4xl mx-auto text-center">
+                    <h3 className="text-2xl md:text-3xl font-playfair font-bold uppercase tracking-widest mb-3 text-[#D49E47]">
+                        Fashion Event Promotion Membership
+                    </h3>
+                    <p className="text-lg text-gray-500 mb-8 font-light italic">
+                        Showcase Your Fashion Event to a Global Audience
+                    </p>
+
+                    <p className="mb-10 leading-relaxed max-w-2xl mx-auto">
+                        This digital membership is ideal for independent producers, boutique brands and emerging creators seeking international exposure through MWINTL’s curated platform.
+                    </p>
+
+                    <div className="bg-white/5 border border-[#D49E47]/20 p-8 md:p-10 rounded-xl relative overflow-hidden backdrop-blur-sm">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#D49E47] to-transparent"></div>
+                        <h4 className="text-[#D49E47] font-bold uppercase tracking-widest text-sm mb-6">Choose this plan if you are looking to:</h4>
+                        <ul className="text-left space-y-4 inline-block mx-auto max-w-xl">
+                            <li className="flex items-start gap-4 group">
+                                <div className="p-1 rounded-full bg-[#D49E47]/10 group-hover:bg-[#D49E47]/20 transition-colors mt-0.5">
+                                    <Check size={16} className="text-[#D49E47]" />
+                                </div>
+                                <span className="transition-colors">Present your fashion show to a global audience</span>
+                            </li>
+                            <li className="flex items-start gap-4 group">
+                                <div className="p-1 rounded-full bg-[#D49E47]/10 group-hover:bg-[#D49E47]/20 transition-colors mt-0.5">
+                                    <Check size={16} className="text-[#D49E47]" />
+                                </div>
+                                <span className="transition-colors">Introduce your brand or event to the international market</span>
+                            </li>
+                            <li className="flex items-start gap-4 group">
+                                <div className="p-1 rounded-full bg-[#D49E47]/10 group-hover:bg-[#D49E47]/20 transition-colors mt-0.5">
+                                    <Check size={16} className="text-[#D49E47]" />
+                                </div>
+                                <span className="transition-colors">Increase ticket sales, visibility, and collaboration opportunities</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
             {/* Pricing Section */}
             <section className="py-4 px-10 bg-gradient-to-br from-[#FFFDF9] via-[#FFFDF9] to-[#FDBD5C]">
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-0.5">
