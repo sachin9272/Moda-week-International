@@ -177,6 +177,7 @@ export default function LandingPage() {
         // Map to expected format (if needed) or just use the event object directly in render
         const formattedEvents = past.map(e => ({
           id: e._id,
+          slug: e.slug,
           title: e.eventName,
           image: e.thumbnail?.url || e.thumbnail // Handle potential object vs string
         }));
@@ -381,7 +382,7 @@ export default function LandingPage() {
             <div className="flex gap-2.5 snap-x snap-mandatory">
               {pastEvents.map((event, idx) => (
                 <Link
-                  to={`/event-details/${event.id}`}
+                  to={`/event-details/${event.slug || event.id}`}
                   key={idx}
                   className="group cursor-pointer shrink-0 w-88 snap-start"
                 >
