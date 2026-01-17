@@ -9,12 +9,21 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    slug: {
+        type: String,
+        unique: true,
+        required: true
+    },
     date: {
         type: String,
         required: true,
     },
     thumbnail: {
         url: { type: String, required: true },
+        publicId: { type: String }
+    },
+    poster: {
+        url: { type: String },
         publicId: { type: String }
     },
     headerVideo: {
