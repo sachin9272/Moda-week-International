@@ -5,27 +5,27 @@ import CtaSection from "../../components/CtaSection";
 import Card from "./Card";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
+import addon1 from '../../assets/addon1.jpg';
+import addon2 from '../../assets/addon2.jpg';
+import addon3 from '../../assets/addon3.jpg';
 
 export default function ModaWeekSite() {
   const cardData = [
     {
       title: "VISIONARIES",
-      image:
-        "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&h=500&fit=crop",
+      image: addon1,
       description:
         "MWINTL leads the future of the fashion industry by transforming traditional runway events into global platforms of purpose. We anticipate trends, create new pathways for international collaboration, and elevate fashion beyond aesthetics, into education, social impact, and long-term industry development.",
     },
     {
       title: "CULTURE",
-      image:
-        "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&h=500&fit=crop",
+      image: addon2,
       description:
         "Rooted in diversity and global heritage, celebrates fashion as a cultural bridge. We unite nations, indigenous communities, and international designers under one stage, honoring identity, storytelling, and artistic expression while positioning culture as a driving force for global connection",
     },
     {
       title: "INNOVATION",
-      image:
-        "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=500&fit=crop",
+      image: addon3,
       description:
         "From international partnerships to emerging talent development and global fashion calendar systems, we provide forward thinking solutions that shape the industry of today and the one yet to come.",
     },
