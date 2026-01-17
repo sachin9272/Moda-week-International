@@ -31,7 +31,7 @@ const Sidebar = () => {
         { path: '/news', icon: Newspaper, label: 'News Management' },
         { path: '/landing-videos', icon: Video, label: 'Landing Videos' },
         { path: '/fashion-designers', icon: Users, label: 'Fashion Designers' },
-        { path: '/partners', icon: Image, label: 'Partners' },
+        { path: '/partners', icon: Image, label: 'Partners Logo' },
         { path: '/service-types', icon: Briefcase, label: 'Service Types' },
         { path: '/service-hero', icon: Palette, label: 'Service Hero' },
     ];
