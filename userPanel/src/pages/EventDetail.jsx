@@ -74,7 +74,7 @@ const AutoScrollCarousel = ({ images }) => {
 };
 
 const EventDetail = () => {
-    const { id } = useParams();
+    const { slug } = useParams();
     const navigate = useNavigate();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -82,7 +82,8 @@ const EventDetail = () => {
     useEffect(() => {
         const fetchEvent = async () => {
             try {
-                const response = await axios.get(`${API_BASE_URL}/api/events/${id}`);
+                // If slug is available, use it. The backend should handle finding by slug OR ID.
+                const response = await axios.get(`${API_BASE_URL}/api/events/${slug}`);
                 setEvent(response.data);
                 setLoading(false);
             } catch (error) {
@@ -92,7 +93,7 @@ const EventDetail = () => {
         };
 
         fetchEvent();
-    }, [id]);
+    }, [slug]);
 
     if (loading) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Loading...</div>;
     if (!event) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Event not found</div>;

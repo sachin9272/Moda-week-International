@@ -18,6 +18,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 import Philanthropy from "./pages/philanthropy/Philanthropy.jsx";
 import BuyTickets from "./pages/BuyTickets.jsx";
 import EventTicketDetails from "./pages/EventTicketDetails.jsx";
+import PaymentSuccess from './pages/payment/PaymentSuccess';
+import PaymentCancel from './pages/payment/PaymentCancel';
 import CodeOfConduct from "./pages/CodeOfConduct.jsx";
 import DataProtection from "./pages/DataProtection.jsx";
 import MediaReleasePolicy from "./pages/MediaReleasePolicy.jsx";
@@ -44,7 +46,7 @@ function App() {
         <Route path="/news-room" element={<NewsRoom />} />
         <Route path="/news-room/:id" element={<NewsDetail />} />
         <Route path="/event-details" element={<EventDetail />} />
-        <Route path="/event-details/:id" element={<EventDetail />} />
+        <Route path="/event-details/:slug" element={<EventDetail />} />
         <Route path="/membership-program" element={<MembershipProgram />} />
         <Route path="/terms-and-conditions" element={<TermsConditions />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
@@ -52,6 +54,10 @@ function App() {
         <Route path="/data-protection" element={<DataProtection />} />
         <Route path="/media-release-policy" element={<MediaReleasePolicy />} />
         <Route path="/philanthropy" element={<Philanthropy />} />
+
+        {/* Payment Routes */}
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/cancel" element={<PaymentCancel />} />
 
         {/* Ticket Routes */}
         <Route path="/buy-tickets" element={<BuyTickets />} />
