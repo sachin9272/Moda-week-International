@@ -9,6 +9,7 @@ import { baseURL } from "../../config/api";
 
 export default function PastEvents() {
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(6);
 
   useEffect(() => {
@@ -21,6 +22,8 @@ export default function PastEvents() {
         setEvents(pastEvents);
       } catch (error) {
         console.error("Failed to fetch events", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -51,7 +54,11 @@ export default function PastEvents() {
       {/* Events Grid */}
       <div className="bg-white text-black py-6 px-10">
         <div className="max-w-7xl mx-auto">
-          {events.length === 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#C7913E]"></div>
+            </div>
+          ) : events.length === 0 ? (
             <div className="text-center py-20 text-gray-500">
               No past events found.
             </div>
@@ -66,7 +73,7 @@ export default function PastEvents() {
                 return (
                   <Link
                     key={event._id}
-                    to={`/event-details/${event._id}`}
+                    to={`/event-details/${event.slug || event._id}`}
                     className="group cursor-pointer flex flex-col h-full"
                   >
                     {/* Image */}
