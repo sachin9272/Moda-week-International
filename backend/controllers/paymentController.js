@@ -1,6 +1,8 @@
 
 import Stripe from 'stripe';
 import UpcomingEvent from '../models/upcomingEventModel.js';
+import TicketSale from '../models/ticketSaleModel.js';
+import { sendTicketEmail } from '../utils/emailService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -75,5 +77,87 @@ export const createCheckoutSession = async (req, res) => {
     } catch (error) {
         console.error("Error creating checkout session:", error);
         res.status(500).json({ message: "Failed to create checkout session", error: error.message });
+    }
+};
+
+export const confirmPayment = async (req, res) => {
+    try {
+        const { session_id } = req.body;
+
+        if (!session_id) {
+            return res.status(400).json({ message: "Session ID is required" });
+        }
+
+        const session = await stripe.checkout.sessions.retrieve(session_id);
+
+        if (session.payment_status !== 'paid') {
+            return res.status(400).json({ message: "Payment not completed" });
+        }
+
+        const { eventId, buyerName, buyerEmail, ticketDetails } = session.metadata;
+
+        // Idempotency check: Check if an order for this session already exists
+        // Since we don't store session_id in TicketSale explicitly in the previous model,
+        // we might run into duplicates if we are not careful.
+        // Ideally, we should add 'stripeSessionId' to TicketSale schema for strict uniqueness.
+        // For now, let's assume if we find sales for this email and event created in the last 1 minute, it's a duplicate.
+        // OR better: check if *any* ticket sale matches this exact metadata signature recently?
+        // ACTUALLY: The best way without schema change is to rely on the webhook/fallback race condition handling
+        // by making this operation atomic or checking if sales already exist.
+        // Let's modify TicketSale schema to include sessionId is the BEST approach, but avoiding DB schema changes
+        // as per instructions unless necessary.
+        // Let's use a "check existing" heuristic:
+
+        // However, to be professional, let's just proceed. The webhook might also run.
+        // If both run, we might have duplicate tickets.
+        // Let's add simple check:
+        const existingSale = await TicketSale.findOne({
+            buyerEmail,
+            eventId,
+            createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) } // Created in last 5 mins
+        });
+
+        if (existingSale) {
+            return res.status(200).json({ message: "Order already fulfilled", status: 'completed' });
+        }
+
+        const tickets = JSON.parse(ticketDetails);
+        const savedSales = [];
+
+        for (const ticket of tickets) {
+            const sale = new TicketSale({
+                eventId,
+                buyerName,
+                buyerEmail,
+                ticketName: ticket.ticketName,
+                price: ticket.price,
+                quantity: ticket.quantity,
+                totalAmount: ticket.price * ticket.quantity,
+                status: 'completed'
+            });
+
+            const savedSale = await sale.save();
+            savedSales.push(savedSale);
+            console.log(`Fallback: Saved ticket sale: ${ticket.quantity}x ${ticket.ticketName}`);
+        }
+
+        // Send Email
+        const event = await UpcomingEvent.findById(eventId);
+        if (event) {
+            // Updated to pass savedSales which contains the _id for QR code generation
+            await sendTicketEmail(buyerEmail, savedSales, {
+                title: event.title,
+                date: event.eventDate,
+                location: event.location,
+                coverImage: event.coverImage
+            });
+            console.log(`Fallback: Ticket email sent to ${buyerEmail}`);
+        }
+
+        res.status(200).json({ message: "Payment confirmed and processing complete", status: 'completed' });
+
+    } catch (error) {
+        console.error("Error confirming payment:", error);
+        res.status(500).json({ message: "Failed to confirm payment", error: error.message });
     }
 };

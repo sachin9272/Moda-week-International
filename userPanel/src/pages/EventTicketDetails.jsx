@@ -5,6 +5,7 @@ import { baseURL } from "../config/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { MapPin, Calendar, Check, Minus, Plus } from "lucide-react";
+import UserDetailsModal from "../components/UserDetailsModal";
 
 export default function EventTicketDetails() {
     const { id } = useParams();
@@ -12,6 +13,7 @@ export default function EventTicketDetails() {
     const [loading, setLoading] = useState(true);
     const [quantities, setQuantities] = useState({});
     const [totalPrice, setTotalPrice] = useState(0);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -46,34 +48,45 @@ export default function EventTicketDetails() {
         setTotalPrice(total);
     }, [quantities, event]);
 
-    const handleCheckout = async () => {
+    const getSelectedTickets = () => {
+        if (!event || !event.ticketTypes) return [];
+        return event.ticketTypes
+            .map(t => ({
+                ticketTypeId: t._id,
+                name: t.name,
+                price: t.price,
+                quantity: quantities[t._id] || 0
+            }))
+            .filter(t => t.quantity > 0);
+    };
+
+    const handleCheckout = () => {
         // Safe check for ticketTypes
         if (!event.ticketTypes) return;
 
-        const selectedTickets = event.ticketTypes
-            .map(t => ({ ticketTypeId: t._id, quantity: quantities[t._id] || 0 }))
-            .filter(t => t.quantity > 0);
+        const selectedTickets = getSelectedTickets();
 
         if (selectedTickets.length === 0) {
             alert("Please select at least one ticket.");
             return;
         }
 
-        // Collect basic user info (In a real app, this might come from auth context or a form)
-        // For now, prompting or using placeholder. Let's use prompts for simplicity if not logged in
-        // But better UX is a small modal or form.
-        // Assuming user might be guest, we'll prompt for now or assume test user
-        const buyerName = prompt("Enter your name:", "Guest User");
-        if (!buyerName) return;
-        const buyerEmail = prompt("Enter your email:", "guest@example.com");
-        if (!buyerEmail) return;
+        setIsModalOpen(true);
+    };
 
+    const handleFinalCheckout = async (userDetails) => {
         try {
+            const selectedTickets = getSelectedTickets().map(t => ({
+                ticketTypeId: t.ticketTypeId,
+                quantity: t.quantity
+            }));
+
             const response = await axios.post(`${baseURL}/api/payment/create-checkout-session`, {
                 eventId: event._id,
                 items: selectedTickets,
-                buyerName,
-                buyerEmail
+                buyerName: userDetails.name,
+                buyerEmail: userDetails.email,
+                buyerAddress: userDetails.address // Sending address to backend
             });
 
             if (response.data.url) {
@@ -84,6 +97,8 @@ export default function EventTicketDetails() {
         } catch (error) {
             console.error("Checkout error:", error);
             alert("Checkout failed. Please try again.");
+        } finally {
+            setIsModalOpen(false);
         }
     };
 
@@ -183,6 +198,14 @@ export default function EventTicketDetails() {
                     </div>
                 </div>
             </div>
+
+            <UserDetailsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSubmit={handleFinalCheckout}
+                totalPrice={totalPrice}
+                ticketSummary={getSelectedTickets()}
+            />
 
             <Footer />
         </div>

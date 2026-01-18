@@ -16,7 +16,7 @@ import partnerRoutes from './routes/partnerRoutes.js';
 import newsRoutes from './routes/newsRoutes.js';
 import upcomingEventRoutes from './routes/upcomingEventRoutes.js';
 import { handleStripeWebhook } from './controllers/webhookController.js';
-import { createCheckoutSession } from './controllers/paymentController.js';
+import { createCheckoutSession, confirmPayment } from './controllers/paymentController.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -66,6 +66,11 @@ app.use('/api/dashboard', dashboardRoutes);
 
 // Payment Routes
 app.post('/api/payment/create-checkout-session', createCheckoutSession);
+app.post('/api/payment/confirm-payment', confirmPayment);
+
+// Ticket Verification Routes
+import { verifyTicket } from './controllers/ticketController.js';
+app.get('/api/tickets/verify/:id', verifyTicket);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
