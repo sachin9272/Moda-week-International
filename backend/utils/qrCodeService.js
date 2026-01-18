@@ -2,6 +2,10 @@
 import QRCode from 'qrcode';
 import { Jimp } from 'jimp'; // Updated import for Jimp v1.0+ or compatible
 import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const generateQRCode = async (text, logoPath) => {
     try {
@@ -16,8 +20,8 @@ export const generateQRCode = async (text, logoPath) => {
         const qrImage = await Jimp.read(qrBuffer);
 
         // 3. Load Logo if provided
-        // Default logo path if not provided
-        const defaultLogoPath = path.resolve('public/logo.png');
+        // Default logo path: Go up from 'utils' to 'backend' root, then 'public/logo.png'
+        const defaultLogoPath = path.join(__dirname, '../public/logo.png');
         const finalLogoPath = logoPath || defaultLogoPath;
 
         try {

@@ -154,7 +154,17 @@ export const confirmPayment = async (req, res) => {
             console.log(`Fallback: Ticket email sent to ${buyerEmail}`);
         }
 
-        res.status(200).json({ message: "Payment confirmed and processing complete", status: 'completed' });
+        res.status(200).json({
+            message: "Payment confirmed and processing complete",
+            status: 'completed',
+            tickets: savedSales,
+            event: {
+                title: event?.title || "Event",
+                date: event?.eventDate,
+                location: event?.location,
+                coverImage: event?.coverImage
+            }
+        });
 
     } catch (error) {
         console.error("Error confirming payment:", error);

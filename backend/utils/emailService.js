@@ -23,7 +23,13 @@ const sendEmail = async (options) => {
     };
 
     // Send email
-    await transporter.sendMail(mailOptions);
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Email sent: ${info.response}`);
+    } catch (error) {
+        console.error("Error sending email:", error);
+        throw error; // Re-throw to be caught by controller
+    }
 };
 
 export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
