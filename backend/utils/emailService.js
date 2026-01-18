@@ -49,8 +49,11 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
 
     // Generate QR Codes and prepare attachments
     const ticketRows = await Promise.all(tickets.map(async (t) => {
-        const qrCodeDataUrl = await generateQRCode(t._id.toString());
-        const cid = `qr-${t._id}@modaweek`; // Unique Data CID
+        // Safety check for _id
+        const ticketId = t._id ? t._id.toString() : 'unknown-id';
+
+        const qrCodeDataUrl = await generateQRCode(ticketId);
+        const cid = `qr-${ticketId}@modaweek`; // Unique Data CID
 
         // Add to attachments if valid
         if (qrCodeDataUrl) {
