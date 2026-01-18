@@ -14,76 +14,10 @@ export default function EventTicketDetails() {
     const [totalPrice, setTotalPrice] = useState(0);
 
     useEffect(() => {
-        // Mock Data for Details Page (Must match BuyTickets IDs)
-        const dummyEvents = [
-            {
-                _id: "dummy-1",
-                eventName: "Paris Fashion Week 2025",
-                date: "Sep 25, 2025",
-                city: "Paris",
-                thumbnail: { url: "https://images.unsplash.com/photo-1537832816519-689ad163238b?q=80&w=2059&auto=format&fit=crop" },
-                headerVideo: { url: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=2070&auto=format&fit=crop" },
-                descriptionSection: { text: "Experience the epitome of haute couture in the fashion capital of the world. This exclusive event showcases the Spring/Summer collections from top luxury brands. Guests will enjoy a cocktail reception, runway show, and after-party." },
-                tickets: [
-                    { _id: "t1", type: "Student", price: 100, currency: "EUR", description: "Standing room only" },
-                    { _id: "t2", type: "General", price: 500, currency: "EUR", description: "Standard seating" },
-                    { _id: "t3", type: "VIP", price: 1500, currency: "EUR", description: "Front row & backstage access" }
-                ]
-            },
-            {
-                _id: "dummy-2",
-                eventName: "Milan Runway Galaxy",
-                date: "Feb 20, 2025",
-                city: "Milan",
-                thumbnail: { url: "https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=2070&auto=format&fit=crop" },
-                headerVideo: { url: "https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1974&auto=format&fit=crop" },
-                descriptionSection: { text: "Witness the avant-garde designs that define Italian luxury and craftsmanship. A showcase of innovation and tradition." },
-                tickets: [
-                    { _id: "t1", type: "General", price: 400, currency: "EUR", description: "Regular seating" },
-                    { _id: "t2", type: "VIP", price: 1200, currency: "EUR", description: "Premium seating + gift bag" }
-                ]
-            },
-            {
-                _id: "dummy-3",
-                eventName: "Tokyo Style Summit",
-                date: "Mar 15, 2025",
-                city: "Tokyo",
-                thumbnail: { url: "https://images.unsplash.com/photo-1529139574466-a302d2052505?q=80&w=2070&auto=format&fit=crop" },
-                headerVideo: { url: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?q=80&w=2073&auto=format&fit=crop" },
-                descriptionSection: { text: "A fusion of traditional aesthetics and futuristic street style. The Tokyo Style Summit brings together the boldest voices in Asian fashion." },
-                tickets: [
-                    { _id: "t1", type: "Student", price: 80, currency: "USD" },
-                    { _id: "t2", type: "General", price: 250, currency: "USD" }
-                ]
-            },
-            {
-                _id: "dummy-4",
-                eventName: "NYC Fashion Week 2025",
-                date: "Oct 15, 2025",
-                city: "New York City",
-                thumbnail: { url: "https://images.unsplash.com/photo-1542295474-323b7e614131?q=80&w=2070&auto=format&fit=crop" },
-                headerVideo: { url: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=2670&auto=format&fit=crop" },
-                descriptionSection: { text: "Join us for the most anticipated fashion event of the year. Featuring top designers from around the globe, exclusive runway shows, and networking opportunities with industry leaders." },
-                tickets: [
-                    { _id: "t1", type: "Student", price: 50, currency: "USD" },
-                    { _id: "t2", type: "General", price: 150, currency: "USD" },
-                    { _id: "t3", type: "VIP", price: 450, currency: "USD" }
-                ]
-            }
-        ];
-
         const fetchEvent = async () => {
             try {
-                if (id.startsWith("dummy-")) {
-                    const mockEvent = dummyEvents.find(e => e._id === id);
-                    if (mockEvent) {
-                        setEvent(mockEvent);
-                        setLoading(false);
-                        return;
-                    }
-                }
-
-                const response = await axios.get(`${baseURL}/api/events/get-event/${id}`);
+                // Correct API endpoint for upcoming events
+                const response = await axios.get(`${baseURL}/api/upcoming-events/${id}`);
                 setEvent(response.data);
             } catch (error) {
                 console.error("Error fetching event details:", error);
@@ -103,30 +37,54 @@ export default function EventTicketDetails() {
     };
 
     useEffect(() => {
-        if (!event || !event.tickets) return;
+        if (!event || !event.ticketTypes) return;
         let total = 0;
-        event.tickets.forEach((ticket) => {
+        event.ticketTypes.forEach((ticket) => {
             const qty = quantities[ticket._id] || 0;
             total += qty * ticket.price;
         });
         setTotalPrice(total);
     }, [quantities, event]);
 
-    const handleCheckout = () => {
-        const selectedTickets = event.tickets
-            .map(t => ({ ...t, qty: quantities[t._id] || 0 }))
-            .filter(t => t.qty > 0);
+    const handleCheckout = async () => {
+        // Safe check for ticketTypes
+        if (!event.ticketTypes) return;
+
+        const selectedTickets = event.ticketTypes
+            .map(t => ({ ticketTypeId: t._id, quantity: quantities[t._id] || 0 }))
+            .filter(t => t.quantity > 0);
 
         if (selectedTickets.length === 0) {
             alert("Please select at least one ticket.");
             return;
         }
 
-        const summary = selectedTickets
-            .map(t => `${t.qty}x ${t.type} ($${t.price})`)
-            .join('\n');
+        // Collect basic user info (In a real app, this might come from auth context or a form)
+        // For now, prompting or using placeholder. Let's use prompts for simplicity if not logged in
+        // But better UX is a small modal or form.
+        // Assuming user might be guest, we'll prompt for now or assume test user
+        const buyerName = prompt("Enter your name:", "Guest User");
+        if (!buyerName) return;
+        const buyerEmail = prompt("Enter your email:", "guest@example.com");
+        if (!buyerEmail) return;
 
-        alert(`Checkout Simulated!\n\nEvent: ${event.eventName}\n\n${summary}\n\nTotal: $${totalPrice}`);
+        try {
+            const response = await axios.post(`${baseURL}/api/payment/create-checkout-session`, {
+                eventId: event._id,
+                items: selectedTickets,
+                buyerName,
+                buyerEmail
+            });
+
+            if (response.data.url) {
+                window.location.href = response.data.url;
+            } else {
+                alert("Failed to create checkout session.");
+            }
+        } catch (error) {
+            console.error("Checkout error:", error);
+            alert("Checkout failed. Please try again.");
+        }
     };
 
     if (loading) return <div className="bg-black min-h-screen text-white flex justify-center items-center">Loading...</div>;
@@ -140,20 +98,20 @@ export default function EventTicketDetails() {
             <div className="relative h-[60vh] w-full">
                 <div className="absolute inset-0 bg-black/50 z-10" />
                 <img
-                    src={event.headerVideo?.url || event.thumbnail?.url}
-                    alt={event.eventName}
+                    src={event.coverImage?.url || "https://via.placeholder.com/1200x600"}
+                    alt={event.title}
                     className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 z-20 flex flex-col justify-end container mx-auto px-6 pb-12">
-                    <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4">{event.eventName}</h1>
+                    <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4">{event.title}</h1>
                     <div className="flex flex-wrap gap-6 text-lg text-gray-200">
                         <div className="flex items-center gap-2">
                             <Calendar className="text-amber-500" />
-                            <span>{event.date}</span>
+                            <span>{event.eventDate}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <MapPin className="text-amber-500" />
-                            <span>{event.city}</span>
+                            <span>{event.location}</span>
                         </div>
                     </div>
                 </div>
@@ -164,7 +122,7 @@ export default function EventTicketDetails() {
                 <div className="lg:col-span-2">
                     <h2 className="text-2xl font-bold mb-6 text-amber-500">About the Event</h2>
                     <div className="prose prose-invert max-w-none text-gray-300">
-                        <p className="whitespace-pre-line">{event.descriptionSection?.text || "No description available."}</p>
+                        <p className="whitespace-pre-line">{event.description || "No description available."}</p>
                     </div>
                 </div>
 
@@ -174,13 +132,13 @@ export default function EventTicketDetails() {
                         <h3 className="text-2xl font-bold mb-6">Select Tickets</h3>
 
                         <div className="space-y-6">
-                            {event.tickets && event.tickets.length > 0 ? (
-                                event.tickets.map((ticket) => (
+                            {event.ticketTypes && event.ticketTypes.length > 0 ? (
+                                event.ticketTypes.map((ticket) => (
                                     <div key={ticket._id} className="border-b border-gray-800 pb-6 last:border-0 last:pb-0">
                                         <div className="flex justify-between items-start mb-2">
                                             <div>
-                                                <h4 className="font-bold text-lg">{ticket.type} Pass</h4>
-                                                <p className="text-amber-500 font-semibold">${ticket.price} {ticket.currency || 'USD'}</p>
+                                                <h4 className="font-bold text-lg">{ticket.name}</h4>
+                                                <p className="text-amber-500 font-semibold">${ticket.price}</p>
                                             </div>
                                             <div className="flex items-center gap-3 bg-gray-900 rounded-lg px-3 py-1">
                                                 <button
@@ -212,7 +170,7 @@ export default function EventTicketDetails() {
                         <div className="mt-8 pt-6 border-t border-gray-800">
                             <div className="flex justify-between items-center mb-6 text-xl font-bold">
                                 <span>Total</span>
-                                <span>${totalPrice} USD</span>
+                                <span>${totalPrice}</span>
                             </div>
                             <button
                                 onClick={handleCheckout}
