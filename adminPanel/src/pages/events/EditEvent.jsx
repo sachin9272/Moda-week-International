@@ -19,7 +19,8 @@ const EditEvent = () => {
         eventType: 'upcoming',
         status: 'draft',
         heroLayout: 'split', // Default layout
-        thumbnail: null, // string (url) or file
+        thumbnail: null,
+        poster: null,
         headerVideo: null, // string (url) or file
         descriptionSection: {
             title: '',
@@ -45,6 +46,11 @@ const EditEvent = () => {
     });
 
     const [currentTicket, setCurrentTicket] = useState({
+        type: 'General',
+        price: '',
+        currency: 'USD',
+        amount: 100,
+        description: '',
         image: null
     });
 
@@ -100,6 +106,8 @@ const EditEvent = () => {
 
         if (field === 'thumbnail') {
             setFormData(prev => ({ ...prev, thumbnail: file }));
+        } else if (field === 'poster') {
+            setFormData(prev => ({ ...prev, poster: file }));
         } else if (field === 'descriptionSection.image') {
             setFormData(prev => ({ ...prev, descriptionSection: { ...prev.descriptionSection, image: file } }));
         } else if (field === 'bottomSection.image') {
@@ -222,6 +230,7 @@ const EditEvent = () => {
                     heroLayout: event.heroLayout || 'split',
                     // Handle object vs string for backward compatibility
                     thumbnail: event.thumbnail?.url || event.thumbnail,
+                    poster: event.poster?.url || event.poster,
                     headerVideo: event.headerVideo?.url || event.headerVideo,
                     collections: event.collections.map(col => ({
                         ...col,
@@ -256,6 +265,11 @@ const EditEvent = () => {
                     },
                     hasTickets: event.hasTickets || false,
                     tickets: (event.tickets || []).map(t => ({
+                        type: t.type,
+                        price: t.price,
+                        currency: t.currency,
+                        amount: t.amount,
+                        description: t.description,
                         image: t.image?.url || t.image
                     }))
                 });
@@ -420,14 +434,14 @@ const EditEvent = () => {
     }
 
     const addTicket = () => {
-        if (currentTicket.image) {
+        if (currentTicket.price && currentTicket.type) {
             setFormData(prev => ({
                 ...prev,
                 tickets: [...prev.tickets, currentTicket]
             }));
-            setCurrentTicket({ image: null });
+            setCurrentTicket({ type: 'General', price: '', currency: 'USD', amount: 100, description: '', image: null });
         } else {
-            toast.error("Ticket must have an Image.");
+            toast.error("Ticket must have a Price and Type.");
         }
     };
 
@@ -560,6 +574,9 @@ const EditEvent = () => {
         if (formData.thumbnail && typeof formData.thumbnail !== 'string') {
             data.append('thumbnail', formData.thumbnail);
         }
+        if (formData.poster && typeof formData.poster !== 'string') {
+            data.append('poster', formData.poster);
+        }
         if (formData.headerVideo && typeof formData.headerVideo !== 'string') {
             data.append('headerVideo', formData.headerVideo);
         }
@@ -608,6 +625,11 @@ const EditEvent = () => {
         // Add Tickets Data
         data.append('hasTickets', formData.hasTickets);
         const ticketsMeta = formData.tickets.map(t => ({
+            type: t.type,
+            price: t.price,
+            currency: t.currency,
+            amount: t.amount,
+            description: t.description,
             image: (typeof t.image === 'string') ? t.image : undefined
         }));
         data.append('tickets', JSON.stringify(ticketsMeta));
@@ -729,6 +751,58 @@ const EditEvent = () => {
                                         <input
                                             type="file"
                                             name="thumbnail"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                )}
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-gray-400 mb-1">Event Poster (Vertical)</label>
+                            <div
+                                className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : (formData.poster ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, 'poster')}
+                            >
+                                {formData.poster ? (
+                                    <div className="relative w-full">
+                                        <img
+                                            src={typeof formData.poster === 'string' ? formData.poster : URL.createObjectURL(formData.poster)}
+                                            alt="Poster Preview"
+                                            className="max-h-64 w-auto mx-auto rounded shadow-lg"
+                                        />
+                                        <div className="absolute -top-2 -right-2 flex gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => handleEditClick('poster', formData.poster, 3 / 4)}
+                                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                title="Edit Image"
+                                            >
+                                                <Pencil size={16} />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(prev => ({ ...prev, poster: null }))}
+                                                className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                                title="Remove Image"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                        <p className="mt-2 text-sm text-gray-400">{typeof formData.poster === 'string' ? 'Current Image' : formData.poster.name}</p>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                        <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                        <span className="text-blue-400 font-medium hover:underline">Click to upload poster</span>
+                                        <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                                        <span className="text-gray-600 text-xs mt-2">SVG, PNG, JPG or GIF</span>
+                                        <input
+                                            type="file"
+                                            name="poster"
                                             accept="image/*"
                                             onChange={handleFileChange}
                                             className="hidden"
@@ -1220,6 +1294,33 @@ const EditEvent = () => {
                     {formData.hasTickets && (
                         <div className="space-y-4 border p-4 border-gray-600 rounded">
                             <h3 className="font-semibold text-white">Add New Ticket</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-gray-400 mb-1">Ticket Type</label>
+                                    <select name="type" value={currentTicket.type} onChange={handleTicketChange} className="w-full p-2 bg-gray-700 rounded text-white">
+                                        <option value="General">General</option>
+                                        <option value="VIP">VIP</option>
+                                        <option value="Student">Student</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-gray-400 mb-1">Price</label>
+                                    <input type="number" name="price" value={currentTicket.price} onChange={handleTicketChange} placeholder="0.00" className="w-full p-2 bg-gray-700 rounded text-white" />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-400 mb-1">Quantity Available</label>
+                                    <input type="number" name="amount" value={currentTicket.amount} onChange={handleTicketChange} placeholder="100" className="w-full p-2 bg-gray-700 rounded text-white" />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-400 mb-1">Currency</label>
+                                    <input type="text" name="currency" value={currentTicket.currency} onChange={handleTicketChange} placeholder="USD" className="w-full p-2 bg-gray-700 rounded text-white" />
+                                </div>
+                                <div className="md:col-span-2">
+                                    <label className="block text-gray-400 mb-1">Description</label>
+                                    <textarea name="description" value={currentTicket.description} onChange={handleTicketChange} placeholder="Ticket Perks & Details" rows="2" className="w-full p-2 bg-gray-700 rounded text-white"></textarea>
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-1 gap-4">
                                 <label className="block text-gray-400 text-sm">Ticket Image (Visual Stub)</label>
                                 <div
@@ -1286,6 +1387,10 @@ const EditEvent = () => {
                                         <div key={idx} className="bg-gray-700 p-3 rounded flex justify-between items-center">
                                             <div className="flex items-center gap-4">
                                                 {ticket.image && <img src={typeof ticket.image === 'string' ? ticket.image : URL.createObjectURL(ticket.image)} className="w-16 h-auto rounded" alt="Ticket" />}
+                                                <div>
+                                                    <div className="font-bold text-white">{ticket.type} - {ticket.currency} {ticket.price}</div>
+                                                    <div className="text-xs text-gray-400">{ticket.amount} available</div>
+                                                </div>
                                             </div>
                                             <button type="button" onClick={() => removeTicket(idx)} className="text-red-400 hover:text-red-300">Remove</button>
                                         </div>
