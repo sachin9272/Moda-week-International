@@ -14,6 +14,9 @@ import instagramRoutes from './routes/instagramRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import partnerRoutes from './routes/partnerRoutes.js';
 import newsRoutes from './routes/newsRoutes.js';
+import upcomingEventRoutes from './routes/upcomingEventRoutes.js';
+import { handleStripeWebhook } from './controllers/webhookController.js';
+import { createCheckoutSession } from './controllers/paymentController.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -26,6 +29,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
+// Middleware (Order is important! Webhook must be before json parser if it needs raw body, but here we can use express.raw for specific route)
+
+// Stripe Webhook - Needs raw body
+app.post('/api/webhook/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -52,6 +60,12 @@ app.use('/api/instagram', instagramRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/upcoming-events', upcomingEventRoutes);
+import dashboardRoutes from './routes/dashboardRoutes.js';
+app.use('/api/dashboard', dashboardRoutes);
+
+// Payment Routes
+app.post('/api/payment/create-checkout-session', createCheckoutSession);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
