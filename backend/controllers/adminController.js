@@ -4,6 +4,8 @@ import Sponsor from '../models/sponsorModel.js';
 import Service from '../models/serviceModel.js';
 import News from '../models/newsModel.js';
 import Admin from '../models/adminModel.js';
+import Event from '../models/eventModel.js';
+import UpcomingEvent from '../models/upcomingEventModel.js';
 import jwt from 'jsonwebtoken';
 
 const generateToken = (id) => {
@@ -58,11 +60,30 @@ export const registerAdmin = async (req, res) => {
 // Get Dashboard Stats
 export const getDashboardStats = async (req, res) => {
     try {
+        // Calculate the date 30 days ago
+        const lastMonthDate = new Date();
+        lastMonthDate.setDate(lastMonthDate.getDate() - 30);
+
+        // Total counts
         const buyerCount = await Buyer.countDocuments();
         const designerCount = await Designer.countDocuments();
         const sponsorCount = await Sponsor.countDocuments();
         const serviceCount = await Service.countDocuments();
         const newsCount = await News.countDocuments();
+
+        // Last month counts
+        const buyersLastMonth = await Buyer.countDocuments({ createdAt: { $gte: lastMonthDate } });
+        const designersLastMonth = await Designer.countDocuments({ createdAt: { $gte: lastMonthDate } });
+        const sponsorsLastMonth = await Sponsor.countDocuments({ createdAt: { $gte: lastMonthDate } });
+        const servicesLastMonth = await Service.countDocuments({ createdAt: { $gte: lastMonthDate } });
+
+        // Event counts - Past events from Event model where eventType is 'past'
+        const pastEventsCount = await Event.countDocuments({ eventType: 'past' });
+        const pastEventsLastMonth = await Event.countDocuments({ eventType: 'past', createdAt: { $gte: lastMonthDate } });
+
+        // Upcoming events from UpcomingEvent model
+        const upcomingEventsCount = await UpcomingEvent.countDocuments();
+        const upcomingEventsLastMonth = await UpcomingEvent.countDocuments({ createdAt: { $gte: lastMonthDate } });
 
         res.status(200).json({
             success: true,
@@ -71,7 +92,15 @@ export const getDashboardStats = async (req, res) => {
                 designers: designerCount,
                 sponsors: sponsorCount,
                 services: serviceCount,
-                news: newsCount
+                news: newsCount,
+                buyersLastMonth,
+                designersLastMonth,
+                sponsorsLastMonth,
+                servicesLastMonth,
+                pastEvents: pastEventsCount,
+                pastEventsLastMonth,
+                upcomingEvents: upcomingEventsCount,
+                upcomingEventsLastMonth
             }
         });
     } catch (error) {
