@@ -56,8 +56,6 @@ const fulfillOrder = async (session) => {
     // Looking at TicketSaleModel: it has `ticketName`, `quantity`, `totalAmount`.
     // So we should create separate records for each ticket TYPE purchased in this session.
 
-    const savedTickets = [];
-
     for (const ticket of tickets) {
         const sale = new TicketSale({
             eventId,
@@ -70,8 +68,7 @@ const fulfillOrder = async (session) => {
             status: 'completed'
         });
 
-        const savedSale = await sale.save();
-        savedTickets.push(savedSale);
+        await sale.save();
         console.log(`Saved ticket sale: ${ticket.quantity}x ${ticket.ticketName}`);
     }
 
@@ -79,7 +76,7 @@ const fulfillOrder = async (session) => {
     try {
         const event = await UpcomingEvent.findById(eventId);
         if (event) {
-            await sendTicketEmail(buyerEmail, savedTickets, {
+            await sendTicketEmail(buyerEmail, ticketDetails, {
                 title: event.title,
                 date: event.eventDate,
                 location: event.location,
