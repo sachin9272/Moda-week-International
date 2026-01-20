@@ -61,6 +61,8 @@ app.use('/api/upload', uploadRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/upcoming-events', upcomingEventRoutes);
+import legalPageRoutes from './routes/legalPageRoutes.js';
+app.use('/api/legal-pages', legalPageRoutes);
 import dashboardRoutes from './routes/dashboardRoutes.js';
 app.use('/api/dashboard', dashboardRoutes);
 
