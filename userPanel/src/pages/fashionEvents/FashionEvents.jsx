@@ -6,6 +6,7 @@ import Footer from "../../components/Footer.jsx";
 import Pricing from "../../components/Pricing.jsx";
 import runnaway from "../../assets/runnaway.jpg";
 import CtaSection from "../../components/CtaSection.jsx";
+import { baseURL } from "../../config/api";
 
 import event1 from "../../assets/Events.jpg";
 import event2 from "../../assets/Events-1.jpg";
@@ -15,39 +16,7 @@ import event5 from "../../assets/Events-4.jpg";
 import event6 from "../../assets/Events-5.jpg";
 
 export default function FashionEvents() {
-  const events = [
-    {
-      city: "NEW YORK CITY",
-      date: "FEB 2026",
-      image: event1,
-    },
-
-    // {
-    //   city: "LETICIA, AMAZONAS COLOMBIA",
-    //   date: "JUNE 03, 2026",
-    //   image: event2,
-    // },
-    // {
-    //   city: "TABATINGA, AMAZONAS BRASIL",
-    //   date: "JUNE 13, 2026",
-    //   image: event3,
-    // },
-    // {
-    //   city: "IQUITOS, PERU",
-    //   date: "JUNE 20, 2026",
-    //   image: event4,
-    // },
-    // {
-    //   city: "HUAMBOYA, ECUADOR",
-    //   date: "JUNE 27, 2026",
-    //   image: event5,
-    // },
-    {
-      city: "NEW YORK CITY",
-      date: "SEPT 2026",
-      image: event6,
-    },
-  ];
+  // const events - Removed hardcoded events as we now use upcomingEvents from API
 
   const [activeTab, setActiveTab] = useState("upcoming");
 
@@ -82,78 +51,20 @@ export default function FashionEvents() {
     window.open(whatsappUrl, '_blank');
   };
 
-  const upcomingEvents = [
-    {
-      date: "FEB 1-6, 2026",
-      city: "DUBAI",
-      event: "DUBAI FASHION WEEK",
-    },
-    {
-      date: "FEB 2026",
-      city: "NEW YORK CITY",
-      event: "MWINTL | NYCFS",
-    },
-    {
-      date: "FEB 07, 2026",
-      city: "NEW YORK CITY",
-      event: "COUTURE FASHION WEEK",
-    },
-    {
-      date: "FEB 24 – March 2, 2026",
-      city: "LONDON",
-      event: "LONDON FASHION WEEK",
-    },
-    {
-      date: "MARCH 2–10, 2026",
-      city: "PARIS",
-      event: "PARIS FASHION WEEK",
-    },
-    {
-      date: "MARCH 16-21, 2026",
-      city: "TOKYO",
-      event: "TOKYO FASHION WEEK",
-    },
-    // {
-    //   date: "MAY 12-14, 2026",
-    //   city: "BOGOTA, COLOMBIA",
-    //   event: "BOGOTA FASHION WEEK",
-    // },
-    // {
-    //   date: "JUNE 6, 2026",
-    //   city: "LETICIA, AMAZONAS COLOMBIA",
-    //   event: "MWINTL | AFW",
-    // },
-    // {
-    //   date: "JUNE 13, 2026",
-    //   city: "TABATINGA, AMAZONAS BRASIL",
-    //   event: "MWINTL | AFW",
-    // },
-    // {
-    //   date: "JUNE 20, 2026",
-    //   city: "IQUITOS, PERU",
-    //   event: "MWINTL | AFW",
-    // },
-    // {
-    //   date: "JUNE 27, 2026",
-    //   city: "HUAMBOYA, ECUADOR",
-    //   event: "MWINTL | AFW",
-    // },
-    // {
-    //   date: "NOVEMBER 1-5, 2026",
-    //   city: "TORONTO",
-    //   event: "TORONTO FASHION WEEK",
-    // },
-    {
-      date: "JULY 6-9, 2026",
-      city: "PARIS",
-      event: "HAUTE COUTURE",
-    },
-    {
-      date: "JULY 28-30, 2026",
-      city: "MEDELLIN, COLOMBIA",
-      event: "COLOMBIA MODA",
-    },
-  ];
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+
+  useEffect(() => {
+    const fetchUpcomingEvents = async () => {
+      try {
+        const response = await fetch(`${baseURL}/api/upcoming-events/all?status=live`);
+        const data = await response.json();
+        setUpcomingEvents(data);
+      } catch (error) {
+        console.error('Error fetching upcoming events:', error);
+      }
+    };
+    fetchUpcomingEvents();
+  }, []);
 
   const pastEvents = [
     {
@@ -215,26 +126,26 @@ export default function FashionEvents() {
       {/* Events Grid */}
       <div className="max-w-7xl mx-auto px-4 pb-16  bg-white">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {events.map((event, index) => (
-            <Link to={`/event-details?city=${event.city}`} key={index}>
+          {upcomingEvents.map((event, index) => (
+            <Link to={`/event-tickets/${event._id}`} key={index}>
               <div
                 className="group relative h-64 md:h-80 overflow-hidden cursor-pointer"
               >
                 <div
                   className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
-                  style={{ backgroundImage: `url(${event.image})` }}
+                  style={{ backgroundImage: `url(${event.coverImage?.url || "https://via.placeholder.com/600x400"})` }}
                 />
                 <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/90 group-hover:bg-black/40 transition-colors duration-500" />
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
                   <h2 className="text-2xl md:text-3xl font-light tracking-widest text-center mb-2 !font-playfair">
-                    {event.city}
+                    {event.location}
                   </h2>
                   {/* <div className="border-b border-[#BB8639] h-[8px] w-[15%] mb-2"></div> */}
                   <div className="border-b-[1.5px] border-[#BB8639] w-[15%] mb-2"></div>
 
                   <p className="text-sm tracking-[0.2em] font-light">
-                    {event.date}
+                    {event.eventDate}
                   </p>
                 </div>
               </div>
@@ -297,24 +208,44 @@ export default function FashionEvents() {
               {/* Table Body */}
               <div>
                 {calendarData.length > 0 ? (
-                  calendarData.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="grid grid-cols-3 text-sm text-gray-300"
-                    >
-                      <div className="p-6 font-semibold border-b border-r border-white/20">
-                        {item.date}
-                      </div>
-
-                      <div className="p-6 border-b border-r border-white/20">
-                        {item.city}
-                      </div>
-
-                      <div className="p-6 text-gray-400 border-b border-white/20">
-                        {item.event}
-                      </div>
-                    </div>
-                  ))
+                  calendarData.map((item, idx) => {
+                    if (activeTab === "upcoming") {
+                      return (
+                        <Link
+                          to={`/event-tickets/${item._id}`}
+                          key={idx}
+                          className="grid grid-cols-3 text-sm text-gray-300 hover:bg-white/5 transition-colors cursor-pointer group"
+                        >
+                          <div className="p-6 font-semibold border-b border-r border-white/20 group-hover:text-[#C7913E] transition-colors">
+                            {item.eventDate || item.date}
+                          </div>
+                          <div className="p-6 border-b border-r border-white/20">
+                            {item.location || item.city}
+                          </div>
+                          <div className="p-6 text-gray-400 border-b border-white/20">
+                            {item.title || item.event}
+                          </div>
+                        </Link>
+                      );
+                    } else {
+                      return (
+                        <div
+                          key={idx}
+                          className="grid grid-cols-3 text-sm text-gray-300"
+                        >
+                          <div className="p-6 font-semibold border-b border-r border-white/20">
+                            {item.eventDate || item.date}
+                          </div>
+                          <div className="p-6 border-b border-r border-white/20">
+                            {item.location || item.city}
+                          </div>
+                          <div className="p-6 text-gray-400 border-b border-white/20">
+                            {item.title || item.event}
+                          </div>
+                        </div>
+                      );
+                    }
+                  })
                 ) : (
                   <div className="p-8 text-center text-gray-500 italic">
                     No events found.
@@ -323,16 +254,15 @@ export default function FashionEvents() {
               </div>
 
             </div>
-
           </div>
         </div>
       </div>
 
 
       {/* Pricing Section */}
-      <div className="bg-white">
+      < div className="bg-white" >
         <Pricing />
-      </div>
+      </div >
 
       {/* Get In Touch Section */}
       {/* <div className="py-20 px-4 bg-[#F5F5F5]"> */}
