@@ -20,8 +20,8 @@ export const generateQRCode = async (text, logoPath) => {
         const qrImage = await Jimp.read(qrBuffer);
 
         // 3. Load Logo if provided
-        // Default logo path: Go up from 'utils' to 'backend' root, then 'public/logo.png'
-        const defaultLogoPath = path.join(__dirname, '../public/logo.png');
+        // Default logo path if not provided
+        const defaultLogoPath = path.resolve('public/logo.png');
         const finalLogoPath = logoPath || defaultLogoPath;
 
         try {
