@@ -15,7 +15,7 @@ const BuyTickets = () => {
         const fetchEvents = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${baseURL}/api/upcoming-events/all`);
+                const response = await axios.get(`${baseURL}/api/upcoming-events/all?status=live`);
                 setEvents(response.data);
             } catch (error) {
                 console.error("Error fetching events:", error);
