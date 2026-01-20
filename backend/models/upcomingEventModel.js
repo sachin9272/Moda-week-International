@@ -16,6 +16,11 @@ const upcomingEventSchema = new mongoose.Schema({
     description: {
         type: String,
     },
+    status: {
+        type: String,
+        enum: ['live', 'hidden'],
+        default: 'hidden'
+    },
     coverImage: {
         url: { type: String },
         publicId: { type: String }
