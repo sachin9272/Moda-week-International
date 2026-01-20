@@ -122,3 +122,144 @@ export const getEventTransactions = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch transactions", error: error.message });
     }
 };
+
+// Get global analytics for all events (Revenue & Ticket Sales comparison)
+export const getGlobalAnalytics = async (req, res) => {
+    try {
+        const globalStats = await TicketSale.aggregate([
+            { $match: { status: 'completed' } },
+            {
+                $group: {
+                    _id: "$eventId",
+                    totalTickets: { $sum: "$quantity" },
+                    totalRevenue: { $sum: "$totalAmount" }
+                }
+            },
+            {
+                $lookup: {
+                    from: "upcomingevents", // Ensure this matches your collection name (usually lowercase plural)
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "eventConfig"
+                }
+            },
+            {
+                $unwind: "$eventConfig"
+            },
+            {
+                $project: {
+                    _id: 0,
+                    eventId: "$_id",
+                    eventName: "$eventConfig.title",
+                    totalTickets: 1,
+                    totalRevenue: 1
+                }
+            },
+            { $sort: { totalRevenue: -1 } } // Sort by highest revenue
+        ]);
+
+        res.status(200).json(globalStats);
+    } catch (error) {
+        console.error("Error fetching global analytics:", error);
+        res.status(500).json({ message: "Failed to fetch global analytics", error: error.message });
+    }
+};
+
+// Get Top 5 Customers by Ticket Purchases
+export const getTopCustomers = async (req, res) => {
+    try {
+        const topCustomers = await TicketSale.aggregate([
+            { $match: { status: 'completed' } },
+            {
+                $group: {
+                    _id: "$buyerEmail",
+                    buyerName: { $first: "$buyerName" },
+                    totalTickets: { $sum: "$quantity" },
+                    totalSpent: { $sum: "$totalAmount" }
+                }
+            },
+            { $sort: { totalTickets: -1, totalSpent: -1 } },
+            { $limit: 5 },
+            {
+                $project: {
+                    _id: 0,
+                    email: "$_id",
+                    name: "$buyerName",
+                    totalTickets: 1,
+                    totalSpent: 1
+                }
+            }
+        ]);
+
+        res.status(200).json(topCustomers);
+    } catch (error) {
+        console.error("Error fetching top customers:", error);
+        res.status(500).json({ message: "Failed to fetch top customers", error: error.message });
+    }
+};
+
+// Get Global Recent Transactions
+export const getGlobalRecentTransactions = async (req, res) => {
+    try {
+        const recentTransactions = await TicketSale.aggregate([
+            { $sort: { purchaseDate: -1 } },
+            { $limit: 10 },
+            {
+                $lookup: {
+                    from: "upcomingevents",
+                    localField: "eventId",
+                    foreignField: "_id",
+                    as: "event"
+                }
+            },
+            { $unwind: "$event" },
+            {
+                $project: {
+                    _id: 1,
+                    buyerName: 1,
+                    buyerEmail: 1,
+                    ticketName: 1,
+                    quantity: 1,
+                    totalAmount: 1,
+                    purchaseDate: 1,
+                    eventName: "$event.title"
+                }
+            }
+        ]);
+
+        res.status(200).json(recentTransactions);
+    } catch (error) {
+        console.error("Error fetching global recent transactions:", error);
+        res.status(500).json({ message: "Failed to fetch recent transactions", error: error.message });
+    }
+};
+
+// Get Global Ticket Type Stats
+export const getGlobalTicketTypeStats = async (req, res) => {
+    try {
+        const ticketStats = await TicketSale.aggregate([
+            { $match: { status: 'completed' } },
+            {
+                $group: {
+                    _id: "$ticketName",
+                    value: { $sum: "$quantity" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    name: "$_id",
+                    value: 1
+                }
+            },
+            { $sort: { value: -1 } }
+        ]);
+
+        res.status(200).json(ticketStats);
+    } catch (error) {
+        console.error("Error fetching global ticket stats:", error);
+        res.status(500).json({ message: "Failed to fetch ticket stats", error: error.message });
+    }
+};
+
+
