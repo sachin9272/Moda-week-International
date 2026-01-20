@@ -8,8 +8,8 @@ import Designers from './pages/applications/Designers';
 import Sponsors from './pages/applications/Sponsors';
 import Services from './pages/applications/Services';
 import LandingVideos from './pages/LandingVideos';
-import ServiceTypeManagement from './pages/ServiceTypeManagement';
-import ServiceHeroManager from './pages/ServiceHeroManager';
+import ServicesManager from './pages/ServicesManager';
+import LegalPagesManager from './pages/LegalPagesManager';
 import NewsManager from './pages/news/NewsManager';
 import AddNews from './pages/news/AddNews';
 import EditNews from './pages/news/EditNews';
@@ -59,8 +59,8 @@ function App() {
             <Route path="applications/services" element={<Services />} />
 
             <Route path="landing-videos" element={<LandingVideos />} />
-            <Route path="service-types" element={<ServiceTypeManagement />} />
-            <Route path="service-hero" element={<ServiceHeroManager />} />
+            <Route path="service-content" element={<ServicesManager />} />
+            <Route path="legal-pages" element={<LegalPagesManager />} />
             <Route path="news" element={<NewsManager />} />
             <Route path="news/add" element={<AddNews />} />
             <Route path="news/edit/:id" element={<EditNews />} />
