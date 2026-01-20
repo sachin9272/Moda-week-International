@@ -12,7 +12,8 @@ import {
     FolderOpen,
     Video,
     Calendar,
-    Image
+    Image,
+    Scale
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -32,8 +33,8 @@ const Sidebar = () => {
         { path: '/landing-videos', icon: Video, label: 'Landing Videos' },
         { path: '/fashion-designers', icon: Users, label: 'Fashion Designers' },
         { path: '/partners', icon: Image, label: 'Partners Logo' },
-        { path: '/service-types', icon: Briefcase, label: 'Service Types' },
-        { path: '/service-hero', icon: Palette, label: 'Service Hero' },
+        { path: '/service-content', icon: Briefcase, label: 'Service Content' },
+        { path: '/legal-pages', icon: Scale, label: 'Legal Pages' },
     ];
 
     return (
