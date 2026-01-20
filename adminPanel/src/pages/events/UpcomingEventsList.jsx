@@ -10,6 +10,7 @@ const UpcomingEventsList = () => {
     const [loading, setLoading] = useState(true);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [eventToDelete, setEventToDelete] = useState(null);
+    const [updatingStatusId, setUpdatingStatusId] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -47,6 +48,30 @@ const UpcomingEventsList = () => {
         } finally {
             setIsDeleteModalOpen(false);
             setEventToDelete(null);
+        }
+    };
+
+    const toggleStatus = async (event) => {
+        setUpdatingStatusId(event._id);
+        try {
+            const newStatus = event.status === 'live' ? 'hidden' : 'live';
+            // Optimistic update
+            const updatedEvents = events.map(e =>
+                e._id === event._id ? { ...e, status: newStatus } : e
+            );
+            setEvents(updatedEvents);
+
+            const formData = new FormData();
+            formData.append('status', newStatus);
+
+            await axios.put(`${API_BASE_URL}/api/upcoming-events/update/${event._id}`, formData);
+            toast.success(`Event is now ${newStatus}`);
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast.error("Failed to update status");
+            fetchEvents(); // Revert on error
+        } finally {
+            setUpdatingStatusId(null);
         }
     };
 
@@ -123,6 +148,26 @@ const UpcomingEventsList = () => {
                                         {event.ticketTypes.length} Ticket Types
                                     </div>
                                 )}
+
+                                <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-black/40 backdrop-blur-md rounded-full px-2 py-1 border border-white/10">
+                                    <span className="text-[10px] text-white font-bold uppercase tracking-wider">{event.status === 'live' ? 'Live' : 'Hidden'}</span>
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleStatus(event);
+                                        }}
+                                        disabled={updatingStatusId === event._id}
+                                        className={`w-8 h-4 rounded-full flex items-center transition-colors p-0.5 ${event.status === 'live' ? 'bg-green-500' : 'bg-gray-500'} ${updatingStatusId === event._id ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        {updatingStatusId === event._id ? (
+                                            <div className="w-full flex justify-center">
+                                                <Loader2 className="w-3 h-3 text-white animate-spin" />
+                                            </div>
+                                        ) : (
+                                            <div className={`bg-white w-3 h-3 rounded-full shadow-md transform transition-transform ${event.status === 'live' ? 'translate-x-4' : 'translate-x-0'}`} />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
 
                             <div className="p-5 flex flex-col flex-grow relative">
