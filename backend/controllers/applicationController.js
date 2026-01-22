@@ -3,8 +3,9 @@ import Designer from '../models/designerModel.js';
 import Sponsor from '../models/sponsorModel.js';
 import Service from '../models/serviceModel.js';
 import sendEmail from '../utils/emailService.js';
+import { generateUserConfirmationEmail, generateAdminNotificationEmail } from '../utils/emailTemplates.js';
 
-const ADMIN_EMAIL = 'singhamsachin72@gmail.com';
+const ADMIN_EMAIL = 'info@modaweekinternational.com';
 
 // Create Buyer Application
 export const createBuyerApplication = async (req, res) => {
@@ -12,18 +13,20 @@ export const createBuyerApplication = async (req, res) => {
         const buyer = new Buyer(req.body);
         await buyer.save();
 
-        // Send Email to User
+        // Send Beautiful Email to User
         await sendEmail({
             email: buyer.email,
-            subject: 'Application Received - Moda Week International',
-            message: `Dear ${buyer.contactName},\n\nThank you for applying to become a buyer. We have received your application and will review it shortly.\n\nBest regards,\nModa Week International Team`
+            subject: '🎉 Application Received - Moda Week International',
+            message: `Dear ${buyer.contactName}, Thank you for applying to become a buyer. We have received your application and will review it shortly.`,
+            html: generateUserConfirmationEmail('buyer', buyer)
         });
 
-        // Send Email to Admin
+        // Send Notification Email to Admin
         await sendEmail({
             email: ADMIN_EMAIL,
-            subject: 'New Buyer Application',
-            message: `New Buyer Application Received:\n\nCompany: ${buyer.companyName}\nContact: ${buyer.contactName}\nEmail: ${buyer.email}\nPhone: ${buyer.phoneNumber}\nCountry: ${buyer.country}`
+            subject: '🔔 New Buyer Application - Moda Week',
+            message: `New Buyer Application: ${buyer.companyName} - ${buyer.contactName}`,
+            html: generateAdminNotificationEmail('buyer', buyer)
         });
 
         res.status(201).json({ success: true, message: 'Buyer application submitted successfully', data: buyer });
@@ -39,18 +42,20 @@ export const createDesignerApplication = async (req, res) => {
         const designer = new Designer(req.body);
         await designer.save();
 
-        // Send Email to User
+        // Send Beautiful Email to User
         await sendEmail({
             email: designer.email,
-            subject: 'Application Received - Moda Week International',
-            message: `Dear ${designer.designerName},\n\nThank you for applying as a designer. We have received your application and will review it shortly.\n\nBest regards,\nModa Week International Team`
+            subject: '✨ Application Received - Moda Week International',
+            message: `Dear ${designer.designerName}, Thank you for applying as a designer. We have received your application and will review it shortly.`,
+            html: generateUserConfirmationEmail('designer', designer)
         });
 
-        // Send Email to Admin
+        // Send Notification Email to Admin
         await sendEmail({
             email: ADMIN_EMAIL,
-            subject: 'New Designer Application',
-            message: `New Designer Application Received:\n\nBrand: ${designer.brandName}\nDesigner: ${designer.designerName}\nEmail: ${designer.email}\nPhone: ${designer.phoneNumber}\nCountry: ${designer.country}`
+            subject: '🔔 New Designer Application - Moda Week',
+            message: `New Designer Application: ${designer.brandName} - ${designer.designerName}`,
+            html: generateAdminNotificationEmail('designer', designer)
         });
 
         res.status(201).json({ success: true, message: 'Designer application submitted successfully', data: designer });
@@ -66,18 +71,20 @@ export const createSponsorApplication = async (req, res) => {
         const sponsor = new Sponsor(req.body);
         await sponsor.save();
 
-        // Send Email to User
+        // Send Beautiful Email to User
         await sendEmail({
             email: sponsor.email,
-            subject: 'Application Received - Moda Week International',
-            message: `Dear ${sponsor.contactName},\n\nThank you for your interest in sponsoring Moda Week International. We have received your application and will be in touch.\n\nBest regards,\nModa Week International Team`
+            subject: '🤝 Application Received - Moda Week International',
+            message: `Dear ${sponsor.contactName}, Thank you for your interest in sponsoring Moda Week International. We have received your application and will be in touch.`,
+            html: generateUserConfirmationEmail('sponsor', sponsor)
         });
 
-        // Send Email to Admin
+        // Send Notification Email to Admin
         await sendEmail({
             email: ADMIN_EMAIL,
-            subject: 'New Sponsor Application',
-            message: `New Sponsor Application Received:\n\nCompany: ${sponsor.companyName}\nContact: ${sponsor.contactName}\nEmail: ${sponsor.email}\nPhone: ${sponsor.phoneNumber}\nCountry: ${sponsor.country}`
+            subject: '🔔 New Sponsor Application - Moda Week',
+            message: `New Sponsor Application: ${sponsor.companyName} - ${sponsor.contactName}`,
+            html: generateAdminNotificationEmail('sponsor', sponsor)
         });
 
         res.status(201).json({ success: true, message: 'Sponsor application submitted successfully', data: sponsor });
@@ -93,18 +100,20 @@ export const createServiceApplication = async (req, res) => {
         const service = new Service(req.body);
         await service.save();
 
-        // Send Email to User
+        // Send Beautiful Email to User
         await sendEmail({
             email: service.email,
-            subject: 'Service Inquiry Received - Moda Week International',
-            message: `Dear ${service.fullName},\n\nThank you for your interest in our services. We have received your inquiry and will contact you shortly.\n\nBest regards,\nModa Week International Team`
+            subject: '📋 Inquiry Received - Moda Week International',
+            message: `Dear ${service.fullName}, Thank you for your interest in our services. We have received your inquiry and will contact you shortly.`,
+            html: generateUserConfirmationEmail('service', service)
         });
 
-        // Send Email to Admin
+        // Send Notification Email to Admin
         await sendEmail({
             email: ADMIN_EMAIL,
-            subject: 'New Service Inquiry',
-            message: `New Service Inquiry Received:\n\nName: ${service.fullName}\nEmail: ${service.email}\nPhone: ${service.phoneNumber}\nCountry: ${service.country}`
+            subject: '🔔 New Service Inquiry - Moda Week',
+            message: `New Service Inquiry: ${service.fullName} - ${service.email}`,
+            html: generateAdminNotificationEmail('service', service)
         });
 
         res.status(201).json({ success: true, message: 'Service application submitted successfully', data: service });
