@@ -160,13 +160,13 @@ const FashionDesigners = () => {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-slate-800">Fashion Designers</h1>
+                <h1 className="text-2xl font-bold text-slate-800">Participants</h1>
                 <button
                     onClick={handleAddClick}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
                 >
                     <Plus size={20} />
-                    Add Designer
+                    Add Participant
                 </button>
             </div>
 
@@ -227,7 +227,7 @@ const FashionDesigners = () => {
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
                     <div className="bg-white rounded-2xl w-full max-w-lg flex flex-col max-h-[90vh]">
                         <div className="p-6 border-b border-slate-100 flex justify-between items-center shrink-0">
-                            <h2 className="text-xl font-bold text-slate-800">{isEditing ? 'Edit Designer' : 'Add New Designer'}</h2>
+                            <h2 className="text-xl font-bold text-slate-800">{isEditing ? 'Edit Participant' : 'Add New Participant'}</h2>
                             <button onClick={resetForm} className="text-slate-400 hover:text-slate-600">
                                 <X size={24} />
                             </button>
@@ -235,7 +235,7 @@ const FashionDesigners = () => {
 
                         <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Designer Name</label>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
                                 <input
                                     type="text"
                                     name="name"
@@ -364,7 +364,7 @@ const FashionDesigners = () => {
                                     disabled={submitting || (!isEditing && !formData.image)}
                                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                    {submitting ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save Changes' : 'Add Designer')}
+                                    {submitting ? (isEditing ? 'Saving...' : 'Adding...') : (isEditing ? 'Save Changes' : 'Add Participant')}
                                 </button>
                             </div>
                         </form>

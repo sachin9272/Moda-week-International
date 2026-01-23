@@ -43,6 +43,7 @@ export default function NewsRoom() {
     // Dynamic News State
     const [allNewsItems, setAllNewsItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [visibleCount, setVisibleCount] = useState(6);
 
     useEffect(() => {
         const fetchNews = async () => {
@@ -92,6 +93,13 @@ export default function NewsRoom() {
     const isAll = selectedCategory === "ALL POSTS";
     // Since Featured Section is removed, show ALL news in the list
     const filteredItems = isAll ? allNewsItems : allNewsItems.filter(item => item.category === selectedCategory);
+    const displayedItems = filteredItems.slice(0, visibleCount);
+    const hasMore = visibleCount < filteredItems.length;
+
+    // Reset visible count when category changes
+    useEffect(() => {
+        setVisibleCount(6);
+    }, [selectedCategory]);
 
     return (
         <div className="bg-white text-black min-h-screen font-sans selection:bg-[#C7913E] selection:text-white">
@@ -114,92 +122,7 @@ export default function NewsRoom() {
                 </div>
             </div>
 
-            {/* Categories Bar */}
-            <div className="bg-white py-4 w-full overflow-x-auto border-b border-gray-100">
-                <nav className="flex flex-nowrap md:flex-wrap justify-center gap-8 md:gap-16 text-xs font-bold tracking-[0.15em] uppercase min-w-max px-8">
-                    {CATEGORIES.map((item) => (
-                        <button
-                            key={item}
-                            onClick={() => setSelectedCategory(item)}
-                            className={`transition-all duration-300 relative group flex-shrink-0 ${selectedCategory === item ? "text-[#C7913E]" : "text-gray-500 hover:text-black"
-                                }`}
-                        >
-                            {item}
-                            {selectedCategory === item && (
-                                <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-[#C7913E]"></span>
-                            )}
-                        </button>
-                    ))}
-                </nav>
-            </div>
-
             <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-16">
-
-
-
-
-
-                {/* Latest News - Minimalist List & Grid */}
-                <section className="mb-24">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                        {/* Section Header */}
-                        <div className="lg:col-span-3">
-                            <h2 className="font-serif text-4xl font-normal leading-tight mb-6">
-                                {isAll ? "Latest Stories" : `${selectedCategory} Stories`}
-                            </h2>
-                            <div className="w-12 h-0.5 bg-black mb-6"></div>
-                            {isAll && (
-                                <p className="text-gray-500 text-sm leading-relaxed mb-8">
-                                    Curated updates from the world of high fashion, luxury lifestyle, and cultural shifts.
-                                </p>
-                            )}
-                            <button className="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-[#C7913E] hover:border-[#C7913E] transition-colors">
-                                View Archive
-                            </button>
-                        </div>
-
-                        {/* List */}
-                        <div className="lg:col-span-9 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-16">
-                            {filteredItems.length > 0 ? (
-                                filteredItems.map((item, idx) => (
-                                    <div
-                                        key={item._id}
-                                        className="group cursor-pointer"
-                                        onClick={() => navigate(`/news-room/${item._id}`)}
-                                    >
-                                        <div className="overflow-hidden mb-6 aspect-[16/10]">
-                                            <img
-                                                src={item.image?.url}
-                                                alt={item.title}
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
-                                            />
-                                        </div>
-                                        <div className="flex items-center gap-4 mb-3 border-t border-gray-200 pt-3">
-                                            <span className="text-[9px] font-bold text-[#C7913E] uppercase tracking-widest">
-                                                {item.category}
-                                            </span>
-                                            <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">
-                                                {new Date(item.date || item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                                            </span>
-                                        </div>
-                                        <h3 className="font-serif text-2xl font-medium leading-snug mb-3 group-hover:text-[#C7913E] transition-colors">
-                                            {item.title}
-                                        </h3>
-                                        {item.description && (
-                                            <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
-                                                {item.description}
-                                            </p>
-                                        )}
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="col-span-2 py-12 text-center text-gray-500">
-                                    No stories found in {selectedCategory}.
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                </section>
 
                 {/* Cinematic Live Section */}
                 <section className="mb-24 bg-[#050505] text-white p-1 md:p-8 lg:p-12 -mx-4 md:-mx-8 lg:rounded-sm">
@@ -251,6 +174,102 @@ export default function NewsRoom() {
                                     </div>
                                 ))}
                             </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Latest News - Minimalist List & Grid */}
+                <section className="mb-24">
+                    {/* Categories Bar */}
+                    <div className="bg-white py-4 w-full overflow-x-auto border-b border-gray-100 mb-12">
+                        <nav className="flex flex-nowrap md:flex-wrap justify-center gap-8 md:gap-16 text-xs font-bold tracking-[0.15em] uppercase min-w-max px-8">
+                            {CATEGORIES.map((item) => (
+                                <button
+                                    key={item}
+                                    onClick={() => setSelectedCategory(item)}
+                                    className={`transition-all duration-300 relative group flex-shrink-0 ${selectedCategory === item ? "text-[#C7913E]" : "text-gray-500 hover:text-black"
+                                        }`}
+                                >
+                                    {item}
+                                    {selectedCategory === item && (
+                                        <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-[#C7913E]"></span>
+                                    )}
+                                </button>
+                            ))}
+                        </nav>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                        {/* Section Header */}
+                        <div className="lg:col-span-3">
+                            <h2 className="font-serif text-4xl font-normal leading-tight mb-6">
+                                {isAll ? "Latest Stories" : `${selectedCategory} Stories`}
+                            </h2>
+                            <div className="w-12 h-0.5 bg-black mb-6"></div>
+                            {isAll && (
+                                <p className="text-gray-500 text-sm leading-relaxed mb-8">
+                                    Curated updates from the world of high fashion, luxury lifestyle, and cultural shifts.
+                                </p>
+                            )}
+                            <button className="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-[#C7913E] hover:border-[#C7913E] transition-colors">
+                                View Archive
+                            </button>
+                        </div>
+
+                        {/* List */}
+                        <div className="lg:col-span-9">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-16">
+                                {loading ? (
+                                    <div className="col-span-2 py-20 text-center text-gray-500">Loading news...</div>
+                                ) : displayedItems.length > 0 ? (
+                                    displayedItems.map((item, idx) => (
+                                        <div
+                                            key={item._id}
+                                            className="group cursor-pointer"
+                                            onClick={() => navigate(`/news-room/${item._id}`)}
+                                        >
+                                            <div className="overflow-hidden mb-6 aspect-[16/10]">
+                                                <img
+                                                    src={item.image?.url}
+                                                    alt={item.title}
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
+                                                />
+                                            </div>
+                                            <div className="flex items-center gap-4 mb-3 border-t border-gray-200 pt-3">
+                                                <span className="text-[9px] font-bold text-[#C7913E] uppercase tracking-widest">
+                                                    {item.category}
+                                                </span>
+                                                <span className="text-[9px] font-medium text-gray-400 uppercase tracking-widest">
+                                                    {new Date(item.date || item.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                </span>
+                                            </div>
+                                            <h3 className="font-serif text-2xl font-medium leading-snug mb-3 group-hover:text-[#C7913E] transition-colors">
+                                                {item.title}
+                                            </h3>
+                                            {item.description && (
+                                                <p className="text-gray-500 text-sm leading-relaxed line-clamp-2">
+                                                    {item.description}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-2 py-12 text-center text-gray-500">
+                                        No stories found in {selectedCategory}.
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Load More Button */}
+                            {!loading && hasMore && (
+                                <div className="flex justify-center mt-12">
+                                    <button
+                                        onClick={() => setVisibleCount(prev => prev + 6)}
+                                        className="bg-black text-white px-8 py-3 text-sm tracking-widest hover:bg-[#C7913E] transition-colors duration-300 uppercase"
+                                    >
+                                        Load More
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </section>
