@@ -17,7 +17,7 @@ const AdminLayout = () => {
         if (path.includes('/applications')) return 'Applications';
         if (path.includes('/news')) return 'News Management';
         if (path.includes('/landing-videos')) return 'Landing Videos';
-        if (path.includes('/fashion-designers')) return 'Fashion Designers';
+        if (path.includes('/fashion-designers')) return 'Participants';
         if (path.includes('/partners')) return 'Partners';
         if (path.includes('/service-content')) return 'Service Content';
         if (path.includes('/legal-pages')) return 'Legal Pages';
