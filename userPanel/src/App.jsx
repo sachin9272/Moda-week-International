@@ -6,8 +6,7 @@ import About from './pages/about/About.jsx';
 import FashioEvents from './pages/fashionEvents/FashionEvents.jsx'
 import Service from "./pages/services/Service.jsx";
 import Pricing from "./components/Pricing.jsx"
-import FashionDesigners from "./pages/fashionDesigners/FashionDesigners.jsx";
-import Performance from "./pages/performance/Performance.jsx";
+import Participants from "./pages/participants/Participants.jsx";
 import PastEvents from "./pages/pastEvents/PastEvents.jsx";
 import NewsRoom from "./pages/newsRoom/NewsRoom.jsx";
 import NewsDetail from "./pages/newsRoom/NewsDetail.jsx";
@@ -40,8 +39,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/events" element={<FashioEvents />} />
         <Route path="/service" element={<Service />} />
-        <Route path="/fashion-designers" element={<FashionDesigners />} />
-        <Route path="/performance" element={<Performance />} />
+        <Route path="/participants" element={<Participants />} />
         <Route path="/past-events" element={<PastEvents />} />
         <Route path="/news-room" element={<NewsRoom />} />
         <Route path="/news-room/:id" element={<NewsDetail />} />

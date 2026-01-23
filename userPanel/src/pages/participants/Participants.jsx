@@ -2,32 +2,28 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { Search } from "lucide-react";
-
-// Placeholder images - using available assets where possible or placeholders
-// Placeholder images - using available assets where possible or placeholders
-
-// Using a mix of imported and placeholder images for the grid
 import axios from "axios";
 import { baseURL } from "../../config/api";
 
-export default function FashionDesigners() {
-    const [activeCategory, setActiveCategory] = useState("Designer"); // 'Designer' or 'Student'
+export default function Participants() {
+    const [activeCategory, setActiveCategory] = useState("Designer");
     const [activeFilter, setActiveFilter] = useState("All");
-    const [designers, setDesigners] = useState([]);
+    const [participants, setParticipants] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
-
     const [error, setError] = useState(null);
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [availableCountries, setAvailableCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [events, setEvents] = useState([]);
     const [selectedEventId, setSelectedEventId] = useState(null);
-
     const [activeModal, setActiveModal] = useState(null);
+
+    // Categories for the tabs
+    const categories = ["Designer", "Student", "Dancer", "Fine Artist"];
 
     // Fetch available countries and events
     useEffect(() => {
@@ -35,7 +31,7 @@ export default function FashionDesigners() {
             try {
                 const [countriesRes, eventsRes] = await Promise.all([
                     axios.get(`${baseURL}/api/fashion-designers/countries`),
-                    axios.get(`${baseURL}/api/events/all`) // Ensure this endpoint exists
+                    axios.get(`${baseURL}/api/events/all`)
                 ]);
                 setAvailableCountries(countriesRes.data);
                 setEvents(eventsRes.data);
@@ -55,58 +51,40 @@ export default function FashionDesigners() {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    const fetchDesigners = async (pageNum = 1, search = "", country = "") => {
+    const fetchParticipants = async (pageNum = 1, search = "", country = "") => {
         try {
             if (pageNum === 1) setLoading(true);
             else setLoadingMore(true);
 
-            console.log(`Fetching designers page: ${pageNum}, search: "${search}", country: "${country}", category: "${activeCategory}"`);
-            // We need to pass category to backend. Note: Backend currently doesn't implement 'category' filter in `getDesigners` list API.
-            // Assuming we will rely on client side filtering FOR NOW if the list is small enough, OR we need to update backend to filter.
-            // BUT since this is paginated, client side filtering is buggy (page 1 might have 0 students).
-            // So we MUST pass category to backend. I will add `category=${activeCategory}` query param.
-            // I need to update backend controller to handle this param.
+            console.log(`Fetching participants page: ${pageNum}, search: "${search}", country: "${country}", category: "${activeCategory}"`);
+
             const response = await axios.get(`${baseURL}/api/fashion-designers?page=${pageNum}&limit=12&search=${encodeURIComponent(search)}&country=${encodeURIComponent(country)}&category=${encodeURIComponent(activeCategory)}`);
 
-            console.log("Full Response Data:", response.data);
-            const { designers: newDesigners, totalPages } = response.data;
-
-            if (!Array.isArray(newDesigners)) {
-                console.error("newDesigners is not an array:", newDesigners);
-                setLoading(false);
-                return;
-            }
+            const { designers: newParticipants, totalPages } = response.data;
 
             if (pageNum === 1) {
-                setDesigners(newDesigners);
+                setParticipants(newParticipants || []);
             } else {
-                setDesigners(prev => [...prev, ...newDesigners]);
+                setParticipants(prev => [...prev, ...(newParticipants || [])]);
             }
 
             setHasMore(pageNum < totalPages);
             setLoading(false);
             setLoadingMore(false);
         } catch (error) {
-            console.error("Error fetching designers:", error);
+            console.error("Error fetching participants:", error);
             setError(error.message);
             setLoading(false);
             setLoadingMore(false);
         }
     };
 
-    // Filter designers locally based on activeCategory
-    const filteredDesigners = designers.filter(designer => {
-        const designerCategory = designer.category || 'Designer'; // Default to Designer
-        return designerCategory === activeCategory;
-    });
-
-    const fetchEventDesigners = async (eventId) => {
+    const fetchEventParticipants = async (eventId) => {
         setLoading(true);
         try {
             const response = await axios.get(`${baseURL}/api/events/${eventId}`);
             const event = response.data;
 
-            // Extract unique designer IDs
             const designerIds = new Set();
             if (event.collections) {
                 event.collections.forEach(col => {
@@ -117,31 +95,27 @@ export default function FashionDesigners() {
             }
 
             if (designerIds.size === 0) {
-                setDesigners([]);
+                setParticipants([]);
                 setLoading(false);
                 return;
             }
 
-            // Fetch full details for each designer
-            const designerPromises = Array.from(designerIds).map(id =>
+            const participantPromises = Array.from(designerIds).map(id =>
                 axios.get(`${baseURL}/api/fashion-designers/${id}`)
                     .then(res => res.data)
-                    .catch(err => {
-                        console.error(`Failed to fetch designer ${id}:`, err);
-                        return null;
-                    })
+                    .catch(err => null)
             );
 
-            const fetchedDesigners = await Promise.all(designerPromises);
+            const fetchedParticipants = await Promise.all(participantPromises);
 
-            // Filter out nulls (failed fetches)
-            const validDesigners = fetchedDesigners.filter(d => d !== null);
+            // Filter by active category
+            const validParticipants = fetchedParticipants.filter(p => p !== null && p.category === activeCategory);
 
-            setDesigners(validDesigners);
+            setParticipants(validParticipants);
             setHasMore(false);
         } catch (err) {
-            console.error("Error fetching event designers:", err);
-            setError("Failed to load event designers");
+            console.error("Error fetching event participants:", err);
+            setError("Failed to load event participants");
         } finally {
             setLoading(false);
         }
@@ -150,16 +124,18 @@ export default function FashionDesigners() {
     // Fetch when debounced search or activeCategory changes
     useEffect(() => {
         setPage(1);
-        // Keep selected country if active filter is Country, otherwise reset
         const country = activeFilter === "Country" ? selectedCountry : "";
-        // Reset list when category changes to clear mixed results
-        setDesigners([]);
-        fetchDesigners(1, debouncedSearch, country || "");
+        setParticipants([]);
+
+        if (activeFilter === "Event" && selectedEventId) {
+            fetchEventParticipants(selectedEventId);
+        } else {
+            fetchParticipants(1, debouncedSearch, country || "");
+        }
     }, [debouncedSearch, activeCategory]);
 
     const handleCategoryChange = (category) => {
         setActiveCategory(category);
-        // Effects will trigger fetch
     };
 
     const handleFilterChange = (filter) => {
@@ -169,7 +145,7 @@ export default function FashionDesigners() {
             setSelectedCountry(null);
             setSelectedEventId(null);
             setPage(1);
-            fetchDesigners(1, debouncedSearch, "");
+            fetchParticipants(1, debouncedSearch, "");
         } else if (filter === "Country") {
             setActiveModal("Country");
         } else if (filter === "Event") {
@@ -182,7 +158,7 @@ export default function FashionDesigners() {
         setActiveFilter("Country");
         setActiveModal(null);
         setPage(1);
-        fetchDesigners(1, debouncedSearch, country);
+        fetchParticipants(1, debouncedSearch, country);
     };
 
     const handleEventSelect = (eventId) => {
@@ -190,14 +166,25 @@ export default function FashionDesigners() {
         setActiveFilter("Event");
         setActiveModal(null);
         setPage(1);
-        fetchEventDesigners(eventId);
+        fetchEventParticipants(eventId);
     };
 
     const handleLoadMore = () => {
         const nextPage = page + 1;
         setPage(nextPage);
         const country = activeFilter === "Country" ? selectedCountry : "";
-        fetchDesigners(nextPage, debouncedSearch, country || "");
+        fetchParticipants(nextPage, debouncedSearch, country || "");
+    };
+
+    // Get display label for category
+    const getCategoryLabel = (category) => {
+        switch (category) {
+            case "Designer": return "Designers";
+            case "Student": return "Student Designers";
+            case "Dancer": return "Performance";
+            case "Fine Artist": return "Fine Artist";
+            default: return category;
+        }
     };
 
     return (
@@ -209,12 +196,12 @@ export default function FashionDesigners() {
                 <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-16 items-center px-6 md:px-16">
                     <div className="flex flex-col gap-2 text-center md:text-left mt-14 md:mt-0">
                         <h2 className="text-3xl md:text-[44px] font-bold grad-text leading-tight uppercase">
-                            MEET THE VISIONARY <br /> FASHION DESIGNERS
+                            MEET THE VISIONARY <br /> FASHION DESIGNERS & PARTICIPANTS
                         </h2>
                     </div>
                     <div>
                         <p className="text-[14px] md:text-[18px] text-black leading-7 text-start md:text-justify mt-6 md:mt-10">
-                            Members of Moda Week International’s platform, our fashion designers play a vital role for the future of the fashion industry. Their contributions extend beyond showcasing their talents and business acumen. Their commitment is entrusted with the responsibility and influencing the strategic direction that will define the industry.
+                            Members of Moda Week International's platform showcase extraordinary talent across fashion design, performance arts, and fine arts. Their contributions extend beyond showcasing their talents—they influence the strategic direction that will define the industry's future.
                         </p>
                     </div>
                 </div>
@@ -224,25 +211,19 @@ export default function FashionDesigners() {
             <div className="container mx-auto px-6 py-12">
                 {/* Category Tabs */}
                 <div className="flex justify-center mb-12">
-                    <div className="flex bg-gray-100 p-1 rounded-full">
-                        <button
-                            onClick={() => handleCategoryChange("Designer")}
-                            className={`px-8 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeCategory === "Designer"
-                                ? "bg-black text-white shadow-lg"
-                                : "text-gray-500 hover:text-black"
-                                }`}
-                        >
-                            Designers
-                        </button>
-                        <button
-                            onClick={() => handleCategoryChange("Student")}
-                            className={`px-8 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeCategory === "Student"
-                                ? "bg-black text-white shadow-lg"
-                                : "text-gray-500 hover:text-black"
-                                }`}
-                        >
-                            Student Designers
-                        </button>
+                    <div className="flex bg-gray-100 p-1 rounded-full flex-wrap justify-center gap-1">
+                        {categories.map((category) => (
+                            <button
+                                key={category}
+                                onClick={() => handleCategoryChange(category)}
+                                className={`px-4 md:px-8 py-3 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeCategory === category
+                                    ? "bg-black text-white shadow-lg"
+                                    : "text-gray-500 hover:text-black"
+                                    }`}
+                            >
+                                {getCategoryLabel(category)}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
@@ -335,28 +316,35 @@ export default function FashionDesigners() {
                                 )}
                             </div>
                         </div>
-
+                        <div className="p-4 border-t bg-gray-50 flex justify-end">
+                            <button
+                                onClick={() => setActiveModal(null)}
+                                className="text-sm text-gray-500 hover:text-black underline transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
 
-            {/* Designers Grid */}
+            {/* Participants Grid */}
             <div className="container mx-auto px-6 pb-20">
                 {loading ? (
-                    <div className="text-center py-20 text-gray-500">Loading designers...</div>
+                    <div className="text-center py-20 text-gray-500">Loading participants...</div>
                 ) : error ? (
                     <div className="text-center py-20 text-red-500">Error: {error}</div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 md:grid-cols-3 gap-6">
-                        {filteredDesigners.map((designer, idx) => (
+                        {participants.map((participant, idx) => (
                             <div
                                 key={idx}
                                 className="group relative h-[300px] md:h-[400px] overflow-hidden cursor-default"
                             >
                                 <div className="w-full h-full">
                                     <img
-                                        src={designer.image?.url || designer.image}
-                                        alt={designer.name}
+                                        src={participant.image?.url || participant.image}
+                                        alt={participant.name}
                                         className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
@@ -364,32 +352,36 @@ export default function FashionDesigners() {
                                     <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-center items-center gap-3 bg-black/60 backdrop-blur-xs h-auto min-h-[4rem] transition-all duration-300">
                                         <div className="flex items-center gap-2 flex-wrap justify-center">
                                             <h3 className="text-white text-sm font-bold tracking-widest uppercase text-center">
-                                                {designer.name}
+                                                {participant.name}
                                             </h3>
-                                            {designer.countryCode && (
+                                            {participant.countryCode && (
                                                 <img
-                                                    src={`https://flagcdn.com/w20/${designer.countryCode.toLowerCase()}.png`}
-                                                    alt={designer.country}
+                                                    src={`https://flagcdn.com/w20/${participant.countryCode.toLowerCase()}.png`}
+                                                    alt={participant.country}
                                                     className="w-6 h-auto"
                                                 />
                                             )}
-                                            {designer.instagram && (
+                                        </div>
+
+                                        {/* Social Icons */}
+                                        <div className="flex items-center gap-4 mt-1">
+                                            {participant.instagram && (
                                                 <a
-                                                    href={designer.instagram}
+                                                    href={participant.instagram}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-white hover:text-[#C7913E] transition-colors ml-2"
+                                                    className="text-white hover:text-[#C7913E] transition-colors"
                                                     title="Instagram"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                                                 </a>
                                             )}
-                                            {designer.website && (
+                                            {participant.website && (
                                                 <a
-                                                    href={designer.website}
+                                                    href={participant.website}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-white hover:text-[#C7913E] transition-colors ml-1"
+                                                    className="text-white hover:text-[#C7913E] transition-colors"
                                                     title="Website"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
@@ -417,6 +409,6 @@ export default function FashionDesigners() {
                 )}
             </div>
             <Footer />
-        </div >
+        </div>
     );
 }
