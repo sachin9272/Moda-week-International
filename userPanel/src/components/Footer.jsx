@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import footerBg from "../assets/footer.png";
 import logo from "../assets/glodenlogo.png";
+import video1 from "../assets/video1.mp4";
 import { Link } from "react-router-dom";
 
 import axios from "axios";
@@ -113,7 +114,14 @@ export default function Footer() {
               {/* About Section */}
               <div className="w-full lg:w-1/5 lg:ml-5">
                 <div className="mb-6">
-                  <img src={logo} alt="" />
+                  <video
+                    src={video1}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="h-30 w-auto object-contain"
+                  />
                 </div>
                 <p className="text-gray-400 mb-6 leading-relaxed max-w-4xl">
                   MWINTL. We specialize in international fashion show
