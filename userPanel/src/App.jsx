@@ -10,6 +10,7 @@ import Participants from "./pages/participants/Participants.jsx";
 import PastEvents from "./pages/pastEvents/PastEvents.jsx";
 import NewsRoom from "./pages/newsRoom/NewsRoom.jsx";
 import NewsDetail from "./pages/newsRoom/NewsDetail.jsx";
+import SubmitNews from "./pages/newsRoom/SubmitNews.jsx";
 import EventDetail from "./pages/EventDetail.jsx";
 import MembershipProgram from "./pages/MembershipProgram.jsx";
 import TermsConditions from "./pages/TermsConditions.jsx";
@@ -42,6 +43,7 @@ function App() {
         <Route path="/participants" element={<Participants />} />
         <Route path="/past-events" element={<PastEvents />} />
         <Route path="/news-room" element={<NewsRoom />} />
+        <Route path="/news-room/submit" element={<SubmitNews />} />
         <Route path="/news-room/:id" element={<NewsDetail />} />
         <Route path="/event-details" element={<EventDetail />} />
         <Route path="/event-details/:slug" element={<EventDetail />} />

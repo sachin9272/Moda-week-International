@@ -213,6 +213,14 @@ export default function NewsRoom() {
                             <button className="text-xs font-bold uppercase tracking-widest border-b border-black pb-1 hover:text-[#C7913E] hover:border-[#C7913E] transition-colors">
                                 View Archive
                             </button>
+
+                            {/* Submit Editorial Button */}
+                            <button
+                                onClick={() => navigate('/news-room/submit')}
+                                className="mt-6 block w-full bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white text-xs font-bold uppercase tracking-widest px-6 py-3 hover:opacity-90 transition-opacity"
+                            >
+                                Submit Your Editorial
+                            </button>
                         </div>
 
                         {/* List */}
