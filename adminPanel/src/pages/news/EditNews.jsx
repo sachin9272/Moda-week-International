@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Upload, X } from 'lucide-react';
+import { ArrowLeft, Upload, X, Loader, Save, FileText, Layout, Eye } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { baseURL } from '../../config/api';
@@ -52,7 +52,7 @@ const EditNews = () => {
 
         try {
             await axios.put(`${baseURL}/api/admin/news/update/${id}`, formData);
-            toast.success("News updated successfully");
+            toast.success("News article updated successfully");
             navigate('/news');
         } catch (error) {
             console.error(error);
@@ -89,138 +89,183 @@ const EditNews = () => {
     };
 
     if (loading) return (
-        <div className="p-6 min-h-screen text-black flex items-center justify-center">
-            <p className="text-xl">Loading...</p>
+        <div className="flex items-center justify-center h-64">
+            <Loader className="w-10 h-10 text-[#C7913E] animate-spin" />
         </div>
     );
 
     return (
-        <div className="p-6 min-h-screen text-black">
-            <div className="flex items-center gap-4 mb-6">
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="p-2.5 bg-[#1a1a1a] hover:bg-[#252525] rounded-xl border border-[#2a2a2a] text-neutral-400 hover:text-white transition-all shadow-sm"
+                        title="Go Back"
+                    >
+                        <ArrowLeft size={20} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-bold text-white uppercase tracking-tight">Edit News</h1>
+                        <p className="text-neutral-500 mt-1">Refine and update your article details</p>
+                    </div>
+                </div>
                 <button
-                    onClick={() => navigate(-1)}
-                    className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-                    title="Go Back"
+                    onClick={() => navigate(`/news/preview/${id}`)}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-[#1a1a1a] border border-[#2a2a2a] text-neutral-300 hover:text-white rounded-xl font-medium transition-all"
                 >
-                    <ArrowLeft className="w-6 h-6" />
+                    <Eye size={18} />
+                    Preview Changes
                 </button>
-                <h1 className="text-3xl font-bold">Edit Article</h1>
             </div>
 
-            <form onSubmit={handleSubmit} className="max-w-4xl space-y-8">
-                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h2 className="text-xl font-bold mb-4 text-blue-400">Basic Information</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div>
-                            <label className="block text-gray-400 mb-1">Title</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                                value={currentNews.title}
-                                onChange={(e) => setCurrentNews({ ...currentNews, title: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400 mb-1">Category</label>
-                            <select
-                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                                value={currentNews.category || 'FASHION'}
-                                onChange={(e) => setCurrentNews({ ...currentNews, category: e.target.value })}
-                            >
-                                {CATEGORIES.map(cat => (
-                                    <option key={cat} value={cat}>{cat}</option>
-                                ))}
-                            </select>
-                        </div>
+            <form onSubmit={handleSubmit} className="max-w-5xl space-y-6 pb-12">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left Column - Main Content */}
+                    <div className="lg:col-span-2 space-y-6">
+                        <div className="bg-[#1a1a1a] p-6 rounded-2xl border border-[#2a2a2a] shadow-xl">
+                            <div className="flex items-center gap-2 mb-6 text-[#C7913E]">
+                                <FileText size={20} />
+                                <h2 className="text-lg font-bold uppercase tracking-wider">Article Content</h2>
+                            </div>
 
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <div>
-                            <label className="block text-gray-400 mb-1">Author Name</label>
-                            <input
-                                type="text"
-                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                                value={currentNews.author || ''}
-                                onChange={(e) => setCurrentNews({ ...currentNews, author: e.target.value })}
-                                placeholder="e.g. Admin or Editor Name"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400 mb-1">Post Date</label>
-                            <input
-                                type="date"
-                                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-                                value={currentNews.date || ''}
-                                onChange={(e) => setCurrentNews({ ...currentNews, date: e.target.value })}
-                            />
-                        </div>
-                    </div>
-
-                    <label className="block text-gray-400 mb-1">Content</label>
-                    <div className="bg-white text-black rounded-lg overflow-hidden [&_.ql-toolbar]:!bg-gray-100 [&_.ql-container]:!bg-white [&_.ql-editor]:!min-h-[300px] [&_.ql-editor]:!text-base">
-                        <ReactQuill
-                            theme="snow"
-                            value={currentNews.content}
-                            onChange={(content) => setCurrentNews({ ...currentNews, content })}
-                            className="h-64 mb-12"
-                        />
-                    </div>
-
-                    <div className="mt-8">
-                        <label className="block text-gray-400 mb-2">Cover Image</label>
-                        <div
-                            className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : ((currentNews.image && (currentNews.image.url || currentNews.image instanceof File)) ? 'border-blue-500 bg-gray-900' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50')}`}
-                            onDragOver={handleDragOver}
-                            onDragLeave={handleDragLeave}
-                            onDrop={handleDrop}
-                        >
-                            {(currentNews.image && (currentNews.image.url || currentNews.image instanceof File)) ? (
-                                <div className="relative w-full">
-                                    <img
-                                        src={currentNews.image instanceof File ? URL.createObjectURL(currentNews.image) : currentNews.image.url}
-                                        alt="Preview"
-                                        className="max-h-64 w-auto mx-auto rounded shadow-lg"
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() => setCurrentNews({ ...currentNews, image: null })}
-                                        className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
-                                    >
-                                        <X size={16} />
-                                    </button>
-                                    <p className="mt-2 text-sm text-gray-400">
-                                        {currentNews.image instanceof File ? currentNews.image.name : 'Current Image'}
-                                    </p>
-                                </div>
-                            ) : (
-                                <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
-                                    <Upload className="w-10 h-10 text-gray-400 mb-3" />
-                                    <span className="text-blue-400 font-medium hover:underline">Click to upload</span>
-                                    <span className="text-gray-500 text-sm mt-1">or drag and drop</span>
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-400 mb-2">Article Title</label>
                                     <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
-                                        className="hidden"
+                                        type="text"
+                                        className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl focus:outline-none focus:border-[#C7913E] text-white placeholder-neutral-600 transition-colors"
+                                        placeholder="Enter article title..."
+                                        value={currentNews.title}
+                                        onChange={(e) => setCurrentNews({ ...currentNews, title: e.target.value })}
+                                        required
                                     />
-                                </label>
-                            )}
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-400 mb-2">Content Editor</label>
+                                    <div className="bg-white rounded-xl overflow-hidden quill-custom-container">
+                                        <ReactQuill
+                                            theme="snow"
+                                            value={currentNews.content}
+                                            onChange={(content) => setCurrentNews({ ...currentNews, content })}
+                                            className="h-80 mb-12"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="pt-4">
-                    <button
-                        type="submit"
-                        disabled={saving}
-                        className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition shadow-md disabled:bg-blue-400"
-                    >
-                        {saving ? 'Saving...' : 'Save Changes'}
-                    </button>
+                    {/* Right Column - Settings & Media */}
+                    <div className="space-y-6">
+                        <div className="bg-[#1a1a1a] p-6 rounded-2xl border border-[#2a2a2a] shadow-xl">
+                            <div className="flex items-center gap-2 mb-6 text-[#C7913E]">
+                                <Layout size={20} />
+                                <h2 className="text-lg font-bold uppercase tracking-wider">Publishing Info</h2>
+                            </div>
+
+                            <div className="space-y-5">
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-400 mb-2">Category</label>
+                                    <select
+                                        className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl focus:outline-none focus:border-[#C7913E] text-white transition-colors appearance-none"
+                                        value={currentNews.category || 'FASHION'}
+                                        onChange={(e) => setCurrentNews({ ...currentNews, category: e.target.value })}
+                                    >
+                                        {CATEGORIES.map(cat => (
+                                            <option key={cat} value={cat}>{cat}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-400 mb-2">Author</label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl focus:outline-none focus:border-[#C7913E] text-white placeholder-neutral-600 transition-colors"
+                                        value={currentNews.author || ''}
+                                        onChange={(e) => setCurrentNews({ ...currentNews, author: e.target.value })}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-400 mb-2">Article Date</label>
+                                    <input
+                                        type="date"
+                                        className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl focus:outline-none focus:border-[#C7913E] text-white transition-colors"
+                                        value={currentNews.date || ''}
+                                        onChange={(e) => setCurrentNews({ ...currentNews, date: e.target.value })}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-[#1a1a1a] p-6 rounded-2xl border border-[#2a2a2a] shadow-xl">
+                            <label className="block text-sm font-bold text-[#C7913E] uppercase tracking-wider mb-4">Cover Image</label>
+                            <div
+                                className={`border-2 border-dashed rounded-2xl p-4 flex flex-col items-center justify-center text-center transition-all min-h-[200px] ${isDragging ? 'border-[#C7913E] bg-[#C7913E]/5' : ((currentNews.image && (currentNews.image.url || currentNews.image instanceof File)) ? 'border-[#C7913E]/40 bg-[#0f0f0f]' : 'border-[#2a2a2a] hover:border-[#C7913E]/40 hover:bg-[#C7913E]/5')}`}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={handleDrop}
+                            >
+                                {(currentNews.image && (currentNews.image.url || currentNews.image instanceof File)) ? (
+                                    <div className="relative w-full group">
+                                        <img
+                                            src={currentNews.image instanceof File ? URL.createObjectURL(currentNews.image) : currentNews.image.url}
+                                            alt="Preview"
+                                            className="w-full h-40 object-cover rounded-xl shadow-lg border border-[#2a2a2a]"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setCurrentNews({ ...currentNews, image: null })}
+                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-lg p-2 shadow-xl transition-all border border-white/10"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                        <p className="mt-2 text-[10px] text-neutral-500 truncate px-2">
+                                            {currentNews.image instanceof File ? currentNews.image.name : 'Current Article Cover'}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-6">
+                                        <div className="w-12 h-12 rounded-2xl bg-[#C7913E]/10 flex items-center justify-center text-[#C7913E] mb-4">
+                                            <Upload className="w-6 h-6" />
+                                        </div>
+                                        <span className="text-[#C7913E] text-sm font-bold block mb-1">Update Image</span>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                )}
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={saving}
+                            className="w-full bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white font-bold py-4 rounded-2xl hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20 flex items-center justify-center gap-2 group disabled:opacity-50"
+                        >
+                            {saving ? (
+                                <Loader size={20} className="animate-spin" />
+                            ) : (
+                                <Save size={20} className="group-hover:-translate-y-0.5 transition-transform" />
+                            )}
+                            {saving ? 'Saving...' : 'Save Changes'}
+                        </button>
+                    </div>
                 </div>
             </form>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .quill-custom-container .ql-toolbar { border: none !important; background: #f8f9fa !important; border-bottom: 1px solid #e9ecef !important; padding: 12px !important; }
+                .quill-custom-container .ql-container { border: none !important; font-family: inherit !important; }
+                .quill-custom-container .ql-editor { font-size: 16px !important; line-height: 1.6 !important; min-height: 250px !important; }
+            ` }} />
         </div>
     );
 };

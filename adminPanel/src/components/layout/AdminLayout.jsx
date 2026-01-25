@@ -99,28 +99,28 @@ const AdminLayout = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100">
+        <div className="min-h-screen bg-[#0f0f0f]">
             <Sidebar />
 
             {/* Main Content - adjusts based on sidebar state */}
             <div className="ml-64 transition-all duration-300 peer-checked:ml-20">
-                {/* Enhanced Header */}
-                <header className="h-16 bg-white/80 backdrop-blur-md shadow-sm flex items-center justify-between px-8 sticky top-0 z-40 border-b border-slate-100">
+                {/* Enhanced Header - Dark Theme */}
+                <header className="h-16 bg-black/80 backdrop-blur-md shadow-lg flex items-center justify-between px-8 sticky top-0 z-40 border-b border-[#2a2a2a]">
                     <div className="flex items-center gap-4">
                         <div>
-                            <h2 className="text-lg font-semibold text-slate-800">{getPageTitle()}</h2>
-                            <p className="text-xs text-slate-400">Welcome back, Admin</p>
+                            <h2 className="text-lg font-semibold text-white">{getPageTitle()}</h2>
+                            <p className="text-xs text-neutral-500">Welcome back, Admin</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                         {/* Search Bar */}
                         <div className="relative hidden md:block">
-                            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500" />
                             <input
                                 type="text"
                                 placeholder="Search..."
-                                className="pl-10 pr-4 py-2 w-64 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 transition-all"
+                                className="pl-10 pr-4 py-2 w-64 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-[#C7913E] focus:ring-2 focus:ring-[#C7913E]/20 transition-all"
                             />
                         </div>
 
@@ -128,11 +128,11 @@ const AdminLayout = () => {
                         <div className="relative" ref={notificationRef}>
                             <button
                                 onClick={() => setShowNotifications(!showNotifications)}
-                                className="relative p-2 rounded-xl hover:bg-slate-100 transition-colors"
+                                className="relative p-2 rounded-xl hover:bg-[#1a1a1a] transition-colors"
                             >
-                                <Bell size={20} className="text-slate-600" />
+                                <Bell size={20} className="text-neutral-400" />
                                 {unreadCount > 0 && (
-                                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
+                                    <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1.5 bg-[#C7913E] text-white text-xs font-bold rounded-full flex items-center justify-center animate-pulse">
                                         {unreadCount > 9 ? '9+' : unreadCount}
                                     </span>
                                 )}
@@ -140,13 +140,13 @@ const AdminLayout = () => {
 
                             {/* Notification Dropdown */}
                             {showNotifications && (
-                                <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-100 overflow-hidden animate-fadeIn z-50">
-                                    <div className="flex items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-100">
-                                        <h3 className="font-semibold text-slate-800">Notifications</h3>
+                                <div className="absolute right-0 top-full mt-2 w-80 bg-[#1a1a1a] rounded-xl shadow-xl border border-[#2a2a2a] overflow-hidden animate-fadeIn z-50">
+                                    <div className="flex items-center justify-between px-4 py-3 bg-[#0f0f0f] border-b border-[#2a2a2a]">
+                                        <h3 className="font-semibold text-white">Notifications</h3>
                                         {unreadCount > 0 && (
                                             <button
                                                 onClick={handleMarkAllRead}
-                                                className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+                                                className="text-xs text-[#C7913E] hover:text-[#D4A558] font-medium flex items-center gap-1"
                                             >
                                                 <Check size={14} />
                                                 Mark all read
@@ -156,7 +156,7 @@ const AdminLayout = () => {
 
                                     <div className="max-h-80 overflow-y-auto">
                                         {notifications.length === 0 ? (
-                                            <div className="px-4 py-8 text-center text-slate-400 text-sm">
+                                            <div className="px-4 py-8 text-center text-neutral-500 text-sm">
                                                 No notifications yet
                                             </div>
                                         ) : (
@@ -164,17 +164,17 @@ const AdminLayout = () => {
                                                 <div
                                                     key={notification._id}
                                                     onClick={() => handleNotificationClick(notification)}
-                                                    className={`px-4 py-3 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${!notification.isRead ? 'bg-indigo-50/50' : ''
+                                                    className={`px-4 py-3 border-b border-[#2a2a2a] cursor-pointer hover:bg-[#252525] transition-colors ${!notification.isRead ? 'bg-[#C7913E]/10' : ''
                                                         }`}
                                                 >
                                                     <div className="flex items-start gap-3">
-                                                        <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${!notification.isRead ? 'bg-indigo-500' : 'bg-slate-300'
+                                                        <div className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${!notification.isRead ? 'bg-[#C7913E]' : 'bg-neutral-600'
                                                             }`} />
                                                         <div className="flex-1 min-w-0">
-                                                            <p className={`text-sm ${!notification.isRead ? 'font-semibold text-slate-800' : 'text-slate-600'}`}>
+                                                            <p className={`text-sm ${!notification.isRead ? 'font-semibold text-white' : 'text-neutral-400'}`}>
                                                                 {notification.message}
                                                             </p>
-                                                            <p className="text-xs text-slate-400 mt-1">
+                                                            <p className="text-xs text-neutral-600 mt-1">
                                                                 {timeAgo(notification.createdAt)}
                                                             </p>
                                                         </div>
@@ -191,25 +191,25 @@ const AdminLayout = () => {
                         <div className="relative">
                             <button
                                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                                className="flex items-center gap-3 p-1.5 pr-3 rounded-xl hover:bg-slate-100 transition-colors"
+                                className="flex items-center gap-3 p-1.5 pr-3 rounded-xl hover:bg-[#1a1a1a] transition-colors"
                             >
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-indigo-500/20">
+                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#8C5D25] to-[#C7913E] flex items-center justify-center text-white font-semibold text-sm shadow-lg shadow-[#C7913E]/20">
                                     A
                                 </div>
-                                <span className="font-medium text-sm text-slate-700 hidden sm:block">Admin</span>
-                                <ChevronDown size={16} className={`text-slate-400 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
+                                <span className="font-medium text-sm text-white hidden sm:block">Admin</span>
+                                <ChevronDown size={16} className={`text-neutral-400 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
                             </button>
 
                             {showProfileMenu && (
-                                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-2 animate-fadeIn">
-                                    <button className="w-full px-4 py-2 text-left text-sm text-slate-600 hover:bg-slate-50 flex items-center gap-2">
+                                <div className="absolute right-0 top-full mt-2 w-48 bg-[#1a1a1a] rounded-xl shadow-xl border border-[#2a2a2a] py-2 animate-fadeIn">
+                                    <button className="w-full px-4 py-2 text-left text-sm text-neutral-300 hover:bg-[#252525] flex items-center gap-2">
                                         <User size={16} />
                                         Profile Settings
                                     </button>
-                                    <hr className="my-2 border-slate-100" />
+                                    <hr className="my-2 border-[#2a2a2a]" />
                                     <button
                                         onClick={logout}
-                                        className="w-full px-4 py-2 text-left text-sm text-red-500 hover:bg-red-50 flex items-center gap-2"
+                                        className="w-full px-4 py-2 text-left text-sm text-red-400 hover:bg-red-500/10 flex items-center gap-2"
                                     >
                                         Logout
                                     </button>
@@ -242,4 +242,3 @@ const AdminLayout = () => {
 };
 
 export default AdminLayout;
-

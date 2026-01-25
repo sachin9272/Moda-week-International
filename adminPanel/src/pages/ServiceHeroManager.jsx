@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Loader } from 'lucide-react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import { Save, Loader, Check } from 'lucide-react';
 import { baseURL } from '../config/api';
 
 const ServiceHeroManager = () => {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [saved, setSaved] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         subtitle: '',
@@ -49,6 +48,7 @@ const ServiceHeroManager = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setSubmitting(true);
+        setSaved(false);
 
         try {
             const data = new FormData();
@@ -68,91 +68,99 @@ const ServiceHeroManager = () => {
                 const updated = await response.json();
                 setCurrentImage(updated.hero.image);
                 setImageFile(null);
-                alert('Updated successfully!');
-            } else {
-                alert('Failed to update.');
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
             }
         } catch (error) {
             console.error('Error updating:', error);
-            alert('Error updating.');
         } finally {
             setSubmitting(false);
         }
     };
 
-    if (loading) return <div className="flex items-center justify-center h-full"><Loader className="animate-spin" /></div>;
+    if (loading) return (
+        <div className="flex items-center justify-center h-64">
+            <Loader className="animate-spin text-[#C7913E]" size={40} />
+        </div>
+    );
 
     return (
         <div>
             <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-800">Service Page Hero</h1>
-                <p className="text-slate-500">Update the top section of the Service page</p>
+                <h2 className="text-xl font-bold text-white">Service Page Hero</h2>
+                <p className="text-neutral-500">Update the top section of the Service page</p>
             </div>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 max-w-4xl">
+            <div className="bg-[#1a1a1a] p-6 rounded-xl shadow-lg border border-[#2a2a2a] max-w-4xl">
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Subtitle (Small Text)</label>
+                            <label className="block text-sm font-medium text-neutral-300 mb-1">Subtitle (Small Text)</label>
                             <input
                                 type="text"
                                 name="subtitle"
                                 value={formData.subtitle}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Title (Big Text)</label>
+                            <label className="block text-sm font-medium text-neutral-300 mb-1">Title (Big Text)</label>
                             <input
                                 type="text"
                                 name="title"
                                 value={formData.title}
                                 onChange={handleChange}
-                                className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all"
                             />
                         </div>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                        <label className="block text-sm font-medium text-neutral-300 mb-1">Description</label>
                         <textarea
                             name="description"
                             value={formData.description}
                             onChange={handleChange}
                             rows="6"
-                            className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all resize-none"
                         />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Background Image</label>
+                        <label className="block text-sm font-medium text-neutral-300 mb-1">Background Image</label>
                         {currentImage && (
                             <div className="mb-4">
-                                <img src={currentImage} alt="Current Hero" className="h-48 rounded-lg object-cover" />
+                                <img src={currentImage} alt="Current Hero" className="h-48 rounded-xl object-cover border border-[#2a2a2a]" />
                             </div>
                         )}
                         <input
                             type="file"
                             onChange={handleFileChange}
                             accept="image/*"
-                            className="block w-full text-sm text-slate-500
+                            className="block w-full text-sm text-neutral-400
                                 file:mr-4 file:py-2 file:px-4
                                 file:rounded-full file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-blue-50 file:text-blue-700
-                                hover:file:bg-blue-100"
+                                file:bg-[#C7913E]/20 file:text-[#C7913E]
+                                hover:file:bg-[#C7913E]/30 file:cursor-pointer"
                         />
                     </div>
 
-                    <div className="flex justify-end pt-4">
+                    <div className="flex justify-end pt-4 border-t border-[#2a2a2a]">
                         <button
                             type="submit"
                             disabled={submitting}
-                            className={`flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors ${submitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#C7913E]/20"
                         >
-                            {submitting ? <Loader className="animate-spin" size={20} /> : <Save size={20} />}
-                            Save Changes
+                            {submitting ? (
+                                <Loader className="animate-spin" size={20} />
+                            ) : saved ? (
+                                <Check size={20} />
+                            ) : (
+                                <Save size={20} />
+                            )}
+                            {saved ? 'Saved!' : 'Save Changes'}
                         </button>
                     </div>
                 </form>

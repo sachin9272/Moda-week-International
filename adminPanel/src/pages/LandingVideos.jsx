@@ -39,9 +39,9 @@ const SortableVideoRow = ({ video, onEdit, onDelete, onPreview }) => {
         <div
             ref={setNodeRef}
             style={style}
-            className={`group relative bg-white rounded-xl border transition-all duration-200 ${isDragging
-                    ? 'shadow-2xl border-indigo-400 scale-[1.02] ring-2 ring-indigo-200'
-                    : 'border-slate-200 hover:shadow-lg hover:border-slate-300'
+            className={`group relative bg-[#1a1a1a] rounded-xl border transition-all duration-200 ${isDragging
+                ? 'shadow-2xl border-[#C7913E] scale-[1.02] ring-2 ring-[#C7913E]/30'
+                : 'border-[#2a2a2a] hover:shadow-lg hover:border-[#3a3a3a]'
                 }`}
         >
             <div className="flex items-center gap-4 p-4">
@@ -49,26 +49,26 @@ const SortableVideoRow = ({ video, onEdit, onDelete, onPreview }) => {
                 <button
                     {...attributes}
                     {...listeners}
-                    className="cursor-grab active:cursor-grabbing p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+                    className="cursor-grab active:cursor-grabbing p-2 rounded-lg hover:bg-[#252525] text-neutral-500 hover:text-[#C7913E] transition-colors"
                     title="Drag to reorder"
                 >
                     <GripVertical size={20} />
                 </button>
 
                 {/* Order Badge */}
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-200/50">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8C5D25] to-[#C7913E] flex items-center justify-center shadow-lg shadow-[#C7913E]/20">
                     <span className="text-white font-bold text-sm">{video.order}</span>
                 </div>
 
                 {/* Video Thumbnail Placeholder */}
-                <div className="w-20 h-14 rounded-lg bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center overflow-hidden">
-                    <Video size={24} className="text-slate-400" />
+                <div className="w-20 h-14 rounded-lg bg-gradient-to-br from-[#252525] to-[#1a1a1a] flex items-center justify-center overflow-hidden border border-[#2a2a2a]">
+                    <Video size={24} className="text-neutral-500" />
                 </div>
 
                 {/* Video Info */}
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-800 truncate">{video.title || 'Untitled Video'}</h3>
-                    <p className="text-sm text-slate-500 truncate flex items-center gap-2 mt-1">
+                    <h3 className="font-semibold text-white truncate">{video.title || 'Untitled Video'}</h3>
+                    <p className="text-sm text-neutral-500 truncate flex items-center gap-2 mt-1">
                         <span className="truncate">{video.videoUrl}</span>
                     </p>
                 </div>
@@ -77,21 +77,21 @@ const SortableVideoRow = ({ video, onEdit, onDelete, onPreview }) => {
                 <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
                         onClick={() => onPreview(video)}
-                        className="p-2.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-800 transition-colors"
+                        className="p-2.5 rounded-lg bg-[#252525] text-neutral-400 hover:bg-[#303030] hover:text-white transition-colors"
                         title="Preview video"
                     >
                         <Eye size={18} />
                     </button>
                     <button
                         onClick={() => onEdit(video)}
-                        className="p-2.5 rounded-lg bg-indigo-100 text-indigo-600 hover:bg-indigo-200 hover:text-indigo-700 transition-colors"
+                        className="p-2.5 rounded-lg bg-[#C7913E]/20 text-[#C7913E] hover:bg-[#C7913E]/30 hover:text-[#D4A558] transition-colors"
                         title="Edit video"
                     >
                         <Edit2 size={18} />
                     </button>
                     <button
-                        onClick={() => onDelete(video._id)}
-                        className="p-2.5 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 hover:text-red-700 transition-colors"
+                        onClick={() => onDelete(video)}
+                        className="p-2.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors"
                         title="Delete video"
                     >
                         <Trash2 size={18} />
@@ -115,6 +115,8 @@ const LandingVideos = () => {
     });
     const [videoFile, setVideoFile] = useState(null);
     const [dragFile, setDragFile] = useState(false);
+    const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null, title: '' });
+    const [deleting, setDeleting] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -246,30 +248,41 @@ const LandingVideos = () => {
                 resetForm();
                 fetchVideos();
             } else {
-                alert(`Failed to ${editingId ? 'update' : 'add'} video`);
+                console.error(`Failed to ${editingId ? 'update' : 'add'} video`);
             }
         } catch (error) {
             console.error('Error saving video:', error);
-            alert('Error saving video');
         } finally {
             setSubmitting(false);
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this video?')) return;
+    const openDeleteConfirm = (video) => {
+        setDeleteConfirm({ show: true, id: video._id, title: video.title });
+    };
+
+    const closeDeleteConfirm = () => {
+        setDeleteConfirm({ show: false, id: null, title: '' });
+    };
+
+    const handleDelete = async () => {
+        if (!deleteConfirm.id) return;
+        setDeleting(true);
         try {
-            const response = await fetch(`${baseURL}/api/landing-videos/${id}`, {
+            const response = await fetch(`${baseURL}/api/landing-videos/${deleteConfirm.id}`, {
                 method: 'DELETE'
             });
 
             if (response.ok) {
                 fetchVideos();
+                closeDeleteConfirm();
             } else {
-                alert('Failed to delete video');
+                console.error('Failed to delete video');
             }
         } catch (error) {
             console.error('Error deleting video:', error);
+        } finally {
+            setDeleting(false);
         }
     };
 
@@ -277,22 +290,22 @@ const LandingVideos = () => {
         return (
             <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                    <Loader className="animate-spin text-indigo-500 mx-auto mb-4" size={48} />
-                    <p className="text-slate-500">Loading videos...</p>
+                    <Loader className="animate-spin text-[#C7913E] mx-auto mb-4" size={48} />
+                    <p className="text-neutral-500">Loading videos...</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 p-6">
+        <div className="space-y-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                    <h2 className="text-3xl font-bold text-white">
                         Landing Page Videos
                     </h2>
-                    <p className="text-slate-500 mt-1">
+                    <p className="text-neutral-500 mt-1">
                         Manage hero videos displayed on the landing page. Drag to reorder.
                     </p>
                 </div>
@@ -305,8 +318,8 @@ const LandingVideos = () => {
                         }
                     }}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg ${showForm
-                            ? 'bg-slate-200 text-slate-700 hover:bg-slate-300 shadow-slate-200/50'
-                            : 'bg-gradient-to-r from-indigo-600 to-indigo-500 text-white hover:from-indigo-700 hover:to-indigo-600 shadow-indigo-300/50'
+                        ? 'bg-[#2a2a2a] text-neutral-300 hover:bg-[#3a3a3a] shadow-black/20'
+                        : 'bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white hover:from-[#7A5020] hover:to-[#B38135] shadow-[#C7913E]/20'
                         }`}
                 >
                     {showForm ? (
@@ -323,12 +336,12 @@ const LandingVideos = () => {
 
             {/* Add/Edit Form */}
             {showForm && (
-                <div className="bg-white p-6 rounded-2xl shadow-xl border border-slate-200 animate-in slide-in-from-top duration-300">
+                <div className="bg-[#1a1a1a] p-6 rounded-2xl shadow-xl border border-[#2a2a2a] animate-fadeIn">
                     <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8C5D25] to-[#C7913E] flex items-center justify-center">
                             <Video size={20} className="text-white" />
                         </div>
-                        <h3 className="text-xl font-semibold text-slate-800">
+                        <h3 className="text-xl font-semibold text-white">
                             {editingId ? 'Edit Video' : 'Add New Video'}
                         </h3>
                     </div>
@@ -336,7 +349,7 @@ const LandingVideos = () => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label className="block text-sm font-medium text-neutral-300 mb-2">
                                     Video Title
                                 </label>
                                 <input
@@ -345,12 +358,12 @@ const LandingVideos = () => {
                                     value={formData.title}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-slate-50 hover:bg-white"
+                                    className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] outline-none transition-all hover:border-[#3a3a3a]"
                                     placeholder="e.g. New York Fashion Week 2025"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                <label className="block text-sm font-medium text-neutral-300 mb-2">
                                     Display Order
                                 </label>
                                 <input
@@ -360,10 +373,10 @@ const LandingVideos = () => {
                                     required
                                     value={formData.order}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all bg-slate-50 hover:bg-white"
+                                    className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] outline-none transition-all hover:border-[#3a3a3a]"
                                     placeholder="1"
                                 />
-                                <p className="text-xs text-slate-400 mt-1">
+                                <p className="text-xs text-neutral-500 mt-1">
                                     You can also drag videos to reorder after adding
                                 </p>
                             </div>
@@ -371,7 +384,7 @@ const LandingVideos = () => {
 
                         {/* Drag & Drop Upload Area */}
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                            <label className="block text-sm font-medium text-neutral-300 mb-2">
                                 Video File {editingId ? '(Optional - leave empty to keep current)' : ''}
                             </label>
                             <div
@@ -379,10 +392,10 @@ const LandingVideos = () => {
                                 onDragLeave={() => setDragFile(false)}
                                 onDrop={handleDrop}
                                 className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${dragFile
-                                        ? 'border-indigo-400 bg-indigo-50'
-                                        : videoFile
-                                            ? 'border-green-400 bg-green-50'
-                                            : 'border-slate-300 bg-slate-50 hover:border-indigo-300 hover:bg-indigo-50/50'
+                                    ? 'border-[#C7913E] bg-[#C7913E]/10'
+                                    : videoFile
+                                        ? 'border-green-500/50 bg-green-500/10'
+                                        : 'border-[#2a2a2a] bg-[#0f0f0f] hover:border-[#C7913E]/50 hover:bg-[#C7913E]/5'
                                     }`}
                             >
                                 <input
@@ -394,23 +407,23 @@ const LandingVideos = () => {
                                 />
                                 {videoFile ? (
                                     <div className="flex items-center justify-center gap-3">
-                                        <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                                            <Video size={24} className="text-green-600" />
+                                        <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                                            <Video size={24} className="text-green-400" />
                                         </div>
                                         <div className="text-left">
-                                            <p className="font-medium text-green-700">{videoFile.name}</p>
-                                            <p className="text-sm text-green-500">
+                                            <p className="font-medium text-green-400">{videoFile.name}</p>
+                                            <p className="text-sm text-green-500/70">
                                                 {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
                                             </p>
                                         </div>
                                     </div>
                                 ) : (
                                     <>
-                                        <Upload size={40} className={`mx-auto mb-3 ${dragFile ? 'text-indigo-500' : 'text-slate-400'}`} />
-                                        <p className="text-slate-600 font-medium">
+                                        <Upload size={40} className={`mx-auto mb-3 ${dragFile ? 'text-[#C7913E]' : 'text-neutral-500'}`} />
+                                        <p className="text-neutral-300 font-medium">
                                             Drag and drop your video here
                                         </p>
-                                        <p className="text-sm text-slate-400 mt-1">
+                                        <p className="text-sm text-neutral-500 mt-1">
                                             or click to browse · MP4, MOV, WebM
                                         </p>
                                     </>
@@ -418,18 +431,18 @@ const LandingVideos = () => {
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                        <div className="flex justify-end gap-3 pt-4 border-t border-[#2a2a2a]">
                             <button
                                 type="button"
                                 onClick={resetForm}
-                                className="px-5 py-2.5 rounded-xl text-slate-600 hover:bg-slate-100 font-medium transition-colors"
+                                className="px-5 py-2.5 rounded-xl text-neutral-400 hover:bg-[#252525] font-medium transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={submitting}
-                                className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-6 py-2.5 rounded-xl font-medium hover:from-indigo-700 hover:to-indigo-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-200/50"
+                                className="flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-6 py-2.5 rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#C7913E]/20"
                             >
                                 {submitting ? (
                                     <>
@@ -451,12 +464,12 @@ const LandingVideos = () => {
             {/* Videos List */}
             <div className="space-y-3">
                 {videos.length === 0 ? (
-                    <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-                        <div className="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                            <Video size={32} className="text-slate-400" />
+                    <div className="bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] p-12 text-center">
+                        <div className="w-20 h-20 rounded-full bg-[#252525] flex items-center justify-center mx-auto mb-4">
+                            <Video size={32} className="text-neutral-500" />
                         </div>
-                        <h3 className="text-lg font-semibold text-slate-700 mb-2">No videos yet</h3>
-                        <p className="text-slate-500 mb-6">
+                        <h3 className="text-lg font-semibold text-white mb-2">No videos yet</h3>
+                        <p className="text-neutral-500 mb-6">
                             Add your first landing page video to get started
                         </p>
                         <button
@@ -464,7 +477,7 @@ const LandingVideos = () => {
                                 setFormData({ title: '', order: 1 });
                                 setShowForm(true);
                             }}
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-indigo-500 text-white px-5 py-2.5 rounded-xl font-medium hover:from-indigo-700 hover:to-indigo-600 transition-all shadow-lg shadow-indigo-200/50"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-5 py-2.5 rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"
                         >
                             <Plus size={20} /> Add Your First Video
                         </button>
@@ -485,7 +498,7 @@ const LandingVideos = () => {
                                         key={video._id}
                                         video={video}
                                         onEdit={handleEdit}
-                                        onDelete={handleDelete}
+                                        onDelete={openDeleteConfirm}
                                         onPreview={handlePreview}
                                     />
                                 ))}
@@ -497,16 +510,16 @@ const LandingVideos = () => {
 
             {/* Info Card */}
             {videos.length > 0 && (
-                <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100">
+                <div className="bg-gradient-to-r from-[#C7913E]/10 to-[#8C5D25]/10 rounded-xl p-4 border border-[#C7913E]/20">
                     <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                            <GripVertical size={16} className="text-indigo-600" />
+                        <div className="w-8 h-8 rounded-lg bg-[#C7913E]/20 flex items-center justify-center flex-shrink-0">
+                            <GripVertical size={16} className="text-[#C7913E]" />
                         </div>
                         <div>
-                            <p className="text-sm font-medium text-indigo-800">
+                            <p className="text-sm font-medium text-[#D4A558]">
                                 Pro tip: Drag videos to reorder
                             </p>
-                            <p className="text-xs text-indigo-600 mt-0.5">
+                            <p className="text-xs text-[#C7913E]/70 mt-0.5">
                                 Changes are saved automatically. The order determines how videos appear on the landing page.
                             </p>
                         </div>
@@ -516,13 +529,13 @@ const LandingVideos = () => {
 
             {/* Video Preview Modal */}
             {previewVideo && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onClick={() => setPreviewVideo(null)}>
-                    <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between p-4 border-b border-slate-200">
-                            <h3 className="font-semibold text-slate-800">{previewVideo.title}</h3>
+                <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setPreviewVideo(null)}>
+                    <div className="bg-[#1a1a1a] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-[#2a2a2a]" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
+                            <h3 className="font-semibold text-white">{previewVideo.title}</h3>
                             <button
                                 onClick={() => setPreviewVideo(null)}
-                                className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                                className="p-2 rounded-lg hover:bg-[#252525] text-neutral-400 transition-colors"
                             >
                                 <X size={20} />
                             </button>
@@ -534,6 +547,55 @@ const LandingVideos = () => {
                                 autoPlay
                                 className="w-full h-full"
                             />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirm.show && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={closeDeleteConfirm}>
+                    <div className="bg-[#1a1a1a] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-[#2a2a2a] animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-6">
+                            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+                                <Trash2 size={32} className="text-red-400" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white text-center mb-2">Delete Video?</h3>
+                            <p className="text-neutral-400 text-center mb-2">
+                                Are you sure you want to delete
+                            </p>
+                            <p className="text-white font-medium text-center truncate px-4 mb-6">
+                                "{deleteConfirm.title || 'this video'}"
+                            </p>
+                            <p className="text-xs text-neutral-500 text-center mb-6">
+                                This action cannot be undone.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={closeDeleteConfirm}
+                                    disabled={deleting}
+                                    className="flex-1 px-4 py-3 rounded-xl border border-[#2a2a2a] text-neutral-300 font-medium hover:bg-[#252525] transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleDelete}
+                                    disabled={deleting}
+                                    className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {deleting ? (
+                                        <>
+                                            <Loader size={18} className="animate-spin" />
+                                            Deleting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Trash2 size={18} />
+                                            Delete
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
