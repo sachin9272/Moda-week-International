@@ -123,3 +123,29 @@ export const updateVideo = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+// @desc    Bulk reorder landing videos
+// @route   PUT /api/landing-videos/reorder
+// @access  Private (Admin)
+export const reorderVideos = async (req, res) => {
+    try {
+        const { orders } = req.body;
+
+        if (!orders || !Array.isArray(orders)) {
+            return res.status(400).json({ message: 'Orders array is required' });
+        }
+
+        // Update all videos in parallel
+        const updatePromises = orders.map(({ id, order }) =>
+            LandingVideo.findByIdAndUpdate(id, { order }, { new: true })
+        );
+
+        await Promise.all(updatePromises);
+
+        // Return updated videos sorted by order
+        const videos = await LandingVideo.find().sort({ order: 1 });
+        res.json(videos);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
