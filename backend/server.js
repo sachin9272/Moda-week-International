@@ -65,6 +65,8 @@ import legalPageRoutes from './routes/legalPageRoutes.js';
 app.use('/api/legal-pages', legalPageRoutes);
 import dashboardRoutes from './routes/dashboardRoutes.js';
 app.use('/api/dashboard', dashboardRoutes);
+import notificationRoutes from './routes/notificationRoutes.js';
+app.use('/api/notifications', notificationRoutes);
 
 // Payment Routes
 app.post('/api/payment/create-checkout-session', createCheckoutSession);

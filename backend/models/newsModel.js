@@ -16,8 +16,12 @@ const newsSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['live', 'hidden'],
+    enum: ['live', 'hidden', 'pending'],
     default: 'live'
+  },
+  submittedBy: {
+    name: { type: String },
+    email: { type: String }
   }
 }, { timestamps: true });
 

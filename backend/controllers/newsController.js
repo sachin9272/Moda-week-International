@@ -1,5 +1,6 @@
 import News from '../models/newsModel.js';
 import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
+import { createNotification } from './notificationController.js';
 
 // Get all news articles
 export const getAllNews = async (req, res) => {
@@ -155,6 +156,135 @@ export const deleteNews = async (req, res) => {
         res.status(204).json({
             status: 'success',
             data: null
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
+// Submit news from user (pending approval)
+export const submitUserNews = async (req, res) => {
+    console.log("User News Submission Body------->", req.body);
+    console.log("User News Submission File------->", req.file);
+    const { title, content, category, author, submitterName, submitterEmail } = req.body;
+
+    let imageData = {};
+    if (req.file) {
+        imageData = {
+            url: req.file.path,
+            public_id: req.file.filename
+        };
+    }
+
+    try {
+        const news = await News.create({
+            title,
+            content,
+            category,
+            author: author || submitterName || 'Anonymous',
+            status: 'pending',
+            image: imageData,
+            submittedBy: {
+                name: submitterName,
+                email: submitterEmail
+            }
+        });
+
+        // Create notification for admin
+        await createNotification({
+            type: 'editorial_submission',
+            title: 'New Editorial Submission',
+            message: `${submitterName || 'Someone'} has applied for an editorial`,
+            link: '/news?tab=pending',
+            relatedId: news._id,
+            relatedModel: 'News'
+        });
+
+        res.status(201).json({
+            status: 'success',
+            message: 'Your article has been submitted for review',
+            data: news
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
+// Get all pending news articles (for admin)
+export const getPendingNews = async (req, res) => {
+    try {
+        const news = await News.find({ status: 'pending' }).sort({ createdAt: -1 });
+        res.status(200).json({
+            status: 'success',
+            data: news
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
+// Approve pending news (change status to live)
+export const approveNews = async (req, res) => {
+    try {
+        const now = new Date();
+        const news = await News.findByIdAndUpdate(
+            req.params.id,
+            {
+                status: 'live',
+                date: now.toISOString().split('T')[0],
+                createdAt: now  // Update createdAt so it appears at top of list
+            },
+            { new: true }
+        );
+        if (!news) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'News article not found'
+            });
+        }
+        res.status(200).json({
+            status: 'success',
+            message: 'Article approved and published',
+            data: news
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
+// Reject pending news (delete it)
+export const rejectNews = async (req, res) => {
+    try {
+        const news = await News.findById(req.params.id);
+        if (!news) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'News article not found'
+            });
+        }
+
+        // Delete image from Cloudinary
+        if (news.image && news.image.public_id) {
+            await deleteCloudinaryAsset(news.image.public_id);
+        }
+
+        await News.findByIdAndDelete(req.params.id);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'Article rejected and removed'
         });
     } catch (error) {
         res.status(400).json({
