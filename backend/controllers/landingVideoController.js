@@ -5,7 +5,9 @@ import LandingVideo from '../models/LandingVideo.js';
 // @access  Public
 export const getVideos = async (req, res) => {
     try {
-        const videos = await LandingVideo.find().sort({ order: 1 });
+        const { type } = req.query;
+        const query = type ? { type } : {};
+        const videos = await LandingVideo.find(query).sort({ order: 1 });
         res.json(videos);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -17,7 +19,7 @@ export const getVideos = async (req, res) => {
 // @access  Private (Admin)
 export const addVideo = async (req, res) => {
     try {
-        const { title, order } = req.body;
+        const { title, order, type } = req.body;
         let videoUrl = req.body.videoUrl;
 
         if (req.file) {
@@ -33,7 +35,8 @@ export const addVideo = async (req, res) => {
         const newVideo = new LandingVideo({
             title,
             videoUrl,
-            order
+            order,
+            type: type || 'landing'
         });
 
         const savedVideo = await newVideo.save();
@@ -91,7 +94,7 @@ export const deleteVideo = async (req, res) => {
 // @access  Private (Admin)
 export const updateVideo = async (req, res) => {
     try {
-        const { title, order } = req.body;
+        const { title, order, type } = req.body;
         const video = await LandingVideo.findById(req.params.id);
 
         if (!video) {
@@ -100,6 +103,7 @@ export const updateVideo = async (req, res) => {
 
         video.title = title || video.title;
         video.order = order || video.order;
+        if (type) video.type = type;
 
         if (req.file) {
             // Delete old file if it exists locally

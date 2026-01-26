@@ -33,7 +33,7 @@ const Sidebar = () => {
         { path: '/news', icon: Newspaper, label: 'News' },
         { path: '/landing-videos', icon: Video, label: 'Landing Videos' },
         { path: '/fashion-designers', icon: Users, label: 'Participants' },
-        { path: '/partners', icon: Image, label: 'Partners' },
+        { path: '/partners', icon: Image, label: 'Partners / Logos' },
         { path: '/service-content', icon: Briefcase, label: 'Services' },
         { path: '/legal-pages', icon: Scale, label: 'Legal Pages' },
     ];

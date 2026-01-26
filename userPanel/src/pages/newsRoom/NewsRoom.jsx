@@ -17,12 +17,7 @@ const trendingTopics = ["PARIS FASHION WEEK", "MILAN STREET STYLE", "NEW GUCCI C
 
 const CATEGORIES = ["ALL POSTS", "COSMETICS", "EDUCATION", "FASHION", "FINE ART", "PEFORMANCES", "PAST EVENTS", "TRAVEL"];
 
-const videoPlaylist = [
-    { id: 1, videoId: "j35XjyXPEN0", title: "GUCCI SPRING SUMMER 2025", time: "JUST IN", image: news1 }, // User Video 1
-    { id: 2, videoId: "NgVwGZanIeE", title: "CHANEL FALL-WINTER 2025/26", time: "PARIS", image: news2 }, // User Video 2
-    { id: 3, videoId: "xudDlJXglHs", title: "DIOR HOMME SUMMER 26", time: "HIGHLIGHTS", image: news3 }, // User Video 3
-    { id: 4, videoId: "j35XjyXPEN0", title: "DIOR FALL WINTER 2025", time: "RUNWAY", image: news4 }, // User Video 4 (Repeated as per request)
-];
+
 
 
 const initialInstagramPosts = [
@@ -37,8 +32,38 @@ export default function NewsRoom() {
     const [hoveredIndex, setHoveredIndex] = useState(null);
     const [followerCount, setFollowerCount] = useState("23.5k");
     const [instagramPosts, setInstagramPosts] = useState(initialInstagramPosts);
-    const [currentVideo, setCurrentVideo] = useState(videoPlaylist[0]);
+    const [videoPlaylist, setVideoPlaylist] = useState([]);
+    const [currentVideo, setCurrentVideo] = useState(null);
     const [selectedCategory, setSelectedCategory] = useState("ALL POSTS");
+
+    // Dynamic Video State
+    useEffect(() => {
+        const fetchVideos = async () => {
+            try {
+                const { data } = await axios.get(`${baseURL}/api/landing-videos?type=newsroom`);
+                if (data && data.length > 0) {
+                    const formatted = data.map(v => ({
+                        id: v._id,
+                        videoId: extractYoutubeId(v.videoUrl),
+                        title: v.title,
+                        time: "JUST IN"
+                    }));
+                    setVideoPlaylist(formatted);
+                    setCurrentVideo(formatted[0]);
+                }
+            } catch (error) {
+                console.error("Failed to fetch newsroom videos", error);
+            }
+        };
+        fetchVideos();
+    }, []);
+
+    const extractYoutubeId = (url) => {
+        if (!url) return '';
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
 
     // Dynamic News State
     const [allNewsItems, setAllNewsItems] = useState([]);
@@ -136,46 +161,48 @@ export default function NewsRoom() {
                         </button>
                     </div>
 
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Main Video Player */}
-                        <div className="lg:col-span-2 relative aspect-video group overflow-hidden border border-white/10 bg-black">
-                            <iframe
-                                className="w-full h-full"
-                                src={`https://www.youtube.com/embed/${currentVideo.videoId}?autoplay=1&rel=0&modestbranding=1`}
-                                title={currentVideo.title}
-                                frameBorder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                allowFullScreen
-                            ></iframe>
-                        </div>
-
-                        {/* Playlist */}
-                        <div className="flex flex-col gap-0 border border-white/10 h-full">
-                            <div className="p-4 bg-white/5 border-b border-white/10">
-                                <h4 className="font-bold text-xs uppercase tracking-widest text-[#C7913E]">Up Next</h4>
+                    {currentVideo && (
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* Main Video Player */}
+                            <div className="lg:col-span-2 relative aspect-video group overflow-hidden border border-white/10 bg-black">
+                                <iframe
+                                    className="w-full h-full"
+                                    src={`https://www.youtube.com/embed/${currentVideo.videoId}?autoplay=1&rel=0&modestbranding=1`}
+                                    title={currentVideo.title}
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
                             </div>
-                            <div className="overflow-y-auto custom-scrollbar flex-1 max-h-[400px]">
-                                {videoPlaylist.map((video, idx) => (
-                                    <div
-                                        key={video.id}
-                                        onClick={() => setCurrentVideo(video)}
-                                        className={`p-4 flex gap-4 hover:bg-white/5 transition-colors cursor-pointer border-b border-white/5 last:border-0 group ${currentVideo.id === video.id ? 'bg-white/10' : ''}`}
-                                    >
-                                        <div className="w-28 h-16 bg-gray-800 shrink-0 relative overflow-hidden">
-                                            <img src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
-                                            <div className="absolute inset-0 flex items-center justify-center">
-                                                <Play size={12} className="fill-white text-white" />
+
+                            {/* Playlist */}
+                            <div className="flex flex-col gap-0 border border-white/10 h-full">
+                                <div className="p-4 bg-white/5 border-b border-white/10">
+                                    <h4 className="font-bold text-xs uppercase tracking-widest text-[#C7913E]">Up Next</h4>
+                                </div>
+                                <div className="overflow-y-auto custom-scrollbar flex-1 max-h-[400px]">
+                                    {videoPlaylist.map((video, idx) => (
+                                        <div
+                                            key={video.id}
+                                            onClick={() => setCurrentVideo(video)}
+                                            className={`p-4 flex gap-4 hover:bg-white/5 transition-colors cursor-pointer border-b border-white/5 last:border-0 group ${currentVideo.id === video.id ? 'bg-white/10' : ''}`}
+                                        >
+                                            <div className="w-28 h-16 bg-gray-800 shrink-0 relative overflow-hidden">
+                                                <img src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                    <Play size={12} className="fill-white text-white" />
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-col justify-center">
+                                                <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">{video.time}</span>
+                                                <h5 className="font-serif text-sm font-medium leading-tight group-hover:text-[#C7913E] transition-colors line-clamp-2">{video.title}</h5>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col justify-center">
-                                            <span className="text-[9px] font-bold text-gray-500 uppercase tracking-widest mb-1">{video.time}</span>
-                                            <h5 className="font-serif text-sm font-medium leading-tight group-hover:text-[#C7913E] transition-colors line-clamp-2">{video.title}</h5>
-                                        </div>
-                                    </div>
-                                ))}
+                                    ))}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
                 </section>
 
                 {/* Latest News - Minimalist List & Grid */}
@@ -233,7 +260,7 @@ export default function NewsRoom() {
                                         <div
                                             key={item._id}
                                             className="group cursor-pointer"
-                                            onClick={() => navigate(`/news-room/${item._id}`)}
+                                            onClick={() => navigate(`/news-room/${item.slug || item._id}`)}
                                         >
                                             <div className="overflow-hidden mb-6 aspect-[16/10]">
                                                 <img

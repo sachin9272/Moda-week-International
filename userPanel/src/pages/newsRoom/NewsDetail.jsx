@@ -8,7 +8,7 @@ import { ArrowLeft, Clock, Calendar, User, Share2, Printer } from 'lucide-react'
 import { baseURL } from '../../config/api';
 
 export default function NewsDetail() {
-    const { id } = useParams();
+    const { id: slug } = useParams();
     const navigate = useNavigate();
     const [newsItem, setNewsItem] = useState(null);
     const [relatedNews, setRelatedNews] = useState([]);
@@ -18,7 +18,7 @@ export default function NewsDetail() {
         const fetchNewsItem = async () => {
             try {
                 // Fetch current news item
-                const response = await axios.get(`${baseURL}/api/news/${id}`);
+                const response = await axios.get(`${baseURL}/api/news/slug/${slug}`);
                 if (response.data.status === 'success') {
                     const current = response.data.data;
                     setNewsItem(current);
@@ -45,11 +45,11 @@ export default function NewsDetail() {
             }
         };
 
-        if (id) {
+        if (slug) {
             fetchNewsItem();
             window.scrollTo(0, 0);
         }
-    }, [id]);
+    }, [slug]);
 
     if (loading) {
         return (
@@ -180,7 +180,7 @@ export default function NewsDetail() {
                                     key={item._id}
                                     className="group cursor-pointer"
                                     onClick={() => {
-                                        navigate(`/news-room/${item._id}`);
+                                        navigate(`/news-room/${item.slug || item._id}`);
                                         window.scrollTo(0, 0);
                                     }}
                                 >

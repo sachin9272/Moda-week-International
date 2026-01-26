@@ -145,7 +145,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch(`${baseURL}/api/landing-videos`);
+        const response = await fetch(`${baseURL}/api/landing-videos?type=landing`);
         const data = await response.json();
 
         if (data && data.length > 0) {

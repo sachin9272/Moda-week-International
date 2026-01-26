@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Plus, Video, ExternalLink, Loader, GripVertical, Edit2, Upload, X, Eye } from 'lucide-react';
+import { Trash2, Plus, Video, ExternalLink, Loader, GripVertical, Edit2, Upload, X, Eye, Youtube, Layout } from 'lucide-react';
 import { baseURL } from '../config/api';
 import {
     DndContext,
@@ -17,9 +17,10 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import toast from 'react-hot-toast';
 
 // Sortable video row component
-const SortableVideoRow = ({ video, onEdit, onDelete, onPreview }) => {
+const SortableVideoRow = ({ video, onEdit, onDelete, onPreview, activeTab }) => {
     const {
         attributes,
         listeners,
@@ -34,6 +35,8 @@ const SortableVideoRow = ({ video, onEdit, onDelete, onPreview }) => {
         transition,
         zIndex: isDragging ? 50 : 'auto',
     };
+
+    const isYoutube = video.videoUrl?.includes('youtube.com') || video.videoUrl?.includes('youtu.be');
 
     return (
         <div
@@ -62,13 +65,22 @@ const SortableVideoRow = ({ video, onEdit, onDelete, onPreview }) => {
 
                 {/* Video Thumbnail Placeholder */}
                 <div className="w-20 h-14 rounded-lg bg-gradient-to-br from-[#252525] to-[#1a1a1a] flex items-center justify-center overflow-hidden border border-[#2a2a2a]">
-                    <Video size={24} className="text-neutral-500" />
+                    {isYoutube ? (
+                        <img
+                            src={`https://img.youtube.com/vi/${extractYoutubeId(video.videoUrl)}/mqdefault.jpg`}
+                            alt=""
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        <Video size={24} className="text-neutral-500" />
+                    )}
                 </div>
 
                 {/* Video Info */}
                 <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-white truncate">{video.title || 'Untitled Video'}</h3>
                     <p className="text-sm text-neutral-500 truncate flex items-center gap-2 mt-1">
+                        {isYoutube && <Youtube size={14} className="text-red-500" />}
                         <span className="truncate">{video.videoUrl}</span>
                     </p>
                 </div>
@@ -102,7 +114,15 @@ const SortableVideoRow = ({ video, onEdit, onDelete, onPreview }) => {
     );
 };
 
+const extractYoutubeId = (url) => {
+    if (!url) return '';
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+};
+
 const LandingVideos = () => {
+    const [activeTab, setActiveTab] = useState('landing'); // 'landing' or 'newsroom'
     const [videos, setVideos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
@@ -111,7 +131,8 @@ const LandingVideos = () => {
     const [previewVideo, setPreviewVideo] = useState(null);
     const [formData, setFormData] = useState({
         title: '',
-        order: 0
+        order: 0,
+        videoUrl: ''
     });
     const [videoFile, setVideoFile] = useState(null);
     const [dragFile, setDragFile] = useState(false);
@@ -131,19 +152,21 @@ const LandingVideos = () => {
 
     const fetchVideos = async () => {
         try {
-            const response = await fetch(`${baseURL}/api/landing-videos`);
+            setLoading(true);
+            const response = await fetch(`${baseURL}/api/landing-videos?type=${activeTab}`);
             const data = await response.json();
             setVideos(data);
             setLoading(false);
         } catch (error) {
             console.error('Error fetching videos:', error);
             setLoading(false);
+            toast.error('Failed to fetch videos');
         }
     };
 
     useEffect(() => {
         fetchVideos();
-    }, []);
+    }, [activeTab]);
 
     const handleDragEnd = async (event) => {
         const { active, over } = event;
@@ -172,6 +195,7 @@ const LandingVideos = () => {
             } catch (error) {
                 console.error('Error reordering videos:', error);
                 fetchVideos(); // Revert on error
+                toast.error('Failed to save order');
             }
         }
     };
@@ -183,6 +207,7 @@ const LandingVideos = () => {
     const handleFileChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setVideoFile(e.target.files[0]);
+            setFormData({ ...formData, videoUrl: '' }); // Clear URL if file is selected
         }
     };
 
@@ -193,6 +218,7 @@ const LandingVideos = () => {
             const file = e.dataTransfer.files[0];
             if (file.type.startsWith('video/')) {
                 setVideoFile(file);
+                setFormData({ ...formData, videoUrl: '' });
             }
         }
     };
@@ -201,7 +227,8 @@ const LandingVideos = () => {
         setEditingId(video._id);
         setFormData({
             title: video.title,
-            order: video.order
+            order: video.order,
+            videoUrl: video.videoUrl
         });
         setVideoFile(null);
         setShowForm(true);
@@ -209,15 +236,21 @@ const LandingVideos = () => {
 
     const handlePreview = (video) => {
         let url = video.videoUrl;
-        if (!url.startsWith('http')) {
-            url = `${baseURL}${url}`;
+        const ytId = extractYoutubeId(url);
+
+        if (ytId) {
+            setPreviewVideo({ ...video, isYoutube: true, ytId });
+        } else {
+            if (!url.startsWith('http')) {
+                url = `${baseURL}${url}`;
+            }
+            setPreviewVideo({ ...video, isYoutube: false, fullUrl: url });
         }
-        setPreviewVideo({ ...video, fullUrl: url });
     };
 
     const resetForm = () => {
         setEditingId(null);
-        setFormData({ title: '', order: videos.length + 1 });
+        setFormData({ title: '', order: videos.length + 1, videoUrl: '' });
         setVideoFile(null);
         setShowForm(false);
     };
@@ -229,8 +262,12 @@ const LandingVideos = () => {
             const data = new FormData();
             data.append('title', formData.title);
             data.append('order', formData.order);
+            data.append('type', activeTab);
+
             if (videoFile) {
                 data.append('video', videoFile);
+            } else if (formData.videoUrl) {
+                data.append('videoUrl', formData.videoUrl);
             }
 
             const url = editingId
@@ -247,11 +284,13 @@ const LandingVideos = () => {
             if (response.ok) {
                 resetForm();
                 fetchVideos();
+                toast.success(editingId ? 'Video updated' : 'Video added');
             } else {
-                console.error(`Failed to ${editingId ? 'update' : 'add'} video`);
+                toast.error('Failed to save video');
             }
         } catch (error) {
             console.error('Error saving video:', error);
+            toast.error('An error occurred');
         } finally {
             setSubmitting(false);
         }
@@ -276,61 +315,54 @@ const LandingVideos = () => {
             if (response.ok) {
                 fetchVideos();
                 closeDeleteConfirm();
+                toast.success('Video deleted');
             } else {
-                console.error('Failed to delete video');
+                toast.error('Failed to delete video');
             }
         } catch (error) {
             console.error('Error deleting video:', error);
+            toast.error('An error occurred');
         } finally {
             setDeleting(false);
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                    <Loader className="animate-spin text-[#C7913E] mx-auto mb-4" size={48} />
-                    <p className="text-neutral-500">Loading videos...</p>
-                </div>
-            </div>
-        );
-    }
-
     return (
-        <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h2 className="text-3xl font-bold text-white">
-                        Landing Page Videos
-                    </h2>
-                    <p className="text-neutral-500 mt-1">
-                        Manage hero videos displayed on the landing page. Drag to reorder.
-                    </p>
+        <div className="space-y-8">
+            {/* Centered Tab Switcher Header */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+                <div className="hidden md:block w-32"></div> {/* Spacer for symmetry */}
+
+                <div className="bg-[#1a1a1a] rounded-2xl p-1.5 border border-[#2a2a2a] flex gap-2 w-full max-w-xl shadow-2xl">
+                    <button
+                        onClick={() => setActiveTab('landing')}
+                        className={`flex-1 py-3.5 rounded-xl text-base font-bold transition-all flex items-center justify-center gap-3 ${activeTab === 'landing' ? 'bg-[#C7913E] text-white shadow-xl shadow-[#C7913E]/20' : 'text-neutral-500 hover:text-white'}`}
+                    >
+                        <Layout size={20} /> Landing Videos
+                    </button>
+                    <button
+                        onClick={() => setActiveTab('newsroom')}
+                        className={`flex-1 py-3.5 rounded-xl text-base font-bold transition-all flex items-center justify-center gap-3 ${activeTab === 'newsroom' ? 'bg-[#C7913E] text-white shadow-xl shadow-[#C7913E]/20' : 'text-neutral-500 hover:text-white'}`}
+                    >
+                        <Youtube size={20} /> News Room Videos
+                    </button>
                 </div>
+
                 <button
                     onClick={() => {
                         if (showForm) resetForm();
                         else {
-                            setFormData({ title: '', order: videos.length + 1 });
+                            setFormData({ title: '', order: videos.length + 1, videoUrl: '' });
                             setShowForm(true);
                         }
                     }}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-lg ${showForm
+                    className={`flex items-center gap-2 px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 shadow-xl whitespace-nowrap min-w-[140px] justify-center ${showForm
                         ? 'bg-[#2a2a2a] text-neutral-300 hover:bg-[#3a3a3a] shadow-black/20'
                         : 'bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white hover:from-[#7A5020] hover:to-[#B38135] shadow-[#C7913E]/20'
                         }`}
                 >
-                    {showForm ? (
-                        <>
-                            <X size={20} /> Cancel
-                        </>
-                    ) : (
-                        <>
-                            <Plus size={20} /> Add Video
-                        </>
-                    )}
+                    {showForm ? <X size={20} /> : <Plus size={20} />}
+                    {showForm ? 'Cancel' : 'Add New'}
                 </button>
             </div>
 
@@ -339,10 +371,10 @@ const LandingVideos = () => {
                 <div className="bg-[#1a1a1a] p-6 rounded-2xl shadow-xl border border-[#2a2a2a] animate-fadeIn">
                     <div className="flex items-center gap-3 mb-6">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8C5D25] to-[#C7913E] flex items-center justify-center">
-                            <Video size={20} className="text-white" />
+                            {activeTab === 'landing' ? <Video size={20} className="text-white" /> : <Youtube size={20} className="text-white" />}
                         </div>
                         <h3 className="text-xl font-semibold text-white">
-                            {editingId ? 'Edit Video' : 'Add New Video'}
+                            {editingId ? 'Edit Video' : `Add ${activeTab === 'landing' ? 'Landing' : 'News Room'} Video`}
                         </h3>
                     </div>
 
@@ -359,7 +391,7 @@ const LandingVideos = () => {
                                     onChange={handleChange}
                                     required
                                     className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] outline-none transition-all hover:border-[#3a3a3a]"
-                                    placeholder="e.g. New York Fashion Week 2025"
+                                    placeholder={activeTab === 'landing' ? "e.g. New York Fashion Week 2025" : "e.g. Behind the Scenes at Paris"}
                                 />
                             </div>
                             <div>
@@ -374,62 +406,99 @@ const LandingVideos = () => {
                                     value={formData.order}
                                     onChange={handleChange}
                                     className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] outline-none transition-all hover:border-[#3a3a3a]"
-                                    placeholder="1"
                                 />
-                                <p className="text-xs text-neutral-500 mt-1">
-                                    You can also drag videos to reorder after adding
-                                </p>
                             </div>
                         </div>
 
-                        {/* Drag & Drop Upload Area */}
-                        <div>
-                            <label className="block text-sm font-medium text-neutral-300 mb-2">
-                                Video File {editingId ? '(Optional - leave empty to keep current)' : ''}
-                            </label>
-                            <div
-                                onDragOver={(e) => { e.preventDefault(); setDragFile(true); }}
-                                onDragLeave={() => setDragFile(false)}
-                                onDrop={handleDrop}
-                                className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${dragFile
-                                    ? 'border-[#C7913E] bg-[#C7913E]/10'
-                                    : videoFile
-                                        ? 'border-green-500/50 bg-green-500/10'
-                                        : 'border-[#2a2a2a] bg-[#0f0f0f] hover:border-[#C7913E]/50 hover:bg-[#C7913E]/5'
-                                    }`}
-                            >
-                                <input
-                                    type="file"
-                                    accept="video/*"
-                                    required={!editingId}
-                                    onChange={handleFileChange}
-                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                />
-                                {videoFile ? (
-                                    <div className="flex items-center justify-center gap-3">
-                                        <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
-                                            <Video size={24} className="text-green-400" />
+                        {activeTab === 'landing' ? (
+                            <div>
+                                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                                    Video File {editingId ? '(Optional - leave empty to keep current)' : ''}
+                                </label>
+                                <div
+                                    onDragOver={(e) => { e.preventDefault(); setDragFile(true); }}
+                                    onDragLeave={() => setDragFile(false)}
+                                    onDrop={handleDrop}
+                                    className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${dragFile
+                                        ? 'border-[#C7913E] bg-[#C7913E]/10'
+                                        : videoFile
+                                            ? 'border-green-500/50 bg-green-500/10'
+                                            : 'border-[#2a2a2a] bg-[#0f0f0f] hover:border-[#C7913E]/50 hover:bg-[#C7913E]/5'
+                                        }`}
+                                >
+                                    <input
+                                        type="file"
+                                        accept="video/*"
+                                        required={!editingId && !formData.videoUrl}
+                                        onChange={handleFileChange}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    {videoFile ? (
+                                        <div className="flex items-center justify-center gap-3">
+                                            <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center">
+                                                <Video size={24} className="text-green-400" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="font-medium text-green-400">{videoFile.name}</p>
+                                                <p className="text-sm text-green-500/70">
+                                                    {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="text-left">
-                                            <p className="font-medium text-green-400">{videoFile.name}</p>
-                                            <p className="text-sm text-green-500/70">
-                                                {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
-                                            </p>
+                                    ) : formData.videoUrl && !editingId ? (
+                                        <div className="text-neutral-300">File already selected: {formData.videoUrl}</div>
+                                    ) : (
+                                        <>
+                                            <Upload size={40} className={`mx-auto mb-3 ${dragFile ? 'text-[#C7913E]' : 'text-neutral-500'}`} />
+                                            <p className="text-neutral-300 font-medium">Drag and drop your video here</p>
+                                            <p className="text-sm text-neutral-500 mt-1">or click to browse · MP4, MOV, WebM</p>
+                                        </>
+                                    )}
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-xs text-neutral-500 uppercase tracking-widest mb-2">Or Provide URL</p>
+                                    <input
+                                        type="text"
+                                        name="videoUrl"
+                                        value={formData.videoUrl}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] outline-none transition-all"
+                                        placeholder="https://example.com/video.mp4"
+                                    />
+                                </div>
+                            </div>
+                        ) : (
+                            <div>
+                                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                                    YouTube Video URL
+                                </label>
+                                <div className="relative">
+                                    <Youtube className="absolute left-4 top-1/2 -translate-y-1/2 text-red-500" size={20} />
+                                    <input
+                                        type="text"
+                                        name="videoUrl"
+                                        value={formData.videoUrl}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full pl-12 pr-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] outline-none transition-all hover:border-[#3a3a3a]"
+                                        placeholder="https://www.youtube.com/watch?v=..."
+                                    />
+                                </div>
+                                {formData.videoUrl && extractYoutubeId(formData.videoUrl) && (
+                                    <div className="mt-4 p-4 bg-[#0f0f0f] rounded-xl border border-[#2a2a2a] flex items-center gap-4">
+                                        <img
+                                            src={`https://img.youtube.com/vi/${extractYoutubeId(formData.videoUrl)}/mqdefault.jpg`}
+                                            alt="Preview"
+                                            className="w-32 h-20 object-cover rounded-lg"
+                                        />
+                                        <div>
+                                            <p className="text-xs font-bold text-[#C7913E] uppercase tracking-wider">Preview Detected</p>
+                                            <p className="text-sm text-neutral-400 mt-1">YouTube ID: {extractYoutubeId(formData.videoUrl)}</p>
                                         </div>
                                     </div>
-                                ) : (
-                                    <>
-                                        <Upload size={40} className={`mx-auto mb-3 ${dragFile ? 'text-[#C7913E]' : 'text-neutral-500'}`} />
-                                        <p className="text-neutral-300 font-medium">
-                                            Drag and drop your video here
-                                        </p>
-                                        <p className="text-sm text-neutral-500 mt-1">
-                                            or click to browse · MP4, MOV, WebM
-                                        </p>
-                                    </>
                                 )}
                             </div>
-                        </div>
+                        )}
 
                         <div className="flex justify-end gap-3 pt-4 border-t border-[#2a2a2a]">
                             <button
@@ -445,16 +514,11 @@ const LandingVideos = () => {
                                 className="flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-6 py-2.5 rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#C7913E]/20"
                             >
                                 {submitting ? (
-                                    <>
-                                        <Loader size={18} className="animate-spin" />
-                                        Saving...
-                                    </>
+                                    <Loader size={18} className="animate-spin" />
                                 ) : (
-                                    <>
-                                        <Upload size={18} />
-                                        {editingId ? 'Update Video' : 'Upload Video'}
-                                    </>
+                                    <Upload size={18} />
                                 )}
+                                {submitting ? 'Saving...' : editingId ? 'Update Video' : 'Save Video'}
                             </button>
                         </div>
                     </form>
@@ -462,22 +526,27 @@ const LandingVideos = () => {
             )}
 
             {/* Videos List */}
-            <div className="space-y-3">
-                {videos.length === 0 ? (
-                    <div className="bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] p-12 text-center">
-                        <div className="w-20 h-20 rounded-full bg-[#252525] flex items-center justify-center mx-auto mb-4">
-                            <Video size={32} className="text-neutral-500" />
+            <div className="space-y-4">
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-20">
+                        <Loader className="animate-spin text-[#C7913E] mb-4" size={40} />
+                        <p className="text-neutral-500">Loading {activeTab} videos...</p>
+                    </div>
+                ) : videos.length === 0 ? (
+                    <div className="bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a] p-16 text-center">
+                        <div className="w-20 h-20 rounded-full bg-[#252525] flex items-center justify-center mx-auto mb-6">
+                            {activeTab === 'landing' ? <Video size={32} className="text-neutral-600" /> : <Youtube size={32} className="text-neutral-600" />}
                         </div>
-                        <h3 className="text-lg font-semibold text-white mb-2">No videos yet</h3>
-                        <p className="text-neutral-500 mb-6">
-                            Add your first landing page video to get started
+                        <h3 className="text-xl font-bold text-white mb-2">No {activeTab} videos found</h3>
+                        <p className="text-neutral-500 mb-8 max-w-sm mx-auto">
+                            Start building your {activeTab === 'landing' ? 'landing page hero section' : 'news room video gallery'} by adding your first video.
                         </p>
                         <button
                             onClick={() => {
-                                setFormData({ title: '', order: 1 });
+                                setFormData({ title: '', order: 1, videoUrl: '' });
                                 setShowForm(true);
                             }}
-                            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-5 py-2.5 rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"
+                            className="inline-flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-6 py-3 rounded-xl font-bold hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"
                         >
                             <Plus size={20} /> Add Your First Video
                         </button>
@@ -497,6 +566,7 @@ const LandingVideos = () => {
                                     <SortableVideoRow
                                         key={video._id}
                                         video={video}
+                                        activeTab={activeTab}
                                         onEdit={handleEdit}
                                         onDelete={openDeleteConfirm}
                                         onPreview={handlePreview}
@@ -508,45 +578,40 @@ const LandingVideos = () => {
                 )}
             </div>
 
-            {/* Info Card */}
-            {videos.length > 0 && (
-                <div className="bg-gradient-to-r from-[#C7913E]/10 to-[#8C5D25]/10 rounded-xl p-4 border border-[#C7913E]/20">
-                    <div className="flex items-start gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#C7913E]/20 flex items-center justify-center flex-shrink-0">
-                            <GripVertical size={16} className="text-[#C7913E]" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-medium text-[#D4A558]">
-                                Pro tip: Drag videos to reorder
-                            </p>
-                            <p className="text-xs text-[#C7913E]/70 mt-0.5">
-                                Changes are saved automatically. The order determines how videos appear on the landing page.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
-
             {/* Video Preview Modal */}
             {previewVideo && (
-                <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setPreviewVideo(null)}>
-                    <div className="bg-[#1a1a1a] rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-[#2a2a2a]" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-between p-4 border-b border-[#2a2a2a]">
-                            <h3 className="font-semibold text-white">{previewVideo.title}</h3>
+                <div className="fixed inset-0 bg-black/95 backdrop-blur-md flex items-center justify-center z-50 p-4" onClick={() => setPreviewVideo(null)}>
+                    <div className="bg-[#1a1a1a] rounded-2xl max-w-5xl w-full max-h-[90vh] overflow-hidden border border-[#2a2a2a] shadow-2xl animate-scaleIn" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between p-5 border-b border-[#2a2a2a] bg-[#0f0f0f]/50">
+                            <h3 className="font-bold text-white flex items-center gap-2">
+                                {previewVideo.isYoutube ? <Youtube className="text-red-500" size={18} /> : <Video className="text-[#C7913E]" size={18} />}
+                                {previewVideo.title}
+                            </h3>
                             <button
                                 onClick={() => setPreviewVideo(null)}
-                                className="p-2 rounded-lg hover:bg-[#252525] text-neutral-400 transition-colors"
+                                className="p-2.5 rounded-xl hover:bg-[#252525] text-neutral-400 hover:text-white transition-all"
                             >
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="aspect-video bg-black">
-                            <video
-                                src={previewVideo.fullUrl}
-                                controls
-                                autoPlay
-                                className="w-full h-full"
-                            />
+                        <div className="aspect-video bg-black relative">
+                            {previewVideo.isYoutube ? (
+                                <iframe
+                                    className="w-full h-full"
+                                    src={`https://www.youtube.com/embed/${previewVideo.ytId}?autoplay=1`}
+                                    title={previewVideo.title}
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
+                            ) : (
+                                <video
+                                    src={previewVideo.fullUrl}
+                                    controls
+                                    autoPlay
+                                    className="w-full h-full"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -561,15 +626,8 @@ const LandingVideos = () => {
                                 <Trash2 size={32} className="text-red-400" />
                             </div>
                             <h3 className="text-xl font-bold text-white text-center mb-2">Delete Video?</h3>
-                            <p className="text-neutral-400 text-center mb-2">
-                                Are you sure you want to delete
-                            </p>
-                            <p className="text-white font-medium text-center truncate px-4 mb-6">
-                                "{deleteConfirm.title || 'this video'}"
-                            </p>
-                            <p className="text-xs text-neutral-500 text-center mb-6">
-                                This action cannot be undone.
-                            </p>
+                            <p className="text-neutral-400 text-center mb-2">Are you sure you want to remove</p>
+                            <p className="text-white font-bold text-center truncate px-4 mb-6 uppercase tracking-tight">"{deleteConfirm.title}"</p>
                             <div className="flex gap-3">
                                 <button
                                     onClick={closeDeleteConfirm}
@@ -581,19 +639,10 @@ const LandingVideos = () => {
                                 <button
                                     onClick={handleDelete}
                                     disabled={deleting}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                    className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                                 >
-                                    {deleting ? (
-                                        <>
-                                            <Loader size={18} className="animate-spin" />
-                                            Deleting...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Trash2 size={18} />
-                                            Delete
-                                        </>
-                                    )}
+                                    {deleting ? <Loader size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                                    {deleting ? 'Removing...' : 'Delete'}
                                 </button>
                             </div>
                         </div>

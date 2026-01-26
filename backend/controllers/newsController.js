@@ -1,6 +1,22 @@
 import News from '../models/newsModel.js';
 import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
 import { createNotification } from './notificationController.js';
+import slugify from 'slugify';
+
+const generateSlug = async (title) => {
+    let slug = slugify(title, { lower: true, strict: true });
+    let exists = await News.findOne({ slug });
+    let counter = 1;
+    while (exists) {
+        const newSlug = `${slug}-${counter}`;
+        exists = await News.findOne({ slug: newSlug });
+        if (!exists) {
+            slug = newSlug;
+        }
+        counter++;
+    }
+    return slug;
+};
 
 // Get all news articles
 export const getAllNews = async (req, res) => {
@@ -56,6 +72,28 @@ export const getNews = async (req, res) => {
     }
 };
 
+// Get news by slug
+export const getNewsBySlug = async (req, res) => {
+    try {
+        const news = await News.findOne({ slug: req.params.slug });
+        if (!news) {
+            return res.status(404).json({
+                status: 'fail',
+                message: 'News article not found'
+            });
+        }
+        res.status(200).json({
+            status: 'success',
+            data: news
+        });
+    } catch (error) {
+        res.status(400).json({
+            status: 'fail',
+            message: error.message
+        });
+    }
+};
+
 // Create new news article
 export const createNews = async (req, res) => {
     console.log("Body------->", req.body);
@@ -76,6 +114,7 @@ export const createNews = async (req, res) => {
             content,
             category,
             date,
+            slug: await generateSlug(title),
             status: status || 'live',
             author: author || 'Admin',
             image: imageData
@@ -109,6 +148,13 @@ export const updateNews = async (req, res) => {
             const oldNews = await News.findById(req.params.id);
             if (oldNews && oldNews.image && oldNews.image.public_id) {
                 await deleteCloudinaryAsset(oldNews.image.public_id);
+            }
+        }
+
+        if (req.body.title) {
+            const oldNews = await News.findById(req.params.id);
+            if (oldNews && oldNews.title !== req.body.title) {
+                updateData.slug = await generateSlug(req.body.title);
             }
         }
 
@@ -184,6 +230,7 @@ export const submitUserNews = async (req, res) => {
             title,
             content,
             category,
+            slug: await generateSlug(title),
             author: author || submitterName || 'Anonymous',
             status: 'pending',
             image: imageData,

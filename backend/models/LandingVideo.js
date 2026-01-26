@@ -15,6 +15,11 @@ const landingVideoSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    type: {
+        type: String,
+        enum: ['landing', 'newsroom'],
+        default: 'landing'
+    },
     createdAt: {
         type: Date,
         default: Date.now

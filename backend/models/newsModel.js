@@ -10,6 +10,7 @@ const newsSchema = new mongoose.Schema({
     enum: ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL']
   },
   date: { type: String }, // Custom display date
+  slug: { type: String, unique: true },
   image: {
     url: { type: String },        // secure/public URL stored from Cloudinary
     public_id: { type: String }   // Cloudinary public_id used for deletion
