@@ -599,9 +599,9 @@ const AddEvent = () => {
                     className="p-2 hover:bg-gray-200 rounded-full transition-colors"
                     title="Go Back"
                 >
-                    <ArrowLeft className="w-6 h-6" />
+                    <ArrowLeft className="w-6 h-6 text-white" />
                 </button>
-                <h1 className="text-3xl font-bold">Add New Event</h1>
+                <h1 className="text-3xl font-bold text-white">Add New Event</h1>
             </div>
 
 

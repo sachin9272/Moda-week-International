@@ -8,6 +8,7 @@ import { compressImageIfNeeded } from '../../utils/imageCompression';
 
 const AddUpcomingEvent = () => {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         eventDate: '',
@@ -253,9 +254,9 @@ const AddUpcomingEvent = () => {
                     onClick={() => navigate(-1)}
                     className="p-2 hover:bg-gray-200 rounded-full transition-colors"
                 >
-                    <ArrowLeft className="w-6 h-6" />
+                    <ArrowLeft className="w-6 h-6 text-white" />
                 </button>
-                <h1 className="text-3xl font-bold">Add Upcoming Event</h1>
+                <h1 className="text-3xl font-bold text-white">Add Upcoming Event</h1>
             </div>
 
             <form onSubmit={handleSubmit} className="max-w-4xl space-y-8">
