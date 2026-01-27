@@ -4,8 +4,71 @@ import axios from "axios";
 import { baseURL } from "../config/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { MapPin, Calendar, Check, Minus, Plus } from "lucide-react";
+import { MapPin, Calendar, Check, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import UserDetailsModal from "../components/UserDetailsModal";
+
+const AutoScrollCarousel = ({ images }) => {
+    const scrollRef = React.useRef(null);
+    const [isInteracting, setIsInteracting] = React.useState(false);
+
+    React.useEffect(() => {
+        const scrollContainer = scrollRef.current;
+        if (!scrollContainer) return;
+
+        let animationFrameId;
+        const scrollSpeed = 1;
+
+        const scroll = () => {
+            if (!isInteracting && scrollContainer) {
+                if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth / 2) {
+                    scrollContainer.scrollLeft = 0;
+                } else {
+                    scrollContainer.scrollLeft += scrollSpeed;
+                }
+            }
+            animationFrameId = requestAnimationFrame(scroll);
+        };
+
+        animationFrameId = requestAnimationFrame(scroll);
+
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [isInteracting]);
+
+    return (
+        <div
+            className="w-full relative group mt-8"
+            onTouchStart={() => setIsInteracting(true)}
+            onTouchEnd={() => setIsInteracting(false)}
+        >
+            <div
+                ref={scrollRef}
+                className="flex overflow-x-auto gap-[10px] pb-0 scrollbar-hide px-0"
+                style={{ scrollBehavior: 'auto' }}
+            >
+                {images.map((img, i) => (
+                    <div key={`orig-${i}`} className="h-[400px] md:h-[500px] w-auto relative shrink-0">
+                        <img
+                            src={img}
+                            alt={`Collection ${i}`}
+                            className="w-full h-full object-cover select-none"
+                            draggable="false"
+                        />
+                    </div>
+                ))}
+                {images.map((img, i) => (
+                    <div key={`dup-${i}`} className="h-[400px] md:h-[500px] w-auto relative shrink-0">
+                        <img
+                            src={img}
+                            alt={`Collection Duplicate ${i}`}
+                            className="w-full h-full object-cover select-none"
+                            draggable="false"
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 export default function EventTicketDetails() {
     const { id } = useParams();
@@ -99,6 +162,72 @@ export default function EventTicketDetails() {
             alert("Checkout failed. Please try again.");
         } finally {
             setIsModalOpen(false);
+        }
+    };
+
+    const renderCollection = (collection, index) => {
+        const layout = collection.layout || 'grid';
+        const images = collection.images.map(img => img?.url || img);
+
+        if (layout === 'carousel') {
+            const designerImageUrl = collection.designerImage?.url || collection.designerImage;
+            return (
+                <div key={index} className="py-12 border-t border-gray-800">
+                    <div className="flex flex-col md:flex-row gap-12 items-start mb-12">
+                        {designerImageUrl && (
+                            <div className="w-full md:w-[350px] shrink-0">
+                                <div className="relative aspect-[3/4] overflow-hidden rounded-lg shadow-2xl border border-gray-800">
+                                    <img src={designerImageUrl} alt={collection.title} className="w-full h-full object-cover object-top" />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="flex-1 space-y-6">
+                            <div className="space-y-2">
+                                <h2 className="text-3xl md:text-4xl font-serif font-bold text-amber-500 uppercase tracking-wide">{collection.title}</h2>
+                                {collection.subtitle && <p className="text-xl uppercase tracking-[0.3em] text-gray-400">{collection.subtitle}</p>}
+                            </div>
+
+                            {collection.description ? (
+                                <div className="prose prose-invert max-w-none text-gray-300 text-lg leading-relaxed text-justify">
+                                    {collection.description.split('\n').map((para, i) => (
+                                        <p key={i}>{para}</p>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-gray-500 italic">No biography available.</p>
+                            )}
+                        </div>
+                    </div>
+                    <AutoScrollCarousel images={images} />
+                </div>
+            );
+        } else {
+            const ratioMap = {
+                'portrait': '3/4',
+                'landscape': '16/9',
+                'square': '1/1',
+                'auto': 'auto'
+            };
+            const ratio = ratioMap[collection.gridAspectRatio] || '3/4';
+            const itemStyle = ratio === 'auto' ? { height: '500px' } : { aspectRatio: ratio.replace('/', ':') };
+
+            return (
+                <div key={index} className="py-12 border-t border-gray-800">
+                    <div className="mb-8 flex flex-wrap items-baseline gap-4">
+                        <h2 className="text-3xl font-serif font-bold text-amber-500 uppercase">{collection.title}</h2>
+                        {collection.subtitle && <span className="text-gray-400 uppercase tracking-widest text-lg">{collection.subtitle}</span>}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {images.map((img, i) => (
+                            <div key={i} className="relative group overflow-hidden rounded-lg shadow-xl" style={itemStyle}>
+                                <img src={img} alt={`Walk ${i}`} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110" />
+                                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all duration-500"></div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
         }
     };
 
@@ -197,6 +326,20 @@ export default function EventTicketDetails() {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Collections Section */}
+            <div className="container mx-auto px-6 pb-20">
+                {event.collections && event.collections.length > 0 && (
+                    <div className="mt-12">
+                        <h2 className="text-4xl font-serif font-bold mb-12 text-center text-white italic border-b border-amber-500/20 pb-8 tracking-[0.2em] uppercase">
+                            Featured Collections
+                        </h2>
+                        <div className="space-y-20">
+                            {event.collections.map((col, idx) => renderCollection(col, idx))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             <UserDetailsModal

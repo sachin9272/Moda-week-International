@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
-import { Upload, X, ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { Upload, X, ArrowLeft, Plus, Trash2, Pencil } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { compressImageIfNeeded } from '../../utils/imageCompression';
 
@@ -17,8 +17,9 @@ const EditUpcomingEvent = () => {
         eventDate: '',
         location: '',
         description: '',
-        coverImage: null, // Can be URL string or File object
-        ticketTypes: []
+        coverImage: null,
+        ticketTypes: [],
+        collections: []
     });
 
     const [currentTicket, setCurrentTicket] = useState({
@@ -26,6 +27,31 @@ const EditUpcomingEvent = () => {
         price: '',
         description: ''
     });
+
+    const [currentCollection, setCurrentCollection] = useState({
+        title: '',
+        subtitle: '',
+        description: '',
+        designerId: null,
+        designerImage: null,
+        layout: 'grid',
+        gridAspectRatio: 'portrait',
+        images: []
+    });
+
+    const [designers, setDesigners] = useState([]);
+
+    useEffect(() => {
+        const fetchDesigners = async () => {
+            try {
+                const response = await axios.get(`${API_BASE_URL}/api/fashion-designers?limit=100`);
+                setDesigners(response.data.designers || []);
+            } catch (error) {
+                console.error("Error fetching designers:", error);
+            }
+        };
+        fetchDesigners();
+    }, []);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -37,8 +63,13 @@ const EditUpcomingEvent = () => {
                     eventDate: event.eventDate,
                     location: event.location,
                     description: event.description || '',
-                    coverImage: event.coverImage?.url || null, // Store URL initially
-                    ticketTypes: event.ticketTypes || []
+                    coverImage: event.coverImage?.url || null,
+                    ticketTypes: event.ticketTypes || [],
+                    collections: (event.collections || []).map(col => ({
+                        ...col,
+                        designerImage: col.designerImage?.url || col.designerImage,
+                        images: (col.images || []).map(img => typeof img === 'string' ? img : img.url)
+                    }))
                 });
             } catch (error) {
                 console.error("Error fetching event:", error);
@@ -95,6 +126,102 @@ const EditUpcomingEvent = () => {
         }));
     };
 
+    const handleDesignerSelect = (e) => {
+        const selectedId = e.target.value;
+        if (!selectedId) return;
+
+        const designer = designers.find(d => d._id === selectedId);
+        if (designer) {
+            setCurrentCollection(prev => ({
+                ...prev,
+                title: designer.name,
+                description: designer.bio,
+                designerId: designer._id,
+                designerImage: designer.image?.url
+            }));
+        }
+    };
+
+    const handleCollectionChange = (e) => {
+        const { name, value } = e.target;
+        setCurrentCollection(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCollectionImages = async (e) => {
+        if (e.target.files) {
+            const newFiles = Array.from(e.target.files);
+            const processedFiles = [];
+
+            for (const file of newFiles) {
+                if (file.type.startsWith('image/')) {
+                    const compressed = await compressImageIfNeeded(file);
+                    processedFiles.push(compressed);
+                } else if (file.size > 10 * 1024 * 1024) {
+                    toast.error(`${file.name} is too large. Maximum is 10MB for videos.`);
+                } else {
+                    processedFiles.push(file);
+                }
+            }
+
+            if (processedFiles.length > 0) {
+                setCurrentCollection(prev => ({
+                    ...prev,
+                    images: [...prev.images, ...processedFiles]
+                }));
+            }
+            e.target.value = '';
+        }
+    };
+
+    const handleDesignerImage = async (e) => {
+        if (e.target.files && e.target.files[0]) {
+            let file = e.target.files[0];
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size too large. Maximum is 10MB.");
+                e.target.value = '';
+                return;
+            }
+            setCurrentCollection(prev => ({ ...prev, designerImage: file }));
+        }
+    };
+
+    const removeCollectionImage = (index) => {
+        setCurrentCollection(prev => ({
+            ...prev,
+            images: prev.images.filter((_, i) => i !== index)
+        }));
+    };
+
+    const addCollection = () => {
+        if (currentCollection.title && currentCollection.images.length > 0) {
+            setFormData(prev => ({
+                ...prev,
+                collections: [...prev.collections, currentCollection]
+            }));
+            setCurrentCollection({
+                title: '',
+                subtitle: '',
+                description: '',
+                designerId: null,
+                designerImage: null,
+                layout: 'grid',
+                gridAspectRatio: 'portrait',
+                images: []
+            });
+        } else {
+            toast.error("Collection must have a Title and at least one image.");
+        }
+    };
+
+    const removeCollection = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            collections: prev.collections.filter((_, i) => i !== index)
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -111,12 +238,27 @@ const EditUpcomingEvent = () => {
         data.append('location', formData.location);
         data.append('description', formData.description);
 
-        // Only append coverImage if it's a File object (new upload)
         if (formData.coverImage instanceof File) {
             data.append('coverImage', formData.coverImage);
         }
 
         data.append('ticketTypes', JSON.stringify(formData.ticketTypes));
+        data.append('collections', JSON.stringify(formData.collections.map(col => ({
+            ...col,
+            images: col.images.filter(img => !(img instanceof File)),
+            designerImage: col.designerImage instanceof File ? null : col.designerImage
+        }))));
+
+        formData.collections.forEach((col, index) => {
+            col.images.forEach(img => {
+                if (img instanceof File) {
+                    data.append(`collectionImages_${index}`, img);
+                }
+            });
+            if (col.designerImage instanceof File) {
+                data.append(`collectionDesignerImage_${index}`, col.designerImage);
+            }
+        });
 
         try {
             await axios.put(`${API_BASE_URL}/api/upcoming-events/update/${id}`, data, {
@@ -236,6 +378,112 @@ const EditUpcomingEvent = () => {
                                     <button type="button" onClick={() => removeTicket(idx)} className="text-red-400 hover:text-red-300">
                                         <Trash2 size={18} />
                                     </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold text-blue-400">Designer Collections</h2>
+                    </div>
+
+                    <div className="space-y-6 mb-8 p-4 bg-gray-900 rounded-lg">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Select Designer (Optional)</label>
+                                <select onChange={handleDesignerSelect} className="w-full p-2 bg-gray-700 rounded text-white text-sm">
+                                    <option value="">-- Choose Designer --</option>
+                                    {designers.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Collection Title <span className="text-red-500">*</span></label>
+                                <input type="text" name="title" value={currentCollection.title} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm" placeholder="e.g. Summer Collection" />
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Subtitle</label>
+                                <input type="text" name="subtitle" value={currentCollection.subtitle} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm" />
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Aspect Ratio</label>
+                                <select name="gridAspectRatio" value={currentCollection.gridAspectRatio} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm">
+                                    <option value="portrait">Portrait (3:4)</option>
+                                    <option value="landscape">Landscape (16:9)</option>
+                                    <option value="square">Square (1:1)</option>
+                                </select>
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-gray-400 mb-1 text-sm">Designer Biography</label>
+                                <textarea name="description" value={currentCollection.description} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm min-h-[60px]" />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Designer Image</label>
+                                <div className="flex items-center gap-4">
+                                    {currentCollection.designerImage && (
+                                        <img src={typeof currentCollection.designerImage === 'string' ? currentCollection.designerImage : URL.createObjectURL(currentCollection.designerImage)} className="w-16 h-16 object-cover rounded shadow-lg border border-gray-600" />
+                                    )}
+                                    <label className="flex-1 cursor-pointer bg-gray-700 p-2 rounded border border-dashed border-gray-500 text-center hover:bg-gray-600 transition-colors">
+                                        <span className="text-xs text-blue-400 flex items-center justify-center gap-2"><Upload size={14} /> Upload Designer Photo</span>
+                                        <input type="file" onChange={handleDesignerImage} accept="image/*" className="hidden" />
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Collection Images <span className="text-red-500">*</span></label>
+                                <label className="cursor-pointer bg-blue-600/20 p-2 rounded border border-dashed border-blue-500/50 block text-center hover:bg-blue-600/30 transition-colors">
+                                    <span className="text-xs text-blue-400 flex items-center justify-center gap-2"><Plus size={14} /> Add Images</span>
+                                    <input type="file" multiple onChange={handleCollectionImages} accept="image/*" className="hidden" />
+                                </label>
+                            </div>
+                        </div>
+
+                        {currentCollection.images.length > 0 && (
+                            <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                                {currentCollection.images.map((img, idx) => (
+                                    <div key={idx} className="relative group">
+                                        <img src={img instanceof File ? URL.createObjectURL(img) : img} className="w-full aspect-square object-cover rounded shadow-sm border border-gray-700" />
+                                        <button type="button" onClick={() => removeCollectionImage(idx)} className="absolute -top-1 -right-1 bg-red-600 p-1 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
+                                            <X size={10} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <button type="button" onClick={addCollection} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-bold shadow-lg transition-transform active:scale-[0.98]">
+                            Add/Update Collection to Event
+                        </button>
+                    </div>
+
+                    {formData.collections.length > 0 && (
+                        <div className="space-y-3">
+                            {formData.collections.map((col, idx) => (
+                                <div key={idx} className="flex items-center justify-between bg-gray-700/50 p-3 rounded border border-gray-600">
+                                    <div className="flex items-center gap-3">
+                                        {col.designerImage && (
+                                            <img src={typeof col.designerImage === 'string' ? col.designerImage : URL.createObjectURL(col.designerImage)} className="w-10 h-10 object-cover rounded shadow-sm" />
+                                        )}
+                                        <div>
+                                            <p className="font-bold text-white text-sm leading-tight">{col.title}</p>
+                                            <p className="text-xs text-gray-400">{col.images.length} images</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button type="button" onClick={() => {
+                                            setCurrentCollection(col);
+                                            removeCollection(idx);
+                                        }} className="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-900/20 rounded-full transition-colors">
+                                            <Pencil size={16} />
+                                        </button>
+                                        <button type="button" onClick={() => removeCollection(idx)} className="text-red-400 hover:text-red-300 p-2 hover:bg-red-900/20 rounded-full transition-colors">
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

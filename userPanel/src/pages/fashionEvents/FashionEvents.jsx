@@ -101,8 +101,8 @@ export default function FashionEvents() {
         <div className="max-w-7xl mx-auto px-4 pt-28 pb-16">
           {/* Header */}
           <div className="text-center mb-16 max-w-9xl mx-auto">
-            <h1 className="relative inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-10 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
-              GLOBAL EVENTS
+            <h1 className="relative uppercase inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-10 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
+              Upcoming EVENTS
               <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#3C2306] to-[#C7913E]"></span>
             </h1>
 

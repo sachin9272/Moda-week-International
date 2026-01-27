@@ -21,6 +21,30 @@ export const createUpcomingEvent = async (req, res) => {
         const coverImageFile = files.find(f => f.fieldname === 'coverImage');
         const coverImage = coverImageFile ? { url: coverImageFile.path, publicId: coverImageFile.filename } : null;
 
+        let collections = [];
+        if (req.body.collections) {
+            try {
+                collections = JSON.parse(req.body.collections);
+            } catch (e) {
+                console.error("Error parsing collections JSON:", e);
+            }
+        }
+
+        const collectionsWithImages = collections.map((col, index) => {
+            const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
+            const newImages = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
+
+            const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
+            const designerImage = designerImageFile ? { url: designerImageFile.path, publicId: designerImageFile.filename } : null;
+
+            return {
+                ...col,
+                images: newImages,
+                designerImage,
+                gridAspectRatio: col.gridAspectRatio || 'portrait'
+            };
+        });
+
         const newEvent = new UpcomingEvent({
             title,
             eventDate,
@@ -28,7 +52,8 @@ export const createUpcomingEvent = async (req, res) => {
             description,
             status: status || 'hidden',
             coverImage,
-            ticketTypes
+            ticketTypes,
+            collections: collectionsWithImages
         });
 
         const savedEvent = await newEvent.save();
@@ -110,6 +135,105 @@ export const updateUpcomingEvent = async (req, res) => {
         // If we want to allow removing the image without replacing, we'd need a flag or empty value logic. 
         // For now, assume if not sent, keep existing.
 
+        const getSafeImage = (img) => {
+            if (!img) return null;
+            if (typeof img === 'string') return { url: img };
+            if (img.url) return { url: img.url, publicId: img.publicId };
+            return null;
+        };
+
+        if (req.body.collections) {
+            let incomingCollections = [];
+            try {
+                incomingCollections = JSON.parse(req.body.collections);
+            } catch (e) {
+                console.error("Error parsing collections JSON:", e);
+            }
+
+            const keptImageUrls = new Set();
+            incomingCollections.forEach(col => {
+                if (col.images) {
+                    col.images.forEach(img => {
+                        if (typeof img === 'string') keptImageUrls.add(img);
+                        else if (img.url) keptImageUrls.add(img.url);
+                    });
+                }
+                if (col.designerImage) {
+                    if (typeof col.designerImage === 'string') keptImageUrls.add(col.designerImage);
+                    else if (col.designerImage.url) keptImageUrls.add(col.designerImage.url);
+                }
+            });
+
+            // Cleanup removed assets
+            if (event.collections) {
+                for (const col of event.collections) {
+                    if (col.images) {
+                        for (const img of col.images) {
+                            if (img && img.url && !keptImageUrls.has(img.url) && img.publicId) {
+                                await deleteCloudinaryAsset(img.publicId, 'image');
+                            }
+                        }
+                    }
+                    if (col.designerImage && col.designerImage.publicId) {
+                        if (!keptImageUrls.has(col.designerImage.url)) {
+                            await deleteCloudinaryAsset(col.designerImage.publicId, 'image');
+                        }
+                    }
+                }
+            }
+
+            // Map new collections
+            const newCollections = incomingCollections.map((col, index) => {
+                const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
+                const newImagesParts = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
+
+                const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
+                let designerImage = null;
+
+                if (designerImageFile) {
+                    designerImage = { url: designerImageFile.path, publicId: designerImageFile.filename };
+                } else if (col.designerImage) {
+                    const diUrl = typeof col.designerImage === 'string' ? col.designerImage : col.designerImage.url;
+                    let foundDI = null;
+                    if (event.collections) {
+                        event.collections.forEach(oldCol => {
+                            const safeDI = getSafeImage(oldCol.designerImage);
+                            if (safeDI && safeDI.url === diUrl) foundDI = safeDI;
+                        });
+                    }
+                    designerImage = foundDI || (typeof col.designerImage === 'string' ? { url: col.designerImage } : col.designerImage);
+                }
+
+                const existingImagesObjects = [];
+                if (col.images) {
+                    col.images.forEach(imgData => {
+                        const urlStr = typeof imgData === 'string' ? imgData : imgData.url;
+                        let found = null;
+                        if (event.collections) {
+                            event.collections.forEach(oldCol => {
+                                if (oldCol.images) {
+                                    const match = oldCol.images.find(oldImg => {
+                                        const safeImg = getSafeImage(oldImg);
+                                        return safeImg && safeImg.url === urlStr;
+                                    });
+                                    if (match) found = getSafeImage(match);
+                                }
+                            });
+                        }
+                        if (found) existingImagesObjects.push(found);
+                        else if (typeof imgData !== 'string') existingImagesObjects.push(imgData);
+                    });
+                }
+
+                return {
+                    ...col,
+                    designerImage,
+                    images: [...existingImagesObjects, ...newImagesParts]
+                };
+            });
+            event.collections = newCollections;
+        }
+
         if (title) event.title = title;
         if (eventDate) event.eventDate = eventDate;
         if (location) event.location = location;
@@ -137,6 +261,19 @@ export const deleteUpcomingEvent = async (req, res) => {
 
         if (event.coverImage && event.coverImage.publicId) {
             await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
+        }
+
+        if (event.collections) {
+            for (const col of event.collections) {
+                if (col.images) {
+                    for (const img of col.images) {
+                        if (img && img.publicId) await deleteCloudinaryAsset(img.publicId, 'image');
+                    }
+                }
+                if (col.designerImage && col.designerImage.publicId) {
+                    await deleteCloudinaryAsset(col.designerImage.publicId, 'image');
+                }
+            }
         }
 
         await UpcomingEvent.findByIdAndDelete(id);
