@@ -62,7 +62,7 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Global Events", path: "/events", category: "Experience" },
+    { name: "Upcoming Events", path: "/events", category: "Experience" },
     { name: "Past Events", path: "/past-events", category: "Experience" },
     { name: "Services", path: "/service", category: "Business" },
     { name: "About Us", path: "/about", category: "Company" },

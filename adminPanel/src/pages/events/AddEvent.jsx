@@ -6,6 +6,7 @@ import { Upload, X, ArrowLeft, Pencil } from 'lucide-react';
 import ImageEditorModal from '../../components/ImageEditorModal';
 import { Editor } from '@tinymce/tinymce-react';
 import toast from 'react-hot-toast';
+import { compressImageIfNeeded } from '../../utils/imageCompression';
 
 const AddEvent = () => {
     const navigate = useNavigate();
@@ -245,15 +246,25 @@ const AddEvent = () => {
 
     const [isDragging, setIsDragging] = useState(false);
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         const { name, files } = e.target;
         if (files && files[0]) {
+            let file = files[0];
+
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size too large. Maximum is 10MB for videos.");
+                e.target.value = '';
+                return;
+            }
+
             if (name === 'bottomSection.image') {
                 setFormData(prev => ({
                     ...prev,
                     bottomSection: {
                         ...prev.bottomSection,
-                        image: files[0]
+                        image: file
                     }
                 }));
             } else if (name === 'descriptionSection.image') {
@@ -261,7 +272,7 @@ const AddEvent = () => {
                     ...prev,
                     descriptionSection: {
                         ...prev.descriptionSection,
-                        image: files[0]
+                        image: file
                     }
                 }));
             } else if (name === 'videoSection.file') {
@@ -269,11 +280,11 @@ const AddEvent = () => {
                     ...prev,
                     videoSection: {
                         ...prev.videoSection,
-                        file: files[0]
+                        file: file
                     }
                 }));
             } else {
-                setFormData(prev => ({ ...prev, [name]: files[0] }));
+                setFormData(prev => ({ ...prev, [name]: file }));
             }
         }
     };
@@ -289,38 +300,47 @@ const AddEvent = () => {
         setIsDragging(false);
     };
 
-    const handleDrop = (e, fieldName) => {
+    const handleDrop = async (e, fieldName) => {
         e.preventDefault();
         setIsDragging(false);
         const files = e.dataTransfer.files;
         if (files && files[0]) {
+            let file = files[0];
+
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size too large. Maximum is 10MB for videos.");
+                return;
+            }
+
             if (fieldName === 'descriptionSection.image') {
                 setFormData(prev => ({
                     ...prev,
                     descriptionSection: {
                         ...prev.descriptionSection,
-                        image: files[0]
+                        image: file
                     }
                 }));
+            } else if (fieldName === 'videoSection.file') {
+                setFormData(prev => ({
+                    ...prev,
+                    videoSection: {
+                        ...prev.videoSection,
+                        file: file
+                    }
+                }));
+            } else if (fieldName === 'bottomSection.image') {
+                setFormData(prev => ({
+                    ...prev,
+                    bottomSection: {
+                        ...prev.bottomSection,
+                        image: file
+                    }
+                }));
+            } else {
+                setFormData(prev => ({ ...prev, [fieldName]: file }));
             }
-        } else if (fieldName === 'videoSection.file') {
-            setFormData(prev => ({
-                ...prev,
-                videoSection: {
-                    ...prev.videoSection,
-                    file: files[0]
-                }
-            }));
-        } else if (fieldName === 'bottomSection.image') {
-            setFormData(prev => ({
-                ...prev,
-                bottomSection: {
-                    ...prev.bottomSection,
-                    image: files[0]
-                }
-            }));
-        } else {
-            setFormData(prev => ({ ...prev, [fieldName]: files[0] }));
         }
     }
 
@@ -330,19 +350,45 @@ const AddEvent = () => {
         setCurrentCollection(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCollectionImages = (e) => {
+    const handleCollectionImages = async (e) => {
         if (e.target.files) {
             const newFiles = Array.from(e.target.files);
-            setCurrentCollection(prev => ({
-                ...prev,
-                images: [...prev.images, ...newFiles]
-            }));
+            const processedFiles = [];
+
+            for (const file of newFiles) {
+                if (file.type.startsWith('image/')) {
+                    const compressed = await compressImageIfNeeded(file);
+                    processedFiles.push(compressed);
+                } else if (file.size > 10 * 1024 * 1024) {
+                    toast.error(`${file.name} is too large. Maximum is 10MB for videos.`);
+                } else {
+                    processedFiles.push(file);
+                }
+            }
+
+            if (processedFiles.length > 0) {
+                setCurrentCollection(prev => ({
+                    ...prev,
+                    images: [...prev.images, ...processedFiles]
+                }));
+            }
+            e.target.value = '';
         }
     };
 
-    const handleDesignerImage = (e) => {
+    const handleDesignerImage = async (e) => {
         if (e.target.files && e.target.files[0]) {
-            setCurrentCollection(prev => ({ ...prev, designerImage: e.target.files[0] }));
+            let file = e.target.files[0];
+
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size too large. Maximum is 10MB for videos.");
+                e.target.value = '';
+                return;
+            }
+
+            setCurrentCollection(prev => ({ ...prev, designerImage: file }));
         }
     };
 
@@ -378,9 +424,18 @@ const AddEvent = () => {
         setCurrentTicket(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleTicketImage = (e) => {
+    const handleTicketImage = async (e) => {
         if (e.target.files && e.target.files[0]) {
-            setCurrentTicket(prev => ({ ...prev, image: e.target.files[0] }));
+            let file = e.target.files[0];
+
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size too large. Maximum is 10MB for videos.");
+                e.target.value = '';
+                return;
+            }
+            setCurrentTicket(prev => ({ ...prev, image: file }));
         }
     }
 

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
 import { Upload, X, ArrowLeft, Plus, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { compressImageIfNeeded } from '../../utils/imageCompression';
 
 const AddUpcomingEvent = () => {
     const navigate = useNavigate();
@@ -28,9 +29,18 @@ const AddUpcomingEvent = () => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleFileChange = (e) => {
+    const handleFileChange = async (e) => {
         if (e.target.files && e.target.files[0]) {
-            setFormData(prev => ({ ...prev, coverImage: e.target.files[0] }));
+            let file = e.target.files[0];
+
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size too large. Maximum is 10MB for videos.");
+                e.target.value = '';
+                return;
+            }
+            setFormData(prev => ({ ...prev, coverImage: file }));
         }
     };
 
