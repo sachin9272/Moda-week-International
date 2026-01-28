@@ -871,7 +871,7 @@ const AddEvent = () => {
                             <div>
                                 <label className="block text-gray-400 mb-1">Description Text (Top Section)</label>
                                 <Editor
-                                    apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
+                                    apiKey="apue6l4wni669li3i8o9igdmpcqesfnt8x89juv46kyoajyz"
                                     value={formData.descriptionSection.text}
                                     onEditorChange={(value) => setFormData(prev => ({
                                         ...prev,
@@ -884,7 +884,7 @@ const AddEvent = () => {
                             <div>
                                 <label className="block text-gray-400 mb-1">Description Side Text (Right Section)</label>
                                 <Editor
-                                    apiKey="l6uehhcdr880cgv4cx7sqbzn1mwotm4fwwn8jbo67xjlq0qb"
+                                    apiKey="apue6l4wni669li3i8o9igdmpcqesfnt8x89juv46kyoajyz"
                                     value={formData.descriptionSection.credits}
                                     onEditorChange={(value) => setFormData(prev => ({
                                         ...prev,

@@ -297,6 +297,7 @@ const FashionDesigners = () => {
                                     <option value="Student">Student Designer</option>
                                     <option value="Dancer">Dancer</option>
                                     <option value="Fine Artist">Fine Artist</option>
+                                    <option value="Host">Host</option>
                                     <option value="Singer">Singer</option>
                                 </select>
                             </div>

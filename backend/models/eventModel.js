@@ -45,6 +45,11 @@ const eventSchema = new mongoose.Schema({
                 url: { type: String },
                 publicId: { type: String }
             },
+            day: {
+                type: Number,
+                enum: [1, 2, 3],
+                required: false
+            },
             layout: {
                 type: String,
                 enum: ['grid', 'masonry', 'highlight', 'carousel'],

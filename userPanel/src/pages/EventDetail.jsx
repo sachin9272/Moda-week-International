@@ -79,6 +79,13 @@ const EventDetail = () => {
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Refs for day sections
+    const dayRefs = {
+        1: React.useRef(null),
+        2: React.useRef(null),
+        3: React.useRef(null)
+    };
+
     useEffect(() => {
         const fetchEvent = async () => {
             try {
@@ -114,6 +121,13 @@ const EventDetail = () => {
         };
 
         return `${month} ${getOrdinal(day)}, ${year}`;
+    };
+
+    const scrollToDay = (day) => {
+        const ref = dayRefs[day];
+        if (ref && ref.current) {
+            ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     };
 
     const renderHero = () => {
@@ -203,7 +217,11 @@ const EventDetail = () => {
             // Designer Profile Layout
             const designerImageUrl = collection.designerImage?.url || collection.designerImage;
             return (
-                <div key={index} className="py-10 bg-white">
+                <div
+                    key={index}
+                    className="py-10 bg-white"
+                    ref={collection.day ? dayRefs[collection.day] : null}
+                >
                     <div className="max-w-[95%] mx-auto font-sans">
                         {/* Designer Header Section */}
                         <div className="flex flex-col md:flex-row gap-12 items-start mb-20 border-b border-black pb-12">
@@ -331,6 +349,27 @@ const EventDetail = () => {
             <Navbar />
 
             {renderHero()}
+
+            {/* Day Navigation Buttons - Only show for PAST events with day-tagged collections */}
+            {event.eventType === 'past' && event.collections && event.collections.some(col => col.day) && (
+                <div className="bg-gradient-to-b from-gray-50 to-white py-8 px-4 sticky top-0 z-40 shadow-sm border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto flex justify-center gap-4">
+                        {[1, 2, 3].map(day => {
+                            const hasDay = event.collections.some(col => col.day === day);
+                            if (!hasDay) return null;
+                            return (
+                                <button
+                                    key={day}
+                                    onClick={() => scrollToDay(day)}
+                                    className="px-8 py-3 bg-black text-white font-semibold uppercase tracking-wider text-sm transition-all duration-300 hover:bg-[#C7913E] hover:scale-105 shadow-md hover:shadow-xl"
+                                >
+                                    Day {day}
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
 
             {event.descriptionSection && event.descriptionSection.isVisible && (
                 <div className="py-6 px-8 bg-white relative overflow-hidden mb-8">

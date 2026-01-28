@@ -285,7 +285,7 @@ export default function LandingPage() {
         <div className="container mx-auto pl-4">
           <div className="flex justify-between items-center mb-6 pr-4">
             <h2 className="text-2xl font-bold grad-text">FASHION DESIGNERS</h2>
-            <Link to="/fashion-designers" className="grad-text font-semibold">VIEW ALL</Link>
+            <Link to="/participants" className="grad-text font-semibold">VIEW ALL</Link>
           </div>
 
           <div className="overflow-x-auto scrollbar-hide">

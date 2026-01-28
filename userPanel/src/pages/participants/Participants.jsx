@@ -23,7 +23,7 @@ export default function Participants() {
     const [activeModal, setActiveModal] = useState(null);
 
     // Categories for the tabs
-    const categories = ["Designer", "Student", "Dancer", "Fine Artist"];
+    const categories = ["Designer", "Student", "Dancer", "Fine Artist", "Host"];
 
     // Fetch available countries and events
     useEffect(() => {
@@ -179,10 +179,11 @@ export default function Participants() {
     // Get display label for category
     const getCategoryLabel = (category) => {
         switch (category) {
-            case "Designer": return "Designers";
-            case "Student": return "Student Designers";
-            case "Dancer": return "Performance";
-            case "Fine Artist": return "Fine Artist";
+            case "Designer": return "FASHION DESIGNERS";
+            case "Student": return "STUDENT DESIGNS";
+            case "Dancer": return "PERFORMANCE";
+            case "Fine Artist": return "FINE ARTIST";
+            case "Host": return "HOST";
             default: return category;
         }
     };
