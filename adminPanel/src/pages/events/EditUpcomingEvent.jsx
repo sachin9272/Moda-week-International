@@ -252,7 +252,7 @@ const EditUpcomingEvent = () => {
         data.append('collections', JSON.stringify(formData.collections.map(col => ({
             ...col,
             images: col.images.filter(img => !(img instanceof File)),
-            designerImage: col.designerImage instanceof File ? null : col.designerImage
+            designerImage: typeof col.designerImage === 'string' ? col.designerImage : null
         }))));
 
         formData.collections.forEach((col, index) => {
