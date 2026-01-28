@@ -19,7 +19,8 @@ const EditUpcomingEvent = () => {
         description: '',
         coverImage: null,
         ticketTypes: [],
-        collections: []
+        collections: [],
+        hasTickets: false
     });
 
     const [currentTicket, setCurrentTicket] = useState({
@@ -34,7 +35,7 @@ const EditUpcomingEvent = () => {
         description: '',
         designerId: null,
         designerImage: null,
-        layout: 'grid',
+        layout: 'carousel',
         gridAspectRatio: 'portrait',
         images: []
     });
@@ -69,7 +70,8 @@ const EditUpcomingEvent = () => {
                         ...col,
                         designerImage: col.designerImage?.url || col.designerImage,
                         images: (col.images || []).map(img => typeof img === 'string' ? img : img.url)
-                    }))
+                    })),
+                    hasTickets: event.hasTickets || false
                 });
             } catch (error) {
                 console.error("Error fetching event:", error);
@@ -83,8 +85,11 @@ const EditUpcomingEvent = () => {
     }, [id, navigate]);
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? checked : value
+        }));
     };
 
     const handleFileChange = async (e) => {
@@ -206,7 +211,7 @@ const EditUpcomingEvent = () => {
                 description: '',
                 designerId: null,
                 designerImage: null,
-                layout: 'grid',
+                layout: 'carousel',
                 gridAspectRatio: 'portrait',
                 images: []
             });
@@ -242,7 +247,8 @@ const EditUpcomingEvent = () => {
             data.append('coverImage', formData.coverImage);
         }
 
-        data.append('ticketTypes', JSON.stringify(formData.ticketTypes));
+        data.append('ticketTypes', JSON.stringify(formData.hasTickets ? formData.ticketTypes : []));
+        data.append('hasTickets', formData.hasTickets);
         data.append('collections', JSON.stringify(formData.collections.map(col => ({
             ...col,
             images: col.images.filter(img => !(img instanceof File)),
@@ -347,27 +353,65 @@ const EditUpcomingEvent = () => {
                     </div>
                 </div>
 
-                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
-                    <h2 className="text-xl font-bold mb-4 text-blue-400">Ticket Types</h2>
+                <div className={`bg-gray-800 p-6 rounded-lg border border-gray-700 ${!formData.hasTickets ? 'opacity-50' : ''}`}>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-bold text-blue-400">Ticket Types</h2>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <span className="text-gray-400 text-sm italic">Enable Tickets</span>
+                            <input
+                                type="checkbox"
+                                name="hasTickets"
+                                checked={formData.hasTickets}
+                                onChange={handleInputChange}
+                                className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                            />
+                        </label>
+                    </div>
                     <div className="flex gap-4 mb-4 items-end">
                         <div className="flex-1">
                             <label className="block text-gray-400 mb-1">Ticket Name</label>
-                            <input type="text" name="name" value={currentTicket.name} onChange={handleTicketChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <input
+                                type="text"
+                                name="name"
+                                value={currentTicket.name}
+                                onChange={handleTicketChange}
+                                className="w-full p-2 bg-gray-700 rounded text-white"
+                                disabled={!formData.hasTickets}
+                            />
                         </div>
                         <div className="w-32">
                             <label className="block text-gray-400 mb-1">Price</label>
-                            <input type="number" name="price" value={currentTicket.price} onChange={handleTicketChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <input
+                                type="number"
+                                name="price"
+                                value={currentTicket.price}
+                                onChange={handleTicketChange}
+                                className="w-full p-2 bg-gray-700 rounded text-white"
+                                disabled={!formData.hasTickets}
+                            />
                         </div>
                         <div className="flex-1">
                             <label className="block text-gray-400 mb-1">Description</label>
-                            <input type="text" name="description" value={currentTicket.description} onChange={handleTicketChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            <input
+                                type="text"
+                                name="description"
+                                value={currentTicket.description}
+                                onChange={handleTicketChange}
+                                className="w-full p-2 bg-gray-700 rounded text-white"
+                                disabled={!formData.hasTickets}
+                            />
                         </div>
-                        <button type="button" onClick={addTicket} className="bg-blue-600 p-2 rounded hover:bg-blue-700 text-white h-[42px]">
+                        <button
+                            type="button"
+                            onClick={addTicket}
+                            className="bg-blue-600 p-2 rounded hover:bg-blue-700 text-white h-[42px]"
+                            disabled={!formData.hasTickets}
+                        >
                             <Plus />
                         </button>
                     </div>
 
-                    {formData.ticketTypes.length > 0 && (
+                    {formData.hasTickets && formData.ticketTypes.length > 0 && (
                         <div className="space-y-2">
                             {formData.ticketTypes.map((ticket, idx) => (
                                 <div key={idx} className="flex items-center justify-between bg-gray-700 p-3 rounded">

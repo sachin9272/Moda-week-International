@@ -36,7 +36,7 @@ const AutoScrollCarousel = ({ images }) => {
 
     return (
         <div
-            className="w-full relative group mt-8"
+            className="w-full relative group mt-10"
             onTouchStart={() => setIsInteracting(true)}
             onTouchEnd={() => setIsInteracting(false)}
         >
@@ -46,7 +46,7 @@ const AutoScrollCarousel = ({ images }) => {
                 style={{ scrollBehavior: 'auto' }}
             >
                 {images.map((img, i) => (
-                    <div key={`orig-${i}`} className="h-[400px] md:h-[500px] w-auto relative shrink-0">
+                    <div key={`orig-${i}`} className="h-[500px] w-auto relative shrink-0">
                         <img
                             src={img}
                             alt={`Collection ${i}`}
@@ -56,7 +56,7 @@ const AutoScrollCarousel = ({ images }) => {
                     </div>
                 ))}
                 {images.map((img, i) => (
-                    <div key={`dup-${i}`} className="h-[400px] md:h-[500px] w-auto relative shrink-0">
+                    <div key={`dup-${i}`} className="h-[500px] w-auto relative shrink-0">
                         <img
                             src={img}
                             alt={`Collection Duplicate ${i}`}
@@ -77,6 +77,24 @@ export default function EventTicketDetails() {
     const [quantities, setQuantities] = useState({});
     const [totalPrice, setTotalPrice] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+
+        const day = date.getDate();
+        const month = date.toLocaleString('default', { month: 'long' });
+        const year = date.getFullYear();
+
+        const getOrdinal = (n) => {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        };
+
+        return `${month} ${getOrdinal(day)}, ${year}`;
+    };
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -170,35 +188,44 @@ export default function EventTicketDetails() {
         const images = collection.images.map(img => img?.url || img);
 
         if (layout === 'carousel') {
+            // Designer Profile Layout
             const designerImageUrl = collection.designerImage?.url || collection.designerImage;
             return (
-                <div key={index} className="py-12 border-t border-gray-800">
-                    <div className="flex flex-col md:flex-row gap-12 items-start mb-12">
-                        {designerImageUrl && (
-                            <div className="w-full md:w-[350px] shrink-0">
-                                <div className="relative aspect-[3/4] overflow-hidden rounded-lg shadow-2xl border border-gray-800">
-                                    <img src={designerImageUrl} alt={collection.title} className="w-full h-full object-cover object-top" />
+                <div key={index} className="py-10 bg-white">
+                    <div className="max-w-[95%] mx-auto font-sans">
+                        {/* Designer Header Section */}
+                        <div className="flex flex-col md:flex-row gap-12 items-start mb-20 border-b border-black pb-12">
+                            {/* Left: Designer Image */}
+                            {designerImageUrl && (
+                                <div className="w-full md:w-[400px] shrink-0">
+                                    <div className="relative aspect-[3/4] overflow-hidden shadow-sm">
+                                        <img src={designerImageUrl} alt={collection.title} className="w-full h-full object-cover object-top" />
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-
-                        <div className="flex-1 space-y-6">
-                            <div className="space-y-2">
-                                <h2 className="text-3xl md:text-4xl font-serif font-bold text-amber-500 uppercase tracking-wide">{collection.title}</h2>
-                                {collection.subtitle && <p className="text-xl uppercase tracking-[0.3em] text-gray-400">{collection.subtitle}</p>}
-                            </div>
-
-                            {collection.description ? (
-                                <div className="prose prose-invert max-w-none text-gray-300 text-lg leading-relaxed text-justify">
-                                    {collection.description.split('\n').map((para, i) => (
-                                        <p key={i}>{para}</p>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-gray-500 italic">No biography available.</p>
                             )}
+
+                            {/* Right: Bio */}
+                            <div className="flex-1 space-y-8 pt-4">
+                                <div className="space-y-1">
+                                    <h2 className="text-4xl font-bold uppercase tracking-wide border-b-2 border-orange-400 inline-block pb-1">{collection.title}</h2>
+                                    {collection.subtitle && <p className="text-xl uppercase tracking-widest text-gray-800">{collection.subtitle}</p>}
+                                </div>
+
+                                {collection.description ? (
+                                    <div className="prose max-w-none text-gray-700 text-base leading-normal space-y-1 text-justify">
+                                        {/* Simple formatting: preserve line breaks */}
+                                        {collection.description.split('\n').map((para, i) => (
+                                            <p key={i}>{para}</p>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-400 italic">No biography available.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
+
+                    {/* Collection Images (Bottom) - Auto Scroll Carousel */}
                     <AutoScrollCarousel images={images} />
                 </div>
             );
@@ -210,136 +237,130 @@ export default function EventTicketDetails() {
                 'auto': 'auto'
             };
             const ratio = ratioMap[collection.gridAspectRatio] || '3/4';
-            const itemStyle = ratio === 'auto' ? { height: '500px' } : { aspectRatio: ratio.replace('/', ':') };
+            const itemStyle = (ratio === 'auto' || ratio === 'portrait') ? { height: '650px' } : { aspectRatio: ratio.replace('/', ':') };
 
             return (
-                <div key={index} className="py-12 border-t border-gray-800">
-                    <div className="mb-8 flex flex-wrap items-baseline gap-4">
-                        <h2 className="text-3xl font-serif font-bold text-amber-500 uppercase">{collection.title}</h2>
-                        {collection.subtitle && <span className="text-gray-400 uppercase tracking-widest text-lg">{collection.subtitle}</span>}
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {images.map((img, i) => (
-                            <div key={i} className="relative group overflow-hidden rounded-lg shadow-xl" style={itemStyle}>
-                                <img src={img} alt={`Walk ${i}`} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110" />
-                                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-all duration-500"></div>
-                            </div>
-                        ))}
+                <div key={index} className="py-4 px-4 bg-white">
+                    <div className="mx-auto">
+                        <div className="mb-4 border-b border-gray-400 pb-2 flex flex-wrap items-baseline gap-3">
+                            <h2 className="text-2xl md:text-3xl font-bold uppercase grad-text">{collection.title}</h2>
+                            {collection.subtitle && <span className="text-gray-500 uppercase text-lg md:text-xl">{collection.subtitle}</span>}
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {images.map((img, i) => (
+                                <div key={i} className="relative group overflow-hidden" style={itemStyle}>
+                                    <img src={img} alt={`Walk ${i}`} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" />
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             );
         }
     };
 
-    if (loading) return <div className="bg-black min-h-screen text-white flex justify-center items-center">Loading...</div>;
-    if (!event) return <div className="bg-black min-h-screen text-white flex justify-center items-center">Event not found</div>;
+    if (loading) return <div className="bg-white min-h-screen text-black flex justify-center items-center">Loading...</div>;
+    if (!event) return <div className="bg-white min-h-screen text-black flex justify-center items-center">Event not found</div>;
 
     return (
-        <div className="bg-black min-h-screen text-white">
+        <div className="bg-white min-h-screen text-black">
             <Navbar />
 
-            {/* Hero Section */}
-            <div className="relative h-[60vh] w-full">
-                <div className="absolute inset-0 bg-black/50 z-10" />
-                <img
-                    src={event.coverImage?.url || "https://via.placeholder.com/1200x600"}
-                    alt={event.title}
-                    className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 z-20 flex flex-col justify-end container mx-auto px-6 pb-12">
-                    <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4">{event.title}</h1>
-                    <div className="flex flex-wrap gap-6 text-lg text-gray-200">
-                        <div className="flex items-center gap-2">
-                            <Calendar className="text-amber-500" />
-                            <span>{event.eventDate}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <MapPin className="text-amber-500" />
-                            <span>{event.location}</span>
-                        </div>
+            {/* Hero Section - Gradient Style */}
+            <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-white h-[400px] flex flex-col justify-center items-center relative overflow-hidden">
+                <div className="max-w-7xl mx-auto z-10">
+                    <h1 className="relative uppercase inline-block md:text-[56px] font-bold text-4xl tracking-widest mb-6 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
+                        {event.title}
+                        <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-gradient-to-r from-transparent via-[#C7913E] to-transparent"></span>
+                    </h1>
+                    <p className="text-black max-w-3xl mx-auto leading-relaxed md:text-2xl uppercase tracking-[0.2em] font-light !font-montserrat mt-4">
+                        {formatDate(event.eventDate)}
+                    </p>
+                    <div className="flex justify-center items-center gap-2 mt-2 text-[#734F1C] font-medium tracking-widest uppercase text-sm">
+                        <MapPin size={16} />
+                        <span>{event.location}</span>
                     </div>
                 </div>
-            </div>
+
+                {/* Decorative background element if no cover image is used as background */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#C7913E] opacity-5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#C7913E] opacity-5 rounded-full -ml-32 -mb-32 blur-3xl"></div>
+            </header>
 
             <div className="container mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
                 {/* Left Column: Description */}
-                <div className="lg:col-span-2">
-                    <h2 className="text-2xl font-bold mb-6 text-amber-500">About the Event</h2>
-                    <div className="prose prose-invert max-w-none text-gray-300">
+                <div className={event.hasTickets ? "lg:col-span-2" : "lg:col-span-3"}>
+                    <h2 className="text-2xl md:text-3xl font-bold mb-6 grad-text uppercase tracking-wider border-b border-gray-200 pb-4">
+                        About the Event
+                    </h2>
+                    <div className="prose prose-neutral max-w-none text-gray-800 text-lg leading-relaxed">
                         <p className="whitespace-pre-line">{event.description || "No description available."}</p>
                     </div>
                 </div>
 
                 {/* Right Column: Ticket Selection */}
-                <div className="lg:col-span-1">
-                    <div className="bg-[#111] border border-gray-800 rounded-xl p-6 sticky top-24">
-                        <h3 className="text-2xl font-bold mb-6">Select Tickets</h3>
+                {event.hasTickets && (
+                    <div className="lg:col-span-1">
+                        <div className="bg-white border border-gray-200 rounded-lg p-8 sticky top-24 shadow-2xl">
+                            <h3 className="text-2xl font-bold mb-8 uppercase tracking-widest text-[#C7913E]">Select Tickets</h3>
 
-                        <div className="space-y-6">
-                            {event.ticketTypes && event.ticketTypes.length > 0 ? (
-                                event.ticketTypes.map((ticket) => (
-                                    <div key={ticket._id} className="border-b border-gray-800 pb-6 last:border-0 last:pb-0">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <div>
-                                                <h4 className="font-bold text-lg">{ticket.name}</h4>
-                                                <p className="text-amber-500 font-semibold">${ticket.price}</p>
+                            <div className="space-y-8">
+                                {event.ticketTypes && event.ticketTypes.length > 0 ? (
+                                    event.ticketTypes.map((ticket) => (
+                                        <div key={ticket._id} className="border-b border-gray-100 pb-8 last:border-0 last:pb-0">
+                                            <div className="flex justify-between items-start mb-3">
+                                                <div>
+                                                    <h4 className="font-bold text-lg text-black uppercase">{ticket.name}</h4>
+                                                    <p className="text-[#C7913E] font-bold text-xl">${ticket.price}</p>
+                                                </div>
+                                                <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2 border border-gray-100">
+                                                    <button
+                                                        onClick={() => handleQuantityChange(ticket._id, -1, ticket.price)}
+                                                        className="text-gray-500 hover:text-[#C7913E] transition-colors disabled:opacity-30"
+                                                        disabled={!quantities[ticket._id]}
+                                                    >
+                                                        <Minus size={20} />
+                                                    </button>
+                                                    <span className="w-6 text-center font-bold text-black">{quantities[ticket._id] || 0}</span>
+                                                    <button
+                                                        onClick={() => handleQuantityChange(ticket._id, 1, ticket.price)}
+                                                        className="text-gray-500 hover:text-[#C7913E] transition-colors"
+                                                    >
+                                                        <Plus size={20} />
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-3 bg-gray-900 rounded-lg px-3 py-1">
-                                                <button
-                                                    onClick={() => handleQuantityChange(ticket._id, -1, ticket.price)}
-                                                    className="p-1 hover:text-amber-500 disabled:opacity-50"
-                                                    disabled={!quantities[ticket._id]}
-                                                >
-                                                    <Minus size={16} />
-                                                </button>
-                                                <span className="w-4 text-center">{quantities[ticket._id] || 0}</span>
-                                                <button
-                                                    onClick={() => handleQuantityChange(ticket._id, 1, ticket.price)}
-                                                    className="p-1 hover:text-amber-500"
-                                                >
-                                                    <Plus size={16} />
-                                                </button>
-                                            </div>
+                                            {ticket.description && (
+                                                <p className="text-sm text-gray-600 font-light">{ticket.description}</p>
+                                            )}
                                         </div>
-                                        {ticket.description && (
-                                            <p className="text-sm text-gray-500">{ticket.description}</p>
-                                        )}
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="text-gray-500 text-center py-4">No tickets available for this event yet.</div>
-                            )}
-                        </div>
-
-                        <div className="mt-8 pt-6 border-t border-gray-800">
-                            <div className="flex justify-between items-center mb-6 text-xl font-bold">
-                                <span>Total</span>
-                                <span>${totalPrice}</span>
+                                    ))
+                                ) : (
+                                    <div className="text-gray-400 text-center py-8 italic font-light">No tickets available yet.</div>
+                                )}
                             </div>
-                            <button
-                                onClick={handleCheckout}
-                                disabled={totalPrice === 0}
-                                className="w-full py-4 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider"
-                            >
-                                Proceed to Checkout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            {/* Collections Section */}
-            <div className="container mx-auto px-6 pb-20">
-                {event.collections && event.collections.length > 0 && (
-                    <div className="mt-12">
-                        <h2 className="text-4xl font-serif font-bold mb-12 text-center text-white italic border-b border-amber-500/20 pb-8 tracking-[0.2em] uppercase">
-                            Featured Collections
-                        </h2>
-                        <div className="space-y-20">
-                            {event.collections.map((col, idx) => renderCollection(col, idx))}
+                            <div className="mt-10 pt-8 border-t border-gray-100">
+                                <div className="flex justify-between items-center mb-8">
+                                    <span className="text-lg text-gray-600 uppercase tracking-widest">Total Amount</span>
+                                    <span className="text-3xl font-bold text-black">${totalPrice}</span>
+                                </div>
+                                <button
+                                    onClick={handleCheckout}
+                                    disabled={totalPrice === 0}
+                                    className="w-full py-5 bg-gradient-to-r from-[#3C2306] via-[#734F1C] to-[#C7913E] text-white font-bold rounded-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-[0.2em] shadow-xl hover:shadow-[#C7913E]/20"
+                                >
+                                    Proceed to Checkout
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* Collections Section */}
+            <div className="mt-10 bg-white">
+                {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
             </div>
 
             <UserDetailsModal

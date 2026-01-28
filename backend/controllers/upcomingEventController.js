@@ -4,7 +4,7 @@ import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
-        const { title, eventDate, location, description, status } = req.body;
+        const { title, eventDate, location, description, status, hasTickets } = req.body;
 
         // Parse ticketTypes if it's a string (from FormData)
         let ticketTypes = [];
@@ -52,6 +52,7 @@ export const createUpcomingEvent = async (req, res) => {
             description,
             status: status || 'hidden',
             coverImage,
+            hasTickets: hasTickets === 'true' || hasTickets === true,
             ticketTypes,
             collections: collectionsWithImages
         });
@@ -103,7 +104,7 @@ export const getUpcomingEventById = async (req, res) => {
 export const updateUpcomingEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, eventDate, location, description } = req.body;
+        const { title, eventDate, location, description, hasTickets } = req.body;
 
         const event = await UpcomingEvent.findById(id);
         if (!event) {
@@ -239,6 +240,7 @@ export const updateUpcomingEvent = async (req, res) => {
         if (location) event.location = location;
         if (description) event.description = description;
         if (req.body.status) event.status = req.body.status;
+        if (req.body.hasTickets !== undefined) event.hasTickets = (hasTickets === 'true' || hasTickets === true);
         if (req.body.ticketTypes) event.ticketTypes = ticketTypes;
 
         const updatedEvent = await event.save();

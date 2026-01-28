@@ -25,6 +25,10 @@ const upcomingEventSchema = new mongoose.Schema({
         url: { type: String },
         publicId: { type: String }
     },
+    hasTickets: {
+        type: Boolean,
+        default: false
+    },
     ticketTypes: [
         {
             name: { type: String, required: true },
