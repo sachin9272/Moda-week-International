@@ -11,6 +11,11 @@ const landingVideoSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    subtitle: {
+        type: String,
+        default: '',
+        trim: true
+    },
     order: {
         type: Number,
         default: 0

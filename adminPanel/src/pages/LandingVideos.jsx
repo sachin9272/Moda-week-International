@@ -131,6 +131,7 @@ const LandingVideos = () => {
     const [previewVideo, setPreviewVideo] = useState(null);
     const [formData, setFormData] = useState({
         title: '',
+        subtitle: '',
         order: 0,
         videoUrl: ''
     });
@@ -227,6 +228,7 @@ const LandingVideos = () => {
         setEditingId(video._id);
         setFormData({
             title: video.title,
+            subtitle: video.subtitle || '',
             order: video.order,
             videoUrl: video.videoUrl
         });
@@ -250,7 +252,7 @@ const LandingVideos = () => {
 
     const resetForm = () => {
         setEditingId(null);
-        setFormData({ title: '', order: videos.length + 1, videoUrl: '' });
+        setFormData({ title: '', subtitle: '', order: videos.length + 1, videoUrl: '' });
         setVideoFile(null);
         setShowForm(false);
     };
@@ -261,6 +263,7 @@ const LandingVideos = () => {
         try {
             const data = new FormData();
             data.append('title', formData.title);
+            data.append('subtitle', formData.subtitle);
             data.append('order', formData.order);
             data.append('type', activeTab);
 
@@ -352,7 +355,7 @@ const LandingVideos = () => {
                     onClick={() => {
                         if (showForm) resetForm();
                         else {
-                            setFormData({ title: '', order: videos.length + 1, videoUrl: '' });
+                            setFormData({ title: '', subtitle: '', order: videos.length + 1, videoUrl: '' });
                             setShowForm(true);
                         }
                     }}
@@ -409,6 +412,22 @@ const LandingVideos = () => {
                                 />
                             </div>
                         </div>
+
+                        {activeTab === 'landing' && (
+                            <div>
+                                <label className="block text-sm font-medium text-neutral-300 mb-2">
+                                    Subtitle (Displayed below title)
+                                </label>
+                                <textarea
+                                    name="subtitle"
+                                    value={formData.subtitle}
+                                    onChange={handleChange}
+                                    className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] outline-none transition-all hover:border-[#3a3a3a]"
+                                    placeholder="e.g. FASHION DESIGNERS APPLICATIONS NOW OPEN"
+                                    rows="2"
+                                />
+                            </div>
+                        )}
 
                         {activeTab === 'landing' ? (
                             <div>
@@ -543,7 +562,7 @@ const LandingVideos = () => {
                         </p>
                         <button
                             onClick={() => {
-                                setFormData({ title: '', order: 1, videoUrl: '' });
+                                setFormData({ title: '', subtitle: '', order: 1, videoUrl: '' });
                                 setShowForm(true);
                             }}
                             className="inline-flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-6 py-3 rounded-xl font-bold hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"

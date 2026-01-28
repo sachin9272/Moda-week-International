@@ -22,7 +22,7 @@ import takla from "../assets/takla.avif";
 
 
 
-function VideoSlider({ slides }) {
+function VideoSlider({ slides, onSlideChange }) {
   const [current, setCurrent] = useState(0);
   const videoRefs = useRef([]);
   const scrollTimeout = useRef(null);
@@ -35,7 +35,9 @@ function VideoSlider({ slides }) {
   }, []);
 
   const handleEnded = () => {
-    setCurrent((prev) => (prev + 1) % slides.length);
+    const next = (current + 1) % slides.length;
+    setCurrent(next);
+    if (onSlideChange) onSlideChange(next);
   };
 
   // Sync play state when current changes
@@ -59,10 +61,14 @@ function VideoSlider({ slides }) {
     if (Math.abs(e.deltaX) > 20) {
       if (e.deltaX > 0) {
         // Scroll Right -> Next
-        setCurrent((prev) => (prev + 1) % slides.length);
+        const next = (current + 1) % slides.length;
+        setCurrent(next);
+        if (onSlideChange) onSlideChange(next);
       } else {
         // Scroll Left -> Prev
-        setCurrent((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+        const prevIndex = current === 0 ? slides.length - 1 : current - 1;
+        setCurrent(prevIndex);
+        if (onSlideChange) onSlideChange(prevIndex);
       }
 
       scrollTimeout.current = setTimeout(() => {
@@ -109,7 +115,10 @@ function VideoSlider({ slides }) {
             className={`h-0.5 w-16 transition-all duration-300
                           ${current === i ? "bg-white scale-125" : "bg-white/50"}
                       `}
-            onClick={() => setCurrent(i)}
+            onClick={() => {
+              setCurrent(i);
+              if (onSlideChange) onSlideChange(i);
+            }}
           />
         ))}
       </div>
@@ -127,6 +136,7 @@ export default function LandingPage() {
     return `${baseURL}${url}`; // Prepend backend URL for local paths
   };
 
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slides, setSlides] = useState([
     {
       video: video1,
@@ -152,6 +162,7 @@ export default function LandingPage() {
           const formattedSlides = data.map(item => ({
             video: getVideoSrc(item.videoUrl),
             title: item.title.replace("NEW YORK CITY", "NEW YORK\nCITY").replace("AMAZONAS FASHION WEEK", "AMAZONAS\nFASHION WEEK"),
+            subtitle: item.subtitle,
             isDynamic: true
           }));
           setSlides(formattedSlides);
@@ -246,12 +257,18 @@ export default function LandingPage() {
         }}
       >
         <Navbar />
-        <VideoSlider slides={slides} />
+        <VideoSlider slides={slides} onSlideChange={setCurrentSlideIndex} />
       </section>
 
       <div className="bg-black mb-10 ml-10">
-        <p>
-          FASHION DESIGNERS APPLICATIONS NOW OPEN FOR <br /> SEPTEMBER SS26/AW27
+        <p className="text-white uppercase">
+          {slides[currentSlideIndex]?.subtitle ? (
+            <span className="whitespace-pre-line">{slides[currentSlideIndex].subtitle}</span>
+          ) : (
+            <>
+              FASHION DESIGNERS APPLICATIONS NOW OPEN FOR <br /> SEPTEMBER SS26/AW27
+            </>
+          )}
         </p>
         <Link to="/service?tab=designer">
           <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">

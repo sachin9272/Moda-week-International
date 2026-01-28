@@ -19,7 +19,7 @@ export const getVideos = async (req, res) => {
 // @access  Private (Admin)
 export const addVideo = async (req, res) => {
     try {
-        const { title, order, type } = req.body;
+        const { title, subtitle, order, type } = req.body;
         let videoUrl = req.body.videoUrl;
 
         if (req.file) {
@@ -34,6 +34,7 @@ export const addVideo = async (req, res) => {
 
         const newVideo = new LandingVideo({
             title,
+            subtitle: subtitle || '',
             videoUrl,
             order,
             type: type || 'landing'
@@ -94,7 +95,7 @@ export const deleteVideo = async (req, res) => {
 // @access  Private (Admin)
 export const updateVideo = async (req, res) => {
     try {
-        const { title, order, type } = req.body;
+        const { title, subtitle, order, type } = req.body;
         const video = await LandingVideo.findById(req.params.id);
 
         if (!video) {
@@ -102,6 +103,7 @@ export const updateVideo = async (req, res) => {
         }
 
         video.title = title || video.title;
+        if (subtitle !== undefined) video.subtitle = subtitle;
         video.order = order || video.order;
         if (type) video.type = type;
 
