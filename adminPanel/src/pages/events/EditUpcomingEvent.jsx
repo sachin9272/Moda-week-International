@@ -200,7 +200,7 @@ const EditUpcomingEvent = () => {
     };
 
     const addCollection = () => {
-        if (currentCollection.title && currentCollection.images.length > 0) {
+        if (currentCollection.title) {
             setFormData(prev => ({
                 ...prev,
                 collections: [...prev.collections, currentCollection]
@@ -216,7 +216,7 @@ const EditUpcomingEvent = () => {
                 images: []
             });
         } else {
-            toast.error("Collection must have a Title and at least one image.");
+            toast.error("Collection must have a Title.");
         }
     };
 
