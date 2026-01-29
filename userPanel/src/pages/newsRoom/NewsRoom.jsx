@@ -69,6 +69,7 @@ export default function NewsRoom() {
     const [allNewsItems, setAllNewsItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [visibleCount, setVisibleCount] = useState(6);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         const fetchNews = async () => {
@@ -100,7 +101,9 @@ export default function NewsRoom() {
                 const response = await axios.get(`${baseURL}/api/instagram/followers`);
                 if (response.data) {
                     if (response.data.followers) setFollowerCount(response.data.followers);
-                    if (response.data.posts && response.data.posts.length > 0) setInstagramPosts(response.data.posts);
+                    if (response.data.posts && response.data.posts.length > 0) {
+                        setInstagramPosts(response.data.posts);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to fetch instagram followers", error);
@@ -116,15 +119,21 @@ export default function NewsRoom() {
 
     // Filter Logic
     const isAll = selectedCategory === "ALL POSTS";
-    // Since Featured Section is removed, show ALL news in the list
-    const filteredItems = isAll ? allNewsItems : allNewsItems.filter(item => item.category === selectedCategory);
+
+    const filteredItems = allNewsItems.filter(item => {
+        const matchesCategory = isAll || item.category === selectedCategory;
+        const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesCategory && matchesSearch;
+    });
+
     const displayedItems = filteredItems.slice(0, visibleCount);
     const hasMore = visibleCount < filteredItems.length;
 
     // Reset visible count when category changes
     useEffect(() => {
         setVisibleCount(6);
-    }, [selectedCategory]);
+    }, [selectedCategory, searchQuery]);
 
     return (
         <div className="bg-white text-black min-h-screen font-sans selection:bg-[#C7913E] selection:text-white">
@@ -232,6 +241,19 @@ export default function NewsRoom() {
                                 {isAll ? "Latest Stories" : `${selectedCategory} Stories`}
                             </h2>
                             <div className="w-12 h-0.5 bg-black mb-6"></div>
+
+                            {/* Search Input */}
+                            <div className="relative mb-8 group">
+                                <input
+                                    type="text"
+                                    placeholder="SEARCH STORIES..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full bg-transparent border-b border-black/20 py-3 pr-8 text-xs font-bold tracking-[0.2em] uppercase focus:border-[#C7913E] focus:outline-none transition-all duration-300 placeholder:text-gray-400 text-black"
+                                />
+                                <Search size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#C7913E] transition-colors" />
+                            </div>
+
                             {isAll && (
                                 <p className="text-gray-500 text-sm leading-relaxed mb-8">
                                     Curated updates from the world of high fashion, luxury lifestyle, and cultural shifts.
@@ -334,8 +356,11 @@ export default function NewsRoom() {
                             {initialInstagramPosts.slice(0, 4).map((post) => (
                                 <div key={post.id} className="aspect-square relative group overflow-hidden">
                                     <img src={post.image} alt="IG" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center flex-col gap-1">
                                         <Instagram className="text-white" />
+                                        {post.likes && post.likes !== "N/A" && (
+                                            <span className="text-white text-xs font-bold">{post.likes}</span>
+                                        )}
                                     </div>
                                 </div>
                             ))}
