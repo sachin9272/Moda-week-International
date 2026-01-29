@@ -100,7 +100,14 @@ const AddUpcomingEvent = () => {
 
     const handleDesignerSelect = (e) => {
         const selectedId = e.target.value;
-        if (!selectedId) return;
+        if (!selectedId) {
+            setCurrentCollection(prev => ({
+                ...prev,
+                designerId: null,
+                // We keep title/desc as user might have custom text, but disassociate designer
+            }));
+            return;
+        }
 
         const designer = designers.find(d => d._id === selectedId);
         if (designer) {
@@ -209,6 +216,13 @@ const AddUpcomingEvent = () => {
 
         setLoading(true);
 
+        // Auto-save logic
+        let finalCollections = [...formData.collections];
+        if (currentCollection.title) {
+            finalCollections.push(currentCollection);
+            toast.success("Unsaved collection included in event.");
+        }
+
         const data = new FormData();
         data.append('title', formData.title);
         data.append('eventDate', formData.eventDate);
@@ -217,13 +231,14 @@ const AddUpcomingEvent = () => {
         data.append('coverImage', formData.coverImage);
         data.append('hasTickets', formData.hasTickets);
         data.append('ticketTypes', JSON.stringify(formData.hasTickets ? formData.ticketTypes : []));
-        data.append('collections', JSON.stringify(formData.collections.map(col => ({
+
+        data.append('collections', JSON.stringify(finalCollections.map(col => ({
             ...col,
             images: [], // Images handled separately
             designerImage: null // Handled separately
         }))));
 
-        formData.collections.forEach((col, index) => {
+        finalCollections.forEach((col, index) => {
             col.images.forEach(img => {
                 if (img instanceof File) {
                     data.append(`collectionImages_${index}`, img);
@@ -402,7 +417,11 @@ const AddUpcomingEvent = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-400 mb-1 text-sm">Select Designer (Optional)</label>
-                                <select onChange={handleDesignerSelect} className="w-full p-2 bg-gray-700 rounded text-white text-sm">
+                                <select
+                                    value={currentCollection.designerId || ''}
+                                    onChange={handleDesignerSelect}
+                                    className="w-full p-2 bg-gray-700 rounded text-white text-sm"
+                                >
                                     <option value="">-- Choose Designer --</option>
                                     {designers.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                                 </select>

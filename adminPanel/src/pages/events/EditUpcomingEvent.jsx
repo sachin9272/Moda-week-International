@@ -133,7 +133,16 @@ const EditUpcomingEvent = () => {
 
     const handleDesignerSelect = (e) => {
         const selectedId = e.target.value;
-        if (!selectedId) return;
+        if (!selectedId) {
+            setCurrentCollection(prev => ({
+                ...prev,
+                designerId: null,
+                // Optional: Decide if we want to clear title/desc too. Usually better to keep them if user typed custom ones, 
+                // but here the code was overwriting them on select. 
+                // Let's just clear the link to the designer.
+            }));
+            return;
+        }
 
         const designer = designers.find(d => d._id === selectedId);
         if (designer) {
@@ -237,6 +246,15 @@ const EditUpcomingEvent = () => {
 
         setSubmitting(true);
 
+        // Auto-save logic: If there's an unsaved collection in progress, add it to the list
+        let finalCollections = [...formData.collections];
+        if (currentCollection.title) {
+            finalCollections.push(currentCollection);
+            // Verify validation for the implicit collection if needed, but for now we assume user intends to save it
+            // If title is there, we try to save it.
+            toast.success("Unsaved collection changes included in update.");
+        }
+
         const data = new FormData();
         data.append('title', formData.title);
         data.append('eventDate', formData.eventDate);
@@ -249,13 +267,15 @@ const EditUpcomingEvent = () => {
 
         data.append('ticketTypes', JSON.stringify(formData.hasTickets ? formData.ticketTypes : []));
         data.append('hasTickets', formData.hasTickets);
-        data.append('collections', JSON.stringify(formData.collections.map(col => ({
+
+        // Use finalCollections instead of formData.collections
+        data.append('collections', JSON.stringify(finalCollections.map(col => ({
             ...col,
             images: col.images.filter(img => !(img instanceof File)),
             designerImage: typeof col.designerImage === 'string' ? col.designerImage : null
         }))));
 
-        formData.collections.forEach((col, index) => {
+        finalCollections.forEach((col, index) => {
             col.images.forEach(img => {
                 if (img instanceof File) {
                     data.append(`collectionImages_${index}`, img);
@@ -437,7 +457,11 @@ const EditUpcomingEvent = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-400 mb-1 text-sm">Select Designer (Optional)</label>
-                                <select onChange={handleDesignerSelect} className="w-full p-2 bg-gray-700 rounded text-white text-sm">
+                                <select
+                                    value={currentCollection.designerId || ''}
+                                    onChange={handleDesignerSelect}
+                                    className="w-full p-2 bg-gray-700 rounded text-white text-sm"
+                                >
                                     <option value="">-- Choose Designer --</option>
                                     {designers.map(d => <option key={d._id} value={d._id}>{d.name}</option>)}
                                 </select>
