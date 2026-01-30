@@ -112,7 +112,7 @@ function VideoSlider({ slides, onSlideChange }) {
         {slides.map((_, i) => (
           <div
             key={i}
-            className={`h-0.5 w-16 transition-all duration-300
+            className={`h-1 w-16 transition-all duration-300
                           ${current === i ? "bg-white scale-125" : "bg-white/50"}
                       `}
             onClick={() => {
@@ -215,33 +215,6 @@ export default function LandingPage() {
     };
     fetchDesigners();
   }, []);
-
-  /* const upcomingEvents = [
-    {
-      title: "NEW YORK CITY FASHION SHOW",
-      date: "JUN 15, 2018",
-      location: "NEW YORK",
-      time: "08:00 - 17:00",
-      image: null, // calender1
-      status: "SEATS AVAILABLE",
-    },
-     {
-       title: "APW | LETICIA, COLOMBIA",
-       date: "APW | LETICIA, COLOMBIA",
-       location: "LETICIA, COLOMBIA",
-       time: "08:00 - 17:00",
-       image: null, // calender2
-       status: "SOLD OUT",
-     },
-     {
-       title: "APW | TABATINGA, BRAZIL",
-       date: "JUN 15, 2018",
-       location: "TABATINGA, BRAZIL",
-       time: "08:00 - 17:00",
-       image: null, // calender3
-       status: "AVAILABLE SOON",
-     },
-  ]; */
 
   return (
     <div className="bg-black text-white min-h-screen">
