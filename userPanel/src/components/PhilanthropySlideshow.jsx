@@ -9,9 +9,14 @@ import img5 from "../assets/Events-5.jpg";
 
 const images = [img1, img2, img3, img4, img5];
 
-const PhilanthropySlideshow = () => {
+const PhilanthropySlideshow = ({ images = [] }) => {
     const scrollRef = useRef(null);
     const [isInteracting, setIsInteracting] = useState(false);
+
+    // Use dynamic images (extract URLs) or fallback
+    const displayImages = images && images.length > 0
+        ? images.map(img => img.url)
+        : [img1, img2, img3, img4, img5];
 
     useEffect(() => {
         const scrollContainer = scrollRef.current;
@@ -35,7 +40,9 @@ const PhilanthropySlideshow = () => {
         animationFrameId = requestAnimationFrame(scroll);
 
         return () => cancelAnimationFrame(animationFrameId);
-    }, [isInteracting]);
+    }, [isInteracting, displayImages]); // Re-run if images change
+
+    if (!displayImages || displayImages.length === 0) return null;
 
     return (
         <div className="py-0 bg-white">
@@ -61,7 +68,7 @@ const PhilanthropySlideshow = () => {
                     `}</style>
 
                     {/* Original list */}
-                    {images.map((img, i) => (
+                    {displayImages.map((img, i) => (
                         <div key={`orig-${i}`} className="h-[400px] md:h-[600px] w-auto relative shrink-0">
                             <img
                                 src={img}
@@ -73,7 +80,7 @@ const PhilanthropySlideshow = () => {
                     ))}
 
                     {/* Duplicate list for infinite scroll */}
-                    {images.map((img, i) => (
+                    {displayImages.map((img, i) => (
                         <div key={`dup-${i}`} className="h-[400px] md:h-[600px] w-auto relative shrink-0">
                             <img
                                 src={img}
