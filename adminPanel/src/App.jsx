@@ -14,6 +14,7 @@ import NewsManager from './pages/news/NewsManager';
 import AddNews from './pages/news/AddNews';
 import EditNews from './pages/news/EditNews';
 import PartnerManager from './pages/PartnerManager';
+import PhilanthropyManager from './pages/PhilanthropyManager';
 import EventsList from './pages/events/EventsList';
 import EventDashboard from './pages/events/EventDashboard';
 import AddEvent from './pages/events/AddEvent';
@@ -65,6 +66,7 @@ function App() {
             <Route path="news/add" element={<AddNews />} />
             <Route path="news/edit/:id" element={<EditNews />} />
             <Route path="partners" element={<PartnerManager />} />
+            <Route path="philanthropy" element={<PhilanthropyManager />} />
             <Route path="events" element={<EventDashboard />} />
             <Route path="events/upcoming" element={<UpcomingEventsList />} />
             <Route path="events/upcoming/dashboard/:id" element={<EventAnalyticsDashboard />} />
