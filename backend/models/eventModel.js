@@ -22,14 +22,8 @@ const eventSchema = new mongoose.Schema({
         url: { type: String, required: true },
         publicId: { type: String }
     },
-    poster: {
-        url: { type: String },
-        publicId: { type: String }
-    },
-    headerVideo: {
-        url: { type: String },
-        publicId: { type: String }
-    },
+
+
     heroLayout: {
         type: String,
         enum: ['split', 'full', 'minimal'],
@@ -66,15 +60,7 @@ const eventSchema = new mongoose.Schema({
             }],
         },
     ],
-    bottomSection: {
-        image: {
-            url: { type: String },
-            publicId: { type: String }
-        },
-        title: { type: String },
-        text: { type: String },
-        credits: { type: String }, // For Production Team / Credits list
-    },
+
     eventType: {
         type: String,
         enum: ['past', 'upcoming', 'global'],
@@ -138,7 +124,11 @@ const eventSchema = new mongoose.Schema({
         publicId: { type: String }, // For uploads
         title: { type: String },
         isVisible: { type: Boolean, default: true }
-    }
+    },
+    partners: [{
+        url: { type: String },
+        publicId: { type: String }
+    }]
 }, { timestamps: true });
 
 eventSchema.set('toJSON', {
@@ -149,8 +139,7 @@ eventSchema.set('toJSON', {
         // Remove publicId from headerVideo
         if (ret.headerVideo) delete ret.headerVideo.publicId;
 
-        // Remove publicId from bottomSection
-        if (ret.bottomSection?.image) delete ret.bottomSection.image.publicId;
+
 
         // Remove publicId from descriptionSection
         if (ret.descriptionSection?.image) delete ret.descriptionSection.image.publicId;
