@@ -67,6 +67,8 @@ import dashboardRoutes from './routes/dashboardRoutes.js';
 app.use('/api/dashboard', dashboardRoutes);
 import notificationRoutes from './routes/notificationRoutes.js';
 app.use('/api/notifications', notificationRoutes);
+import philanthropyRoutes from './routes/philanthropyRoutes.js';
+app.use('/api/philanthropy', philanthropyRoutes);
 
 // Payment Routes
 app.post('/api/payment/create-checkout-session', createCheckoutSession);
