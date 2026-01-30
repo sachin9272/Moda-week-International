@@ -15,14 +15,7 @@ export const createEvent = async (req, res) => {
             }
         }
 
-        let bottomSection = {};
-        if (req.body.bottomSection) {
-            try {
-                bottomSection = JSON.parse(req.body.bottomSection);
-            } catch (e) {
-                console.error("Error parsing bottomSection JSON:", e);
-            }
-        }
+
 
         let descriptionSection = { isVisible: false };
         if (req.body.descriptionSection) {
@@ -43,14 +36,12 @@ export const createEvent = async (req, res) => {
         };
 
         const thumbnail = getFile('thumbnail');
-        const poster = getFile('poster');
-        const headerVideo = getFile('headerVideo');
-        const bottomSectionImage = getFile('bottomSectionImage');
+
+
+
         const descriptionSectionImage = getFile('descriptionSectionImage');
 
-        if (bottomSectionImage) {
-            bottomSection.image = bottomSectionImage;
-        }
+
 
         if (descriptionSectionImage) {
             descriptionSection.image = descriptionSectionImage;
@@ -109,9 +100,29 @@ export const createEvent = async (req, res) => {
             ticketsWithImages = parsedTickets.map((ticket, index) => {
                 const ticketFile = files.find(f => f.fieldname === `ticketImage_${index}`);
                 return {
+                    ...ticket,
                     image: ticketFile ? { url: ticketFile.path, publicId: ticketFile.filename } : null
                 };
             });
+        }
+
+        // Map Partners
+        let partnersWithImages = [];
+        if (req.body.partners) {
+            let parsedPartners = [];
+            try {
+                parsedPartners = JSON.parse(req.body.partners);
+            } catch (e) {
+                console.error("Error parsing partners", e);
+            }
+
+            partnersWithImages = parsedPartners.map((partner, index) => {
+                const partnerFile = files.find(f => f.fieldname === `partnerImage_${index}`);
+                return {
+                    url: partnerFile ? partnerFile.path : null,
+                    publicId: partnerFile ? partnerFile.filename : null
+                };
+            }).filter(p => p.url); // Only keep if image exists
         }
 
         const newEvent = new Event({
@@ -121,14 +132,14 @@ export const createEvent = async (req, res) => {
             date,
             eventType: eventType || 'upcoming',
             thumbnail: thumbnail, // Now an object
-            poster: poster,
-            headerVideo: headerVideo, // Now an object
+
             heroLayout: heroLayout || 'split',
             collections: collectionsWithImages,
             descriptionSection,
             videoSection,
             hasTickets: req.body.hasTickets === 'true',
             tickets: ticketsWithImages,
+            partners: partnersWithImages,
             status: status || 'draft'
         });
 
@@ -170,18 +181,7 @@ export const updateEvent = async (req, res) => {
             event.thumbnail = { url, publicId };
         }
 
-        if (event.headerVideo && typeof event.headerVideo === 'string') {
-            const url = event.headerVideo;
-            let publicId = undefined;
-            try {
-                const parts = url.split('/upload/');
-                if (parts.length > 1) {
-                    const withoutVersion = parts[1].replace(/^v\d+\//, '');
-                    publicId = withoutVersion.substring(0, withoutVersion.lastIndexOf('.'));
-                }
-            } catch (e) { }
-            event.headerVideo = { url, publicId };
-        }
+
 
         const files = req.files || [];
 
@@ -285,27 +285,9 @@ export const updateEvent = async (req, res) => {
             event.thumbnail = thumbnailFile;
         }
 
-        const posterFile = getFile('poster');
-        if (posterFile) {
-            if (event.poster && event.poster.publicId) {
-                await deleteCloudinaryAsset(event.poster.publicId, 'image');
-            }
-            event.poster = posterFile;
-        }
 
-        // 3. Handle Header Video
-        const headerVideoFile = getFile('headerVideo');
-        if (req.body.removeHeaderVideo === 'true') {
-            if (event.headerVideo && event.headerVideo.publicId) {
-                await deleteCloudinaryAsset(event.headerVideo.publicId, 'video');
-            }
-            event.headerVideo = null;
-        } else if (headerVideoFile) {
-            if (event.headerVideo && event.headerVideo.publicId) {
-                await deleteCloudinaryAsset(event.headerVideo.publicId, 'video');
-            }
-            event.headerVideo = headerVideoFile;
-        }
+
+
 
         // 4. Handle Collections (Delete removed images)
         if (event.collections) {
@@ -400,42 +382,7 @@ export const updateEvent = async (req, res) => {
         event.collections = newCollections;
 
 
-        // 5. Handle Bottom Section
-        const bottomSectionFile = getFile('bottomSectionImage');
-        let bottomSection = {};
-        if (req.body.bottomSection) bottomSection = JSON.parse(req.body.bottomSection);
 
-        // If new file
-        if (bottomSectionFile) {
-            if (event.bottomSection?.image?.publicId) await deleteCloudinaryAsset(event.bottomSection.image.publicId, 'image');
-            bottomSection.image = bottomSectionFile;
-        } else {
-            // If keeping existing, we need to ensure we keep the Object structure if it was there.
-            // Frontend sends `image: urlString`. 
-            if (bottomSection.image && typeof bottomSection.image === 'string') {
-                if (event.bottomSection?.image?.url === bottomSection.image) {
-                    bottomSection.image = event.bottomSection.image; // Keep the object
-                } else {
-                    // Match failed or event.bottomSection.image was missing/different
-                    // Convert string to object to avoid CastError
-                    bottomSection.image = { url: bottomSection.image };
-                    // Try to recover publicId if possible
-                    try {
-                        const parts = bottomSection.image.url.split('/upload/');
-                        if (parts.length > 1) {
-                            const withoutVersion = parts[1].replace(/^v\d+\//, '');
-                            bottomSection.image.publicId = withoutVersion.substring(0, withoutVersion.lastIndexOf('.'));
-                        }
-                    } catch (e) { }
-                }
-            }
-        }
-        event.bottomSection = {
-            title: bottomSection.title,
-            text: bottomSection.text,
-            credits: bottomSection.credits,
-            image: bottomSection.image
-        };
 
         // 5.5 Handle Description Section
         const descriptionSectionFile = getFile('descriptionSectionImage');
@@ -601,6 +548,44 @@ export const updateEvent = async (req, res) => {
         });
         event.tickets = newTickets;
 
+        // 7. Handle Partners
+        const keptPartnerUrls = new Set();
+        let incomingPartners = [];
+        if (req.body.partners) {
+            try {
+                incomingPartners = JSON.parse(req.body.partners);
+                incomingPartners.forEach(s => {
+                    if (s.url && typeof s.url === 'string') keptPartnerUrls.add(s.url);
+                });
+            } catch (e) { }
+        }
+
+        // Delete removed partner images
+        if (event.partners) {
+            event.partners.forEach(partner => {
+                if (partner.publicId && !keptPartnerUrls.has(partner.url)) {
+                    deleteCloudinaryAsset(partner.publicId, 'image');
+                }
+            });
+        }
+
+        // Reconstruct partners
+        const newPartners = incomingPartners.map((partner, index) => {
+            const partnerFile = files.find(f => f.fieldname === `partnerImage_${index}`);
+            if (partnerFile) {
+                return { url: partnerFile.path, publicId: partnerFile.filename };
+            } else {
+                // Existing
+                if (partner.url && typeof partner.url === 'string') {
+                    // Try to find original to get publicId
+                    const found = event.partners ? event.partners.find(s => s.url === partner.url) : null;
+                    return found || { url: partner.url, publicId: undefined }; // Fallback
+                }
+                return null;
+            }
+        }).filter(s => s); // Filter nulls
+        event.partners = newPartners;
+
 
         // Basic fields
         if (city) event.city = city;
@@ -664,8 +649,8 @@ export const deleteEvent = async (req, res) => {
 
         // Delete all assets
         if (event.thumbnail?.publicId) await deleteCloudinaryAsset(event.thumbnail.publicId, 'image');
-        if (event.poster?.publicId) await deleteCloudinaryAsset(event.poster.publicId, 'image');
-        if (event.headerVideo?.publicId) await deleteCloudinaryAsset(event.headerVideo.publicId, 'video');
+
+
         if (event.bottomSection?.image?.publicId) await deleteCloudinaryAsset(event.bottomSection.image.publicId, 'image');
         if (event.descriptionSection?.image?.publicId) await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
         if (event.videoSection?.publicId) await deleteCloudinaryAsset(event.videoSection.publicId, 'video');
