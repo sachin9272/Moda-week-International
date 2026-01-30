@@ -63,6 +63,7 @@ const EditEvent = () => {
         designerImage: null,
         layout: 'grid', // Default collection layout
         gridAspectRatio: 'portrait',
+        day: '', // Add Day field
         images: []
     });
 
@@ -237,6 +238,7 @@ const EditEvent = () => {
                         ...col,
                         designerImage: col.designerImage?.url || col.designerImage,
                         gridAspectRatio: col.gridAspectRatio || 'portrait',
+                        day: col.day || '', // Populate Day
                         images: col.images.map(img => {
                             if (typeof img === 'string') return img;
                             return img?.url;
@@ -529,7 +531,7 @@ const EditEvent = () => {
                     collections: [...prev.collections, currentCollection]
                 }));
             }
-            setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', images: [] });
+            setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', day: '', images: [] });
             // Reset file input if possible
             const fileInput = document.getElementById('collectionImagesInput');
             if (fileInput) fileInput.value = '';
@@ -550,7 +552,7 @@ const EditEvent = () => {
 
     const cancelEditCollection = () => {
         setEditingIndex(null);
-        setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', images: [] });
+        setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', day: '', images: [] });
     };
 
     const removeCollection = (index) => {
@@ -661,6 +663,7 @@ const EditEvent = () => {
             layout: col.layout,
             designerImage: typeof col.designerImage === 'string' ? col.designerImage : undefined,
             gridAspectRatio: col.gridAspectRatio,
+            day: col.day, // Include Day
             images: col.images.filter(img => typeof img === 'string') // Only pass existing URLs in metadata
         }));
         data.append('collections', JSON.stringify(collectionsMeta));
@@ -1180,6 +1183,15 @@ const EditEvent = () => {
                                         <option value="landscape">Landscape (4:3)</option>
                                         <option value="square">Square (1:1)</option>
                                         <option value="auto">Auto (Natural)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-gray-400 mb-1 text-sm">Event Day (Optional)</label>
+                                    <select name="day" value={currentCollection.day || ''} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white">
+                                        <option value="">-- No Specific Day --</option>
+                                        <option value="1">Day 1</option>
+                                        <option value="2">Day 2</option>
+                                        <option value="3">Day 3</option>
                                     </select>
                                 </div>
                             </div>

@@ -392,6 +392,7 @@ export const updateEvent = async (req, res) => {
                 layout: col.layout,
                 designerImage,
                 gridAspectRatio: col.gridAspectRatio || 'portrait',
+                day: col.day,
                 images: [...existingImagesObjects, ...newImagesParts]
             };
         });

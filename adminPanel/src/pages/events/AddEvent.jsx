@@ -62,8 +62,10 @@ const AddEvent = () => {
         designerImage: null, // Add ability to store designer image URL
         layout: 'grid', // Default collection layout
         gridAspectRatio: 'portrait',
+        day: '', // Add Day field
         images: []
     });
+    const [editingIndex, setEditingIndex] = useState(null);
 
     const [designers, setDesigners] = useState([]);
 
@@ -401,14 +403,39 @@ const AddEvent = () => {
 
     const addCollection = () => {
         if (currentCollection.title && currentCollection.images.length > 0) {
-            setFormData(prev => ({
-                ...prev,
-                collections: [...prev.collections, currentCollection]
-            }));
-            setCurrentCollection({ title: '', subtitle: '', description: '', layout: 'grid', gridAspectRatio: 'portrait', images: [] });
+            setFormData(prev => {
+                const newCollections = [...prev.collections];
+                if (editingIndex !== null) {
+                    newCollections[editingIndex] = currentCollection;
+                } else {
+                    newCollections.push(currentCollection);
+                }
+                return { ...prev, collections: newCollections };
+            });
+            setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', day: '', images: [] });
+            setEditingIndex(null);
+
+            // Reset file inputs
+            const fileInput = document.getElementById('collectionImagesInput');
+            if (fileInput) fileInput.value = '';
+            const designerImgInput = document.getElementById('designerImageInput');
+            if (designerImgInput) designerImgInput.value = '';
+
         } else {
             toast.error("Collection must have a title and at least one image.");
         }
+    };
+
+    const startEditCollection = (index) => {
+        setEditingIndex(index);
+        setCurrentCollection(formData.collections[index]);
+        const element = document.getElementById('collectionForm');
+        if (element) element.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const cancelEditCollection = () => {
+        setEditingIndex(null);
+        setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', day: '', images: [] });
     };
 
     const removeCollection = (index) => {
@@ -545,7 +572,8 @@ const AddEvent = () => {
             description: col.description,
             designerId: col.designerId, // Include ID
             layout: col.layout,
-            gridAspectRatio: col.gridAspectRatio
+            gridAspectRatio: col.gridAspectRatio,
+            day: col.day // Include Day
         }));
         data.append('collections', JSON.stringify(collectionsMeta));
 
@@ -1021,8 +1049,8 @@ const AddEvent = () => {
                 <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
                     <h2 className="text-xl font-bold mb-4 text-blue-400">Collections (Designers/Photos)</h2>
 
-                    <div className="mb-4 space-y-4 border p-4 border-gray-600 rounded">
-                        <h3 className="font-semibold">Add New Collection</h3>
+                    <div className={`mb-4 space-y-4 border p-4 ${editingIndex !== null ? 'border-blue-500 bg-gray-900' : 'border-gray-600'} rounded`}>
+                        <h3 className="font-semibold">{editingIndex !== null ? 'Editing Collection' : 'Add New Collection'}</h3>
 
                         <div className="mb-4">
                             <label className="block text-gray-400 mb-1 text-sm">Select Designer (Auto-fill)</label>
@@ -1055,6 +1083,15 @@ const AddEvent = () => {
                                         <option value="landscape">Landscape (4:3)</option>
                                         <option value="square">Square (1:1)</option>
                                         <option value="auto">Auto (Natural)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-gray-400 mb-1 text-sm">Event Day (Optional)</label>
+                                    <select name="day" value={currentCollection.day || ''} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white">
+                                        <option value="">-- No Specific Day --</option>
+                                        <option value="1">Day 1</option>
+                                        <option value="2">Day 2</option>
+                                        <option value="3">Day 3</option>
                                     </select>
                                 </div>
                             </div>
@@ -1185,18 +1222,30 @@ const AddEvent = () => {
                             </div>
                         )}
 
-                        <button type="button" onClick={addCollection} className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded mt-2">Save Collection to Event</button>
+                        <div className="flex gap-2">
+                            <button type="button" onClick={addCollection} className={`flex-1 py-2 rounded mt-2 text-white ${editingIndex !== null ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                                {editingIndex !== null ? 'Update Collection' : 'Save Collection to Event'}
+                            </button>
+                            {editingIndex !== null && (
+                                <button type="button" onClick={cancelEditCollection} className="py-2 px-4 rounded mt-2 text-white bg-gray-600 hover:bg-gray-500">
+                                    Cancel
+                                </button>
+                            )}
+                        </div>
                     </div>
 
                     {formData.collections.length > 0 && (
                         <div className="space-y-4 mt-4">
                             {formData.collections.map((col, idx) => (
-                                <div key={idx} className="bg-gray-700 p-4 rounded flex justify-between items-center">
+                                <div key={idx} className={`bg-gray-700 p-4 rounded flex justify-between items-center ${editingIndex === idx ? 'border border-blue-500' : ''}`}>
                                     <div>
                                         <div className="font-bold">{col.title} <span className="text-sm font-normal text-gray-400">({col.subtitle})</span></div>
                                         <div className="text-xs text-gray-400">{col.images.length} images - Layout: {col.layout} ({col.gridAspectRatio})</div>
                                     </div>
-                                    <button type="button" onClick={() => removeCollection(idx)} className="text-red-400 hover:text-red-300">Remove</button>
+                                    <div className="flex gap-2">
+                                        <button type="button" onClick={() => startEditCollection(idx)} className="text-blue-400 hover:text-blue-300">Edit</button>
+                                        <button type="button" onClick={() => removeCollection(idx)} className="text-red-400 hover:text-red-300">Remove</button>
+                                    </div>
                                 </div>
                             ))}
                         </div>

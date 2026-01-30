@@ -78,6 +78,7 @@ const EventDetail = () => {
     const navigate = useNavigate();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [activeDay, setActiveDay] = useState(1); // Default to Day 1
 
     // Refs for day sections
     const dayRefs = {
@@ -92,6 +93,16 @@ const EventDetail = () => {
                 // If slug is available, use it. The backend should handle finding by slug OR ID.
                 const response = await axios.get(`${API_BASE_URL}/api/events/${slug}`);
                 setEvent(response.data);
+
+                // Determine initial active day
+                const collections = response.data.collections || [];
+                const hasDays = collections.some(col => col.day);
+                if (hasDays) {
+                    // Find first available day
+                    const days = collections.map(col => col.day).filter(d => d).sort();
+                    if (days.length > 0) setActiveDay(days[0]);
+                }
+
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching event details:", error);
@@ -351,25 +362,7 @@ const EventDetail = () => {
             {renderHero()}
 
             {/* Day Navigation Buttons - Only show for PAST events with day-tagged collections */}
-            {event.eventType === 'past' && event.collections && event.collections.some(col => col.day) && (
-                <div className="bg-gradient-to-b from-gray-50 to-white py-8 px-4 sticky top-0 z-40 shadow-sm border-b border-gray-200">
-                    <div className="max-w-7xl mx-auto flex justify-center gap-4">
-                        {[1, 2, 3].map(day => {
-                            const hasDay = event.collections.some(col => col.day === day);
-                            if (!hasDay) return null;
-                            return (
-                                <button
-                                    key={day}
-                                    onClick={() => scrollToDay(day)}
-                                    className="px-8 py-3 bg-black text-white font-semibold uppercase tracking-wider text-sm transition-all duration-300 hover:bg-[#C7913E] hover:scale-105 shadow-md hover:shadow-xl"
-                                >
-                                    Day {day}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
-            )}
+
 
             {event.descriptionSection && event.descriptionSection.isVisible && (
                 <div className="py-6 px-8 bg-white relative overflow-hidden mb-8">
@@ -484,8 +477,37 @@ const EventDetail = () => {
 
             {renderTickets()}
 
+            {/* Day Tabs - Only show if data has days */}
+            {event.collections && event.collections.some(col => col.day) && (
+                <div className="bg-white py-8 px-4 border-b border-gray-100">
+                    <div className="max-w-7xl mx-auto flex justify-center flex-wrap gap-6">
+                        {['FIRST', 'SECOND', 'THIRD'].map((dayLabel, index) => {
+                            const dayNum = index + 1;
+                            const hasDay = event.collections.some(col => parseInt(col.day) === dayNum);
+                            if (!hasDay) return null;
+
+                            const isActive = activeDay === dayNum;
+                            return (
+                                <button
+                                    key={dayNum}
+                                    onClick={() => setActiveDay(dayNum)}
+                                    className={`
+                                        px-8 py-3 uppercase tracking-widest text-sm font-semibold transition-all duration-300
+                                        border ${isActive ? 'border-[#C7913E] text-[#C7913E]' : 'border-white text-gray-500 hover:text-black'}
+                                    `}
+                                >
+                                    {dayLabel} DAY &gt;
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             <div className="mt-10 bg-white">
-                {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
+                {event.collections && event.collections
+                    .filter(col => !col.day || parseInt(col.day) === activeDay) // Show if no day assigned OR matches active day
+                    .map((col, idx) => renderCollection(col, idx))}
             </div>
 
             {/* {event.bottomSection && (event.bottomSection.title || event.bottomSection.text || event.bottomSection.image || event.bottomSection.credits) && (
