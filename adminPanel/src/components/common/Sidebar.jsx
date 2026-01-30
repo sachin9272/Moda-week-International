@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import {
     LayoutDashboard,
@@ -13,13 +13,31 @@ import {
     Scale,
     Briefcase,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Heart,
+    Layers,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 
 const Sidebar = () => {
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
+    const location = useLocation();
     const [collapsed, setCollapsed] = useState(false);
+
+    // Track expanded menus
+    const [expandedMenus, setExpandedMenus] = useState({
+        pages: true // Default open to show changes
+    });
+
+    const toggleMenu = (key) => {
+        setExpandedMenus(prev => ({
+            ...prev,
+            [key]: !prev[key]
+        }));
+        if (collapsed) setCollapsed(false); // Auto-expand sidebar if opening a menu
+    };
 
     const handleLogout = () => {
         logout();
@@ -31,12 +49,111 @@ const Sidebar = () => {
         { path: '/events', icon: Calendar, label: 'Events' },
         { path: '/applications', icon: FolderOpen, label: 'Applications' },
         { path: '/news', icon: Newspaper, label: 'News' },
+        // Grouped Pages
+        {
+            key: 'pages',
+            label: 'Pages',
+            icon: Layers,
+            children: [
+                { path: '/philanthropy', icon: Heart, label: 'Philanthropy' },
+                { path: '/service-content', icon: Briefcase, label: 'Services' },
+                { path: '/legal-pages', icon: Scale, label: 'Legal Pages' },
+            ]
+        },
         { path: '/landing-videos', icon: Video, label: 'Landing Videos' },
         { path: '/fashion-designers', icon: Users, label: 'Participants' },
         { path: '/partners', icon: Image, label: 'Partners / Logos' },
-        { path: '/service-content', icon: Briefcase, label: 'Services' },
-        { path: '/legal-pages', icon: Scale, label: 'Legal Pages' },
     ];
+
+    const renderNavItem = (item) => {
+        // Handle Nested Items
+        if (item.children) {
+            const isExpanded = expandedMenus[item.key];
+            const isActive = item.children.some(child => location.pathname === child.path);
+
+            return (
+                <div key={item.key} className="mb-1">
+                    <button
+                        onClick={() => toggleMenu(item.key)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative
+                        ${isActive ? 'text-white' : 'text-neutral-400 hover:bg-[#1a1a1a] hover:text-white'}
+                        ${collapsed ? 'justify-center px-3' : 'justify-between'}
+                        `}
+                        title={collapsed ? item.label : undefined}
+                    >
+                        <div className="flex items-center gap-3">
+                            <item.icon size={20} className={`flex-shrink-0 ${isActive ? 'text-[#C7913E]' : ''}`} />
+                            {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
+                        </div>
+                        {!collapsed && (
+                            <div className="text-neutral-500">
+                                {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                            </div>
+                        )}
+
+                        {/* Collapsed Tooltip */}
+                        {collapsed && (
+                            <div className="absolute left-full ml-3 px-3 py-2 bg-[#1a1a1a] text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl border border-[#2a2a2a]">
+                                {item.label}
+                                <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-[#1a1a1a] rotate-45 border-l border-b border-[#2a2a2a]"></div>
+                            </div>
+                        )}
+                    </button>
+
+                    {/* Submenu */}
+                    {(!collapsed && isExpanded) && (
+                        <div className="mt-1 ml-4 pl-4 border-l border-[#2a2a2a] space-y-1">
+                            {item.children.map(child => (
+                                <NavLink
+                                    key={child.path}
+                                    to={child.path}
+                                    className={({ isActive }) =>
+                                        `flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-sm
+                                        ${isActive
+                                            ? 'text-[#C7913E] bg-[#C7913E]/10 font-medium'
+                                            : 'text-neutral-500 hover:text-white hover:bg-[#1a1a1a]'
+                                        }`
+                                    }
+                                >
+                                    <child.icon size={16} />
+                                    <span>{child.label}</span>
+                                </NavLink>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Handle Single Items
+        return (
+            <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                className={({ isActive }) =>
+                    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative mb-1
+                    ${isActive
+                        ? 'bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white shadow-lg shadow-[#C7913E]/20'
+                        : 'text-neutral-400 hover:bg-[#1a1a1a] hover:text-white'
+                    }
+                    ${collapsed ? 'justify-center px-3' : ''}`
+                }
+                title={collapsed ? item.label : undefined}
+            >
+                <item.icon size={20} className="flex-shrink-0" />
+                {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
+
+                {/* Tooltip for collapsed state */}
+                {collapsed && (
+                    <div className="absolute left-full ml-3 px-3 py-2 bg-[#1a1a1a] text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl border border-[#2a2a2a]">
+                        {item.label}
+                        <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-[#1a1a1a] rotate-45 border-l border-b border-[#2a2a2a]"></div>
+                    </div>
+                )}
+            </NavLink>
+        );
+    };
 
     return (
         <div className={`h-screen ${collapsed ? 'w-20' : 'w-64'} bg-black text-white flex flex-col fixed left-0 top-0 z-50 transition-all duration-300 ease-in-out border-r border-[#2a2a2a]`}>
@@ -61,34 +178,8 @@ const Sidebar = () => {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-                {navItems.map((item) => (
-                    <NavLink
-                        key={item.path}
-                        to={item.path}
-                        end={item.path === '/'}
-                        className={({ isActive }) =>
-                            `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group relative
-                            ${isActive
-                                ? 'bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white shadow-lg shadow-[#C7913E]/20'
-                                : 'text-neutral-400 hover:bg-[#1a1a1a] hover:text-white'
-                            }
-                            ${collapsed ? 'justify-center px-3' : ''}`
-                        }
-                        title={collapsed ? item.label : undefined}
-                    >
-                        <item.icon size={20} className="flex-shrink-0" />
-                        {!collapsed && <span className="font-medium text-sm">{item.label}</span>}
-
-                        {/* Tooltip for collapsed state */}
-                        {collapsed && (
-                            <div className="absolute left-full ml-3 px-3 py-2 bg-[#1a1a1a] text-white text-sm rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap z-50 shadow-xl border border-[#2a2a2a]">
-                                {item.label}
-                                <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-[#1a1a1a] rotate-45 border-l border-b border-[#2a2a2a]"></div>
-                            </div>
-                        )}
-                    </NavLink>
-                ))}
+            <nav className="flex-1 p-3 space-y-1 overflow-y-auto no-scrollbar">
+                {navItems.map(renderNavItem)}
             </nav>
 
             {/* Collapse Toggle */}
