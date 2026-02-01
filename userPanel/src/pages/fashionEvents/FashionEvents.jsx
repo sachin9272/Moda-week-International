@@ -53,17 +53,38 @@ export default function FashionEvents() {
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
 
+  const [heroContent, setHeroContent] = useState({
+    title: "UPCOMING EVENTS",
+    subtitle: "local or shared file",
+    description: "Experience world-class fashion events in the most ionic cities across the globe.\nDon't miss this strategic business opportunity to elevate your brand, gain visibility, and connect with industry leaders. Stay informed about upcoming fashion events, partnership opportunities, and participation options.",
+    image: null
+  });
+
   useEffect(() => {
-    const fetchUpcomingEvents = async () => {
+    const fetchContent = async () => {
       try {
-        const response = await fetch(`${baseURL}/api/upcoming-events/all?status=live`);
-        const data = await response.json();
-        setUpcomingEvents(data);
+        const [eventsRes, heroRes] = await Promise.all([
+          fetch(`${baseURL}/api/upcoming-events/all?status=live`),
+          fetch(`${baseURL}/api/upcoming-event-hero`)
+        ]);
+
+        const eventsData = await eventsRes.json();
+        setUpcomingEvents(eventsData);
+
+        if (heroRes.ok) {
+          const heroData = await heroRes.json();
+          setHeroContent({
+            title: heroData.title || "UPCOMING EVENTS",
+            subtitle: heroData.subtitle || "",
+            description: heroData.description || "",
+            image: heroData.image || null
+          });
+        }
       } catch (error) {
-        console.error('Error fetching upcoming events:', error);
+        console.error('Error fetching data:', error);
       }
     };
-    fetchUpcomingEvents();
+    fetchContent();
   }, []);
 
   const pastEvents = [
@@ -102,21 +123,13 @@ export default function FashionEvents() {
           {/* Header */}
           <div className="text-center mb-16 max-w-9xl mx-auto">
             <h1 className="relative uppercase inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-10 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
-              Upcoming EVENTS
+              {heroContent.title}
               <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#3C2306] to-[#C7913E]"></span>
             </h1>
 
-            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-4 !font-montserrat">
-              Experience world-class fashion events in the most iconic cities across the globe.
-            </p>
-            <p className="text-black max-w-4xl mx-auto leading-relaxed mb-4 !font-montserrat">
-              Don’t miss this strategic business opportunity to elevate your brand, gain visibility, and connect with industry leaders. Stay informed about upcoming fashion events, partnership opportunities, and participation options.
-            </p>
-            <p className="text-black max-w-3xl mx-auto leading-relaxed mb-4 !font-montserrat">
-              For custom inquiries, collaborations, or corporate engagement, contact us at: <br />
-              info@modaweekinternational.com <br />
-              We are here to enhance and amplify your company’s brand presence.
-            </p>
+            <div className="text-black max-w-4xl mx-auto leading-relaxed mb-4 !font-montserrat whitespace-pre-line">
+              {heroContent.description}
+            </div>
           </div>
 
           {/* Events Grid */}
