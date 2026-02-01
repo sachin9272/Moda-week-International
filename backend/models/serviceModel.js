@@ -22,7 +22,26 @@ const serviceSchema = new mongoose.Schema({
     }],
     additionalInfo: {
         type: String
-    }
+    },
+    // Press & Media Accreditation Fields
+    companyName: { type: String },
+    address: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zipCode: { type: String },
+    fax: { type: String },
+    website: { type: String },
+    currentEvent: { type: String },
+    jobTitle: { type: String },
+    date: { type: String },
+    signature: { type: String },
+    mediaReleaseNames: [{ type: String }],
+    mediaName: { type: String },
+
+    // Volunteer & Internship Fields
+    educationMajor: { type: String },
+    schoolAddress: { type: String },
+    volunteeringInterests: [{ type: String }]
 }, { timestamps: true });
 
 const Service = mongoose.model('Service', serviceSchema);

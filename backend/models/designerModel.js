@@ -37,7 +37,27 @@ const designerSchema = new mongoose.Schema({
     brandDescription: {
         type: String,
         required: true
-    }
+    },
+    // Common Address Fields
+    address: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zipCode: { type: String },
+    fax: { type: String },
+    socialMediaLink: { type: String },
+
+    // Student Specific
+    studentTeacher: { type: String },
+    schoolAddress: { type: String },
+
+    // New/Established Specific
+    jobTitle: { type: String },
+    companyName: { type: String },
+
+    // Checkboxes / Interests
+    collectionTypes: [{ type: String }],
+    marketingInterest: [{ type: String }],
+    showcaseLocation: [{ type: String }]
 }, { timestamps: true });
 
 const Designer = mongoose.model('Designer', designerSchema);

@@ -29,7 +29,16 @@ const sponsorSchema = new mongoose.Schema({
     }],
     additionalInfo: {
         type: String
-    }
+    },
+    // New Fields
+    jobTitle: { type: String },
+    address: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zipCode: { type: String },
+    fax: { type: String },
+    website: { type: String },
+    sponsorshipRegions: [{ type: String }]
 }, { timestamps: true });
 
 const Sponsor = mongoose.model('Sponsor', sponsorSchema);
