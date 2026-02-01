@@ -24,6 +24,9 @@ import EditUpcomingEvent from './pages/events/EditUpcomingEvent';
 import EventAnalyticsDashboard from './pages/events/EventAnalyticsDashboard';
 import EventTransactions from './pages/events/EventTransactions';
 import UpcomingEventsList from './pages/events/UpcomingEventsList';
+import UpcomingEventHeroManager from './pages/events/UpcomingEventHeroManager';
+import ParticipantsHeroManager from './pages/participants/ParticipantsHeroManager';
+import PastEventHeroManager from './pages/events/PastEventHeroManager';
 import EventPreview from './pages/events/EventPreview';
 import NewsPreview from './pages/news/NewsPreview';
 import FashionDesigners from './pages/FashionDesigners';
@@ -68,6 +71,9 @@ function App() {
             <Route path="partners" element={<PartnerManager />} />
             <Route path="philanthropy" element={<PhilanthropyManager />} />
             <Route path="events" element={<EventDashboard />} />
+            <Route path="upcoming-event-content" element={<UpcomingEventHeroManager />} />
+            <Route path="past-event-content" element={<PastEventHeroManager />} />
+            <Route path="participants-content" element={<ParticipantsHeroManager />} />
             <Route path="events/upcoming" element={<UpcomingEventsList />} />
             <Route path="events/upcoming/dashboard/:id" element={<EventAnalyticsDashboard />} />
             <Route path="events/upcoming/transactions/:id" element={<EventTransactions />} />
