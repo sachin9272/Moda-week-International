@@ -21,22 +21,34 @@ export default function Participants() {
     const [events, setEvents] = useState([]);
     const [selectedEventId, setSelectedEventId] = useState(null);
     const [activeModal, setActiveModal] = useState(null);
+    const [heroContent, setHeroContent] = useState({
+        title: "MEET THE VISIONARY FASHION DESIGNERS & PARTICIPANTS",
+        description: "Members of Moda Week International's platform showcase extraordinary talent across fashion design, performance arts, and fine arts. Their contributions extend beyond showcasing their talents—they influence the strategic direction that will define the industry's future."
+    });
 
     // Categories for the tabs
     const categories = ["Designer", "Student", "Dancer", "Fine Artist", "Host"];
 
-    // Fetch available countries and events
+    // Fetch available countries, events, and hero content
     useEffect(() => {
         const fetchFilters = async () => {
             try {
-                const [countriesRes, eventsRes] = await Promise.all([
+                const [countriesRes, eventsRes, heroRes] = await Promise.all([
                     axios.get(`${baseURL}/api/fashion-designers/countries`),
-                    axios.get(`${baseURL}/api/events/all`)
+                    axios.get(`${baseURL}/api/events/all`),
+                    axios.get(`${baseURL}/api/participants-hero`)
                 ]);
                 setAvailableCountries(countriesRes.data);
                 setEvents(eventsRes.data);
+
+                if (heroRes.data) {
+                    setHeroContent({
+                        title: heroRes.data.title || "MEET THE VISIONARY FASHION DESIGNERS & PARTICIPANTS",
+                        description: heroRes.data.description || "Members of Moda Week International's platform showcase extraordinary talent across fashion design, performance arts, and fine arts. Their contributions extend beyond showcasing their talents—they influence the strategic direction that will define the industry's future."
+                    });
+                }
             } catch (error) {
-                console.error("Error fetching filters:", error);
+                console.error("Error fetching data:", error);
             }
         };
         fetchFilters();
@@ -197,12 +209,12 @@ export default function Participants() {
                 <div className="w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-16 items-center px-6 md:px-16">
                     <div className="flex flex-col gap-2 text-center md:text-left mt-14 md:mt-0">
                         <h2 className="text-3xl md:text-[44px] font-bold grad-text leading-tight uppercase">
-                            MEET THE VISIONARY <br /> FASHION DESIGNERS & PARTICIPANTS
+                            {heroContent.title}
                         </h2>
                     </div>
                     <div>
-                        <p className="text-[14px] md:text-[18px] text-black leading-7 text-start md:text-justify mt-6 md:mt-10">
-                            Members of Moda Week International's platform showcase extraordinary talent across fashion design, performance arts, and fine arts. Their contributions extend beyond showcasing their talents—they influence the strategic direction that will define the industry's future.
+                        <p className="text-[14px] md:text-[18px] text-black leading-7 text-start md:text-justify mt-6 md:mt-10 whitespace-pre-line">
+                            {heroContent.description}
                         </p>
                     </div>
                 </div>
