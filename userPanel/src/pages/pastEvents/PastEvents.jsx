@@ -11,17 +11,32 @@ export default function PastEvents() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [visibleCount, setVisibleCount] = useState(6);
+  const [heroContent, setHeroContent] = useState({
+    title: "Past Fashion Shows Events",
+    description: "Celebrating our past and respectful supporters, collaborators and community"
+  });
 
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/events/all?status=published`);
-        const pastEvents = response.data.filter(
+        const [eventsRes, heroRes] = await Promise.all([
+          axios.get(`${baseURL}/api/events/all?status=published`),
+          axios.get(`${baseURL}/api/past-event-hero`)
+        ]);
+
+        const pastEvents = eventsRes.data.filter(
           (event) => event.eventType === "past"
         );
         setEvents(pastEvents);
+
+        if (heroRes.data) {
+          setHeroContent({
+            title: heroRes.data.title || "Past Fashion Shows Events",
+            description: heroRes.data.description || "Celebrating our past and respectful supporters, collaborators and community"
+          });
+        }
       } catch (error) {
-        console.error("Failed to fetch events", error);
+        console.error("Failed to fetch data", error);
       } finally {
         setLoading(false);
       }
@@ -42,11 +57,10 @@ export default function PastEvents() {
       <div className="h-[300px] bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center text-center px-4">
         <div>
           <h1 className="text-3xl md:text-[44px] font-bold bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent mb-4 uppercase">
-            Past Fashion Shows Events
+            {heroContent.title}
           </h1>
-          <p className="text-black text-[18px] md:text-base max-w-2xl mx-auto">
-            Celebrating our past and respectful supporters, collaborators and
-            community
+          <p className="text-black text-[18px] md:text-base max-w-2xl mx-auto whitespace-pre-line">
+            {heroContent.description}
           </p>
         </div>
       </div>
