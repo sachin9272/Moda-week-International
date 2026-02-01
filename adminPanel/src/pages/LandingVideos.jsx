@@ -474,17 +474,7 @@ const LandingVideos = () => {
                                         </>
                                     )}
                                 </div>
-                                <div className="mt-4">
-                                    <p className="text-xs text-neutral-500 uppercase tracking-widest mb-2">Or Provide URL</p>
-                                    <input
-                                        type="text"
-                                        name="videoUrl"
-                                        value={formData.videoUrl}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] outline-none transition-all"
-                                        placeholder="https://example.com/video.mp4"
-                                    />
-                                </div>
+
                             </div>
                         ) : (
                             <div>

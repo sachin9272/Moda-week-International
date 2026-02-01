@@ -57,6 +57,9 @@ const Sidebar = () => {
             children: [
                 { path: '/philanthropy', icon: Heart, label: 'Philanthropy' },
                 { path: '/service-content', icon: Briefcase, label: 'Services' },
+                { path: '/upcoming-event-content', icon: Calendar, label: 'Upcoming Event' },
+                { path: '/past-event-content', icon: Calendar, label: 'Past Event' },
+                { path: '/participants-content', icon: Calendar, label: 'Participants' },
                 { path: '/legal-pages', icon: Scale, label: 'Legal Pages' },
             ]
         },
