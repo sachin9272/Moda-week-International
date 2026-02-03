@@ -9,7 +9,7 @@ import {
     loginAdmin, registerAdmin
 } from '../controllers/adminController.js';
 import { protect } from '../middlewares/authMiddleware.js';
-import { uploadCloudinary } from '../config/cloudinaryConfig.js';
+import { uploadCloudinary, setFolder } from '../config/cloudinaryConfig.js';
 
 const router = express.Router();
 
@@ -36,8 +36,8 @@ router.delete('/services/:id', protect, deleteService);
 // News Routes
 router.get('/news/get-all', protect, getAllNews);
 router.get('/news/get/:id', protect, getNews);
-router.post('/news/create', protect, uploadCloudinary.single('image'), createNews);
-router.put('/news/update/:id', protect, uploadCloudinary.single('image'), updateNews);
+router.post('/news/create', protect, setFolder('news'), uploadCloudinary.single('image'), createNews);
+router.put('/news/update/:id', protect, setFolder('news'), uploadCloudinary.single('image'), updateNews);
 router.delete('/news/delete/:id', protect, deleteNews);
 
 // Export the router

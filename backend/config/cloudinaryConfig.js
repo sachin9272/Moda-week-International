@@ -13,10 +13,16 @@ cloudinary.config({
 
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
-    params: {
-        folder: 'moda-week-services', // Folder name in Cloudinary
-        allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'mp4', 'mov', 'avi', 'mkv', 'avif'],
-        resource_type: 'auto',
+    params: async (req, file) => {
+        // Dynamic folder selection
+        const folderName = req.uploadFolder || 'general';
+        const env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev';
+
+        return {
+            folder: `moda-week-international/${env}/${folderName}`,
+            allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'mp4', 'mov', 'avi', 'mkv', 'avif'],
+            resource_type: 'auto',
+        };
     },
 });
 
@@ -25,4 +31,12 @@ const uploadCloudinary = multer({
     limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 });
 
-export { cloudinary, uploadCloudinary };
+// Middleware to set the folder name
+const setFolder = (folderName) => {
+    return (req, res, next) => {
+        req.uploadFolder = folderName;
+        next();
+    };
+};
+
+export { cloudinary, uploadCloudinary, setFolder };
