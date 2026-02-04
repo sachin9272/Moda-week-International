@@ -31,14 +31,43 @@ const ApplicationForm = () => {
     industry: "",
     sponsorshipInterests: [],
 
+    // Sponsor Additional
+    jobTitle: "",
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    fax: "",
+    sponsorshipRegions: [],
+
     // Designer
     brandName: "",
     designerName: "",
-    designCategory: "",
+    designCategory: "", // Default empty to force selection
     yearsOfExperience: "",
     website: "",
     portfolioLink: "",
     brandDescription: "",
+
+    // Designer Common
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    fax: "",
+    socialMediaLink: "",
+
+    // Designer Student
+    studentTeacher: "",
+    schoolAddress: "",
+
+    // Designer New/Established
+    jobTitle: "",
+
+    // Designer Interests
+    collectionTypes: [],
+    marketingInterest: [],
+    showcaseLocation: [],
 
     // Buyer
     businessType: "",
@@ -46,6 +75,24 @@ const ApplicationForm = () => {
 
     // Additional
     additionalInfo: "",
+
+    // Press & Media Accreditation
+    address: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    fax: "",
+    currentEvent: "",
+    jobTitle: "",
+    date: "",
+    signature: "",
+    mediaReleaseNames: [],
+    mediaName: "",
+
+    // Volunteer & Internship
+    educationMajor: "",
+    schoolAddress: "",
+    volunteeringInterests: []
   });
 
   const tabs = [
@@ -123,6 +170,24 @@ const ApplicationForm = () => {
           industry: "",
           sponsorshipInterests: [],
 
+          // Sponsor Additional
+          jobTitle: "",
+          address: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          fax: "",
+          sponsorshipRegions: [],
+
+          // Sponsor Additional
+          jobTitle: "",
+          address: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          fax: "",
+          sponsorshipRegions: [],
+
           // Designer
           brandName: "",
           designerName: "",
@@ -132,12 +197,50 @@ const ApplicationForm = () => {
           portfolioLink: "",
           brandDescription: "",
 
+          // Designer Common
+          address: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          fax: "",
+          socialMediaLink: "",
+
+          // Designer Student
+          studentTeacher: "",
+          schoolAddress: "",
+
+          // Designer New/Established
+          jobTitle: "",
+
+          // Designer Interests
+          collectionTypes: [],
+          marketingInterest: [],
+          showcaseLocation: [],
+
           // Buyer
           businessType: "",
           productInterests: "",
 
           // Additional
           additionalInfo: "",
+
+          // Press & Media Accreditation
+          address: "",
+          city: "",
+          state: "",
+          zipCode: "",
+          fax: "",
+          currentEvent: "",
+          jobTitle: "",
+          date: "",
+          signature: "",
+          mediaReleaseNames: [],
+          mediaName: "",
+
+          // Volunteer & Internship
+          educationMajor: "",
+          schoolAddress: "",
+          volunteeringInterests: []
         });
       } else {
         toast.error(data.message || "Failed to submit application. Please try again.");
@@ -291,45 +394,147 @@ const ApplicationForm = () => {
       case "designer":
         return (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {renderInput("Brand Name", "brandName", "Your Brand")}
-              {renderInput("Designer Name", "designerName", "Full Name")}
-              {renderInput("Email", "email", "email@brand.com", "email")}
-              {renderInput("Phone Number", "phoneNumber", "+1 (555) 000-0000", "tel")}
-              {renderInput("Country", "country", "Country")}
-              {renderSelect("Design Category", "designCategory", [
-                { value: "StudentDesigner", label: "Student Designer" },
-                { value: "NewDesigner", label: "New Designer" },
-                { value: "EstablishedDesigner", label: "Established Designer" },
-              ])}
-            </div>
-            <div className="mt-6 mb-6">
-              {renderSelect("Years of Experience", "yearsOfExperience", [
-                { value: "0-2", label: "0-2 Years" },
-                { value: "3-5", label: "3-5 Years" },
-                { value: "5-10", label: "5-10 Years" },
-                { value: "10+", label: "10+ Years" },
-              ])}
-            </div>
+            {/* Application Type Selection */}
+            {!formData.designCategory ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-fadeIn">
+                <button
+                  onClick={() => setFormData(prev => ({ ...prev, designCategory: "StudentDesigner" }))}
+                  className="flex flex-col items-center justify-center p-8 bg-[#F3F3F5] hover:bg-black hover:text-[#EFA137] rounded-xl transition-all cursor-pointer border border-transparent hover:border-[#EFA137] group"
+                >
+                  <Award className="w-12 h-12 mb-4 text-gray-400 group-hover:text-[#EFA137] transition-colors" />
+                  <h3 className="text-xl font-bold">Student Design</h3>
+                  <p className="text-sm mt-2 text-center opacity-80">For current students seeking internship and showcase opportunities.</p>
+                </button>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              {renderInput("Website", "website", "https://yourbrand.com", "url", false)}
-              {renderInput("Portfolio Link", "portfolioLink", "https://portfolio.com", "url", false)}
-            </div>
+                <button
+                  onClick={() => setFormData(prev => ({ ...prev, designCategory: "NewDesigner" }))}
+                  className="flex flex-col items-center justify-center p-8 bg-[#F3F3F5] hover:bg-black hover:text-[#EFA137] rounded-xl transition-all cursor-pointer border border-transparent hover:border-[#EFA137] group"
+                >
+                  <Palette className="w-12 h-12 mb-4 text-gray-400 group-hover:text-[#EFA137] transition-colors" />
+                  <h3 className="text-xl font-bold">New Designer</h3>
+                  <p className="text-sm mt-2 text-center opacity-80">For emerging designers launching their brand.</p>
+                </button>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-900 mb-2">
-                Brand Description <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                name="brandDescription"
-                value={formData.brandDescription}
-                onChange={handleInputChange}
-                placeholder="Tell us about your brand, design philosophy, and what makes your work unique..."
-                rows="2"
-                className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              />
-            </div>
+                <button
+                  onClick={() => setFormData(prev => ({ ...prev, designCategory: "EstablishedDesigner" }))}
+                  className="flex flex-col items-center justify-center p-8 bg-[#F3F3F5] hover:bg-black hover:text-[#EFA137] rounded-xl transition-all cursor-pointer border border-transparent hover:border-[#EFA137] group"
+                >
+                  <ShoppingBag className="w-12 h-12 mb-4 text-gray-400 group-hover:text-[#EFA137] transition-colors" />
+                  <h3 className="text-xl font-bold">Fashion Designer</h3>
+                  <p className="text-sm mt-2 text-center opacity-80">For established professionals seeking broader promotion.</p>
+                </button>
+              </div>
+            ) : (
+              <div className="animate-fadeIn">
+                <div className="flex justify-between items-center mb-8 bg-gray-50 p-4 rounded-lg">
+                  <div>
+                    <p className="text-sm text-gray-500">Selected Application Type</p>
+                    <h3 className="text-xl font-bold">
+                      {formData.designCategory === "StudentDesigner" && "Student Design Application"}
+                      {formData.designCategory === "NewDesigner" && "New Designer Application"}
+                      {formData.designCategory === "EstablishedDesigner" && "Fashion Designer Application"}
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setFormData(prev => ({ ...prev, designCategory: "" }))}
+                    className="text-sm text-red-500 hover:text-red-700 underline"
+                  >
+                    Change Type
+                  </button>
+                </div>
+
+                {/* Common Fields */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                  {renderInput("Full Name", "designerName", "Full Name")}
+                  {renderInput("Mobile Number", "phoneNumber", "+1 (555) 000-0000", "tel")}
+                  {renderInput("Address", "address", "Address", "text", false)}
+                  {renderInput("City", "city", "City", "text", false)}
+                  {renderInput("State/Province", "state", "State", "text", false)}
+                  {renderInput("Zip/Postal Code", "zipCode", "Zip Code", "text", false)}
+                  {renderInput("Country", "country", "Country")}
+                  {renderInput("Fax", "fax", "Fax", "tel", false)}
+                  {renderInput("Email", "email", "email@brand.com", "email")}
+                  {renderInput("Website / Social Media", "socialMediaLink", "Link", "url", false)}
+                </div>
+
+
+
+                {/* Conditional Fields */}
+                {formData.designCategory === "StudentDesigner" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 animate-fadeIn">
+                    {renderInput("Student Teacher", "studentTeacher", "Student Teacher Name", "text", false)}
+                    {renderInput("School/College/University Address", "schoolAddress", "Address", "text", false)}
+                  </div>
+                )}
+
+                {(formData.designCategory === "NewDesigner" || formData.designCategory === "EstablishedDesigner") && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 animate-fadeIn">
+                    {renderInput("Job Title", "jobTitle", "Job Title", "text", false)}
+                    {renderInput("Company", "brandName", "Company Name", "text", false)}
+                  </div>
+                )}
+
+
+
+
+
+                {/* Website Instruction */}
+                {(formData.designCategory === "StudentDesigner" || formData.designCategory === "NewDesigner" || formData.designCategory === "EstablishedDesigner") && (
+                  <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                    <p><strong>Note:</strong> If you do not have a website, please email us pictures of your designs. We Need to see your work before sending your participation form contract.</p>
+                  </div>
+                )}
+
+                {/* Bottom Section */}
+                <div className="space-y-6">
+                  {renderCheckboxGroup("Type (Check all that Apply)", "collectionTypes", [
+                    "Men's Fashion Collection.",
+                    "Woman's Fashion Collection.",
+                    "Accessories.",
+                    formData.designCategory === "StudentDesigner" ? "Internship." : null,
+                    formData.designCategory === "StudentDesigner" ? "Branding Creations: (Business Card Design, Logo, Wordmark Design, Poster/Flyer) *Any other design service to be quoted separately." : null,
+                    formData.designCategory === "NewDesigner" ? "Marketing and Promotion: (Card Design, Logo, Wordmark Design, Poster/Flyer,Clothes Tags, Give Ways Design, Website) *Any other design service to be quoted separately." : null,
+                    formData.designCategory === "EstablishedDesigner" ? "Corporate Marketing and Promotion: Project, Budgeting and Designs. *Any other design service to be quoted separately." : null
+                  ].filter(Boolean))}
+
+                  {renderCheckboxGroup(
+                    formData.designCategory === "StudentDesigner"
+                      ? "I'm Interested in showing my Design Collection at:"
+                      : "I'm Interested in showing my Design Collection at:",
+                    "showcaseLocation",
+                    ["CANADA", "EUROPE", "SOUTH AMERICA", "UNITED STATES"]
+                  )}
+                </div>
+
+                <div className="md:col-span-2 mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Brand Description / Notes <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="brandDescription"
+                    value={formData.brandDescription}
+                    onChange={handleInputChange}
+                    placeholder="Tell us about your brand..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                {/* Hidden as per new requirements
+                {(formData.designCategory !== "StudentDesigner") && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    {renderInput("Portfolio Link", "portfolioLink", "https://portfolio.com", "url", false)}
+                    {renderSelect("Years of Experience", "yearsOfExperience", [
+                      { value: "0-2", label: "0-2 Years" },
+                      { value: "3-5", label: "3-5 Years" },
+                      { value: "5-10", label: "5-10 Years" },
+                      { value: "10+", label: "10+ Years" },
+                    ])}
+                  </div>
+                )}
+                */}
+              </div>
+            )}
           </>
         );
 
@@ -339,11 +544,29 @@ const ApplicationForm = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {renderInput("Company Name", "companyName", "Your Company")}
               {renderInput("Contact Name", "contactName", "Full Name")}
+
+              {/* New Fields */}
+              {renderInput("Job Title", "jobTitle", "Job Title", "text", false)}
+              {renderInput("Address", "address", "Street Address", "text", false)}
+              {renderInput("City", "city", "City", "text", false)}
+              {renderInput("State/Province", "state", "State", "text", false)}
+              {renderInput("Zip/Postal Code", "zipCode", "Zip Code", "text", false)}
+              {renderInput("Fax", "fax", "Fax Number", "tel", false)}
+              {renderInput("Website Address", "website", "https://yourwebsite.com", "url", false)}
+
               {renderInput("Email", "email", "email@company.com", "email")}
               {renderInput("Phone Number", "phoneNumber", "+1 (555) 000-0000", "tel")}
               {renderInput("Country", "country", "Country")}
               {renderInput("Industry", "industry", "e.g., Technology, Beauty, Automotive")}
             </div>
+
+            {renderCheckboxGroup("I'm interested sponsor my company corporation in:", "sponsorshipRegions", [
+              "Sponsorship information in UNITED STATES OF AMERICA",
+              "Sponsorship information in EUROPE",
+              "Sponsorship information in CANADA",
+              "Sponsorship information in SOUTH AMERICA"
+            ])}
+
             {renderCheckboxGroup("Sponsorship Interests", "sponsorshipInterests", sponsorshipOptions)}
             <div className="mt-6 md:col-span-2">
               <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -371,6 +594,63 @@ const ApplicationForm = () => {
               {renderInput("Country", "country", "Country")}
             </div>
             {renderCheckboxGroup("Request Participation", "requestParticipation", participationOptions)}
+
+            {formData.requestParticipation.includes("Press & Media Accreditation") && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Press & Media Accreditation Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Company Name", "companyName", "Company Name", "text", false)}
+                  {renderInput("Address", "address", "Address", "text", false)}
+                  {renderInput("City", "city", "City", "text", false)}
+                  {renderInput("State/Province", "state", "State/Province", "text", false)}
+                  {renderInput("Zip/Postal Code", "zipCode", "Zip/Postal Code", "text", false)}
+                  {renderInput("Fax", "fax", "Fax Number", "tel", false)}
+                  {renderInput("Website", "website", "https://example.com", "url", false)}
+                  {renderInput("Current Event", "currentEvent", "Current Event", "text", false)}
+                  {renderInput("Title", "jobTitle", "Title", "text", false)}
+                  {renderInput("Date", "date", "Select Date", "date", false)}
+                  {renderInput("Signature", "signature", "Digital Signature", "text", false)}
+                  {renderInput("Name Of Media", "mediaName", "Name Of Media", "text", false)}
+                </div>
+
+                {renderCheckboxGroup("List the names where the pictures will be released by your company", "mediaReleaseNames", [
+                  "Magazine/Newspapers",
+                  "TV",
+                  "Public Broadcasting",
+                  "Social Medias (must have 100k+ followers)",
+                  "Global Networking",
+                  "Website/Blog"
+                ])}
+              </div>
+            )}
+
+            {formData.requestParticipation.includes("Volunteer & Internship Programs") && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Volunteer & Internship Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Education Major", "educationMajor", "Education Major", "text", false)}
+                  {renderInput("School/College/University Address", "schoolAddress", "Address", "text", false)}
+                  {renderInput("City", "city", "City", "text", false)}
+                  {renderInput("State/Province", "state", "State/Province", "text", false)}
+                  {renderInput("Zip/Postal Code", "zipCode", "Zip/Postal Code", "text", false)}
+                  {renderInput("Country", "country", "Country", "text", false)}
+                  {renderInput("Mobile Number", "phoneNumber", "Mobile Number", "tel", false)}
+                  {renderInput("E-mail", "email", "Email", "email", false)}
+                  {renderInput("Signature", "signature", "Signature", "text", false)}
+                  {renderInput("Today Date", "date", "Today Date", "date", false)}
+                </div>
+
+                {renderCheckboxGroup("I'm Interested in volunteering at:", "volunteeringInterests", [
+                  "UNITED STATES OF AMERICA",
+                  "EUROPE",
+                  "CANADA",
+                  "SOUTH AMERICA",
+                  "ASIA",
+                  "AUSTRALIA",
+                  "AFRICA"
+                ])}
+              </div>
+            )}
 
             <div className="mt-6 md:col-span-2">
               <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -424,9 +704,23 @@ const ApplicationForm = () => {
         {/* Form Container */}
         <div className="bg-white rounded-lg shadow-sm p-8">
           <h2 className="text-2xl font-bold mb-2">
-            {tabs.find((t) => t.id === activeTab)?.label.toUpperCase()}
+            {activeTab === "designer" && formData.designCategory === "StudentDesigner"
+              ? "STUDENT DESIGN APPLICATION"
+              : activeTab === "designer" && formData.designCategory === "NewDesigner"
+                ? "NEW DESIGNER APPLICATION"
+                : activeTab === "designer" && formData.designCategory === "EstablishedDesigner"
+                  ? "FASHION DESIGNER APPLICATION"
+                  : tabs.find((t) => t.id === activeTab)?.label.toUpperCase()}
           </h2>
-          <p className="text-gray-600 mb-8">{descriptions[activeTab]}</p>
+          <p className="text-gray-600 mb-8">
+            {activeTab === "designer" && formData.designCategory === "StudentDesigner"
+              ? "Empowering unique and excellent opportunity, learning by doing, real experience with the industry professional. Student fashion designers wishing to participate in our fashion events must complete the form, pay the amount of $10.00 USD fee and submit this pre-qualification form. Upon approval, you will receive a student designs application."
+              : activeTab === "designer" && formData.designCategory === "NewDesigner"
+                ? "New Designer fashion designs wishing to participate in our fashion show events must complete submit this form, you will receive a designer’s application, updated show schedules and event avenue contract."
+                : activeTab === "designer" && formData.designCategory === "EstablishedDesigner"
+                  ? "Each fashion designer participants in our Moda Week International fashion show events must complete submit this form, you will receive a designer’s application, updated show schedules and event avenue contract."
+                  : descriptions[activeTab]}
+          </p>
 
           <div>
             {renderTabContent()}
