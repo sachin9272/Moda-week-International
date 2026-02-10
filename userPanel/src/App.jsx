@@ -23,6 +23,7 @@ import PaymentCancel from './pages/payment/PaymentCancel';
 import CodeOfConduct from "./pages/CodeOfConduct.jsx";
 import DataProtection from "./pages/DataProtection.jsx";
 import MediaReleasePolicy from "./pages/MediaReleasePolicy.jsx";
+import Donation from "./pages/donation/Donation.jsx";
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
@@ -54,6 +55,7 @@ function App() {
         <Route path="/data-protection" element={<DataProtection />} />
         <Route path="/media-release-policy" element={<MediaReleasePolicy />} />
         <Route path="/philanthropy" element={<Philanthropy />} />
+        <Route path="/donation" element={<Donation />} />
 
         {/* Payment Routes */}
         <Route path="/payment/success" element={<PaymentSuccess />} />
