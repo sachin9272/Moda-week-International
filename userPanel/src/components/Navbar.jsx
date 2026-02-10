@@ -68,6 +68,7 @@ const Navbar = () => {
     { name: "About Us", path: "/about", category: "Company" },
     { name: "Newsroom", path: "/news-room", category: "Company" },
     { name: "Philanthropy", path: "/philanthropy", category: "Company" },
+    { name: "Donation", path: "/donation", category: "Company" },
     { name: "Contact Us", path: "/events#contact-us", category: "Company" },
     { name: "Membership Programs", path: "/membership-program", category: "Business" },
     { name: "Buy Tickets", path: "/buy-tickets", category: "Business" },

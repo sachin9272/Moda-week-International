@@ -69,7 +69,7 @@ const PhilanthropySlideshow = ({ images = [] }) => {
 
                     {/* Original list */}
                     {displayImages.map((img, i) => (
-                        <div key={`orig-${i}`} className="h-[400px] md:h-[600px] w-auto relative shrink-0">
+                        <div key={`orig-${i}`} className="h-[300px] md:h-[450px] w-auto relative shrink-0">
                             <img
                                 src={img}
                                 alt={`Philanthropy Event ${i + 1}`}
@@ -81,7 +81,7 @@ const PhilanthropySlideshow = ({ images = [] }) => {
 
                     {/* Duplicate list for infinite scroll */}
                     {displayImages.map((img, i) => (
-                        <div key={`dup-${i}`} className="h-[400px] md:h-[600px] w-auto relative shrink-0">
+                        <div key={`dup-${i}`} className="h-[300px] md:h-[450px] w-auto relative shrink-0">
                             <img
                                 src={img}
                                 alt={`Philanthropy Event Duplicate ${i + 1}`}

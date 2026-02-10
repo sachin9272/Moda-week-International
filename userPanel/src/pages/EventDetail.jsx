@@ -420,17 +420,20 @@ const EventDetail = () => {
                     </div>
 
                     <div className="border-gray-800 py-2">
-                        <div className="marquee-wrapper">
-                            <div className="marquee-track">
+                        <div className="marquee-container w-full">
+                            <div className="marquee-content gap-10">
                                 {[...Array(10)].map((_, loopIndex) => (
-                                    event.partners.map((partner, i) => (
-                                        <img
-                                            key={`${loopIndex}-${i}`}
-                                            src={partner.url}
-                                            alt={`Partner ${i}`}
-                                            className="h-20 object-contain mx-0 transition-all duration-300"
-                                        />
-                                    ))
+                                    <React.Fragment key={`loop-${loopIndex}`}>
+                                        {event.partners.map((partner, i) => (
+                                            <div key={`${loopIndex}-${i}`} className="flex items-center justify-center min-w-[120px]">
+                                                <img
+                                                    src={partner.url}
+                                                    alt={`Partner ${i}`}
+                                                    className="h-20 object-contain mx-0 transition-all duration-300"
+                                                />
+                                            </div>
+                                        ))}
+                                    </React.Fragment>
                                 ))}
                             </div>
                         </div>
@@ -514,11 +517,6 @@ const EventDetail = () => {
                     .filter(col => !col.day || parseInt(col.day) === activeDay) // Show if no day assigned OR matches active day
                     .map((col, idx) => renderCollection(col, idx))}
             </div>
-
-            
-
-
-
 
             {/* <div className='!text-white mb-10'>
                 <CtaSection />
