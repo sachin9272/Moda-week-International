@@ -1,0 +1,209 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { baseURL } from '../../config/api';
+import Navbar from '../../components/Navbar';
+import Footer from '../../components/Footer';
+import PhilanthropySlideshow from '../../components/PhilanthropySlideshow';
+
+const Donation = () => {
+    const [frequency, setFrequency] = useState('One time');
+    const [amount, setAmount] = useState(30);
+    const [isCustomAmount, setIsCustomAmount] = useState(false);
+    const [comment, setComment] = useState('');
+
+    const handleAmountClick = (val) => {
+        setAmount(val);
+        setIsCustomAmount(false);
+    };
+
+    const handleCustomAmountClick = () => {
+        setAmount('');
+        setIsCustomAmount(true);
+    };
+    const [pageContent, setPageContent] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchContent = async () => {
+            try {
+                const response = await axios.get(`${baseURL}/api/donation-page`);
+                setPageContent(response.data);
+            } catch (error) {
+                console.error("Error fetching donation page content:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchContent();
+    }, []);
+
+    if (loading) return <div className="min-h-screen bg-white flex items-center justify-center text-black">Loading...</div>;
+
+    const { hero, mainContent, contactInfo } = pageContent || {};
+
+    return (
+        <div className="min-h-screen bg-white text-black font-sans">
+            <Navbar />
+
+            {/* Hero Section */}
+            <div className="bg-gradient-to-b from-[#C7913E] to-white text-black min-h-[400px] h-auto flex flex-col items-center justify-center text-center px-4 pt-32 pb-10">
+                <h1 className="text-4xl md:text-[52px] font-bold mb-6 tracking-wide uppercase grad-text-up font-playfair">
+                    {hero?.title || "MAKING A DIFFERENCE TOGETHER"}
+                </h1>
+                <span className="w-[50%] md:w-[20%] h-[2px] bg-gradient-to-r from-transparent via-[#C7913E] to-transparent mb-8"></span>
+
+                <p className="max-w-3xl mx-auto text-lg md:text-xl font-medium text-gray-800 leading-relaxed font-montserrat">
+                    {hero?.description || "Your support makes a difference and create a positive impact in our global and local communities."}
+                </p>
+                {hero?.subtitle && <p className="mt-4 text-md text-gray-600 font-medium">{hero.subtitle}</p>}
+            </div>
+
+            {/* Main Content */}
+            <div className="py-12 px-6 md:px-12 lg:px-20 max-w-7xl mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+
+                    {/* Left Column: Text Content */}
+                    <div className="space-y-6">
+                        <div className="text-gray-600 space-y-4 text-justify font-inter whitespace-pre-wrap">
+                            {mainContent?.introText || (
+                                <>
+                                    <p>
+                                        Moda Week International (MWINTL) is a philanthropic platform that merges glamour with purpose. As a fashion show production organization, MWINTL is committed to creating impactful events that promote not only high fashion but also educational advancement and community empowerment.
+                                    </p>
+                                    <p>
+                                        MWINTL is proudly defined by its dual mission: to showcase world-class fashion while fostering a culture of giving, learning, and social responsibility. Through each initiative, we promote artistic brilliance while uplifting lives.
+                                    </p>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="space-y-2 mt-8">
+                            <h3 className="text-xl font-bold text-gray-800 uppercase font-playfair">
+                                {mainContent?.powerOfGivingTitle || "The Power of Giving Back"}
+                            </h3>
+                            <p className="text-gray-600 text-justify font-inter whitespace-pre-wrap">
+                                {mainContent?.powerOfGivingText || "Every contribution serves a greater purpose, opening doors for emerging talent, supporting marginalized communities, and igniting hope through education and creative opportunities."}
+                            </p>
+                        </div>
+
+                        <div className="pt-8 font-medium text-gray-800 font-inter">
+                            <strong>DONATIONS:</strong> Kindly notify our team at: <a href={`mailto:${contactInfo?.email || 'info@modaweekinternational.com'}`} className="font-bold hover:text-[#C7913E] transition-colors">{contactInfo?.email || 'info@modaweekinternational.com'}</a>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Donation Form & Image */}
+                    <div className="relative">
+                        <div className="bg-white p-6 md:p-8 ">
+                            {/* Frequency */}
+                            <div className="mb-6">
+                                <label className="block text-gray-500 text-sm mb-2 font-light">Frequency</label>
+                                <div className="flex gap-2">
+                                    {['One time', 'Weekly', 'Monthly'].map((freq) => (
+                                        <button
+                                            key={freq}
+                                            onClick={() => setFrequency(freq)}
+                                            className={`flex-1 py-2 px-4 border transition-colors duration-200 ${frequency === freq
+                                                ? 'bg-[#C7913E] text-white border-[#C7913E]'
+                                                : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
+                                                }`}
+                                        >
+                                            {freq}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Amount */}
+                            <div className="mb-6">
+                                <label className="block text-gray-500 text-sm mb-2 font-light">Amount</label>
+                                <div className="grid grid-cols-2 gap-4 mb-3">
+                                    <button
+                                        onClick={() => handleAmountClick(30)}
+                                        className={`py-3 px-4 border transition-colors duration-200 ${(!isCustomAmount && amount === 30)
+                                            ? 'bg-[#C7913E] text-white border-[#C7913E]'
+                                            : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
+                                            }`}
+                                    >
+                                        $30
+                                    </button>
+                                    <button
+                                        onClick={handleCustomAmountClick}
+                                        className={`py-3 px-4 border transition-colors duration-200 ${isCustomAmount
+                                            ? 'bg-[#C7913E] text-white border-[#C7913E]'
+                                            : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
+                                            }`}
+                                    >
+                                        Other
+                                    </button>
+                                </div>
+
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                                    <input
+                                        type="number"
+                                        value={amount}
+                                        onChange={(e) => {
+                                            setAmount(e.target.value);
+                                            setIsCustomAmount(true);
+                                        }}
+                                        className="w-full border border-gray-300 p-3 pl-8 focus:outline-none focus:border-[#C7913E] transition-colors"
+                                        placeholder="Enter amount"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Comment */}
+                            <div className="mb-6">
+                                <label className="block text-gray-500 text-sm mb-2 font-light">Comment (optional)</label>
+                                <textarea
+                                    rows="4"
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    className="w-full border border-gray-300 p-3 focus:outline-none focus:border-[#C7913E] transition-colors resize-none"
+                                ></textarea>
+                                <div className="text-right text-xs text-gray-300 mt-1">0/100</div>
+                            </div>
+
+                            {/* Donate Button */}
+                            <button className="w-full bg-[#C7913E] text-white font-medium py-3 hover:bg-[#a67832] transition-colors uppercase">
+                                Donate ${amount || 0}
+                            </button>
+
+                            {/* Error/Notice Message */}
+                            <div className="mt-4 flex items-start gap-2 text-red-400 text-sm">
+                                <span className="mt-0.5">ⓘ</span>
+                                <p>This site can't accept donations right now. Upgrade your plan to start collecting donations.</p>
+                            </div>
+                        </div>
+
+                        {/* Right Image Placeholder */}
+                        <div className="hidden lg:block absolute -right-24 top-0 h-full w-1/3 pointer-events-none opacity-90">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Decorative Right Image */}
+            <div className="fixed right-0 top-1/2 -translate-y-1/2 h-[80vh] w-[20vw] z-[-1] hidden xl:block opacity-80">
+                <img
+                    src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop"
+                    alt="Donation Cause"
+                    className="w-full h-full object-cover mask-image-gradient"
+                    style={{
+                        maskImage: 'linear-gradient(to right, transparent, black)'
+                    }}
+                />
+            </div>
+
+            {/* Slideshow Section */}
+            <div className="pb-20">
+                <PhilanthropySlideshow images={pageContent?.slideshowImages} />
+            </div>
+
+            <Footer />
+        </div>
+    );
+};
+
+export default Donation;
