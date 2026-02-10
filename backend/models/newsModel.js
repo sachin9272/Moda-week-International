@@ -23,6 +23,15 @@ const newsSchema = new mongoose.Schema({
   submittedBy: {
     name: { type: String },
     email: { type: String }
+  },
+  mediaCompany: { type: String },
+  position: { type: String },
+  officialWebsite: { type: String },
+  articleLink: { type: String },
+  authorProfileLink: { type: String },
+  video: {
+    url: String,
+    publicId: String
   }
 }, { timestamps: true });
 
