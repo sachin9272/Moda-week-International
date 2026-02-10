@@ -54,9 +54,9 @@ export default function PastEvents() {
       <Navbar />
 
       {/* Hero Section */}
-      <div className="h-[300px] bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center text-center px-4">
+      <div className="min-h-[400px] md:h-[400px] h-auto bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center text-center px-4 pt-32 pb-10 md:pt-20">
         <div>
-          <h1 className="text-3xl md:text-[44px] font-bold bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent mb-4 uppercase">
+          <h1 className="text-3xl md:text-[44px] mt-10 font-bold bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent mb-4 uppercase">
             {heroContent.title}
           </h1>
           <p className="text-black text-[18px] md:text-base max-w-2xl mx-auto whitespace-pre-line">
