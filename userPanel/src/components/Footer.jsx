@@ -46,19 +46,25 @@ export default function Footer() {
 
       <div className="relative z-10">
         {/* Partner Logos Section */}
-        <div className="border-gray-800 py-8">
-          <div className="marquee-wrapper py-8">
-            <div className="marquee-track">
-              {/* Original list */}
-              {[...Array(6)].map((_, loopIndex) => (
-                partners.map((brand, i) => (
-                  <img
-                    key={`${loopIndex}-${brand._id || i}`}
-                    src={brand.image?.url}
-                    alt={brand.name}
-                    className="h-20 object-contain -mx-1" // Reduced horizontal margin to mx-2
-                  />
-                ))
+        <div className="border-gray-800 py-12">
+          <div className="marquee-container w-full">
+            <div className="marquee-content gap-12 px-4">
+              {/* Duplicate list 4 times for smooth infinite scroll on large screens */}
+              {[...Array(4)].map((_, loopIndex) => (
+                <React.Fragment key={`loop-${loopIndex}`}>
+                  {partners.map((brand, i) => (
+                    <div
+                      key={`${loopIndex}-${brand._id || i}`}
+                      className="flex items-center justify-center min-w-[120px]"
+                    >
+                      <img
+                        src={brand.image?.url}
+                        alt={brand.name}
+                        className="h-16 w-auto object-contain grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100"
+                      />
+                    </div>
+                  ))}
+                </React.Fragment>
               ))}
             </div>
           </div>
@@ -69,7 +75,7 @@ export default function Footer() {
           <div className="container mx-auto px-6 text-center">
             <h2 className="text-2xl font-bold mb-4">STAY UPDATED</h2>
 
-            <p className="text-md mb-4 max-w-2xl mx-auto">
+            <p className="text-md mb-4 max-w-4xl mx-auto">
               Subscribe to our newsletter for the latest news, event
               announcements, and exclusive content
             </p>
