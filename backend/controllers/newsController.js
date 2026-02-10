@@ -214,14 +214,27 @@ export const deleteNews = async (req, res) => {
 // Submit news from user (pending approval)
 export const submitUserNews = async (req, res) => {
     console.log("User News Submission Body------->", req.body);
-    console.log("User News Submission File------->", req.file);
-    const { title, content, category, author, submitterName, submitterEmail } = req.body;
+    console.log("User News Submission Files------->", req.files);
+    const {
+        title, content, category, author, submitterName, submitterEmail,
+        mediaCompany, position, officialWebsite, articleLink, authorProfileLink
+    } = req.body;
 
     let imageData = {};
-    if (req.file) {
+    if (req.files && req.files['image']) {
+        const file = req.files['image'][0];
         imageData = {
-            url: req.file.path,
-            public_id: req.file.filename
+            url: file.path,
+            public_id: file.filename
+        };
+    }
+
+    let videoData = {};
+    if (req.files && req.files['video']) {
+        const file = req.files['video'][0];
+        videoData = {
+            url: file.path,
+            public_id: file.filename
         };
     }
 
@@ -234,10 +247,16 @@ export const submitUserNews = async (req, res) => {
             author: author || submitterName || 'Anonymous',
             status: 'pending',
             image: imageData,
+            video: videoData,
             submittedBy: {
                 name: submitterName,
                 email: submitterEmail
-            }
+            },
+            mediaCompany,
+            position,
+            officialWebsite,
+            articleLink,
+            authorProfileLink
         });
 
         // Create notification for admin

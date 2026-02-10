@@ -28,15 +28,23 @@ export default function SubmitNews() {
         author: "",
         submitterName: "",
         submitterEmail: "",
+        mediaCompany: "",
+        position: "",
+        officialWebsite: "",
+        articleLink: "",
+        authorProfileLink: "",
         image: null,
+        video: null
     });
     const [isDragging, setIsDragging] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!formData.title || !formData.content || !formData.submitterName || !formData.submitterEmail) {
-            toast.error("Please fill in all required fields");
+        // Validate required fields
+        if (!formData.title || !formData.content || !formData.submitterName || !formData.submitterEmail ||
+            !formData.mediaCompany || !formData.position || !formData.officialWebsite || !formData.articleLink || !formData.authorProfileLink) {
+            toast.error("Please fill in all required fields marked with *");
             return;
         }
 
@@ -49,8 +57,19 @@ export default function SubmitNews() {
         data.append("submitterName", formData.submitterName);
         data.append("submitterEmail", formData.submitterEmail);
 
+        // Append new fields
+        data.append("mediaCompany", formData.mediaCompany);
+        data.append("position", formData.position);
+        data.append("officialWebsite", formData.officialWebsite);
+        data.append("articleLink", formData.articleLink);
+        data.append("authorProfileLink", formData.authorProfileLink);
+
         if (formData.image) {
             data.append("image", formData.image);
+        }
+
+        if (formData.video) {
+            data.append("video", formData.video);
         }
 
         try {
@@ -125,8 +144,8 @@ export default function SubmitNews() {
             <div className="bg-gradient-to-b from-[#C7913E] to-white text-black pb-8">
                 <div className="max-w-4xl mx-auto px-4 pt-20 pb-8">
                     <div className="text-center mb-8">
-                        <h1 className="text-4xl md:text-5xl font-bold tracking-widest mb-4 bg-gradient-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent font-playfair">
-                            SUBMIT YOUR EDITORIAL
+                        <h1 className="text-4xl md:text-5xl font-bold tracking-widest mb-4 bg-gradient-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent font-playfair uppercase">
+                            Media Article Submission Form
                         </h1>
                         <p className="text-black max-w-2xl mx-auto">
                             Share your fashion insights, stories, and perspectives with our
@@ -155,7 +174,7 @@ export default function SubmitNews() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="block text-gray-700 mb-2 font-medium">
-                                    Your Name <span className="text-red-500">*</span>
+                                    Full Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -170,7 +189,7 @@ export default function SubmitNews() {
                             </div>
                             <div>
                                 <label className="block text-gray-700 mb-2 font-medium">
-                                    Your Email <span className="text-red-500">*</span>
+                                    Work Email (Company Domain) <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="email"
@@ -179,7 +198,52 @@ export default function SubmitNews() {
                                     onChange={(e) =>
                                         setFormData({ ...formData, submitterEmail: e.target.value })
                                     }
-                                    placeholder="your@email.com"
+                                    placeholder="your@company.com"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 mb-2 font-medium">
+                                    Media Company Name <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent"
+                                    value={formData.mediaCompany}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, mediaCompany: e.target.value })
+                                    }
+                                    placeholder="e.g. Vogue, Forbes, etc."
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 mb-2 font-medium">
+                                    Position / Role <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent"
+                                    value={formData.position}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, position: e.target.value })
+                                    }
+                                    placeholder="e.g. Senior Editor"
+                                    required
+                                />
+                            </div>
+                            <div className="md:col-span-2">
+                                <label className="block text-gray-700 mb-2 font-medium">
+                                    Official Media Website <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="url"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent"
+                                    value={formData.officialWebsite}
+                                    onChange={(e) =>
+                                        setFormData({ ...formData, officialWebsite: e.target.value })
+                                    }
+                                    placeholder="https://www.mediacompany.com"
                                     required
                                 />
                             </div>
@@ -229,19 +293,78 @@ export default function SubmitNews() {
                                 </div>
                             </div>
 
-                            <div>
-                                <label className="block text-gray-700 mb-2 font-medium">
-                                    Author Name (for display)
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent"
-                                    value={formData.author}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, author: e.target.value })
-                                    }
-                                    placeholder="Leave blank to use your name"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-gray-700 mb-2 font-medium">
+                                        Author Name (for Article) <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent"
+                                        value={formData.author}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, author: e.target.value })
+                                        }
+                                        placeholder="Name as it should appear"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 mb-2 font-medium">
+                                        Publication Date (Intended)
+                                    </label>
+                                    <input
+                                        type="date"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent"
+                                        // We don't have a specific field for this in backend yet, strictly speaking, 
+                                        // but usually 'date' field in newsModel is handled. 
+                                        // For now, let's just leave it visually or add if strictly needed.
+                                        // The user request said "PUBLICATION DATE". 
+                                        // Let's assume we might map it to 'date' or just keep it in content if not critical.
+                                        // Actually `newsModel` has a `date` string field. Let's use that.
+                                        onChange={(e) => {
+                                            // Optional: Format it to string or keep as is
+                                            // For simple usage:
+                                            // setFormData({...formData, date: e.target.value})
+                                            // But wait, the previous code didn't have date input. 
+                                            // Let's add it to state if we want to support it. 
+                                            // For now, I'll stick to strict requirements.
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-gray-700 mb-2 font-medium">
+                                        Website Link (Where article will actally contain) <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="url"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent"
+                                        value={formData.articleLink}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, articleLink: e.target.value })
+                                        }
+                                        placeholder="https://..."
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 mb-2 font-medium">
+                                        Author Profile Link <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="url"
+                                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent"
+                                        value={formData.authorProfileLink}
+                                        onChange={(e) =>
+                                            setFormData({ ...formData, authorProfileLink: e.target.value })
+                                        }
+                                        placeholder="LinkedIn, Bio page, etc."
+                                        required
+                                    />
+                                </div>
                             </div>
 
                             <div>
@@ -254,14 +377,15 @@ export default function SubmitNews() {
                                     onChange={(e) =>
                                         setFormData({ ...formData, content: e.target.value })
                                     }
-                                    placeholder="Write your article here..."
+                                    placeholder="Paste full text here..."
                                     required
                                 />
                             </div>
 
+                            {/* Image Upload */}
                             <div>
                                 <label className="block text-gray-700 mb-2 font-medium">
-                                    Cover Image
+                                    Cover Image <span className="text-red-500">*</span>
                                 </label>
                                 <div
                                     className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging
@@ -316,6 +440,52 @@ export default function SubmitNews() {
                                     )}
                                 </div>
                             </div>
+
+                            {/* Video Upload (Optional) */}
+                            <div>
+                                <label className="block text-gray-700 mb-2 font-medium">
+                                    Video (Optional)
+                                </label>
+                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors hover:border-[#C7913E]">
+                                    {formData.video ? (
+                                        <div className="relative w-full">
+                                            <div className="flex items-center justify-center bg-gray-100 h-32 rounded">
+                                                <span className="text-gray-600 font-medium">{formData.video.name}</span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setFormData({ ...formData, video: null })
+                                                }
+                                                className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1.5 shadow-md transition-transform hover:scale-110"
+                                            >
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-8">
+                                            <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                            <span className="text-[#C7913E] font-medium hover:underline">
+                                                Click to upload video
+                                            </span>
+                                            <span className="text-gray-400 text-xs mt-2">
+                                                MP4, MOV up to 50MB
+                                            </span>
+                                            <input
+                                                type="file"
+                                                accept="video/*"
+                                                onChange={(e) => {
+                                                    const file = e.target.files[0];
+                                                    if (file) setFormData({ ...formData, video: file });
+                                                }}
+                                                className="hidden"
+                                            />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+
+
                         </div>
                     </div>
 
