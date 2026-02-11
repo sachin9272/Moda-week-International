@@ -21,7 +21,7 @@ const generateSlug = async (title) => {
 // Get all news articles
 export const getAllNews = async (req, res) => {
     try {
-        const news = await News.find();
+        const news = await News.find().sort({ createdAt: -1 });
         res.status(200).json({
             status: 'success',
             data: news
@@ -37,7 +37,7 @@ export const getAllNews = async (req, res) => {
 // Get only live news articles
 export const getLiveNews = async (req, res) => {
     try {
-        const news = await News.find({ status: 'live' });
+        const news = await News.find({ status: 'live' }).sort({ createdAt: -1 });
         res.status(200).json({
             status: 'success',
             data: news

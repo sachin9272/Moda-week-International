@@ -76,13 +76,8 @@ export default function NewsRoom() {
             try {
                 const { data } = await axios.get(`${baseURL}/api/news/live`);
                 if (data.status === 'success') {
-                    // Sort by date descending (parsing string date or using createdAt)
-                    const sorted = data.data.sort((a, b) => {
-                        const dateA = a.date ? new Date(a.date) : new Date(a.createdAt);
-                        const dateB = b.date ? new Date(b.date) : new Date(b.createdAt);
-                        return dateB - dateA;
-                    });
-                    setAllNewsItems(sorted);
+                    // Backend now sorts by createdAt: -1 (newest first)
+                    setAllNewsItems(data.data);
                 }
             } catch (error) {
                 console.error("Failed to fetch news", error);
