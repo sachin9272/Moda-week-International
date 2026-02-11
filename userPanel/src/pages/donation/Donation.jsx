@@ -169,12 +169,6 @@ const Donation = () => {
                             <button className="w-full bg-[#C7913E] text-white font-medium py-3 hover:bg-[#a67832] transition-colors uppercase">
                                 Donate ${amount || 0}
                             </button>
-
-                            {/* Error/Notice Message */}
-                            <div className="mt-4 flex items-start gap-2 text-red-400 text-sm">
-                                <span className="mt-0.5">ⓘ</span>
-                                <p>This site can't accept donations right now. Upgrade your plan to start collecting donations.</p>
-                            </div>
                         </div>
 
                         {/* Right Image Placeholder */}
