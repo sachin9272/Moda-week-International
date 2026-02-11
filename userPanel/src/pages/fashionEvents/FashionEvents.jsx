@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar.jsx";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Calendar, Mail, MapPin, Phone, Star, Check } from "lucide-react";
 import Footer from "../../components/Footer.jsx";
 import Pricing from "../../components/Pricing.jsx";
@@ -17,6 +17,7 @@ import event6 from "../../assets/Events-5.jpg";
 
 export default function FashionEvents() {
   // const events - Removed hardcoded events as we now use upcomingEvents from API
+  const location = useLocation();
 
   const [activeTab, setActiveTab] = useState("upcoming");
 
@@ -86,6 +87,20 @@ export default function FashionEvents() {
     };
     fetchContent();
   }, []);
+
+  // Handle hash scroll when data loads
+  useEffect(() => {
+    if (location.hash) {
+      // Use a timeout to allow for rendering
+      const timer = setTimeout(() => {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 500); // 500ms delay to ensure layout stabilizes
+      return () => clearTimeout(timer);
+    }
+  }, [location.hash, upcomingEvents, heroContent]);
 
   const pastEvents = [
     {

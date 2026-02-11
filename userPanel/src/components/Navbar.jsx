@@ -7,6 +7,7 @@ import { Link, useLocation } from "react-router-dom";
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
   const location = useLocation();
 
   // Handle scroll effect
@@ -83,12 +84,13 @@ const Navbar = () => {
           ? "bg-black"
           : "bg-linear-to-b from-black/90 to-transparent"
           } !font-[sans-serif]`}
+        onMouseLeave={() => setActiveDropdown(null)}
       >
         <div className="w-full px-6 h-20 flex justify-between items-center">
-          {/* Menu Toggle - Left */}
+          {/* Menu Toggle - Left (Mobile/Tablet Only) */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="flex items-center gap-2 text-white hover:text-[#C7913E] transition-colors group z-50"
+            className="flex md:hidden items-center gap-2 text-white hover:text-[#C7913E] transition-colors group z-50"
           >
             <div className="relative w-6 h-6">
               <AnimatePresence mode="wait">
@@ -115,23 +117,66 @@ const Navbar = () => {
                 )}
               </AnimatePresence>
             </div>
-            <span className="text-sm font-medium tracking-widest hidden md:block">
-              {isMenuOpen ? "CLOSE" : "MENU"}
-            </span>
           </button>
 
-          {/* Logo - Right */}
+          {/* Desktop Navigation - Left/Center */}
+          <div className="hidden md:flex items-center gap-12 h-full">
+            {["Experience", "Company", "Business"].map((category) => (
+              <div
+                key={category}
+                className="relative h-full flex items-center"
+                onMouseEnter={() => setActiveDropdown(category)}
+              >
+                <button
+                  className={`text-sm font-bold tracking-[0.2em] uppercase transition-colors ${activeDropdown === category ? "text-white" : "text-[#C7913E] hover:text-white"
+                    }`}
+                >
+                  {category}
+                </button>
+                {/* Dropdown */}
+                <AnimatePresence>
+                  {activeDropdown === category && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-full left-0 bg-black/95 backdrop-blur-md border-t border-[#C7913E] min-w-[240px] shadow-2xl"
+                    >
+                      <div className="py-4 flex flex-col">
+                        {navLinks
+                          .filter((link) => link.category === category)
+                          .map((link) => (
+                            <Link
+                              key={link.name}
+                              to={link.path}
+                              onClick={() => setActiveDropdown(null)}
+                              className="px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 hover:border-l-2 hover:border-[#C7913E] transition-all flex items-center justify-between group"
+                            >
+                              <span>{link.name}</span>
+                              <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#C7913E]" />
+                            </Link>
+                          ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+
+          {/* Logo - Right (Mobile) / Center (Desktop? kept right for now to match layout) */}
           <Link to="/" className="z-50">
             <img
               src={logo}
               alt="Moda Week International"
-              className="h-10 md:h-16"
+              className="h-10 md:h-12"
             />
           </Link>
         </div>
       </nav>
 
-      {/* Full Screen Menu Overlay */}
+      {/* Full Screen Menu Overlay (Mobile/Tablet Only) */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -139,166 +184,87 @@ const Navbar = () => {
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-0 z-40 bg-[#0a0a0a] pt-24 pb-10 overflow-y-auto bg-white text-black"
+            className="fixed inset-0 z-40 bg-[#0a0a0a] pt-24 pb-10 overflow-y-auto bg-white text-black md:hidden"
           >
             <div className="container mx-auto px-6 h-full flex flex-col">
               {/* Menu Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-12 flex-1 mt-12">
-                {/* Main Links Area */}
-                <div className="md:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 content-start">
-                  {/* Group: Experience */}
-                  <div className="space-y-6">
-                    <motion.h3
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 0.5 }}
-                      transition={{ delay: 0.4 }}
-                      className="text-xs font-bold tracking-[0.2em] uppercase border-b border-white/20 pb-2 mb-6"
-                    >
-                      Experience
-                    </motion.h3>
-                    {navLinks
-                      .filter((l) => l.category === "Experience")
-                      .map((link, i) => (
-                        <motion.div
-                          key={link.name}
-                          custom={i}
-                          variants={linkVariants}
-                          initial="closed"
-                          animate="open"
+              <div className="flex flex-col gap-8 mt-4">
+                {/* Group: Experience */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
+                    Experience
+                  </h3>
+                  {navLinks
+                    .filter((l) => l.category === "Experience")
+                    .map((link, i) => (
+                      <motion.div
+                        key={link.name}
+                        custom={i}
+                        variants={linkVariants}
+                        initial="closed"
+                        animate="open"
+                      >
+                        <Link
+                          to={link.path}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
                         >
-                          <Link
-                            to={link.path}
-                            onClick={() => {
-                              setIsMenuOpen(false);
-                              if (link.path.includes("#")) {
-                                const hash = link.path.split("#")[1];
-                                setTimeout(() => {
-                                  const element = document.getElementById(hash);
-                                  if (element) element.scrollIntoView({ behavior: "smooth" });
-                                }, 100);
-                              }
-                            }}
-                            className="group flex items-center justify-between text-2xl md:text-4xl font-light text-black hover:text-[#C7913E] transition-colors py-2"
-                          >
-                            <span className="font-[Playfair_Display]">
-                              {link.name}
-                            </span>
-                            <ChevronRight className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#C7913E]" />
-                          </Link>
-                        </motion.div>
-                      ))}
-                  </div>
-
-                  {/* Group: Business */}
-                  <div className="space-y-6">
-                    <motion.h3
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 0.5 }}
-                      transition={{ delay: 0.5 }}
-                      className="text-xs font-bold tracking-[0.2em] text-black uppercase border-b border-white/20 pb-2 mb-6"
-                    >
-                      Business
-                    </motion.h3>
-                    {navLinks
-                      .filter((l) => l.category === "Business")
-                      .map((link, i) => (
-                        <motion.div
-                          key={link.name}
-                          custom={i + 2}
-                          variants={linkVariants}
-                          initial="closed"
-                          animate="open"
-                        >
-                          <Link
-                            to={link.path}
-                            onClick={() => {
-                              setIsMenuOpen(false);
-                              if (link.path.includes("#")) {
-                                const hash = link.path.split("#")[1];
-                                setTimeout(() => {
-                                  const element = document.getElementById(hash);
-                                  if (element) element.scrollIntoView({ behavior: "smooth" });
-                                }, 100);
-                              }
-                            }}
-                            className="group flex items-center justify-between text-2xl md:text-4xl font-light text-black hover:text-[#C7913E] transition-colors py-2"
-                          >
-                            <span className="font-[Playfair_Display]">
-                              {link.name}
-                            </span>
-                            <ChevronRight className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#C7913E]" />
-                          </Link>
-                        </motion.div>
-                      ))}
-                  </div>
-
-                  {/* Group: Company */}
-                  <div className="space-y-6">
-                    <motion.h3
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 0.5 }}
-                      transition={{ delay: 0.6 }}
-                      className="text-xs font-bold tracking-[0.2em] uppercase border-b border-white/20 pb-2 mb-6"
-                    >
-                      Company
-                    </motion.h3>
-                    {navLinks
-                      .filter((l) => l.category === "Company")
-                      .map((link, i) => (
-                        <motion.div
-                          key={link.name}
-                          custom={i + 4}
-                          variants={linkVariants}
-                          initial="closed"
-                          animate="open"
-                        >
-                          <Link
-                            to={link.path}
-                            onClick={() => {
-                              setIsMenuOpen(false);
-                              if (link.path.includes("#")) {
-                                const hash = link.path.split("#")[1];
-                                setTimeout(() => {
-                                  const element = document.getElementById(hash);
-                                  if (element) element.scrollIntoView({ behavior: "smooth" });
-                                }, 100);
-                              }
-                            }}
-                            className="group flex items-center justify-between text-2xl md:text-4xl font-light hover:text-[#C7913E] transition-colors py-2"
-                          >
-                            <span className="font-[Playfair_Display]">
-                              {link.name}
-                            </span>
-                            <ChevronRight className="opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-[#C7913E]" />
-                          </Link>
-                        </motion.div>
-                      ))}
-                  </div>
+                          {link.name}
+                        </Link>
+                      </motion.div>
+                    ))}
                 </div>
 
-                <div className="md:col-span-4 hidden md:block">
-                  <Link to="/service?tab=designer" onClick={() => setIsMenuOpen(false)}>
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.6, duration: 0.8 }}
-                      className="h-full w-full bg-[#111] rounded-lg overflow-hidden relative group"
-                    >
-                      <img
-                        src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&q=80"
-                        alt="Featured"
-                        className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute bottom-8 left-8">
-                        <h4 className="text-white text-3xl font-[Playfair_Display] italic mb-2">
-                          Next Season
-                        </h4>
-                        <p className="text-gray-400 text-sm tracking-widest uppercase">
-                          Registration Open
-                        </p>
-                      </div>
-                    </motion.div>
-                  </Link>
+                {/* Group: Business */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
+                    Business
+                  </h3>
+                  {navLinks
+                    .filter((l) => l.category === "Business")
+                    .map((link, i) => (
+                      <motion.div
+                        key={link.name}
+                        custom={i + 2}
+                        variants={linkVariants}
+                        initial="closed"
+                        animate="open"
+                      >
+                        <Link
+                          to={link.path}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
+                    ))}
+                </div>
+
+                {/* Group: Company */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
+                    Company
+                  </h3>
+                  {navLinks
+                    .filter((l) => l.category === "Company")
+                    .map((link, i) => (
+                      <motion.div
+                        key={link.name}
+                        custom={i + 4}
+                        variants={linkVariants}
+                        initial="closed"
+                        animate="open"
+                      >
+                        <Link
+                          to={link.path}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
+                    ))}
                 </div>
               </div>
             </div>
