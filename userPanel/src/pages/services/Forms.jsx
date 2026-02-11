@@ -50,19 +50,11 @@ const ApplicationForm = () => {
     brandDescription: "",
 
     // Designer Common
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    fax: "",
     socialMediaLink: "",
 
     // Designer Student
     studentTeacher: "",
     schoolAddress: "",
-
-    // Designer New/Established
-    jobTitle: "",
 
     // Designer Interests
     collectionTypes: [],
@@ -77,13 +69,7 @@ const ApplicationForm = () => {
     additionalInfo: "",
 
     // Press & Media Accreditation
-    address: "",
-    city: "",
-    state: "",
-    zipCode: "",
-    fax: "",
     currentEvent: "",
-    jobTitle: "",
     date: "",
     signature: "",
     mediaReleaseNames: [],
@@ -91,7 +77,6 @@ const ApplicationForm = () => {
 
     // Volunteer & Internship
     educationMajor: "",
-    schoolAddress: "",
     volunteeringInterests: []
   });
 
@@ -179,15 +164,6 @@ const ApplicationForm = () => {
           fax: "",
           sponsorshipRegions: [],
 
-          // Sponsor Additional
-          jobTitle: "",
-          address: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          fax: "",
-          sponsorshipRegions: [],
-
           // Designer
           brandName: "",
           designerName: "",
@@ -198,19 +174,11 @@ const ApplicationForm = () => {
           brandDescription: "",
 
           // Designer Common
-          address: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          fax: "",
           socialMediaLink: "",
 
           // Designer Student
           studentTeacher: "",
           schoolAddress: "",
-
-          // Designer New/Established
-          jobTitle: "",
 
           // Designer Interests
           collectionTypes: [],
@@ -225,13 +193,7 @@ const ApplicationForm = () => {
           additionalInfo: "",
 
           // Press & Media Accreditation
-          address: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          fax: "",
           currentEvent: "",
-          jobTitle: "",
           date: "",
           signature: "",
           mediaReleaseNames: [],
@@ -239,7 +201,6 @@ const ApplicationForm = () => {
 
           // Volunteer & Internship
           educationMajor: "",
-          schoolAddress: "",
           volunteeringInterests: []
         });
       } else {
