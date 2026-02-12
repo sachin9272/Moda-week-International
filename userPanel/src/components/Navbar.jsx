@@ -63,17 +63,17 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Upcoming Events", path: "/events", category: "Experience" },
-    { name: "Past Events", path: "/past-events", category: "Experience" },
-    { name: "Services", path: "/service", category: "Business" },
-    { name: "About Us", path: "/about", category: "Company" },
-    { name: "Newsroom", path: "/news-room", category: "Company" },
-    { name: "Philanthropy", path: "/philanthropy", category: "Company" },
-    { name: "Donation", path: "/donation", category: "Company" },
-    { name: "Contact Us", path: "/events#contact-us", category: "Company" },
-    { name: "Membership Programs", path: "/membership-program", category: "Business" },
-    { name: "Buy Tickets", path: "/buy-tickets", category: "Business" },
-    { name: "Participants", path: "/participants", category: "Experience" },
+    { name: "Upcoming Events", path: "/events", category: "Events" },
+    { name: "Past Events", path: "/past-events", category: "Events" },
+    { name: "Services", path: "/service", category: "MEMBERSHIPS & SUPPORT" },
+    { name: "About Us", path: "/about", category: "ABOUT MODA" },
+    { name: "Newsroom", path: "/news-room", category: "News" },
+    { name: "Philanthropy", path: "/philanthropy", category: "ABOUT MODA" },
+    { name: "Donation", path: "/donation", category: "ABOUT MODA" },
+    { name: "Contact Us", path: "/events#contact-us", category: "ABOUT MODA" },
+    { name: "Membership Programs", path: "/membership-program", category: "MEMBERSHIPS & SUPPORT" },
+    { name: "Buy Tickets", path: "/buy-tickets", category: "MEMBERSHIPS & SUPPORT" },
+    { name: "Designers", path: "/participants", category: "Events" },
   ];
 
   return (
@@ -81,9 +81,9 @@ const Navbar = () => {
       {/* Top Bar */}
       <nav
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled || isMenuOpen
-          ? "bg-black"
+          ? "bg-black shadow-lg"
           : "bg-linear-to-b from-black/90 to-transparent"
-          } !font-[sans-serif]`}
+          }`}
         onMouseLeave={() => setActiveDropdown(null)}
       >
         <div className="w-full px-6 h-20 flex justify-between items-center">
@@ -121,7 +121,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation - Left/Center */}
           <div className="hidden md:flex items-center gap-12 h-full">
-            {["Experience", "Company", "Business"].map((category) => (
+            {["Events", "ABOUT MODA", "MEMBERSHIPS & SUPPORT", "News"].map((category) => (
               <div
                 key={category}
                 className="relative h-full flex items-center"
@@ -141,7 +141,7 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute top-full left-0 bg-black/95 backdrop-blur-md border-t border-[#C7913E] min-w-[240px] shadow-2xl"
+                      className="absolute top-full left-0 grad-bg min-w-[240px] shadow-2xl border-t border-white/20"
                     >
                       <div className="py-4 flex flex-col">
                         {navLinks
@@ -151,10 +151,10 @@ const Navbar = () => {
                               key={link.name}
                               to={link.path}
                               onClick={() => setActiveDropdown(null)}
-                              className="px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-white/5 hover:border-l-2 hover:border-[#C7913E] transition-all flex items-center justify-between group"
+                              className="px-6 py-3 text-sm text-white/90 hover:text-white hover:bg-black/10 transition-all flex items-center justify-between group font-medium"
                             >
                               <span>{link.name}</span>
-                              <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-[#C7913E]" />
+                              <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-white" />
                             </Link>
                           ))}
                       </div>
@@ -189,13 +189,13 @@ const Navbar = () => {
             <div className="container mx-auto px-6 h-full flex flex-col">
               {/* Menu Grid */}
               <div className="flex flex-col gap-8 mt-4">
-                {/* Group: Experience */}
+                {/* Group: Events */}
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
-                    Experience
+                    Events
                   </h3>
                   {navLinks
-                    .filter((l) => l.category === "Experience")
+                    .filter((l) => l.category === "Events")
                     .map((link, i) => (
                       <motion.div
                         key={link.name}
@@ -215,13 +215,13 @@ const Navbar = () => {
                     ))}
                 </div>
 
-                {/* Group: Business */}
+                {/* Group: MEMBERSHIPS & SUPPORT */}
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
-                    Business
+                    MEMBERSHIPS & SUPPORT
                   </h3>
                   {navLinks
-                    .filter((l) => l.category === "Business")
+                    .filter((l) => l.category === "MEMBERSHIPS & SUPPORT")
                     .map((link, i) => (
                       <motion.div
                         key={link.name}
@@ -241,17 +241,43 @@ const Navbar = () => {
                     ))}
                 </div>
 
-                {/* Group: Company */}
+                {/* Group: ABOUT MODA */}
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
-                    Company
+                    ABOUT MODA
                   </h3>
                   {navLinks
-                    .filter((l) => l.category === "Company")
+                    .filter((l) => l.category === "ABOUT MODA")
                     .map((link, i) => (
                       <motion.div
                         key={link.name}
                         custom={i + 4}
+                        variants={linkVariants}
+                        initial="closed"
+                        animate="open"
+                      >
+                        <Link
+                          to={link.path}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
+                    ))}
+                </div>
+
+                {/* Group: News */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
+                    News
+                  </h3>
+                  {navLinks
+                    .filter((l) => l.category === "News")
+                    .map((link, i) => (
+                      <motion.div
+                        key={link.name}
+                        custom={i + 6}
                         variants={linkVariants}
                         initial="closed"
                         animate="open"
