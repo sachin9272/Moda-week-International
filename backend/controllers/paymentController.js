@@ -171,3 +171,47 @@ export const confirmPayment = async (req, res) => {
         res.status(500).json({ message: "Failed to confirm payment", error: error.message });
     }
 };
+
+export const createDonationCheckoutSession = async (req, res) => {
+    try {
+        const { amount, frequency, comment } = req.body;
+        console.log("createDonationCheckoutSession called with:", req.body);
+
+        if (!amount || amount <= 0) {
+            return res.status(400).json({ error: 'Invalid donation amount' });
+        }
+
+        // Convert amount to cents
+        const unitAmount = Math.round(amount * 100);
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'usd',
+                        product_data: {
+                            name: `Donation - ${frequency}`,
+                            description: comment ? `Comment: ${comment}` : 'Thank you for your donation!',
+                        },
+                        unit_amount: unitAmount,
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/donation/success`,
+            cancel_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/donation/cancel`,
+            metadata: {
+                type: 'donation',
+                frequency,
+                comment
+            }
+        });
+
+        res.json({ id: session.id, url: session.url });
+    } catch (error) {
+        console.error("Error creating donation checkout session:", error);
+        res.status(500).json({ error: 'Failed to create checkout session' });
+    }
+};

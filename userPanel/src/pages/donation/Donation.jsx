@@ -7,7 +7,7 @@ import PhilanthropySlideshow from '../../components/PhilanthropySlideshow';
 
 const Donation = () => {
     const [frequency, setFrequency] = useState('One time');
-    const [amount, setAmount] = useState(30);
+    const [amount, setAmount] = useState(100);
     const [isCustomAmount, setIsCustomAmount] = useState(false);
     const [comment, setComment] = useState('');
 
@@ -22,6 +22,34 @@ const Donation = () => {
     };
     const [pageContent, setPageContent] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [processing, setProcessing] = useState(false);
+
+    const handleDonate = async () => {
+        if (!amount || amount <= 0) {
+            alert("Please enter a valid donation amount.");
+            return;
+        }
+
+        setProcessing(true);
+        try {
+            const response = await axios.post(`${baseURL}/api/payment/create-donation-checkout-session`, {
+                amount,
+                frequency,
+                comment
+            });
+
+            if (response.data.url) {
+                window.location.href = response.data.url;
+            } else {
+                alert("Something went wrong. Please try again.");
+                setProcessing(false);
+            }
+        } catch (error) {
+            console.error("Payment Error:", error);
+            alert("Failed to initiate payment. Please try again.");
+            setProcessing(false);
+        }
+    };
 
     useEffect(() => {
         const fetchContent = async () => {
@@ -119,13 +147,13 @@ const Donation = () => {
                                 <label className="block text-gray-500 text-sm mb-2 font-light">Amount</label>
                                 <div className="grid grid-cols-2 gap-4 mb-3">
                                     <button
-                                        onClick={() => handleAmountClick(30)}
-                                        className={`py-3 px-4 border transition-colors duration-200 ${(!isCustomAmount && amount === 30)
+                                        onClick={() => handleAmountClick(100)}
+                                        className={`py-3 px-4 border transition-colors duration-200 ${(!isCustomAmount && amount === 100)
                                             ? 'bg-[#C7913E] text-white border-[#C7913E]'
                                             : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
                                             }`}
                                     >
-                                        $30
+                                        $100
                                     </button>
                                     <button
                                         onClick={handleCustomAmountClick}
@@ -166,8 +194,12 @@ const Donation = () => {
                             </div>
 
                             {/* Donate Button */}
-                            <button className="w-full bg-[#C7913E] text-white font-medium py-3 hover:bg-[#a67832] transition-colors uppercase">
-                                Donate ${amount || 0}
+                            <button
+                                onClick={handleDonate}
+                                disabled={processing}
+                                className={`w-full bg-[#C7913E] text-white font-medium py-3 hover:bg-[#a67832] transition-colors uppercase ${processing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                            >
+                                {processing ? 'Processing...' : `Donate $${amount || 0}`}
                             </button>
                         </div>
 
