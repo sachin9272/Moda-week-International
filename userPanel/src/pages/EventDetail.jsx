@@ -419,21 +419,18 @@ const EventDetail = () => {
                         <div className="w-24 h-0.5 bg-[#C7913E] mx-auto"></div>
                     </div>
 
-                    <div className="border-gray-800 py-2">
-                        <div className="marquee-container w-full">
-                            <div className="marquee-content gap-10">
+                    <div className="border-gray-800 py-8">
+                        <div className="marquee-wrapper py-8">
+                            <div className="marquee-track">
                                 {[...Array(10)].map((_, loopIndex) => (
-                                    <React.Fragment key={`loop-${loopIndex}`}>
-                                        {event.partners.map((partner, i) => (
-                                            <div key={`${loopIndex}-${i}`} className="flex items-center justify-center min-w-[120px]">
-                                                <img
-                                                    src={partner.url}
-                                                    alt={`Partner ${i}`}
-                                                    className="h-20 object-contain mx-0 transition-all duration-300"
-                                                />
-                                            </div>
-                                        ))}
-                                    </React.Fragment>
+                                    event.partners.map((partner, i) => (
+                                        <img
+                                            key={`${loopIndex}-${i}`}
+                                            src={partner.url}
+                                            alt={`Partner ${i}`}
+                                            className="h-20 object-contain -mx-1"
+                                        />
+                                    ))
                                 ))}
                             </div>
                         </div>
