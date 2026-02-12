@@ -141,7 +141,7 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute top-full left-0 grad-bg min-w-[240px] shadow-2xl border-t border-white/20"
+                      className="absolute top-full left-0 bg-black/60 backdrop-blur-md min-w-[240px] shadow-2xl border-t border-white/20"
                     >
                       <div className="py-4 flex flex-col">
                         {navLinks
@@ -151,7 +151,7 @@ const Navbar = () => {
                               key={link.name}
                               to={link.path}
                               onClick={() => setActiveDropdown(null)}
-                              className="px-6 py-3 text-sm text-white/90 hover:text-white hover:bg-black/10 transition-all flex items-center justify-between group font-medium"
+                              className="px-6 py-3 text-sm text-[#C7913E] hover:text-white hover:bg-black/10 transition-all flex items-center justify-between group font-medium"
                             >
                               <span>{link.name}</span>
                               <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-white" />
