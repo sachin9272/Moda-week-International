@@ -89,33 +89,30 @@ body {
   border-image: var(--brand-grad) 1;
 }
 
-/* Premium Floating Marquee */
-.marquee-container {
-  position: relative;
+.marquee-wrapper {
   overflow: hidden;
-  mask-image: linear-gradient(to right,
-      transparent,
-      black 20%,
-      black 80%,
-      transparent);
-  -webkit-mask-image: linear-gradient(to right,
-      transparent,
-      black 20%,
-      black 80%,
-      transparent);
+  white-space: nowrap;
 }
 
-.marquee-content {
-  display: flex;
-  width: max-content;
-  animation: scroll 40s linear infinite;
+.marquee-track {
+  display: inline-flex;
+  gap: 40px;
+  animation: marquee-right 10s linear infinite;
 }
 
-.marquee-content:hover {
-  animation-play-state: paused;
+@keyframes marquee-right {
+  0% {
+    transform: translateX(-50%);
+    /* Start outside left */
+  }
+
+  100% {
+    transform: translateX(0);
+    /* End in center */
+  }
 }
 
-@keyframes scroll {
+@keyframes marquee-left {
   0% {
     transform: translateX(0);
   }
@@ -123,6 +120,10 @@ body {
   100% {
     transform: translateX(-50%);
   }
+}
+
+.animate-marquee {
+  animation: marquee-left 20s linear infinite;
 }
 
 /* Rich Text Content Styling */
