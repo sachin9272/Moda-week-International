@@ -24,7 +24,9 @@ const NewsManager = () => {
 
     // Pagination
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
     const [pendingCurrentPage, setPendingCurrentPage] = useState(1);
+    const [pendingTotalPages, setPendingTotalPages] = useState(1);
     const ITEMS_PER_PAGE = 9;
 
     const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
@@ -40,15 +42,25 @@ const NewsManager = () => {
 
     useEffect(() => {
         fetchNews();
+    }, [currentPage, filterCategory, filterStatus]);
+
+    useEffect(() => {
         fetchPendingNews();
-    }, []);
+    }, [pendingCurrentPage]);
 
     const fetchNews = async () => {
+        setLoading(true);
         try {
-            const res = await axios.get(`${baseURL}/api/admin/news/get-all`);
+            const params = {
+                page: currentPage,
+                limit: ITEMS_PER_PAGE,
+                category: filterCategory,
+                status: filterStatus
+            };
+            const res = await axios.get(`${baseURL}/api/admin/news/get-all`, { params });
             if (res.data.status === 'success') {
-                // Filter out pending articles - only show live and hidden
-                setNews(res.data.data.filter(item => item.status !== 'pending'));
+                setNews(res.data.data);
+                setTotalPages(res.data.pagination.pages);
             }
         } catch (error) {
             console.error("Error fetching news:", error);
@@ -59,10 +71,16 @@ const NewsManager = () => {
     };
 
     const fetchPendingNews = async () => {
+        setPendingLoading(true);
         try {
-            const res = await axios.get(`${baseURL}/api/news/pending`);
+            const params = {
+                page: pendingCurrentPage,
+                limit: ITEMS_PER_PAGE
+            };
+            const res = await axios.get(`${baseURL}/api/news/pending`, { params });
             if (res.data.status === 'success') {
                 setPendingNews(res.data.data);
+                setPendingTotalPages(res.data.pagination.pages);
             }
         } catch (error) {
             console.error("Error fetching pending news:", error);
@@ -141,25 +159,9 @@ const NewsManager = () => {
         }
     };
 
-    const filteredNews = news.filter(item => {
-        const matchesCategory = filterCategory === 'ALL' || item.category === filterCategory;
-        const matchesStatus = filterStatus === 'ALL' || (filterStatus === 'live' ? item.status === 'live' : item.status !== 'live');
-        return matchesCategory && matchesStatus;
-    });
-
-    // Pagination calculations for published news
-    const totalPages = Math.ceil(filteredNews.length / ITEMS_PER_PAGE);
-    const paginatedNews = filteredNews.slice(
-        (currentPage - 1) * ITEMS_PER_PAGE,
-        currentPage * ITEMS_PER_PAGE
-    );
-
-    // Pagination calculations for pending news
-    const pendingTotalPages = Math.ceil(pendingNews.length / ITEMS_PER_PAGE);
-    const paginatedPendingNews = pendingNews.slice(
-        (pendingCurrentPage - 1) * ITEMS_PER_PAGE,
-        pendingCurrentPage * ITEMS_PER_PAGE
-    );
+    // Pagination logic moved to backend, just use news and pendingNews directly
+    const paginatedNews = news;
+    const paginatedPendingNews = pendingNews;
 
     // Reset page when filters change
     useEffect(() => {
@@ -318,7 +320,7 @@ const NewsManager = () => {
                                     </div>
                                 </div>
                             ))}
-                            {filteredNews.length === 0 && !loading && (
+                            {paginatedNews.length === 0 && !loading && (
                                 <div className="col-span-full text-center py-20 bg-[#1a1a1a] rounded-2xl border border-[#2a2a2a]">
                                     <FileText size={48} className="mx-auto text-neutral-700 mb-4" />
                                     <p className="text-neutral-500 text-lg">No news articles found matching your filters.</p>

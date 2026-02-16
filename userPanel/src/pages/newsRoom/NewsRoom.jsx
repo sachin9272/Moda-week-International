@@ -66,28 +66,62 @@ export default function NewsRoom() {
     };
 
     // Dynamic News State
-    const [allNewsItems, setAllNewsItems] = useState([]);
+    const [newsItems, setNewsItems] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [visibleCount, setVisibleCount] = useState(6);
+    const [loadingMore, setLoadingMore] = useState(false);
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
-    useEffect(() => {
-        const fetchNews = async () => {
-            try {
-                const { data } = await axios.get(`${baseURL}/api/news/live`);
-                if (data.status === 'success') {
-                    // Backend now sorts by createdAt: -1 (newest first)
-                    setAllNewsItems(data.data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch news", error);
-            } finally {
-                setLoading(false);
+    // Fetch News Function
+    const fetchNews = async (currentPage, category, search, isLoadMore = false) => {
+        try {
+            if (isLoadMore) {
+                setLoadingMore(true);
+            } else {
+                setLoading(true);
             }
-        };
 
-        fetchNews();
-    }, []);
+            const params = {
+                page: currentPage,
+                limit: 6,
+                category: category === "ALL POSTS" ? "" : category,
+                search
+            };
+
+            const { data } = await axios.get(`${baseURL}/api/news/live`, { params });
+
+            if (data.status === 'success') {
+                if (currentPage === 1) {
+                    setNewsItems(data.data);
+                } else {
+                    setNewsItems(prev => [...prev, ...data.data]);
+                }
+
+                // Determine if there are more items
+                const totalPages = data.pagination?.pages || 1;
+                setHasMore(currentPage < totalPages);
+            }
+        } catch (error) {
+            console.error("Failed to fetch news", error);
+        } finally {
+            setLoading(false);
+            setLoadingMore(false);
+        }
+    };
+
+    // Initial Load & Filter Change
+    useEffect(() => {
+        setPage(1); // Reset page
+        fetchNews(1, selectedCategory, searchQuery);
+    }, [selectedCategory, searchQuery]);
+
+    // Load More Handler
+    const handleLoadMore = () => {
+        const nextPage = page + 1;
+        setPage(nextPage);
+        fetchNews(nextPage, selectedCategory, searchQuery, true);
+    };
 
     useEffect(() => {
         const fetchFollowers = async () => {
@@ -109,26 +143,11 @@ export default function NewsRoom() {
     }, []);
 
     // Derived State
-    const mainFeatured = allNewsItems.length > 0 ? allNewsItems[0] : null;
-    const subFeatured = allNewsItems.length > 2 ? allNewsItems.slice(1, 3) : [];
+    const mainFeatured = newsItems.length > 0 ? newsItems[0] : null;
+    const subFeatured = newsItems.length > 2 ? newsItems.slice(1, 3) : [];
 
-    // Filter Logic
-    const isAll = selectedCategory === "ALL POSTS";
-
-    const filteredItems = allNewsItems.filter(item => {
-        const matchesCategory = isAll || item.category === selectedCategory;
-        const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
-        return matchesCategory && matchesSearch;
-    });
-
-    const displayedItems = filteredItems.slice(0, visibleCount);
-    const hasMore = visibleCount < filteredItems.length;
-
-    // Reset visible count when category changes
-    useEffect(() => {
-        setVisibleCount(6);
-    }, [selectedCategory, searchQuery]);
+    // Displayed Items (Directly from state now)
+    const displayedItems = newsItems;
 
     return (
         <div className="bg-white text-black min-h-screen font-sans selection:bg-[#C7913E] selection:text-white">
@@ -233,7 +252,7 @@ export default function NewsRoom() {
                         {/* Section Header */}
                         <div className="lg:col-span-3">
                             <h2 className="font-serif text-4xl font-normal leading-tight mb-6">
-                                {isAll ? "Latest Stories" : `${selectedCategory} Stories`}
+                                {selectedCategory === "ALL POSTS" ? "Latest Stories" : `${selectedCategory} Stories`}
                             </h2>
                             <div className="w-12 h-0.5 bg-black mb-6"></div>
 
@@ -249,7 +268,7 @@ export default function NewsRoom() {
                                 <Search size={14} className="absolute right-0 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#C7913E] transition-colors" />
                             </div>
 
-                            {isAll && (
+                            {selectedCategory === "ALL POSTS" && (
                                 <p className="text-gray-500 text-sm leading-relaxed mb-8">
                                     Curated updates from the world of high fashion, luxury lifestyle, and cultural shifts.
                                 </p>
@@ -315,10 +334,11 @@ export default function NewsRoom() {
                             {!loading && hasMore && (
                                 <div className="flex justify-center mt-12">
                                     <button
-                                        onClick={() => setVisibleCount(prev => prev + 6)}
-                                        className="bg-black text-white px-8 py-3 text-sm tracking-widest hover:bg-[#C7913E] transition-colors duration-300 uppercase"
+                                        onClick={handleLoadMore}
+                                        disabled={loadingMore}
+                                        className="bg-black text-white px-8 py-3 text-sm tracking-widest hover:bg-[#C7913E] transition-colors duration-300 uppercase disabled:opacity-50"
                                     >
-                                        Load More
+                                        {loadingMore ? "Loading..." : "Load More"}
                                     </button>
                                 </div>
                             )}

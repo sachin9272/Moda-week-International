@@ -18,13 +18,39 @@ const generateSlug = async (title) => {
     return slug;
 };
 
-// Get all news articles
+// Get all news articles (Admin) - with pagination & filtering
 export const getAllNews = async (req, res) => {
     try {
-        const news = await News.find().sort({ createdAt: -1 });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 9;
+        const skip = (page - 1) * limit;
+
+        const { category, status } = req.query;
+
+        let query = { status: { $ne: 'pending' } }; // Default: exclude pending
+
+        if (category && category !== 'ALL') {
+            query.category = category;
+        }
+
+        if (status && status !== 'ALL') {
+            query.status = status;
+        }
+
+        const total = await News.countDocuments(query);
+        const news = await News.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
         res.status(200).json({
             status: 'success',
-            data: news
+            data: news,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit)
+            }
         });
     } catch (error) {
         res.status(400).json({
@@ -34,13 +60,39 @@ export const getAllNews = async (req, res) => {
     }
 };
 
-// Get only live news articles
+// Get only live news articles with pagination, filtering, and search
 export const getLiveNews = async (req, res) => {
     try {
-        const news = await News.find({ status: 'live' }).sort({ createdAt: -1 });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 6;
+        const skip = (page - 1) * limit;
+
+        const { category, search } = req.query;
+
+        let query = { status: 'live' };
+
+        if (category && category !== 'ALL POSTS') {
+            query.category = category;
+        }
+
+        if (search) {
+            query.title = { $regex: search, $options: 'i' };
+        }
+
+        const total = await News.countDocuments(query);
+        const news = await News.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
         res.status(200).json({
             status: 'success',
-            data: news
+            data: news,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit)
+            }
         });
     } catch (error) {
         res.status(400).json({
@@ -285,10 +337,24 @@ export const submitUserNews = async (req, res) => {
 // Get all pending news articles (for admin)
 export const getPendingNews = async (req, res) => {
     try {
-        const news = await News.find({ status: 'pending' }).sort({ createdAt: -1 });
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 9;
+        const skip = (page - 1) * limit;
+
+        const total = await News.countDocuments({ status: 'pending' });
+        const news = await News.find({ status: 'pending' })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
         res.status(200).json({
             status: 'success',
-            data: news
+            data: news,
+            pagination: {
+                total,
+                page,
+                pages: Math.ceil(total / limit)
+            }
         });
     } catch (error) {
         res.status(400).json({
