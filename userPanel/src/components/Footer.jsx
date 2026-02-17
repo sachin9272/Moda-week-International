@@ -180,7 +180,11 @@ export default function Footer() {
 
               {/* Services */}
               <div className="w-full md:w-1/2 lg:w-auto lg:ml-6">
-                <h3 className="text-xl font-bold mb-2">SERVICES</h3>
+                <h3 className="text-xl font-bold mb-2">
+                  <Link to="/service" className="hover:text-amber-600 transition-colors">
+                    SERVICES
+                  </Link>
+                </h3>
                 <ul className="space-y-1">
                   <li>
                     <Link
