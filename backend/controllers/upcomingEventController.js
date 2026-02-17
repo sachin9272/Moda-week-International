@@ -1,5 +1,6 @@
 import UpcomingEvent from '../models/upcomingEventModel.js';
 import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
+import slugify from 'slugify';
 
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
@@ -45,8 +46,10 @@ export const createUpcomingEvent = async (req, res) => {
             };
         });
 
+        const slug = slugify(title, { lower: true, strict: true });
         const newEvent = new UpcomingEvent({
             title,
+            slug,
             eventDate,
             location,
             description,
@@ -87,7 +90,15 @@ export const getUpcomingEvents = async (req, res) => {
 export const getUpcomingEventById = async (req, res) => {
     try {
         const { id } = req.params;
-        const event = await UpcomingEvent.findById(id);
+        let event;
+
+        if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            event = await UpcomingEvent.findById(id);
+        }
+
+        if (!event) {
+            event = await UpcomingEvent.findOne({ slug: id });
+        }
 
         if (!event) {
             return res.status(404).json({ message: "Upcoming event not found" });
@@ -235,7 +246,11 @@ export const updateUpcomingEvent = async (req, res) => {
             event.collections = newCollections;
         }
 
-        if (title) event.title = title;
+
+        if (title) {
+            event.title = title;
+            event.slug = slugify(title, { lower: true, strict: true });
+        }
         if (eventDate) event.eventDate = eventDate;
         if (location) event.location = location;
         if (description) event.description = description;

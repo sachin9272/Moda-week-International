@@ -5,6 +5,11 @@ const upcomingEventSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    slug: {
+        type: String,
+        unique: true,
+        required: true
+    },
     eventDate: {
         type: String, // Keeping as string to match requested "event date"
         required: true,
