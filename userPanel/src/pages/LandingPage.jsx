@@ -270,7 +270,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Fashion Designers */}
+      {/* Fashion Designers
       <section className="bg-white">
         <div className="container mx-auto pl-4">
           <div className="flex justify-between items-center mb-6 pr-4">
@@ -318,6 +318,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      */}
 
       {/* Best Moments & Schedule */}
       <section className="py-5 bg-white">
