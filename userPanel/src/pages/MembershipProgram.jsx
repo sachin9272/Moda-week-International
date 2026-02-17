@@ -47,7 +47,7 @@ const MembershipProgram = () => {
                             : 'text-gray-500 hover:text-[#8C5D25]'
                             }`}
                     >
-                        Membership Program
+                        Event Membership
                     </button>
                     <button
                         onClick={() => setActiveTab('philanthropy')}
@@ -56,7 +56,7 @@ const MembershipProgram = () => {
                             : 'text-gray-500 hover:text-[#8C5D25]'
                             }`}
                     >
-                        Philanthropy
+                        Philanthropy Membership
                     </button>
                 </div>
             </div>
