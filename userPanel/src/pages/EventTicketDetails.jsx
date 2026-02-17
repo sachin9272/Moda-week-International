@@ -293,8 +293,21 @@ export default function EventTicketDetails() {
                     <h2 className="text-2xl md:text-3xl font-bold mb-6 grad-text uppercase tracking-wider border-b border-gray-200 pb-4">
                         About the Event
                     </h2>
-                    <div className="prose prose-neutral max-w-none text-gray-800 text-lg leading-relaxed">
-                        <p className="whitespace-pre-line">{event.description || "No description available."}</p>
+                    <div className="flex flex-col md:flex-row gap-8 items-start">
+                        <div className="prose prose-neutral max-w-none text-gray-800 text-lg leading-relaxed flex-1">
+                            <p className="whitespace-pre-line">{event.description || "No description available."}</p>
+                        </div>
+                        {event.coverImage && (
+                            <div className="w-full md:w-2/5 shrink-0">
+                                <div className="rounded-sm overflow-hidden shadow-xl border border-gray-100">
+                                    <img
+                                        src={event.coverImage?.url || event.coverImage}
+                                        alt={event.title}
+                                        className="w-full h-auto object-cover"
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
 
