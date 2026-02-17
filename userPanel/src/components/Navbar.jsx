@@ -69,8 +69,8 @@ const Navbar = () => {
     { name: "About Us", path: "/about", category: "ABOUT MODA" },
     { name: "Newsroom", path: "/news-room", category: "News" },
     { name: "Philanthropy", path: "/philanthropy", category: "ABOUT MODA" },
-    { name: "Donation", path: "/donation", category: "ABOUT MODA" },
-    { name: "Contact Us", path: "/events#contact-us", category: "ABOUT MODA" },
+    { name: "Donation", path: "/donation", category: "MEMBERSHIPS & SUPPORT" },
+    { name: "Contact Us", path: "/contact", category: "ABOUT MODA" },
     { name: "Membership Programs", path: "/membership-program", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Buy Tickets", path: "/buy-tickets", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Designers", path: "/participants", category: "Events" },
@@ -121,7 +121,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation - Left/Center */}
           <div className="hidden md:flex items-center gap-12 h-full">
-            {["Events", "ABOUT MODA", "MEMBERSHIPS & SUPPORT", "News"].map((category) => (
+            {["ABOUT MODA", "Events", "MEMBERSHIPS & SUPPORT"].map((category) => (
               <div
                 key={category}
                 className="relative h-full flex items-center"
@@ -163,6 +163,13 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ))}
+
+            <Link
+              to="/news-room"
+              className="text-sm font-bold tracking-[0.2em] uppercase transition-colors text-[#C7913E] hover:text-white"
+            >
+              News
+            </Link>
           </div>
 
           {/* Logo - Right (Mobile) / Center (Desktop? kept right for now to match layout) */}
@@ -189,6 +196,32 @@ const Navbar = () => {
             <div className="container mx-auto px-6 h-full flex flex-col">
               {/* Menu Grid */}
               <div className="flex flex-col gap-8 mt-4">
+                {/* Group: ABOUT MODA */}
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
+                    ABOUT MODA
+                  </h3>
+                  {navLinks
+                    .filter((l) => l.category === "ABOUT MODA")
+                    .map((link, i) => (
+                      <motion.div
+                        key={link.name}
+                        custom={i}
+                        variants={linkVariants}
+                        initial="closed"
+                        animate="open"
+                      >
+                        <Link
+                          to={link.path}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                        >
+                          {link.name}
+                        </Link>
+                      </motion.div>
+                    ))}
+                </div>
+
                 {/* Group: Events */}
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
@@ -199,7 +232,7 @@ const Navbar = () => {
                     .map((link, i) => (
                       <motion.div
                         key={link.name}
-                        custom={i}
+                        custom={i + 2}
                         variants={linkVariants}
                         initial="closed"
                         animate="open"
@@ -222,32 +255,6 @@ const Navbar = () => {
                   </h3>
                   {navLinks
                     .filter((l) => l.category === "MEMBERSHIPS & SUPPORT")
-                    .map((link, i) => (
-                      <motion.div
-                        key={link.name}
-                        custom={i + 2}
-                        variants={linkVariants}
-                        initial="closed"
-                        animate="open"
-                      >
-                        <Link
-                          to={link.path}
-                          onClick={() => setIsMenuOpen(false)}
-                          className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
-                        >
-                          {link.name}
-                        </Link>
-                      </motion.div>
-                    ))}
-                </div>
-
-                {/* Group: ABOUT MODA */}
-                <div className="space-y-4">
-                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
-                    ABOUT MODA
-                  </h3>
-                  {navLinks
-                    .filter((l) => l.category === "ABOUT MODA")
                     .map((link, i) => (
                       <motion.div
                         key={link.name}
