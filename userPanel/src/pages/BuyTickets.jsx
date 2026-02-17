@@ -92,7 +92,7 @@ const BuyTickets = () => {
                                     </p>
 
                                     <Link
-                                        to={`/event-tickets/${event._id}`}
+                                        to={`/event-tickets/${event.slug || event._id}`}
                                         className="block w-full py-4 text-center text-sm font-bold uppercase tracking-widest text-[#C7913E] border border-[#C7913E] rounded hover:bg-[#C7913E] hover:text-white transition-all duration-300"
                                     >
                                         Get Tickets
