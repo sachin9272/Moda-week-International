@@ -23,7 +23,7 @@ const ApplicationForm = () => {
     country: "",
 
     // Service
-    requestParticipation: [],
+    requestParticipation: "", // Changed to string for single selection
 
     // Sponsor
     companyName: "",
@@ -147,7 +147,7 @@ const ApplicationForm = () => {
           country: "",
 
           // Service
-          requestParticipation: [],
+          requestParticipation: "",
 
           // Sponsor
           companyName: "",
@@ -263,6 +263,29 @@ const ApplicationForm = () => {
               checked={formData[name]?.includes(opt)}
               onChange={(e) => handleCheckboxChange(e, name)}
               className="w-4 h-4 rounded bg-gray-500 border-gray-300 text-black focus:ring-black"
+            />
+            <span className="text-black font-semibold text-sm">{opt}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderRadioGroup = (label, name, options) => (
+    <div className="md:col-span-2 mt-4">
+      <label className="block text-sm font-medium text-gray-900 mb-4">
+        {label} <span className="text-red-500">*</span>
+      </label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {options.map((opt) => (
+          <label key={opt} className="flex items-center space-x-3 cursor-pointer">
+            <input
+              type="radio"
+              name={name}
+              value={opt}
+              checked={formData[name] === opt}
+              onChange={handleInputChange}
+              className="w-4 h-4 text-black border-gray-300 focus:ring-black"
             />
             <span className="text-black font-semibold text-sm">{opt}</span>
           </label>
@@ -554,9 +577,9 @@ const ApplicationForm = () => {
               {renderInput("Email", "email", "email@company.com", "email")}
               {renderInput("Country", "country", "Country")}
             </div>
-            {renderCheckboxGroup("Request Participation", "requestParticipation", participationOptions)}
+            {renderRadioGroup("Request Participation", "requestParticipation", participationOptions)}
 
-            {formData.requestParticipation.includes("Press & Media Accreditation") && (
+            {formData.requestParticipation === "Press & Media Accreditation" && (
               <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
                 <h3 className="text-xl font-bold mb-6">Press & Media Accreditation Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -585,7 +608,7 @@ const ApplicationForm = () => {
               </div>
             )}
 
-            {formData.requestParticipation.includes("Volunteer & Internship Programs") && (
+            {formData.requestParticipation === "Volunteer & Internship Programs" && (
               <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
                 <h3 className="text-xl font-bold mb-6">Volunteer & Internship Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
