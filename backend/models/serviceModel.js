@@ -17,9 +17,9 @@ const serviceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    requestParticipation: [{
+    requestParticipation: {
         type: String
-    }],
+    },
     additionalInfo: {
         type: String
     },
@@ -41,7 +41,14 @@ const serviceSchema = new mongoose.Schema({
     // Volunteer & Internship Fields
     educationMajor: { type: String },
     schoolAddress: { type: String },
-    volunteeringInterests: [{ type: String }]
+    volunteeringInterests: [{ type: String }],
+
+    // Application Status
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
+    }
 }, { timestamps: true });
 
 const Service = mongoose.model('Service', serviceSchema);
