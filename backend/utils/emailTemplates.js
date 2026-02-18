@@ -235,8 +235,8 @@ export const generateAdminNotificationEmail = (type, data) => {
                 { label: 'Email', value: data.email },
                 { label: 'Phone', value: data.phoneNumber },
                 { label: 'Country', value: data.country },
-                { label: 'Service Type', value: data.serviceType || 'General Inquiry' },
-                { label: 'Message', value: data.message || 'No additional message' }
+                { label: 'Service Type', value: data.requestParticipation || 'General Inquiry' },
+                { label: 'Message', value: data.additionalInfo || 'No additional message' }
             ]
         }
     };
