@@ -16,6 +16,7 @@ import EditNews from './pages/news/EditNews';
 import PartnerManager from './pages/PartnerManager';
 import PhilanthropyManager from './pages/PhilanthropyManager';
 import DonationManager from './pages/DonationManager';
+import ManageAboutUs from './pages/ManageAboutUs';
 import EventsList from './pages/events/EventsList';
 import EventDashboard from './pages/events/EventDashboard';
 import AddEvent from './pages/events/AddEvent';
@@ -72,6 +73,7 @@ function App() {
             <Route path="partners" element={<PartnerManager />} />
             <Route path="philanthropy" element={<PhilanthropyManager />} />
             <Route path="donation-content" element={<DonationManager />} />
+            <Route path="about-us-content" element={<ManageAboutUs />} />
             <Route path="events" element={<EventDashboard />} />
             <Route path="upcoming-event-content" element={<UpcomingEventHeroManager />} />
             <Route path="past-event-content" element={<PastEventHeroManager />} />

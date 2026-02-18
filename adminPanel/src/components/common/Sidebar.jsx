@@ -17,7 +17,8 @@ import {
     Heart,
     Layers,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    Info
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -57,6 +58,7 @@ const Sidebar = () => {
             children: [
                 { path: '/philanthropy', icon: Heart, label: 'Philanthropy' },
                 { path: '/donation-content', icon: Heart, label: 'Donation' },
+                { path: '/about-us-content', icon: Info, label: 'About Us' },
                 { path: '/service-content', icon: Briefcase, label: 'Services' },
                 { path: '/upcoming-event-content', icon: Calendar, label: 'Upcoming Event' },
                 { path: '/past-event-content', icon: Calendar, label: 'Past Event' },
