@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Table from '../../components/ui/Table';
 import { baseURL } from '../../config/api';
-import { ArrowLeft, Search, Download, Trash2, Loader, Wrench } from 'lucide-react';
+import { ArrowLeft, Search, Download, Trash2, Loader, Wrench, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Services = () => {
@@ -13,6 +13,7 @@ const Services = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
+    const [statusLoading, setStatusLoading] = useState(null); // Track which service is updating
 
     const fetchServices = async () => {
         try {
@@ -48,6 +49,22 @@ const Services = () => {
         } finally {
             setDeleting(false);
             setDeleteModal({ show: false, id: null });
+        }
+    };
+
+    const handleStatusUpdate = async (id, newStatus) => {
+        setStatusLoading(id);
+        try {
+            const res = await axios.put(`${baseURL}/api/admin/services/${id}/status`, { status: newStatus });
+            if (res.data.success) {
+                setServices(services.map(s => s._id === id ? { ...s, status: newStatus } : s));
+                toast.success(`Application ${newStatus}`);
+            }
+        } catch (error) {
+            console.error("Error updating status:", error);
+            toast.error("Failed to update status");
+        } finally {
+            setStatusLoading(null);
         }
     };
 
@@ -107,6 +124,53 @@ const Services = () => {
             )
         },
         { header: 'Date', render: (item) => new Date(item.createdAt).toLocaleDateString() },
+        {
+            header: 'Status',
+            render: (item) => (
+                <span className={`px-2 py-1 rounded-full text-xs font-semibold
+                    ${item.status === 'approved' ? 'bg-green-500/10 text-green-500 border border-green-500/20' :
+                        item.status === 'rejected' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
+                            'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'}`}>
+                    {item.status ? item.status.toUpperCase() : 'PENDING'}
+                </span>
+            )
+        },
+        {
+            header: 'Actions',
+            render: (item) => (
+                <div className="flex gap-2">
+                    {statusLoading === item._id ? (
+                        <Loader size={16} className="animate-spin text-[#C7913E]" />
+                    ) : (
+                        item.status !== 'approved' && item.status !== 'rejected' && (
+                            <>
+                                <button
+                                    onClick={() => handleStatusUpdate(item._id, 'approved')}
+                                    className="p-1 hover:bg-green-500/10 rounded-lg text-green-500 transition-colors"
+                                    title="Approve"
+                                >
+                                    <Check size={18} />
+                                </button>
+                                <button
+                                    onClick={() => handleStatusUpdate(item._id, 'rejected')}
+                                    className="p-1 hover:bg-red-500/10 rounded-lg text-red-500 transition-colors"
+                                    title="Reject"
+                                >
+                                    <X size={18} />
+                                </button>
+                            </>
+                        )
+                    )}
+                    <button
+                        onClick={() => openDeleteModal(item._id)}
+                        className="p-1 hover:bg-red-500/10 rounded-lg text-neutral-400 hover:text-red-500 transition-colors"
+                        title="Delete"
+                    >
+                        <Trash2 size={18} />
+                    </button>
+                </div>
+            )
+        }
     ];
 
     if (loading) return (
