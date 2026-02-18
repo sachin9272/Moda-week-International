@@ -5,7 +5,7 @@ import {
     getAllBuyers, deleteBuyer,
     getAllDesigners, deleteDesigner,
     getAllSponsors, deleteSponsor,
-    getAllServices, deleteService,
+    getAllServices, deleteService, updateServiceStatus,
     loginAdmin, registerAdmin
 } from '../controllers/adminController.js';
 import { protect } from '../middlewares/authMiddleware.js';
@@ -32,6 +32,7 @@ router.delete('/sponsors/:id', protect, deleteSponsor);
 
 router.get('/services', protect, getAllServices);
 router.delete('/services/:id', protect, deleteService);
+router.put('/services/:id/status', protect, updateServiceStatus);
 
 // News Routes
 router.get('/news/get-all', protect, getAllNews);
