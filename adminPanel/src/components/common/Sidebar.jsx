@@ -18,7 +18,8 @@ import {
     Layers,
     ChevronDown,
     ChevronUp,
-    Info
+    Info,
+    Ticket
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -48,6 +49,7 @@ const Sidebar = () => {
     const navItems = [
         { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/events', icon: Calendar, label: 'Events' },
+        { path: '/tickets', icon: Ticket, label: 'Tickets' },
         { path: '/applications', icon: FolderOpen, label: 'Applications' },
         { path: '/news', icon: Newspaper, label: 'News' },
         // Grouped Pages
