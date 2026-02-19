@@ -135,8 +135,7 @@ const UpcomingEventsList = () => {
                     {filteredEvents.map((event) => (
                         <div
                             key={event._id}
-                            onClick={() => navigate(`/events/upcoming/dashboard/${event._id}`)}
-                            className="bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-xl border border-[#2a2a2a] relative flex flex-col h-full cursor-pointer hover:border-[#C7913E]/40 hover:-translate-y-1 transition-all duration-300 group"
+                            className="bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-xl border border-[#2a2a2a] relative flex flex-col h-full hover:border-[#C7913E]/40 hover:-translate-y-1 transition-all duration-300 group"
                         >
                             <div className="relative h-60 overflow-hidden">
                                 <img
@@ -214,12 +213,6 @@ const UpcomingEventsList = () => {
                                         </div>
                                         <span className="font-medium">{event.eventDate}</span>
                                     </div>
-                                </div>
-
-                                <div className="mt-auto pt-5 border-t border-[#2a2a2a] flex justify-between items-center">
-                                    <span className="text-[#C7913E] text-xs font-bold tracking-[0.1em] uppercase flex items-center gap-2 group-hover:translate-x-1 transition-transform">
-                                        Management Dashboard <ChevronRight size={16} />
-                                    </span>
                                 </div>
                             </div>
                         </div>
