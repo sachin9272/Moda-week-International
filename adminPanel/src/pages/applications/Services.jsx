@@ -220,7 +220,6 @@ const Services = () => {
                 title="All Service Inquiries"
                 columns={columns}
                 data={filteredServices}
-                onDelete={openDeleteModal}
             />
 
             {/* Delete Modal */}
