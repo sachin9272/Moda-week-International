@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { baseURL } from "../config/api";
 import Navbar from "../components/Navbar";
@@ -72,6 +72,8 @@ const AutoScrollCarousel = ({ images }) => {
 
 export default function EventTicketDetails() {
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
+    const mode = searchParams.get("mode");
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [quantities, setQuantities] = useState({});
@@ -288,32 +290,34 @@ export default function EventTicketDetails() {
             </header>
 
             <div className="container mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
-                {/* Left Column: Description */}
-                <div className={event.hasTickets ? "lg:col-span-2" : "lg:col-span-3"}>
-                    <h2 className="text-2xl md:text-3xl font-bold mb-6 grad-text uppercase tracking-wider border-b border-gray-200 pb-4">
-                        About the Event
-                    </h2>
-                    <div className="flex flex-col md:flex-row gap-8 items-start">
-                        <div className="prose prose-neutral max-w-none text-gray-800 text-lg leading-relaxed flex-1">
-                            <p className="whitespace-pre-line">{event.description || "No description available."}</p>
-                        </div>
-                        {event.coverImage && (
-                            <div className="w-full md:w-2/5 shrink-0">
-                                <div className="rounded-sm overflow-hidden shadow-xl border border-gray-100">
-                                    <img
-                                        src={event.coverImage?.url || event.coverImage}
-                                        alt={event.title}
-                                        className="w-full h-auto object-cover"
-                                    />
-                                </div>
+                {/* Left Column: Description - Hide if in tickets mode */}
+                {mode !== "tickets" && (
+                    <div className={event.hasTickets ? "lg:col-span-2" : "lg:col-span-3"}>
+                        <h2 className="text-2xl md:text-3xl font-bold mb-6 grad-text uppercase tracking-wider border-b border-gray-200 pb-4">
+                            About the Event
+                        </h2>
+                        <div className="flex flex-col md:flex-row gap-8 items-start">
+                            <div className="prose prose-neutral max-w-none text-gray-800 text-lg leading-relaxed flex-1">
+                                <p className="whitespace-pre-line">{event.description || "No description available."}</p>
                             </div>
-                        )}
+                            {event.coverImage && (
+                                <div className="w-full md:w-2/5 shrink-0">
+                                    <div className="rounded-sm overflow-hidden shadow-xl border border-gray-100">
+                                        <img
+                                            src={event.coverImage?.url || event.coverImage}
+                                            alt={event.title}
+                                            className="w-full h-auto object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* Right Column: Ticket Selection */}
+                {/* Right Column: Ticket Selection - Center if ONLY tickets shown */}
                 {event.hasTickets && (
-                    <div className="lg:col-span-1">
+                    <div className={mode === "tickets" ? "lg:col-span-3 max-w-4xl mx-auto w-full" : "lg:col-span-1"}>
                         <div className="bg-white border border-gray-200 rounded-lg p-8 sticky top-24 shadow-2xl">
                             <h3 className="text-2xl font-bold mb-8 uppercase tracking-widest text-[#C7913E]">Select Tickets</h3>
 
@@ -371,10 +375,12 @@ export default function EventTicketDetails() {
                 )}
             </div>
 
-            {/* Collections Section */}
-            <div className="mt-10 bg-white">
-                {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
-            </div>
+            {/* Collections Section - Hide if in tickets mode */}
+            {mode !== "tickets" && (
+                <div className="mt-10 bg-white">
+                    {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
+                </div>
+            )}
 
             <UserDetailsModal
                 isOpen={isModalOpen}
