@@ -60,7 +60,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
 
         {/* Payment Routes */}
-        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/buy-tickets/payment/success" element={<PaymentSuccess />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
 
         {/* Ticket Routes */}
