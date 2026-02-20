@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+adminPanel/package-lock.json
+userPanel/package-lock.json
+package-lock.json
