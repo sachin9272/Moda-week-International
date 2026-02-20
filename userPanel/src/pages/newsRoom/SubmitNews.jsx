@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Upload, X, Send, CheckCircle } from "lucide-react";
@@ -6,6 +6,8 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { baseURL } from "../../config/api";
 import toast from "react-hot-toast";
+import ReactQuill from "react-quill-new";
+import "react-quill-new/dist/quill.snow.css";
 
 const CATEGORIES = [
     "COSMETICS",
@@ -42,7 +44,8 @@ export default function SubmitNews() {
         e.preventDefault();
 
         // Validate required fields
-        if (!formData.title || !formData.content || !formData.submitterName || !formData.submitterEmail ||
+        const contentText = formData.content.replace(/<[^>]*>/g, "").trim();
+        if (!formData.title || !contentText || !formData.submitterName || !formData.submitterEmail ||
             !formData.mediaCompany || !formData.position || !formData.officialWebsite || !formData.articleLink || !formData.authorProfileLink) {
             toast.error("Please fill in all required fields marked with *");
             return;
@@ -371,15 +374,44 @@ export default function SubmitNews() {
                                 <label className="block text-gray-700 mb-2 font-medium">
                                     Article Content <span className="text-red-500">*</span>
                                 </label>
-                                <textarea
-                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-transparent min-h-[300px] resize-y"
-                                    value={formData.content}
-                                    onChange={(e) =>
-                                        setFormData({ ...formData, content: e.target.value })
-                                    }
-                                    placeholder="Paste full text here..."
-                                    required
-                                />
+                                <div className="border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-[#C7913E]">
+                                    <ReactQuill
+                                        theme="snow"
+                                        value={formData.content}
+                                        onChange={(value) =>
+                                            setFormData({ ...formData, content: value })
+                                        }
+                                        modules={{
+                                            toolbar: [
+                                                [{ header: [1, 2, 3, 4, 5, 6, false] }],
+                                                [{ font: [] }],
+                                                [{ size: ["small", false, "large", "huge"] }],
+                                                ["bold", "italic", "underline", "strike"],
+                                                [{ color: [] }, { background: [] }],
+                                                [{ script: "sub" }, { script: "super" }],
+                                                [{ list: "ordered" }, { list: "bullet" }],
+                                                [{ indent: "-1" }, { indent: "+1" }],
+                                                [{ align: [] }],
+                                                ["blockquote", "code-block"],
+                                                ["link", "image"],
+                                                ["clean"],
+                                            ],
+                                        }}
+                                        formats={[
+                                            "header", "font", "size",
+                                            "bold", "italic", "underline", "strike",
+                                            "color", "background",
+                                            "script",
+                                            "list", "bullet", "indent",
+                                            "align",
+                                            "blockquote", "code-block",
+                                            "link", "image",
+                                        ]}
+                                        placeholder="Write or paste your article content here..."
+                                        style={{ minHeight: "300px" }}
+                                        className="[&_.ql-editor]:min-h-[300px] [&_.ql-editor]:text-base"
+                                    />
+                                </div>
                             </div>
 
                             {/* Image Upload */}
