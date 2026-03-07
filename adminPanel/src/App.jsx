@@ -33,6 +33,8 @@ import PastEventHeroManager from './pages/events/PastEventHeroManager';
 import EventPreview from './pages/events/EventPreview';
 import NewsPreview from './pages/news/NewsPreview';
 import FashionDesigners from './pages/FashionDesigners';
+import ProductionTeam from './pages/ProductionTeam';
+import PressAndMedia from './pages/PressAndMedia';
 import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -90,6 +92,8 @@ function App() {
             <Route path="events/add" element={<AddEvent />} />
             <Route path="events/edit/:id" element={<EditEvent />} />
             <Route path="fashion-designers" element={<FashionDesigners />} />
+            <Route path="production-team" element={<ProductionTeam />} />
+            <Route path="press-media" element={<PressAndMedia />} />
           </Route>
 
           <Route path="/events/preview/:id" element={

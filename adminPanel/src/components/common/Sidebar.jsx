@@ -51,7 +51,15 @@ const Sidebar = () => {
         { path: '/events', icon: Calendar, label: 'Events' },
         { path: '/tickets', icon: Ticket, label: 'Tickets' },
         { path: '/applications', icon: FolderOpen, label: 'Applications' },
-        { path: '/news', icon: Newspaper, label: 'News' },
+        {
+            key: 'news-group',
+            label: 'News',
+            icon: Newspaper,
+            children: [
+                { path: '/news', icon: Newspaper, label: 'Newsroom' },
+                { path: '/press-media', icon: Newspaper, label: 'Press & Media' },
+            ]
+        },
         // Grouped Pages
         {
             key: 'pages',
@@ -70,6 +78,7 @@ const Sidebar = () => {
         },
         { path: '/landing-videos', icon: Video, label: 'Landing Videos' },
         { path: '/fashion-designers', icon: Users, label: 'Participants' },
+        { path: '/production-team', icon: Users, label: 'Production Team' },
         { path: '/partners', icon: Image, label: 'Partners / Logos' },
     ];
 
