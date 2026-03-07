@@ -3,13 +3,15 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 
 import LandingPage from './pages/LandingPage.jsx';
 import About from './pages/about/About.jsx';
+import ProductionTeam from './pages/productionTeam/ProductionTeam.jsx';
 import FashioEvents from './pages/fashionEvents/FashionEvents.jsx'
 import Service from "./pages/services/Service.jsx";
 import Pricing from "./components/Pricing.jsx"
 import Participants from "./pages/participants/Participants.jsx";
 import PastEvents from "./pages/pastEvents/PastEvents.jsx";
-import NewsRoom from "./pages/newsRoom/NewsRoom.jsx";
-import NewsDetail from "./pages/newsRoom/NewsDetail.jsx";
+import NewsRoom from './pages/newsRoom/NewsRoom.jsx';
+import PressAndMedia from './pages/newsRoom/PressAndMedia.jsx';
+import NewsDetail from './pages/newsRoom/NewsDetail.jsx';
 import SubmitNews from "./pages/newsRoom/SubmitNews.jsx";
 import EventDetail from "./pages/EventDetail.jsx";
 import MembershipProgram from "./pages/MembershipProgram.jsx";
@@ -40,11 +42,13 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         {/* Add more pages */}
         <Route path="/about" element={<About />} />
+        <Route path="/production-team" element={<ProductionTeam />} />
         <Route path="/events" element={<FashioEvents />} />
         <Route path="/service" element={<Service />} />
         <Route path="/participants" element={<Participants />} />
         <Route path="/past-events" element={<PastEvents />} />
         <Route path="/news-room" element={<NewsRoom />} />
+        <Route path="/press-media" element={<PressAndMedia />} />
         <Route path="/news-room/submit" element={<SubmitNews />} />
         <Route path="/news-room/:id" element={<NewsDetail />} />
         <Route path="/event-details" element={<EventDetail />} />
