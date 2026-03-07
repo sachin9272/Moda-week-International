@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import axios from "axios";
 import { baseURL } from "../../config/api";
 
@@ -200,14 +200,6 @@ export default function ProductionTeam() {
                                     )
                                 )}
                             </div>
-                        </div>
-                        <div className="p-4 border-t bg-gray-50 flex justify-end">
-                            <button
-                                onClick={() => setActiveModal(null)}
-                                className="text-sm text-gray-500 hover:text-black underline transition-colors"
-                            >
-                                Close
-                            </button>
                         </div>
                     </div>
                 </div>
