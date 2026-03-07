@@ -123,7 +123,7 @@ const Navbar = () => {
 
           {/* Desktop Navigation - Left/Center */}
           <div className="hidden md:flex items-center gap-12 h-full">
-            {["ABOUT MODA", "Events", "MEMBERSHIPS & SUPPORT"].map((category) => (
+            {["ABOUT MODA", "Events", "MEMBERSHIPS & SUPPORT", "News"].map((category) => (
               <div
                 key={category}
                 className="relative h-full flex items-center"
@@ -165,13 +165,6 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ))}
-
-            <Link
-              to="/news-room"
-              className="text-sm font-bold tracking-[0.2em] uppercase transition-colors text-[#C7913E] hover:text-white"
-            >
-              News
-            </Link>
           </div>
 
           {/* Logo - Right (Mobile) / Center (Desktop? kept right for now to match layout) */}
