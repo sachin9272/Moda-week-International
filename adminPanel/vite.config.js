@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
 
   server: {
-    port: 5174,
+    // port: 5174,
     proxy: {
       '/api': {
         target: 'https://api.modaweekinternational.com',
