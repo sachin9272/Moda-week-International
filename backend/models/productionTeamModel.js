@@ -25,6 +25,10 @@ const productionTeamSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    description: {
+        type: String,
+        required: false
+    },
     image: {
         url: String,
         publicId: String

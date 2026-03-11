@@ -4,7 +4,7 @@ import { cloudinary } from '../config/cloudinaryConfig.js';
 // Create a new team member
 export const createTeamMember = async (req, res) => {
     try {
-        const { name, country, countryCode, instagram, website, role } = req.body;
+        const { name, country, countryCode, instagram, website, role, description } = req.body;
         const file = req.file;
 
         let image = null;
@@ -22,6 +22,7 @@ export const createTeamMember = async (req, res) => {
             instagram,
             website,
             role: role || 'Team Member',
+            description,
             image
         });
 
@@ -37,7 +38,7 @@ export const createTeamMember = async (req, res) => {
 export const updateTeamMember = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, country, countryCode, instagram, website, role } = req.body;
+        const { name, country, countryCode, instagram, website, role, description } = req.body;
         const file = req.file;
 
         const member = await ProductionTeam.findById(id);
@@ -52,6 +53,7 @@ export const updateTeamMember = async (req, res) => {
         if (instagram !== undefined) member.instagram = instagram;
         if (website !== undefined) member.website = website;
         if (role !== undefined) member.role = role;
+        if (description !== undefined) member.description = description;
 
         // Handle image update
         if (file) {

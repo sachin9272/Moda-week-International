@@ -18,6 +18,7 @@ export default function ProductionTeam() {
     const [availableCountries, setAvailableCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [activeModal, setActiveModal] = useState(null);
+    const [selectedMember, setSelectedMember] = useState(null);
 
     const heroContent = {
         title: "MEET THE PRODUCTION TEAM",
@@ -218,19 +219,21 @@ export default function ProductionTeam() {
                         {members.map((member, idx) => (
                             <div
                                 key={idx}
-                                className="group relative h-[300px] md:h-[400px] overflow-hidden cursor-default shadow-md hover:shadow-xl transition-shadow rounded-sm"
+                                className="group relative flex flex-col bg-slate-50 rounded-lg overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.3)] hover:shadow-[0_0_20px_rgba(199,145,62,0.15)] transition-all duration-300 border border-gray-100/10"
                             >
-                                <div className="w-full h-full">
-                                    <img
-                                        src={member.image?.url || member.image}
-                                        alt={member.name}
-                                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
-                                    {/* Overlay Gradient */}
-                                    <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-center items-center gap-3 bg-black/60 backdrop-blur-sm h-auto transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-                                        <div className="flex items-center gap-2 flex-wrap justify-center">
-                                            <h3 className="text-white text-lg font-bold tracking-widest uppercase text-center drop-shadow-md">
+                                <div className="w-full pt-8 pb-4 flex justify-center bg-gray-100">
+                                    <div className="w-40 h-40 flex-shrink-0 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-white shadow-md">
+                                        <img
+                                            src={member.image?.url || member.image}
+                                            alt={member.name}
+                                            className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                                        />
+                                    </div>
+                                </div>
+                                {/* Details Container */}
+                                <div className="p-6 pt-2 flex flex-col items-center justify-between flex-grow bg-slate-50">
+                                        <div className="flex items-center gap-2 flex-wrap justify-center mt-2">
+                                            <h3 className="text-gray-900 text-md font-bold tracking-widest uppercase text-center drop-shadow-sm">
                                                 {member.name}
                                             </h3>
                                             {member.countryCode && (
@@ -241,7 +244,7 @@ export default function ProductionTeam() {
                                                 />
                                             )}
                                         </div>
-                                        <span className="text-[#C7913E] text-xs font-semibold tracking-widest uppercase bg-black/40 px-3 py-1 rounded-full text-center">
+                                        <span className="text-[#c58f3b] text-[10px] md:text-xs font-bold tracking-widest uppercase bg-[#c58f3b]/10 px-4 py-1 rounded-full text-center mt-3">
                                             {member.role || 'Production Team'}
                                         </span>
 
@@ -252,7 +255,7 @@ export default function ProductionTeam() {
                                                     href={member.instagram}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-white/80 hover:text-white transition-colors"
+                                                    className="text-gray-400 hover:text-[#c58f3b] transition-colors"
                                                     title="Instagram"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
@@ -263,15 +266,20 @@ export default function ProductionTeam() {
                                                     href={member.website}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="text-white/80 hover:text-white transition-colors"
+                                                    className="text-gray-400 hover:text-[#c58f3b] transition-colors"
                                                     title="Website"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                                                 </a>
                                             )}
                                         </div>
+                                        <button 
+                                            onClick={() => setSelectedMember(member)}
+                                            className="w-full max-w-[200px] mt-6 bg-[#c58f3b] text-white px-5 py-3 text-sm font-bold tracking-widest uppercase hover:bg-[#a6762c] transition-colors rounded-full shadow-md"
+                                        >
+                                            Show More
+                                        </button>
                                     </div>
-                                </div>
                             </div>
                         ))}
                     </div>
@@ -290,6 +298,71 @@ export default function ProductionTeam() {
                     </div>
                 )}
             </div>
+
+            {/* Member Detail Modal */}
+            {selectedMember && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8 animate-fadeIn" onClick={() => setSelectedMember(null)}>
+                    <div className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row relative shadow-[0_0_40px_rgba(0,0,0,0.3)] animate-scaleIn rounded-sm" onClick={(e) => e.stopPropagation()}>
+                        
+                        {/* Close Button */}
+                        <button
+                            onClick={() => setSelectedMember(null)}
+                            className="absolute top-4 right-4 z-[70] p-2 bg-black/10 hover:bg-black hover:text-white rounded-full transition-colors text-black"
+                        >
+                            <X size={24} />
+                        </button>
+
+                        {/* Image Section */}
+                        <div className="w-full md:w-5/12 relative p-6 md:p-10 flex items-center justify-center bg-[#eaeaea] overflow-hidden">
+                            {/* Decorative Line inspired by design user provided */}
+                            <div className="absolute left-0 md:left-4 top-1/4 bottom-1/4 w-[3px] bg-[#C7913E]"></div>
+                            
+                            {/* The vertical dashed line next to image */}
+                            <div className="absolute right-0 top-0 bottom-0 w-[1px] border-r border-dashed border-gray-400"></div>
+
+                            <img
+                                src={selectedMember.image?.url || selectedMember.image}
+                                alt={selectedMember.name}
+                                className="w-full h-auto object-cover max-h-[50vh] md:max-h-[70vh] shadow-xl z-10"
+                            />
+                        </div>
+
+                        {/* Details Section */}
+                        <div className="w-full md:w-7/12 p-8 md:p-12 flex flex-col bg-white relative">
+                            {/* Decorative right dashed line */}
+                            <div className="absolute right-6 top-0 bottom-0 w-[1px] hidden xl:block"></div>
+
+                            <h2 className="text-3xl md:text-5xl font-serif text-[#C7913E] mb-2 leading-tight">
+                                {selectedMember.name}
+                            </h2>
+                            <p className="text-sm md:text-base text-gray-500 mb-6 pb-6">
+                                {selectedMember.role}
+                            </p>
+                            
+                            <div className="text-gray-600 text-sm md:text-base leading-relaxed whitespace-pre-line overflow-y-auto pr-4 custom-scrollbar font-light">
+                                {selectedMember.description || "No detailed description available for this member yet."}
+                            </div>
+
+                            {/* Social Links */}
+                            <div className="mt-auto pt-8 flex gap-4">
+                                {selectedMember.instagram && (
+                                    <a href={selectedMember.instagram} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium flex items-center gap-2 text-sm uppercase tracking-wider">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                                        Instagram
+                                    </a>
+                                )}
+                                {selectedMember.website && (
+                                    <a href={selectedMember.website} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium flex items-center gap-2 text-sm uppercase tracking-wider">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                                        Website
+                                    </a>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <Footer />
         </div>
     );
