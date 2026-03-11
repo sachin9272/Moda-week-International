@@ -88,11 +88,11 @@ const Donation = () => {
             </div>
 
             {/* Main Content */}
-            <div className="py-12 px-6 md:px-12 lg:px-20 max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-start">
+            <div className="py-12 px-6 md:px-12 lg:px-16 max-w-[1400px] mx-auto">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-start">
 
                     {/* Left Column: Text Content */}
-                    <div className="space-y-6">
+                    <div className="space-y-6 lg:col-span-4 relative z-10 lg:pr-12">
                         <div className="text-gray-600 space-y-4 text-justify font-inter whitespace-pre-wrap">
                             {mainContent?.introText || (
                                 <>
@@ -120,106 +120,97 @@ const Donation = () => {
                         </div>
                     </div>
 
-                    {/* Right Column: Donation Form & Image */}
-                    <div className="relative">
-                        <div className="bg-white p-6 md:p-8 ">
-                            {/* Frequency */}
-                            <div className="mb-6">
-                                <label className="block text-gray-500 text-sm mb-2 font-light">Frequency</label>
-                                <div className="flex gap-2">
-                                    {['One time', 'Weekly', 'Monthly'].map((freq) => (
-                                        <button
-                                            key={freq}
-                                            onClick={() => setFrequency(freq)}
-                                            className={`flex-1 py-2 px-4 border transition-colors duration-200 ${frequency === freq
-                                                ? 'bg-[#C7913E] text-white border-[#C7913E]'
-                                                : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
-                                                }`}
-                                        >
-                                            {freq}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Amount */}
-                            <div className="mb-6">
-                                <label className="block text-gray-500 text-sm mb-2 font-light">Amount</label>
-                                <div className="grid grid-cols-2 gap-4 mb-3">
+                    {/* Middle Column: Donation Form */}
+                    <div className="bg-white p-6 md:p-8 lg:col-span-5 relative z-10 lg:-mr-8">
+                        {/* Frequency */}
+                        <div className="mb-6">
+                            <label className="block text-gray-500 text-sm mb-2 font-light">Frequency</label>
+                            <div className="flex gap-2">
+                                {['One time', 'Weekly', 'Monthly'].map((freq) => (
                                     <button
-                                        onClick={() => handleAmountClick(100)}
-                                        className={`py-3 px-4 border transition-colors duration-200 ${(!isCustomAmount && amount === 100)
+                                        key={freq}
+                                        onClick={() => setFrequency(freq)}
+                                        className={`flex-1 py-2 px-4 border transition-colors duration-200 ${frequency === freq
                                             ? 'bg-[#C7913E] text-white border-[#C7913E]'
                                             : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
                                             }`}
                                     >
-                                        $100
+                                        {freq}
                                     </button>
-                                    <button
-                                        onClick={handleCustomAmountClick}
-                                        className={`py-3 px-4 border transition-colors duration-200 ${isCustomAmount
-                                            ? 'bg-[#C7913E] text-white border-[#C7913E]'
-                                            : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
-                                            }`}
-                                    >
-                                        Other
-                                    </button>
-                                </div>
-
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
-                                    <input
-                                        type="number"
-                                        value={amount}
-                                        onChange={(e) => {
-                                            setAmount(e.target.value);
-                                            setIsCustomAmount(true);
-                                        }}
-                                        className="w-full border border-gray-300 p-3 pl-8 focus:outline-none focus:border-[#C7913E] transition-colors"
-                                        placeholder="Enter amount"
-                                    />
-                                </div>
+                                ))}
                             </div>
-
-                            {/* Comment */}
-                            <div className="mb-6">
-                                <label className="block text-gray-500 text-sm mb-2 font-light">Comment (optional)</label>
-                                <textarea
-                                    rows="4"
-                                    value={comment}
-                                    onChange={(e) => setComment(e.target.value)}
-                                    className="w-full border border-gray-300 p-3 focus:outline-none focus:border-[#C7913E] transition-colors resize-none"
-                                ></textarea>
-                                <div className="text-right text-xs text-gray-300 mt-1">0/100</div>
-                            </div>
-
-                            {/* Donate Button */}
-                            <button
-                                onClick={handleDonate}
-                                disabled={processing}
-                                className={`w-full bg-[#C7913E] text-white font-medium py-3 hover:bg-[#a67832] transition-colors uppercase ${processing ? 'opacity-70 cursor-not-allowed' : ''}`}
-                            >
-                                {processing ? 'Processing...' : `Donate $${amount || 0}`}
-                            </button>
                         </div>
 
-                        {/* Right Image Placeholder */}
-                        <div className="hidden lg:block absolute -right-24 top-0 h-full w-1/3 pointer-events-none opacity-90">
+                        {/* Amount */}
+                        <div className="mb-6">
+                            <label className="block text-gray-500 text-sm mb-2 font-light">Amount</label>
+                            <div className="grid grid-cols-2 gap-4 mb-3">
+                                <button
+                                    onClick={() => handleAmountClick(100)}
+                                    className={`py-3 px-4 border transition-colors duration-200 ${(!isCustomAmount && amount === 100)
+                                        ? 'bg-[#C7913E] text-white border-[#C7913E]'
+                                        : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
+                                        }`}
+                                >
+                                    $100
+                                </button>
+                                <button
+                                    onClick={handleCustomAmountClick}
+                                    className={`py-3 px-4 border transition-colors duration-200 ${isCustomAmount
+                                        ? 'bg-[#C7913E] text-white border-[#C7913E]'
+                                        : 'bg-white text-[#C7913E] border-[#C7913E] hover:bg-[#C7913E]/10'
+                                        }`}
+                                >
+                                    Other
+                                </button>
+                            </div>
+
+                            <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-bold">$</span>
+                                <input
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => {
+                                        setAmount(e.target.value);
+                                        setIsCustomAmount(true);
+                                    }}
+                                    className="w-full border border-gray-300 p-3 pl-8 focus:outline-none focus:border-[#C7913E] transition-colors"
+                                    placeholder="Enter amount"
+                                />
+                            </div>
                         </div>
+
+                        {/* Comment */}
+                        <div className="mb-6">
+                            <label className="block text-gray-500 text-sm mb-2 font-light">Comment (optional)</label>
+                            <textarea
+                                rows="4"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                className="w-full border border-gray-300 p-3 focus:outline-none focus:border-[#C7913E] transition-colors resize-none"
+                            ></textarea>
+                            <div className="text-right text-xs text-gray-300 mt-1">0/100</div>
+                        </div>
+
+                        {/* Donate Button */}
+                        <button
+                            onClick={handleDonate}
+                            disabled={processing}
+                            className={`w-full bg-[#C7913E] text-white font-medium py-3 hover:bg-[#a67832] transition-colors uppercase ${processing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            {processing ? 'Processing...' : `Donate $${amount || 0}`}
+                        </button>
+                    </div>
+
+                    {/* Right Column: Image */}
+                    <div className="hidden lg:block lg:col-span-3 h-[570px] w-full relative z-0 lg:ml-8">
+                        <img
+                            src={pageContent?.slideshowImages?.[0]?.url}
+                            alt="Donation Cause"
+                            className="w-full h-full object-cover shadow-sm rounded-r-sm"
+                        />
                     </div>
                 </div>
-            </div>
-
-            {/* Decorative Right Image */}
-            <div className="fixed right-0 top-1/2 -translate-y-1/2 h-[80vh] w-[20vw] z-[-1] hidden xl:block opacity-80">
-                <img
-                    src="https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=2070&auto=format&fit=crop"
-                    alt="Donation Cause"
-                    className="w-full h-full object-cover mask-image-gradient"
-                    style={{
-                        maskImage: 'linear-gradient(to right, transparent, black)'
-                    }}
-                />
             </div>
 
             {/* Slideshow Section */}
