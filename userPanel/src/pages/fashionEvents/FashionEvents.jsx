@@ -151,34 +151,54 @@ export default function FashionEvents() {
         </div>
       </div>
 
-      {/* Events Grid */}
-      <div className="max-w-7xl mx-auto px-4 pb-16  bg-white">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {upcomingEvents.map((event, index) => (
-            <Link to={`/${event.slug ? event.slug.replace(/-/g, '') : event._id}`} key={index}>
-              <div
-                className="group relative h-64 md:h-80 overflow-hidden cursor-pointer"
-              >
-                <div
-                  className="absolute inset-0 bg-cover bg-center transition-transform duration-700 ease-out group-hover:scale-110"
-                  style={{ backgroundImage: `url(${event.coverImage?.url || "https://via.placeholder.com/600x400"})` }}
-                />
-                <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/90 group-hover:bg-black/40 transition-colors duration-500" />
+      <div className="bg-white text-black py-6 px-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+            {upcomingEvents.map((event, index) => {
+              const description =
+                event.bottomSection?.text ||
+                event.description ||
+                event.descriptionSection?.text;
 
-                <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-6">
-                  <h2 className="text-2xl md:text-3xl font-light tracking-widest text-center mb-2 !font-playfair">
-                    {event.location}
-                  </h2>
-                  {/* <div className="border-b border-[#BB8639] h-[8px] w-[15%] mb-2"></div> */}
-                  <div className="border-b-[1.5px] border-[#BB8639] w-[15%] mb-2"></div>
+              return (
+                <Link
+                  key={event._id}
+                  to={`/${event.slug ? event.slug.replace(/-/g, '') : event._id}`}
+                  className="group cursor-pointer flex flex-col h-full"
+                >
+                  {/* Image */}
+                  <div className="relative overflow-hidden aspect-[3/4] mb-6">
+                    <img
+                      src={event.coverImage?.url || event.coverImage}
+                      alt={event.location}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300" />
+                  </div>
 
-                  <p className="text-sm tracking-[0.2em] font-light">
-                    {event.eventDate}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          ))}
+                  {/* Content */}
+                  <div className="flex flex-col grow">
+                    <h3 className="text-xl md:text-2xl font-[Inter] font-semibold mb-2 uppercase leading-tight group-hover:text-[#C7913E] transition-colors">
+                      {event.title}
+                    </h3>
+
+                    <p className="text-gray-500 text-xs tracking-widest uppercase mb-4 font-semibold">
+                      {event.eventDate}
+                    </p>
+
+                    {description && (
+                      <p
+                        className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-3"
+                        dangerouslySetInnerHTML={{
+                          __html: description,
+                        }}
+                      />
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
 
