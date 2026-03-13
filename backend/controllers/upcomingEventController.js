@@ -46,7 +46,7 @@ export const createUpcomingEvent = async (req, res) => {
             };
         });
 
-        const slug = slugify(title, { lower: true, strict: true });
+        const slug = slugify(title, { lower: true, strict: true }).replace(/-/g, '');
         const newEvent = new UpcomingEvent({
             title,
             slug,
@@ -98,6 +98,10 @@ export const getUpcomingEventById = async (req, res) => {
 
         if (!event) {
             event = await UpcomingEvent.findOne({ slug: id });
+            if (!event) {
+                const eventsBySlug = await UpcomingEvent.find({ slug: { $exists: true } });
+                event = eventsBySlug.find(e => e.slug && e.slug.replace(/-/g, '') === id);
+            }
         }
 
         if (!event) {
@@ -249,7 +253,7 @@ export const updateUpcomingEvent = async (req, res) => {
 
         if (title) {
             event.title = title;
-            event.slug = slugify(title, { lower: true, strict: true });
+            event.slug = slugify(title, { lower: true, strict: true }).replace(/-/g, '');
         }
         if (eventDate) event.eventDate = eventDate;
         if (location) event.location = location;
