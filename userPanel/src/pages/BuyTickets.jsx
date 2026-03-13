@@ -57,48 +57,41 @@ const BuyTickets = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {events.map((event) => (
-                            <div
+                            <Link
                                 key={event._id}
-                                className="group bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 flex flex-col h-full"
+                                to={`/${event.slug ? event.slug.replace(/-/g, '') : event._id}?mode=tickets`}
+                                className="group cursor-pointer flex flex-col h-full"
                             >
                                 {/* Image */}
-                                <div className="relative h-64 overflow-hidden">
+                                <div className="relative overflow-hidden aspect-[3/4] mb-6">
                                     <img
                                         src={event.coverImage?.url || "https://via.placeholder.com/400x300"}
                                         alt={event.title}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                     />
-                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
-
-                                    {/* Date Badge */}
-                                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#C7913E] shadow-sm">
-                                        {event.eventDate}
-                                    </div>
+                                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300" />
                                 </div>
 
                                 {/* Content */}
-                                <div className="p-8 flex-1 flex flex-col">
-                                    <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-[#C7913E] transition-colors leading-tight">
+                                <div className="flex flex-col grow">
+                                    <h3 className="text-xl md:text-2xl font-[Inter] font-semibold mb-2 uppercase leading-tight group-hover:text-[#C7913E] transition-colors">
                                         {event.title}
                                     </h3>
 
-                                    <div className="flex items-center gap-2 text-gray-500 mb-4 text-sm font-medium">
-                                        <MapPin size={16} className="text-[#C7913E]" />
-                                        <span className="uppercase tracking-wide">{event.location}</span>
-                                    </div>
-
-                                    <p className="text-gray-600 text-sm line-clamp-3 mb-8 flex-1 leading-relaxed">
-                                        {event.description || "Join us for an unforgettable evening of fashion and style."}
+                                    <p className="text-gray-500 text-xs tracking-widest uppercase mb-4 font-semibold">
+                                        {event.eventDate}
                                     </p>
 
-                                    <Link
-                                        to={`/${event.slug ? event.slug.replace(/-/g, '') : event._id}?mode=tickets`}
-                                        className="block w-full py-4 text-center text-sm font-bold uppercase tracking-widest text-[#C7913E] border border-[#C7913E] rounded hover:bg-[#C7913E] hover:text-white transition-all duration-300"
-                                    >
-                                        Get Tickets
-                                    </Link>
+                                    {event.description && (
+                                        <p
+                                            className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-3"
+                                            dangerouslySetInnerHTML={{
+                                                __html: event.description,
+                                            }}
+                                        />
+                                    )}
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
                 )}
