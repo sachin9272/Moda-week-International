@@ -5,7 +5,7 @@ import slugify from 'slugify';
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
-        const { title, eventDate, location, description, status, hasTickets } = req.body;
+        const { title, eventDate, location, description, status, hasTickets, heroLayout } = req.body;
 
         // Parse ticketTypes if it's a string (from FormData)
         let ticketTypes = [];
@@ -21,6 +21,50 @@ export const createUpcomingEvent = async (req, res) => {
         const files = req.files || [];
         const coverImageFile = files.find(f => f.fieldname === 'coverImage');
         const coverImage = coverImageFile ? { url: coverImageFile.path, publicId: coverImageFile.filename } : null;
+
+        // Process description section
+        let descriptionSection = {};
+        if (req.body.descriptionSection) {
+             try {
+                 descriptionSection = JSON.parse(req.body.descriptionSection);
+             } catch(e) { console.error("Error parsing descriptionSection JSON:", e); }
+        }
+        const descImageFile = files.find(f => f.fieldname === 'descriptionSectionImage');
+        if (descImageFile) {
+             descriptionSection.image = { url: descImageFile.path, publicId: descImageFile.filename };
+        }
+
+        // Process video section
+        let videoSection = {};
+        if (req.body.videoSection) {
+            try {
+                videoSection = JSON.parse(req.body.videoSection);
+            } catch(e) { console.error("Error parsing videoSection JSON:", e); }
+        }
+        const videoSectionFile = files.find(f => f.fieldname === 'videoSectionFile');
+        if (videoSectionFile) {
+             videoSection.url = videoSectionFile.path;
+             videoSection.publicId = videoSectionFile.filename;
+        }
+
+        // Process partners
+        let partnersMeta = [];
+        if (req.body.partners) {
+             try { partnersMeta = JSON.parse(req.body.partners); } catch(e) { console.error("Error parsing partners JSON:", e); }
+        }
+        const partners = partnersMeta.map((_, index) => {
+             const partnerFile = files.find(f => f.fieldname === `partnerImage_${index}`);
+             return partnerFile ? { url: partnerFile.path, publicId: partnerFile.filename } : null;
+        }).filter(Boolean);
+
+        // Process ticket images
+        ticketTypes = ticketTypes.map((ticket, index) => {
+             const ticketFile = files.find(f => f.fieldname === `ticketImage_${index}`);
+             if (ticketFile) {
+                 return { ...ticket, image: { url: ticketFile.path, publicId: ticketFile.filename } };
+             }
+             return ticket;
+        });
 
         let collections = [];
         if (req.body.collections) {
@@ -54,10 +98,14 @@ export const createUpcomingEvent = async (req, res) => {
             location,
             description,
             status: status || 'hidden',
+            heroLayout: heroLayout || 'split',
             coverImage,
             hasTickets: hasTickets === 'true' || hasTickets === true,
             ticketTypes,
-            collections: collectionsWithImages
+            collections: collectionsWithImages,
+            descriptionSection,
+            videoSection,
+            partners
         });
 
         const savedEvent = await newEvent.save();
@@ -140,11 +188,126 @@ export const updateUpcomingEvent = async (req, res) => {
 
         // Handle Cover Image
         if (coverImageFile) {
-            // New file uploaded, delete old
             if (event.coverImage && event.coverImage.publicId) {
                 await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
             }
             event.coverImage = { url: coverImageFile.path, publicId: coverImageFile.filename };
+        }
+
+        // Handle description section updates
+        if (req.body.descriptionSection) {
+            try {
+                const parsedDesc = JSON.parse(req.body.descriptionSection);
+                event.descriptionSection = {
+                    ...event.descriptionSection,
+                    ...parsedDesc,
+                    image: event.descriptionSection?.image // preserve existing image first
+                };
+            } catch(e) { console.error("Error parsing descriptionSection JSON:", e); }
+        }
+        const descImageFile = files.find(f => f.fieldname === 'descriptionSectionImage');
+        if (descImageFile) {
+            if (event.descriptionSection && event.descriptionSection.image && event.descriptionSection.image.publicId) {
+                await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
+            }
+            event.descriptionSection = { ...event.descriptionSection, image: { url: descImageFile.path, publicId: descImageFile.filename } };
+        }
+
+        // Handle video section updates
+        if (req.body.videoSection) {
+            try {
+                const parsedVideo = JSON.parse(req.body.videoSection);
+                event.videoSection = {
+                    ...event.videoSection,
+                    ...parsedVideo,
+                    // preserve existing file info first
+                    url: parsedVideo.type === 'youtube' ? parsedVideo.url : event.videoSection?.url,
+                    publicId: parsedVideo.type === 'youtube' ? null : event.videoSection?.publicId,
+                };
+            } catch(e) { console.error("Error parsing videoSection JSON:", e); }
+        }
+        const videoSectionFile = files.find(f => f.fieldname === 'videoSectionFile');
+        if (videoSectionFile) {
+            if (event.videoSection && event.videoSection.publicId) {
+                await deleteCloudinaryAsset(event.videoSection.publicId, 'video');
+            }
+            if (!event.videoSection) event.videoSection = {};
+            event.videoSection.url = videoSectionFile.path;
+            event.videoSection.publicId = videoSectionFile.filename;
+        }
+
+        // Handle partners updates
+        if (req.body.partners) {
+             try {
+                const partnersMeta = JSON.parse(req.body.partners);
+                const keptPartners = new Set();
+                partnersMeta.forEach(pm => {
+                     // Since old partners don't have ID, we rely on the URL sent back to identify kept ones if applicable.
+                     // A safer way is checking what is sent. Currently, standard approach is:
+                     if (pm.url) keptPartners.add(pm.url);
+                });
+
+                // Cleanup deleted
+                if (event.partners) {
+                    for (const p of event.partners) {
+                        if (p.publicId && !keptPartners.has(p.url)) {
+                             await deleteCloudinaryAsset(p.publicId, 'image');
+                        }
+                    }
+                }
+
+                const existingPartnersObjects = [];
+                if (event.partners) {
+                    event.partners.forEach(oldP => {
+                         if (keptPartners.has(oldP.url)) existingPartnersObjects.push(oldP);
+                    });
+                }
+
+                // New partners
+                const newPartners = [];
+                partnersMeta.forEach((_, index) => {
+                     const f = files.find(f => f.fieldname === `partnerImage_${index}`);
+                     if (f) newPartners.push({ url: f.path, publicId: f.filename });
+                });
+
+                event.partners = [...existingPartnersObjects, ...newPartners];
+             } catch(e) { console.error("Error parsing partners JSON:", e); }
+        }
+
+        // Handle tickets updates
+        if (req.body.ticketTypes) {
+             const keptTicketImages = new Set();
+             ticketTypes.forEach(t => {
+                 if (t.image && typeof t.image === 'string') keptTicketImages.add(t.image);
+                 else if (t.image && t.image.url) keptTicketImages.add(t.image.url);
+             });
+
+             if (event.ticketTypes) {
+                 for (const t of event.ticketTypes) {
+                     if (t.image && t.image.publicId && !keptTicketImages.has(t.image.url)) {
+                          await deleteCloudinaryAsset(t.image.publicId, 'image');
+                     }
+                 }
+             }
+
+             const newTicketTypes = ticketTypes.map((t, index) => {
+                const f = files.find(f => f.fieldname === `ticketImage_${index}`);
+                let finalImage = null;
+                if (f) {
+                    finalImage = { url: f.path, publicId: f.filename };
+                } else if (t.image) {
+                    const imgUrl = typeof t.image === 'string' ? t.image : t.image.url;
+                    let foundImg = null;
+                    if (event.ticketTypes) {
+                         event.ticketTypes.forEach(oldT => {
+                              if (oldT.image && oldT.image.url === imgUrl) foundImg = oldT.image;
+                         });
+                    }
+                    finalImage = foundImg || (typeof t.image === 'string' ? { url: t.image } : t.image);
+                }
+                return { ...t, image: finalImage };
+             });
+             event.ticketTypes = newTicketTypes;
         }
         // Note: If no new file and no "remove" flag, we assume keeping existing is default behavior unless explicitly cleared? 
         // Usually FormData won't send the file field if not changed. 
@@ -259,6 +422,7 @@ export const updateUpcomingEvent = async (req, res) => {
         if (location) event.location = location;
         if (description) event.description = description;
         if (req.body.status) event.status = req.body.status;
+        if (req.body.heroLayout) event.heroLayout = req.body.heroLayout;
         if (req.body.hasTickets !== undefined) event.hasTickets = (hasTickets === 'true' || hasTickets === true);
         if (req.body.ticketTypes) event.ticketTypes = ticketTypes;
 
@@ -282,6 +446,26 @@ export const deleteUpcomingEvent = async (req, res) => {
 
         if (event.coverImage && event.coverImage.publicId) {
             await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
+        }
+
+        if (event.descriptionSection && event.descriptionSection.image && event.descriptionSection.image.publicId) {
+            await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
+        }
+
+        if (event.videoSection && event.videoSection.publicId) {
+            await deleteCloudinaryAsset(event.videoSection.publicId, 'video');
+        }
+
+        if (event.partners) {
+            for (const p of event.partners) {
+                 if (p.publicId) await deleteCloudinaryAsset(p.publicId, 'image');
+            }
+        }
+
+        if (event.ticketTypes) {
+            for (const t of event.ticketTypes) {
+                 if (t.image && t.image.publicId) await deleteCloudinaryAsset(t.image.publicId, 'image');
+            }
         }
 
         if (event.collections) {
