@@ -74,7 +74,7 @@ const Navbar = () => {
     { name: "Donation", path: "/donation", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Contact Us", path: "/contact", category: "ABOUT MODA" },
     { name: "Membership Programs", path: "/membership-program", category: "MEMBERSHIPS & SUPPORT" },
-    { name: "Buy Tickets", path: "/buy-tickets", category: "MEMBERSHIPS & SUPPORT" },
+    { name: "Buy Tickets", path: "/tickets", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Designers", path: "/participants", category: "Events" },
   ];
 
