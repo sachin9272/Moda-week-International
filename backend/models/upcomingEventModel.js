@@ -26,6 +26,11 @@ const upcomingEventSchema = new mongoose.Schema({
         enum: ['live', 'hidden'],
         default: 'hidden'
     },
+    heroLayout: {
+        type: String,
+        enum: ['split', 'full', 'minimal'],
+        default: 'split'
+    },
     coverImage: {
         url: { type: String },
         publicId: { type: String }
@@ -38,8 +43,13 @@ const upcomingEventSchema = new mongoose.Schema({
         {
             name: { type: String, required: true },
             price: { type: Number, required: true },
+            currency: { type: String, default: 'USD' },
             limit: { type: Number, default: 100 },
-            description: { type: String }
+            description: { type: String },
+            image: {
+                url: { type: String },
+                publicId: { type: String }
+            }
         }
     ],
     collections: [
@@ -51,6 +61,11 @@ const upcomingEventSchema = new mongoose.Schema({
             designerImage: {
                 url: { type: String },
                 publicId: { type: String }
+            },
+            day: {
+                type: Number,
+                enum: [1, 2, 3],
+                required: false
             },
             layout: {
                 type: String,
@@ -68,6 +83,32 @@ const upcomingEventSchema = new mongoose.Schema({
             }],
         },
     ],
+    descriptionSection: {
+        title: { type: String },
+        text: { type: String },
+        image: {
+            url: { type: String },
+            publicId: { type: String }
+        },
+        credits: { type: String },
+        isVisible: { type: Boolean, default: false },
+        imageSize: {
+            type: String,
+            enum: ['small', 'medium', 'large'],
+            default: 'medium'
+        }
+    },
+    videoSection: {
+        type: { type: String, enum: ['upload', 'youtube'], default: 'youtube' },
+        url: { type: String },
+        publicId: { type: String },
+        title: { type: String },
+        isVisible: { type: Boolean, default: true }
+    },
+    partners: [{
+        url: { type: String },
+        publicId: { type: String }
+    }]
 }, { timestamps: true });
 
 // Helper to remove publicId from response
@@ -85,6 +126,16 @@ upcomingEventSchema.set('toJSON', {
                 }
             });
         }
+
+        if (ret.descriptionSection?.image) delete ret.descriptionSection.image.publicId;
+        if (ret.videoSection) delete ret.videoSection.publicId;
+
+        if (ret.ticketTypes && Array.isArray(ret.ticketTypes)) {
+            ret.ticketTypes.forEach(ticket => {
+                if (ticket.image) delete ticket.image.publicId;
+            });
+        }
+
         return ret;
     }
 });
