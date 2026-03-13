@@ -155,7 +155,7 @@ export default function FashionEvents() {
       <div className="max-w-7xl mx-auto px-4 pb-16  bg-white">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {upcomingEvents.map((event, index) => (
-            <Link to={`/event-tickets/${event.slug || event._id}`} key={index}>
+            <Link to={`/${event.slug ? event.slug.replace(/-/g, '') : event._id}`} key={index}>
               <div
                 className="group relative h-64 md:h-80 overflow-hidden cursor-pointer"
               >
@@ -240,7 +240,7 @@ export default function FashionEvents() {
                     if (activeTab === "upcoming") {
                       return (
                         <Link
-                          to={`/event-tickets/${item.slug || item._id}`}
+                          to={`/${item.slug ? item.slug.replace(/-/g, '') : item._id}`}
                           key={idx}
                           className="grid grid-cols-3 text-sm text-gray-300 hover:bg-white/5 transition-colors cursor-pointer group"
                         >
