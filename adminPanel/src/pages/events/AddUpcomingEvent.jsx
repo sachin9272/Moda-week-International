@@ -1,12 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
-import { Upload, X, ArrowLeft, Plus, Trash2, Pencil } from 'lucide-react';
+import { Upload, X, ArrowLeft, Plus, Trash2, Pencil, GripVertical } from 'lucide-react';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import ImageEditorModal from '../../components/ImageEditorModal';
 import { Editor } from '@tinymce/tinymce-react';
 import toast from 'react-hot-toast';
 import { compressImageIfNeeded } from '../../utils/imageCompression';
+
+// Sortable Collection Item Component
+const SortableCollectionItem = ({ col, idx, onEdit, onRemove }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: col.id || `col-${idx}` });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : 'auto',
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`flex items-center justify-between bg-gray-700/50 p-3 rounded border border-gray-600 ${isDragging ? 'shadow-2xl border-blue-500 scale-[1.02] ring-2 ring-blue-500/30 opacity-50' : ''}`}
+        >
+            <div className="flex items-center gap-3">
+                <button
+                    type="button"
+                    {...attributes}
+                    {...listeners}
+                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-600 rounded text-gray-400 hover:text-white"
+                >
+                    <GripVertical size={20} />
+                </button>
+                {col.designerImage && (
+                    <img
+                        src={typeof col.designerImage === 'string' ? col.designerImage : URL.createObjectURL(col.designerImage)}
+                        className="w-10 h-10 object-cover rounded shadow-sm"
+                    />
+                )}
+                <div>
+                    <p className="font-bold text-white text-sm leading-tight">{col.title} {col.day ? `(Day ${col.day})` : ''}</p>
+                    <p className="text-xs text-gray-400">{col.images.length} images - {col.layout} ({col.gridAspectRatio})</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={onEdit}
+                    className="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-900/20 rounded-full transition-colors"
+                >
+                    <Pencil size={16} />
+                </button>
+                <button
+                    type="button"
+                    onClick={onRemove}
+                    className="text-red-400 hover:text-red-300 p-2 hover:bg-red-900/20 rounded-full transition-colors"
+                >
+                    <Trash2 size={16} />
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const AddUpcomingEvent = () => {
     const navigate = useNavigate();
@@ -112,7 +191,34 @@ const AddUpcomingEvent = () => {
 
     const [designers, setDesigners] = useState([]);
 
-    React.useEffect(() => {
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            setFormData(prev => {
+                const oldIndex = prev.collections.findIndex((col, idx) => (col.id || `col-${idx}`) === active.id);
+                const newIndex = prev.collections.findIndex((col, idx) => (col.id || `col-${idx}`) === over.id);
+
+                return {
+                    ...prev,
+                    collections: arrayMove(prev.collections, oldIndex, newIndex)
+                };
+            });
+        }
+    };
+
+    useEffect(() => {
         const fetchDesigners = async () => {
             try {
                 const response = await axios.get(`${API_BASE_URL}/api/fashion-designers?limit=100`);
@@ -406,7 +512,7 @@ const AddUpcomingEvent = () => {
         if (currentCollection.title) {
             setFormData(prev => ({
                 ...prev,
-                collections: [...prev.collections, currentCollection]
+                collections: [...prev.collections, { ...currentCollection, id: `col-${Date.now()}` }]
             }));
             setCurrentCollection({
                 title: '',
@@ -501,8 +607,9 @@ const AddUpcomingEvent = () => {
             name: t.name,
             price: t.price,
             currency: t.currency,
-            limit: t.limit,
-            description: t.description
+            amount: t.amount,
+            description: t.description,
+            image: typeof t.image === 'string' ? t.image : null
         }));
         data.append('ticketTypes', JSON.stringify(formData.hasTickets ? ticketTypesMeta : []));
 
@@ -529,12 +636,15 @@ const AddUpcomingEvent = () => {
             }
         });
 
-        const partnersMeta = partners.map((s, i) => ({ id: i }));
+        const partnersMeta = partners.map(p => {
+            if (typeof p === 'string') return { url: p };
+            return { id: p.name };
+        });
         data.append('partners', JSON.stringify(partnersMeta));
 
-        partners.forEach((file, index) => {
-            if (file instanceof File) {
-                data.append(`partnerImage_${index}`, file);
+        partners.forEach((p, index) => {
+            if (p instanceof File) {
+                data.append(`partnerImage_${index}`, p);
             }
         });
 
@@ -993,24 +1103,31 @@ const AddUpcomingEvent = () => {
                     </div>
 
                     {formData.collections.length > 0 && (
-                        <div className="space-y-3">
-                            {formData.collections.map((col, idx) => (
-                                <div key={idx} className="flex items-center justify-between bg-gray-700/50 p-3 rounded border border-gray-600">
-                                    <div className="flex items-center gap-3">
-                                        {col.designerImage && (
-                                            <img src={typeof col.designerImage === 'string' ? col.designerImage : URL.createObjectURL(col.designerImage)} className="w-10 h-10 object-cover rounded shadow-sm" />
-                                        )}
-                                        <div>
-                                            <p className="font-bold text-white text-sm leading-tight">{col.title}</p>
-                                            <p className="text-xs text-gray-400">{col.images.length} images</p>
-                                        </div>
-                                    </div>
-                                    <button type="button" onClick={() => removeCollection(idx)} className="text-red-400 hover:text-red-300 p-2 hover:bg-red-900/20 rounded-full transition-colors">
-                                        <Trash2 size={16} />
-                                    </button>
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={formData.collections.map((col, idx) => col.id || `col-${idx}`)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className="space-y-3">
+                                    {formData.collections.map((col, idx) => (
+                                        <SortableCollectionItem
+                                            key={col.id || `col-${idx}`}
+                                            col={col}
+                                            idx={idx}
+                                            onEdit={() => {
+                                                setCurrentCollection(col);
+                                                removeCollection(idx);
+                                            }}
+                                            onRemove={() => removeCollection(idx)}
+                                        />
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </SortableContext>
+                        </DndContext>
                     )}
                 </div>
 

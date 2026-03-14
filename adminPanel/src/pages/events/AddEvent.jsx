@@ -7,6 +7,80 @@ import ImageEditorModal from '../../components/ImageEditorModal';
 import { Editor } from '@tinymce/tinymce-react';
 import toast from 'react-hot-toast';
 import { compressImageIfNeeded } from '../../utils/imageCompression';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { GripVertical } from 'lucide-react';
+
+const SortableCollectionItem = ({ col, idx, startEditCollection, removeCollection }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id: col.id || `col-${idx}` });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className="bg-gray-700 p-4 rounded flex justify-between items-center group border border-gray-600 hover:border-blue-500/50 transition-all shadow-sm"
+        >
+            <div className="flex items-center gap-3">
+                <div
+                    {...attributes}
+                    {...listeners}
+                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-600 rounded transition-colors text-gray-500 hover:text-gray-300"
+                >
+                    <GripVertical size={20} />
+                </div>
+                <div>
+                    <div className="font-bold text-white">
+                        {col.title} <span className="text-sm font-normal text-gray-400">({col.subtitle})</span>
+                    </div>
+                    <div className="text-xs text-gray-400">
+                        {col.images?.length || 0} images - Layout: {col.layout} ({col.gridAspectRatio})
+                    </div>
+                </div>
+            </div>
+            <div className="flex gap-2">
+                <button
+                    type="button"
+                    onClick={() => startEditCollection(idx)}
+                    className="text-blue-400 hover:text-blue-300 px-2 py-1 rounded hover:bg-blue-400/10 transition-colors"
+                >
+                    Edit
+                </button>
+                <button
+                    type="button"
+                    onClick={() => removeCollection(idx)}
+                    className="text-red-400 hover:text-red-300 px-2 py-1 rounded hover:bg-red-400/10 transition-colors"
+                >
+                    Remove
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const AddEvent = () => {
     const navigate = useNavigate();
@@ -69,6 +143,29 @@ const AddEvent = () => {
     const [editorOpen, setEditorOpen] = useState(false);
     const [currentEditingImage, setCurrentEditingImage] = useState(null); // { field: 'thumbnail', file: File/Blob, aspect: 16/9 }
     const [editorImageSrc, setEditorImageSrc] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            setFormData((prev) => {
+                const oldIndex = prev.collections.findIndex((c, i) => (c.id || `col-${i}`) === active.id);
+                const newIndex = prev.collections.findIndex((c, i) => (c.id || `col-${i}`) === over.id);
+
+                return {
+                    ...prev,
+                    collections: arrayMove(prev.collections, oldIndex, newIndex),
+                };
+            });
+        }
+    };
 
     const handleEditClick = (field, file, aspect = 16 / 9, index = null) => {
         if (file) {
@@ -401,9 +498,18 @@ const AddEvent = () => {
             setFormData(prev => {
                 const newCollections = [...prev.collections];
                 if (editingIndex !== null) {
-                    newCollections[editingIndex] = currentCollection;
+                    // Update existing
+                    newCollections[editingIndex] = {
+                        ...currentCollection,
+                        id: currentCollection.id || `col-${Date.now()}`
+                    };
                 } else {
-                    newCollections.push(currentCollection);
+                    // Add new
+                    const newCollection = {
+                        ...currentCollection,
+                        id: `col-${Date.now()}`
+                    };
+                    newCollections.push(newCollection);
                 }
                 return { ...prev, collections: newCollections };
             });
@@ -1219,18 +1325,26 @@ const AddEvent = () => {
 
                     {formData.collections.length > 0 && (
                         <div className="space-y-4 mt-4">
-                            {formData.collections.map((col, idx) => (
-                                <div key={idx} className={`bg-gray-700 p-4 rounded flex justify-between items-center ${editingIndex === idx ? 'border border-blue-500' : ''}`}>
-                                    <div>
-                                        <div className="font-bold">{col.title} <span className="text-sm font-normal text-gray-400">({col.subtitle})</span></div>
-                                        <div className="text-xs text-gray-400">{col.images.length} images - Layout: {col.layout} ({col.gridAspectRatio})</div>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button type="button" onClick={() => startEditCollection(idx)} className="text-blue-400 hover:text-blue-300">Edit</button>
-                                        <button type="button" onClick={() => removeCollection(idx)} className="text-red-400 hover:text-red-300">Remove</button>
-                                    </div>
-                                </div>
-                            ))}
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <SortableContext
+                                    items={formData.collections.map((c, i) => c.id || `col-${i}`)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    {formData.collections.map((col, idx) => (
+                                        <SortableCollectionItem
+                                            key={col.id || `col-${idx}`}
+                                            col={col}
+                                            idx={idx}
+                                            startEditCollection={startEditCollection}
+                                            removeCollection={removeCollection}
+                                        />
+                                    ))}
+                                </SortableContext>
+                            </DndContext>
                         </div>
                     )}
                 </div>
