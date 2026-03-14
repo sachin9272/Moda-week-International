@@ -2,9 +2,90 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
-import { Upload, X, ArrowLeft, Plus, Trash2, Pencil } from 'lucide-react';
+import { Upload, X, ArrowLeft, Plus, Trash2, Pencil, GripVertical } from 'lucide-react';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+    verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import ImageEditorModal from '../../components/ImageEditorModal';
+import { Editor } from '@tinymce/tinymce-react';
 import toast from 'react-hot-toast';
 import { compressImageIfNeeded } from '../../utils/imageCompression';
+
+// Sortable Collection Item Component
+const SortableCollectionItem = ({ col, idx, onEdit, onRemove }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: col.id || col._id || `col-${idx}` });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : 'auto',
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`flex items-center justify-between bg-gray-700/50 p-3 rounded border border-gray-600 ${isDragging ? 'shadow-2xl border-blue-500 scale-[1.02] ring-2 ring-blue-500/30 opacity-50' : ''}`}
+        >
+            <div className="flex items-center gap-3">
+                <button
+                    type="button"
+                    {...attributes}
+                    {...listeners}
+                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-600 rounded text-gray-400 hover:text-white"
+                >
+                    <GripVertical size={20} />
+                </button>
+                {col.designerImage && (
+                    <img
+                        src={typeof col.designerImage === 'string' ? col.designerImage : URL.createObjectURL(col.designerImage)}
+                        className="w-10 h-10 object-cover rounded shadow-sm"
+                    />
+                )}
+                <div>
+                    <p className="font-bold text-white text-sm leading-tight">{col.title} {col.day ? `(Day ${col.day})` : ''}</p>
+                    <p className="text-xs text-gray-400">{col.images.length} images - {col.layout} ({col.gridAspectRatio})</p>
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={onEdit}
+                    className="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-900/20 rounded-full transition-colors"
+                >
+                    <Pencil size={16} />
+                </button>
+                <button
+                    type="button"
+                    onClick={onRemove}
+                    className="text-red-400 hover:text-red-300 p-2 hover:bg-red-900/20 rounded-full transition-colors"
+                >
+                    <Trash2 size={16} />
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const EditUpcomingEvent = () => {
     const { id } = useParams();
@@ -18,6 +99,20 @@ const EditUpcomingEvent = () => {
         location: '',
         description: '',
         coverImage: null,
+        heroLayout: 'split',
+        descriptionSection: {
+            title: '',
+            text: '',
+            isVisible: false,
+            imageSize: 'medium'
+        },
+        videoSection: {
+            type: 'youtube',
+            url: '',
+            title: '',
+            isVisible: true,
+            file: null
+        },
         ticketTypes: [],
         collections: [],
         hasTickets: false
@@ -26,7 +121,10 @@ const EditUpcomingEvent = () => {
     const [currentTicket, setCurrentTicket] = useState({
         name: '',
         price: '',
-        description: ''
+        currency: 'USD',
+        amount: 100,
+        description: '',
+        image: null
     });
 
     const [currentCollection, setCurrentCollection] = useState({
@@ -35,12 +133,93 @@ const EditUpcomingEvent = () => {
         description: '',
         designerId: null,
         designerImage: null,
-        layout: 'carousel',
+        layout: 'grid',
         gridAspectRatio: 'portrait',
+        day: '',
         images: []
     });
 
+    const [partners, setPartners] = useState([]);
+
+    // Image Editor State
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [currentEditingImage, setCurrentEditingImage] = useState(null);
+    const [editorImageSrc, setEditorImageSrc] = useState(null);
+
+    const handleEditClick = (field, file, aspect = 16 / 9, index = null) => {
+        if (file) {
+            const imageUrl = typeof file === 'string' ? file : URL.createObjectURL(file);
+            setEditorImageSrc(imageUrl);
+            setCurrentEditingImage({ field, file, aspect, index });
+            setEditorOpen(true);
+        }
+    };
+
+    const handleSaveEditedImage = (blob) => {
+        if (!currentEditingImage) return;
+
+        let fileName = 'edited_image.jpg';
+        let fileType = 'image/jpeg';
+        if (currentEditingImage.file instanceof File) {
+            fileName = currentEditingImage.file.name;
+            fileType = currentEditingImage.file.type;
+        }
+
+        const file = new File([blob], fileName, { type: fileType });
+        const { field, index } = currentEditingImage;
+
+        if (field === 'coverImage') {
+            setFormData(prev => ({ ...prev, coverImage: file }));
+        } else if (field === 'descriptionSection.image') {
+            setFormData(prev => ({ ...prev, descriptionSection: { ...prev.descriptionSection, image: file } }));
+        } else if (field === 'currentCollection.designerImage') {
+            setCurrentCollection(prev => ({ ...prev, designerImage: file }));
+        } else if (field === 'currentCollection.image') {
+            setCurrentCollection(prev => {
+                const newImages = [...prev.images];
+                if (index !== null && newImages[index]) {
+                    newImages[index] = file;
+                }
+                return { ...prev, images: newImages };
+            });
+        } else if (field === 'currentTicket.image') {
+            setCurrentTicket(prev => ({ ...prev, image: file }));
+        }
+
+        if (editorImageSrc && typeof editorImageSrc !== 'string') URL.revokeObjectURL(editorImageSrc);
+        setEditorOpen(false);
+        setEditorImageSrc(null);
+        setCurrentEditingImage(null);
+    };
+
     const [designers, setDesigners] = useState([]);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            setFormData(prev => {
+                const oldIndex = prev.collections.findIndex((col, idx) => (col.id || col._id || `col-${idx}`) === active.id);
+                const newIndex = prev.collections.findIndex((col, idx) => (col.id || col._id || `col-${idx}`) === over.id);
+
+                return {
+                    ...prev,
+                    collections: arrayMove(prev.collections, oldIndex, newIndex)
+                };
+            });
+        }
+    };
 
     useEffect(() => {
         const fetchDesigners = async () => {
@@ -65,7 +244,26 @@ const EditUpcomingEvent = () => {
                     location: event.location,
                     description: event.description || '',
                     coverImage: event.coverImage?.url || null,
-                    ticketTypes: event.ticketTypes || [],
+                    heroLayout: event.heroLayout || 'split',
+                    descriptionSection: {
+                        title: event.descriptionSection?.title || '',
+                        text: event.descriptionSection?.text || '',
+                        image: event.descriptionSection?.image?.url || null,
+                        credits: event.descriptionSection?.credits || '',
+                        isVisible: event.descriptionSection?.isVisible || false,
+                        imageSize: event.descriptionSection?.imageSize || 'medium'
+                    },
+                    videoSection: {
+                        type: event.videoSection?.type || 'youtube',
+                        url: event.videoSection?.url || '',
+                        title: event.videoSection?.title || '',
+                        isVisible: event.videoSection?.isVisible !== false,
+                        file: null
+                    },
+                    ticketTypes: (event.ticketTypes || []).map(t => ({
+                        ...t,
+                        image: t.image?.url || t.image || null
+                    })),
                     collections: (event.collections || []).map(col => ({
                         ...col,
                         designerImage: col.designerImage?.url || col.designerImage,
@@ -73,6 +271,7 @@ const EditUpcomingEvent = () => {
                     })),
                     hasTickets: event.hasTickets || false
                 });
+                setPartners(event.partners?.map(p => p.url) || []);
             } catch (error) {
                 console.error("Error fetching event:", error);
                 toast.error("Failed to load event details");
@@ -86,15 +285,137 @@ const EditUpcomingEvent = () => {
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        if (name.startsWith('descriptionSection.')) {
+            const field = name.split('.')[1];
+            setFormData(prev => ({
+                ...prev,
+                descriptionSection: {
+                    ...prev.descriptionSection,
+                    [field]: type === 'checkbox' ? checked : value
+                }
+            }));
+        } else if (name.startsWith('videoSection.')) {
+            const field = name.split('.')[1];
+            setFormData(prev => ({
+                ...prev,
+                videoSection: {
+                    ...prev.videoSection,
+                    [field]: type === 'checkbox' ? checked : value
+                }
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                [name]: type === 'checkbox' ? checked : value
+            }));
+        }
+    };
+
+    const [isDragging, setIsDragging] = useState(false);
+
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    const handleDrop = async (e, fieldName) => {
+        e.preventDefault();
+        setIsDragging(false);
+        const files = e.dataTransfer.files;
+        if (files && files[0]) {
+            let file = files[0];
+
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size too large. Maximum is 10MB for videos.");
+                return;
+            }
+
+            if (fieldName === 'descriptionSection.image') {
+                setFormData(prev => ({
+                    ...prev,
+                    descriptionSection: {
+                        ...prev.descriptionSection,
+                        image: file
+                    }
+                }));
+            } else if (fieldName === 'videoSection.file') {
+                setFormData(prev => ({
+                    ...prev,
+                    videoSection: {
+                        ...prev.videoSection,
+                        file: file
+                    }
+                }));
+            } else {
+                setFormData(prev => ({ ...prev, [fieldName]: file }));
+            }
+        }
+    };
+
+    const handleImageUpload = (blobInfo, progress) => {
+        return new Promise((resolve, reject) => {
+            const formData = new FormData();
+            formData.append('image', blobInfo.blob(), blobInfo.filename());
+
+            axios.post(`${API_BASE_URL}/api/upload`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (e) => {
+                    progress(Math.round((e.loaded / e.total) * 100));
+                }
+            })
+                .then(response => {
+                    resolve(response.data.url);
+                })
+                .catch(error => {
+                    reject('Image upload failed: ' + error.message);
+                });
+        });
+    };
+
+    const editorConfig = {
+        height: 400,
+        menubar: true,
+        plugins: [
+            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+            'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+            'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+        ],
+        toolbar: 'undo redo | blocks | ' +
+            'bold italic forecolor | alignleft aligncenter ' +
+            'alignright alignjustify | bullist numlist outdent indent | ' +
+            'removeformat | image table link | help',
+        image_advtab: true,
+        image_title: true,
+        image_caption: true,
+        image_class_list: [
+            { title: 'None', value: '' },
+            { title: 'Left (Text wraps right)', value: 'float-left' },
+            { title: 'Right (Text wraps left)', value: 'float-right' },
+            { title: 'Center', value: 'align-center' }
+        ],
+        content_style: `
+            body { font-family:Helvetica,Arial,sans-serif; font-size:14px; background-color: #333; color: #fff; }
+            img { max-width: 100%; height: auto; }
+            .float-left { float: left; margin-right: 20px; margin-bottom: 20px; clear: none; }
+            .float-right { float: right; margin-left: 20px; margin-bottom: 20px; clear: none; }
+            .align-center { display: block; margin-left: auto; margin-right: auto; clear: both; }
+        `,
+        skin: 'oxide-dark',
+        content_css: 'dark',
+        images_upload_handler: handleImageUpload
     };
 
     const handleFileChange = async (e) => {
-        if (e.target.files && e.target.files[0]) {
-            let file = e.target.files[0];
+        const { name, files } = e.target;
+        if (files && files[0]) {
+            let file = files[0];
 
             if (file.type.startsWith('image/')) {
                 file = await compressImageIfNeeded(file);
@@ -103,7 +424,26 @@ const EditUpcomingEvent = () => {
                 e.target.value = '';
                 return;
             }
-            setFormData(prev => ({ ...prev, coverImage: file }));
+
+            if (name === 'descriptionSection.image') {
+                setFormData(prev => ({
+                    ...prev,
+                    descriptionSection: {
+                        ...prev.descriptionSection,
+                        image: file
+                    }
+                }));
+            } else if (name === 'videoSection.file') {
+                setFormData(prev => ({
+                    ...prev,
+                    videoSection: {
+                        ...prev.videoSection,
+                        file: file
+                    }
+                }));
+            } else {
+                setFormData(prev => ({ ...prev, [name]: file }));
+            }
         }
     };
 
@@ -118,9 +458,24 @@ const EditUpcomingEvent = () => {
                 ...prev,
                 ticketTypes: [...prev.ticketTypes, currentTicket]
             }));
-            setCurrentTicket({ name: '', price: '', description: '' });
+            setCurrentTicket({ name: '', price: '', currency: 'USD', amount: 100, description: '', image: null });
         } else {
             toast.error("Ticket must have a Name and Price.");
+        }
+    };
+
+    const handleTicketImage = async (e) => {
+        if (e.target.files && e.target.files[0]) {
+            let file = e.target.files[0];
+
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error("File size too large. Maximum is 10MB for videos.");
+                e.target.value = '';
+                return;
+            }
+            setCurrentTicket(prev => ({ ...prev, image: file }));
         }
     };
 
@@ -220,8 +575,9 @@ const EditUpcomingEvent = () => {
                 description: '',
                 designerId: null,
                 designerImage: null,
-                layout: 'carousel',
+                layout: 'grid',
                 gridAspectRatio: 'portrait',
+                day: '',
                 images: []
             });
         } else {
@@ -234,6 +590,17 @@ const EditUpcomingEvent = () => {
             ...prev,
             collections: prev.collections.filter((_, i) => i !== index)
         }));
+    };
+
+    const handlePartnerUpload = (e) => {
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            setPartners(prev => [...prev, ...files]);
+        }
+    };
+
+    const removePartner = (index) => {
+        setPartners(prev => prev.filter((_, i) => i !== index));
     };
 
     const handleSubmit = async (e) => {
@@ -249,7 +616,7 @@ const EditUpcomingEvent = () => {
         // Auto-save logic: If there's an unsaved collection in progress, add it to the list
         let finalCollections = [...formData.collections];
         if (currentCollection.title) {
-            finalCollections.push(currentCollection);
+            finalCollections.push({ ...currentCollection, id: currentCollection.id || currentCollection._id || `col-${Date.now()}` });
             // Verify validation for the implicit collection if needed, but for now we assume user intends to save it
             // If title is there, we try to save it.
             toast.success("Unsaved collection changes included in update.");
@@ -260,15 +627,65 @@ const EditUpcomingEvent = () => {
         data.append('eventDate', formData.eventDate);
         data.append('location', formData.location);
         data.append('description', formData.description);
+        data.append('heroLayout', formData.heroLayout);
+        data.append('hasTickets', formData.hasTickets);
 
         if (formData.coverImage instanceof File) {
             data.append('coverImage', formData.coverImage);
         }
 
-        data.append('ticketTypes', JSON.stringify(formData.hasTickets ? formData.ticketTypes : []));
-        data.append('hasTickets', formData.hasTickets);
+        const descriptionSectionData = {
+            title: formData.descriptionSection.title,
+            text: formData.descriptionSection.text,
+            credits: formData.descriptionSection.credits,
+            isVisible: formData.descriptionSection.isVisible,
+            imageSize: formData.descriptionSection.imageSize
+        };
+        data.append('descriptionSection', JSON.stringify(descriptionSectionData));
 
-        // Use finalCollections instead of formData.collections
+        if (formData.descriptionSection.image instanceof File) {
+            data.append('descriptionSectionImage', formData.descriptionSection.image);
+        }
+
+        const videoSectionData = {
+            type: formData.videoSection.type,
+            url: formData.videoSection.type === 'youtube' ? formData.videoSection.url : '',
+            title: formData.videoSection.title,
+            isVisible: formData.videoSection.isVisible
+        };
+        data.append('videoSection', JSON.stringify(videoSectionData));
+        if (formData.videoSection.type === 'upload' && formData.videoSection.file instanceof File) {
+            data.append('videoSectionFile', formData.videoSection.file);
+        }
+
+        const ticketTypesMeta = formData.ticketTypes.map(t => ({
+            name: t.name,
+            price: t.price,
+            currency: t.currency,
+            amount: t.amount,
+            description: t.description,
+            image: typeof t.image === 'string' ? t.image : null
+        }));
+        data.append('ticketTypes', JSON.stringify(formData.hasTickets ? ticketTypesMeta : []));
+
+        formData.ticketTypes.forEach((ticket, index) => {
+            if (ticket.image instanceof File) {
+                data.append(`ticketImage_${index}`, ticket.image);
+            }
+        });
+
+        const partnersMeta = partners.map(p => {
+            if (typeof p === 'string') return { url: p };
+            return { id: p.name };
+        });
+        data.append('partners', JSON.stringify(partnersMeta));
+
+        partners.forEach((p, index) => {
+            if (p instanceof File) {
+                data.append(`partnerImage_${index}`, p);
+            }
+        });
+
         data.append('collections', JSON.stringify(finalCollections.map(col => ({
             ...col,
             images: col.images.filter(img => !(img instanceof File)),
@@ -318,6 +735,14 @@ const EditUpcomingEvent = () => {
                 <h1 className="text-3xl font-bold text-white">Edit Upcoming Event</h1>
             </div>
 
+            <ImageEditorModal
+                isOpen={editorOpen}
+                onClose={() => setEditorOpen(false)}
+                onSave={handleSaveEditedImage}
+                image={editorImageSrc}
+                aspect={currentEditingImage?.aspect}
+            />
+
             <form onSubmit={handleSubmit} className="max-w-4xl space-y-8">
                 <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
                     <h2 className="text-xl font-bold mb-4 text-blue-400">Event Details</h2>
@@ -337,6 +762,15 @@ const EditUpcomingEvent = () => {
                         <div className="md:col-span-2">
                             <label className="block text-gray-400 mb-1">Description</label>
                             <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white min-h-[100px]" />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="block text-gray-400 mb-1">Hero Layout</label>
+                            <select name="heroLayout" value={formData.heroLayout} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white">
+                                <option value="split">Split</option>
+                                <option value="full">Full Background</option>
+                                <option value="minimal">Minimal</option>
+                            </select>
                         </div>
 
                         <div className="md:col-span-2">
@@ -373,6 +807,105 @@ const EditUpcomingEvent = () => {
                     </div>
                 </div>
 
+                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h2 className="text-xl font-bold mb-4 text-blue-400">Description Section (Optional)</h2>
+                    <div className="flex items-center gap-4 mb-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="descriptionSection.isVisible" checked={formData.descriptionSection.isVisible} onChange={handleInputChange} className="w-4 h-4 rounded border-gray-600 bg-gray-700" />
+                            <span className="text-gray-400">Enable Description Section</span>
+                        </label>
+                    </div>
+                    {formData.descriptionSection.isVisible && (
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-gray-400 mb-1">Title</label>
+                                <input type="text" name="descriptionSection.title" value={formData.descriptionSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 mb-1">Content</label>
+                                <Editor
+                                    apiKey="your-tinymce-api-key"
+                                    onInit={(evt, editor) => {/* Editor initialized */}}
+                                    value={formData.descriptionSection.text}
+                                    onEditorChange={(content) => setFormData(prev => ({ ...prev, descriptionSection: { ...prev.descriptionSection, text: content } }))}
+                                    init={editorConfig}
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-gray-400 mb-1">Side Image</label>
+                                    <input type="file" name="descriptionSection.image" onChange={handleFileChange} accept="image/*" className="w-full text-gray-400 text-sm" />
+                                    {formData.descriptionSection.image && (
+                                        <div className="relative mt-2">
+                                            <img src={typeof formData.descriptionSection.image === 'string' ? formData.descriptionSection.image : URL.createObjectURL(formData.descriptionSection.image)} alt="Preview" className="max-h-32 rounded" />
+                                            <button type="button" onClick={() => setFormData(prev => ({ ...prev, descriptionSection: { ...prev.descriptionSection, image: null } }))} className="absolute -top-1 -right-1 bg-red-600 p-1 rounded-full text-white"><X size={10} /></button>
+                                        </div>
+                                    )}
+                                </div>
+                                <div>
+                                    <label className="block text-gray-400 mb-1">Image Size</label>
+                                    <select name="descriptionSection.imageSize" value={formData.descriptionSection.imageSize} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white">
+                                        <option value="small">Small</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="large">Large</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 mb-1">Credits / Right Text</label>
+                                <input type="text" name="descriptionSection.credits" value={formData.descriptionSection.credits} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h2 className="text-xl font-bold mb-4 text-blue-400">Video Section (Optional)</h2>
+                    <div className="flex items-center gap-4 mb-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input type="checkbox" name="videoSection.isVisible" checked={formData.videoSection.isVisible} onChange={handleInputChange} className="w-4 h-4 rounded border-gray-600 bg-gray-700" />
+                            <span className="text-gray-400">Enable Video Section</span>
+                        </label>
+                        {formData.videoSection.isVisible && (
+                            <div className="flex items-center gap-4 ml-4 border-l border-gray-600 pl-4">
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="videoSection.type" value="youtube" checked={formData.videoSection.type === 'youtube'} onChange={handleInputChange} />
+                                    <span className="text-gray-400">YouTube URL</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer">
+                                    <input type="radio" name="videoSection.type" value="upload" checked={formData.videoSection.type === 'upload'} onChange={handleInputChange} />
+                                    <span className="text-gray-400">Direct Upload</span>
+                                </label>
+                            </div>
+                        )}
+                    </div>
+                    {formData.videoSection.isVisible && (
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-gray-400 mb-1">Video Title</label>
+                                <input type="text" name="videoSection.title" value={formData.videoSection.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                            </div>
+                            {formData.videoSection.type === 'youtube' ? (
+                                <div>
+                                    <label className="block text-gray-400 mb-1">YouTube URL</label>
+                                    <input type="text" name="videoSection.url" value={formData.videoSection.url} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" placeholder="https://www.youtube.com/watch?v=..." />
+                                </div>
+                            ) : (
+                                <div>
+                                    <label className="block text-gray-400 mb-1">Video File</label>
+                                    <input type="file" name="videoSection.file" onChange={handleFileChange} accept="video/*" className="w-full text-gray-400 text-sm" />
+                                    {formData.videoSection.url && !formData.videoSection.file && (
+                                        <video src={formData.videoSection.url} className="mt-2 max-h-32 rounded" controls />
+                                    )}
+                                    {formData.videoSection.file && (
+                                        <div className="mt-2 text-sm text-green-400">New video file ready</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
                 <div className={`bg-gray-800 p-6 rounded-lg border border-gray-700 ${!formData.hasTickets ? 'opacity-50' : ''}`}>
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-xl font-bold text-blue-400">Ticket Types</h2>
@@ -389,18 +922,42 @@ const EditUpcomingEvent = () => {
                     </div>
                     <div className="flex gap-4 mb-4 items-end">
                         <div className="flex-1">
-                            <label className="block text-gray-400 mb-1">Ticket Name</label>
+                            <label className="block text-gray-400 mb-1 text-sm">Ticket Name</label>
                             <input
                                 type="text"
                                 name="name"
                                 value={currentTicket.name}
                                 onChange={handleTicketChange}
-                                className="w-full p-2 bg-gray-700 rounded text-white"
+                                className="w-full p-2 bg-gray-700 rounded text-white text-sm"
+                                disabled={!formData.hasTickets}
+                            />
+                        </div>
+                        <div className="w-24">
+                            <label className="block text-gray-400 mb-1 text-sm">Qty</label>
+                            <input
+                                type="number"
+                                name="amount"
+                                value={currentTicket.amount}
+                                onChange={handleTicketChange}
+                                className="w-full p-2 bg-gray-700 rounded text-white text-sm"
+                                placeholder="100"
+                                disabled={!formData.hasTickets}
+                            />
+                        </div>
+                        <div className="w-24">
+                            <label className="block text-gray-400 mb-1 text-sm">Currency</label>
+                            <input
+                                type="text"
+                                name="currency"
+                                value={currentTicket.currency}
+                                onChange={handleTicketChange}
+                                className="w-full p-2 bg-gray-700 rounded text-white text-sm"
+                                placeholder="USD"
                                 disabled={!formData.hasTickets}
                             />
                         </div>
                         <div className="w-32">
-                            <label className="block text-gray-400 mb-1">Price</label>
+                            <label className="block text-gray-400 mb-1 text-sm">Price</label>
                             <input
                                 type="number"
                                 name="price"
@@ -411,13 +968,23 @@ const EditUpcomingEvent = () => {
                             />
                         </div>
                         <div className="flex-1">
-                            <label className="block text-gray-400 mb-1">Description</label>
+                            <label className="block text-gray-400 mb-1 text-sm">Description</label>
                             <input
                                 type="text"
                                 name="description"
                                 value={currentTicket.description}
                                 onChange={handleTicketChange}
-                                className="w-full p-2 bg-gray-700 rounded text-white"
+                                className="w-full p-2 bg-gray-700 rounded text-white text-sm"
+                                disabled={!formData.hasTickets}
+                            />
+                        </div>
+                        <div className="w-48">
+                            <label className="block text-gray-400 mb-1 text-sm">Ticket Image</label>
+                            <input
+                                type="file"
+                                onChange={handleTicketImage}
+                                accept="image/*"
+                                className="w-full text-gray-400 text-xs mt-1"
                                 disabled={!formData.hasTickets}
                             />
                         </div>
@@ -435,9 +1002,18 @@ const EditUpcomingEvent = () => {
                         <div className="space-y-2">
                             {formData.ticketTypes.map((ticket, idx) => (
                                 <div key={idx} className="flex items-center justify-between bg-gray-700 p-3 rounded">
-                                    <div>
-                                        <p className="font-bold text-white">{ticket.name} - ${ticket.price}</p>
-                                        <p className="text-sm text-gray-400">{ticket.description}</p>
+                                    <div className="flex gap-4 items-center">
+                                        {ticket.image && (
+                                            <img
+                                                src={ticket.image instanceof File ? URL.createObjectURL(ticket.image) : ticket.image}
+                                                alt="Ticket"
+                                                className="w-12 h-12 rounded object-cover"
+                                            />
+                                        )}
+                                        <div>
+                                            <p className="font-bold text-white">{ticket.name} - {ticket.currency} ${ticket.price} (Qty: {ticket.amount})</p>
+                                            <p className="text-sm text-gray-400">{ticket.description}</p>
+                                        </div>
                                     </div>
                                     <button type="button" onClick={() => removeTicket(idx)} className="text-red-400 hover:text-red-300">
                                         <Trash2 size={18} />
@@ -446,6 +1022,58 @@ const EditUpcomingEvent = () => {
                             ))}
                         </div>
                     )}
+                </div>
+
+                <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
+                    <h2 className="text-xl font-bold mb-4 text-blue-400">Event Partners</h2>
+                    <div className="space-y-4">
+                        <div
+                            className={`border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center transition-colors ${isDragging ? 'border-blue-500 bg-gray-700 ring-2 ring-blue-500/50' : 'border-gray-600 hover:border-blue-500 hover:bg-gray-700/50'}`}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={(e) => {
+                                e.preventDefault();
+                                setIsDragging(false);
+                                if (e.dataTransfer.files) {
+                                    handlePartnerUpload({ target: { files: e.dataTransfer.files } });
+                                }
+                            }}
+                        >
+                            <label className="cursor-pointer w-full h-full flex flex-col items-center justify-center py-4">
+                                <Upload className="w-10 h-10 text-gray-400 mb-3" />
+                                <span className="text-blue-400 font-medium hover:underline">Click to upload partner logos</span>
+                                <span className="text-gray-500 text-sm mt-1">or drag and drop (multiple allowed)</span>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*"
+                                    onChange={handlePartnerUpload}
+                                    className="hidden"
+                                />
+                            </label>
+                        </div>
+
+                        {partners.length > 0 && (
+                            <div className="grid grid-cols-3 md:grid-cols-6 gap-4 bg-gray-900 p-4 rounded border border-gray-600">
+                                {partners.map((p, idx) => (
+                                    <div key={idx} className="relative group aspect-square bg-white/5 rounded flex items-center justify-center p-2">
+                                        <img
+                                            src={p instanceof File ? URL.createObjectURL(p) : p}
+                                            alt={`Partner ${idx}`}
+                                            className="max-w-full max-h-full object-contain"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removePartner(idx)}
+                                            className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-md transition-transform hover:scale-110"
+                                        >
+                                            <X size={14} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <div className="bg-gray-800 p-6 rounded-lg border border-gray-700">
@@ -480,6 +1108,15 @@ const EditUpcomingEvent = () => {
                                     <option value="portrait">Portrait (3:4)</option>
                                     <option value="landscape">Landscape (16:9)</option>
                                     <option value="square">Square (1:1)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Day</label>
+                                <select name="day" value={currentCollection.day} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm">
+                                    <option value="">None</option>
+                                    <option value="1">Day 1</option>
+                                    <option value="2">Day 2</option>
+                                    <option value="3">Day 3</option>
                                 </select>
                             </div>
                             <div className="md:col-span-2">
@@ -529,32 +1166,31 @@ const EditUpcomingEvent = () => {
                     </div>
 
                     {formData.collections.length > 0 && (
-                        <div className="space-y-3">
-                            {formData.collections.map((col, idx) => (
-                                <div key={idx} className="flex items-center justify-between bg-gray-700/50 p-3 rounded border border-gray-600">
-                                    <div className="flex items-center gap-3">
-                                        {col.designerImage && (
-                                            <img src={typeof col.designerImage === 'string' ? col.designerImage : URL.createObjectURL(col.designerImage)} className="w-10 h-10 object-cover rounded shadow-sm" />
-                                        )}
-                                        <div>
-                                            <p className="font-bold text-white text-sm leading-tight">{col.title}</p>
-                                            <p className="text-xs text-gray-400">{col.images.length} images</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <button type="button" onClick={() => {
-                                            setCurrentCollection(col);
-                                            removeCollection(idx);
-                                        }} className="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-900/20 rounded-full transition-colors">
-                                            <Pencil size={16} />
-                                        </button>
-                                        <button type="button" onClick={() => removeCollection(idx)} className="text-red-400 hover:text-red-300 p-2 hover:bg-red-900/20 rounded-full transition-colors">
-                                            <Trash2 size={16} />
-                                        </button>
-                                    </div>
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={formData.collections.map((col, idx) => col.id || col._id || `col-${idx}`)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className="space-y-3">
+                                    {formData.collections.map((col, idx) => (
+                                        <SortableCollectionItem
+                                            key={col.id || col._id || `col-${idx}`}
+                                            col={col}
+                                            idx={idx}
+                                            onEdit={() => {
+                                                setCurrentCollection(col);
+                                                removeCollection(idx);
+                                            }}
+                                            onRemove={() => removeCollection(idx)}
+                                        />
+                                    ))}
                                 </div>
-                            ))}
-                        </div>
+                            </SortableContext>
+                        </DndContext>
                     )}
                 </div>
 
