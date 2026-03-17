@@ -22,6 +22,9 @@ const storage = new CloudinaryStorage({
             folder: `moda-week-international/${env}/${folderName}`,
             allowed_formats: ['jpg', 'png', 'jpeg', 'webp', 'mp4', 'mov', 'avi', 'mkv', 'avif'],
             resource_type: 'auto',
+            transformation: [
+                { quality: 'auto', fetch_format: 'auto' }
+            ]
         };
     },
 });
