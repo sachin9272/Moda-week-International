@@ -246,7 +246,12 @@ export const deleteNews = async (req, res) => {
 
         // Delete image from Cloudinary
         if (news.image && news.image.public_id) {
-            await deleteCloudinaryAsset(news.image.public_id);
+            await deleteCloudinaryAsset(news.image.public_id, 'image');
+        }
+
+        // Delete video from Cloudinary
+        if (news.video && news.video.public_id) {
+            await deleteCloudinaryAsset(news.video.public_id, 'video');
         }
 
         await News.findByIdAndDelete(req.params.id);
@@ -286,7 +291,8 @@ export const submitUserNews = async (req, res) => {
         const file = req.files['video'][0];
         videoData = {
             url: file.path,
-            public_id: file.filename
+            publicId: file.filename,
+            public_id: file.filename // Save both to be safe
         };
     }
 
@@ -409,7 +415,12 @@ export const rejectNews = async (req, res) => {
 
         // Delete image from Cloudinary
         if (news.image && news.image.public_id) {
-            await deleteCloudinaryAsset(news.image.public_id);
+            await deleteCloudinaryAsset(news.image.public_id, 'image');
+        }
+
+        // Delete video from Cloudinary
+        if (news.video && news.video.public_id) {
+            await deleteCloudinaryAsset(news.video.public_id, 'video');
         }
 
         await News.findByIdAndDelete(req.params.id);
