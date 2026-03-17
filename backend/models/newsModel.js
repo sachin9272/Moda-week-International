@@ -31,7 +31,7 @@ const newsSchema = new mongoose.Schema({
   authorProfileLink: { type: String },
   video: {
     url: String,
-    publicId: String
+    public_id: String
   }
 }, { timestamps: true });
 
