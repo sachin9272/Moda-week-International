@@ -26,7 +26,7 @@ const storage = new CloudinaryStorage({
 // Init upload
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 5000000 } // 5MB limit
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
 }).single('image'); // Field name 'image'
 
 export const uploadImage = (req, res) => {
