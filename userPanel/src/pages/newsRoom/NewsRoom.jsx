@@ -298,11 +298,11 @@ export default function NewsRoom() {
                                             className="group cursor-pointer"
                                             onClick={() => navigate(`/news-room/${item.slug || item._id}`)}
                                         >
-                                            <div className="overflow-hidden mb-6 aspect-[16/10]">
+                                            <div className="overflow-hidden mb-6 aspect-[16/10] bg-gray-50 border border-gray-100">
                                                 <img
                                                     src={item.image?.url}
                                                     alt={item.title}
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
+                                                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
                                                 />
                                             </div>
                                             <div className="flex items-center gap-4 mb-3 border-t border-gray-200 pt-3">
@@ -368,8 +368,14 @@ export default function NewsRoom() {
 
                     <div className="relative">
                         <div className="grid grid-cols-2 gap-2">
-                            {initialInstagramPosts.slice(0, 4).map((post) => (
-                                <div key={post.id} className="aspect-square relative group overflow-hidden">
+                            {instagramPosts.slice(0, 4).map((post) => (
+                                <a 
+                                    key={post.id} 
+                                    href={post.link || "https://www.instagram.com/modaweekinternationalofficial/"} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="aspect-square relative group overflow-hidden block"
+                                >
                                     <img src={post.image} alt="IG" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center flex-col gap-1">
                                         <Instagram className="text-white" />
@@ -377,16 +383,31 @@ export default function NewsRoom() {
                                             <span className="text-white text-xs font-bold">{post.likes}</span>
                                         )}
                                     </div>
-                                </div>
+                                </a>
                             ))}
                         </div>
                         <div className="absolute -bottom-4 -right-4 bg-white p-4 shadow-lg border border-gray-100 flex items-center gap-3">
-                            <div className="text-right">
-                                <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Follow Us</div>
-                                <div className="font-serif text-lg">@modaweek</div>
+                            <div className="text-right border-r border-gray-100 pr-3 mr-1">
+                                <div className="text-[10px] font-bold tracking-widest uppercase text-gray-500">Socials</div>
+                                <div className="font-serif text-lg">MODA WEEK</div>
                             </div>
-                            <div className="w-10 h-10 bg-black text-white flex items-center justify-center rounded-full">
-                                <Instagram size={18} />
+                            <div className="flex gap-2">
+                                <a
+                                    href="https://www.instagram.com/modaweekinternationalofficial/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-10 h-10 bg-black text-white flex items-center justify-center rounded-full hover:bg-[#C7913E] transition-colors"
+                                >
+                                    <Instagram size={18} />
+                                </a>
+                                <a
+                                    href="https://www.facebook.com/modaweekinternational"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="w-10 h-10 bg-[#1877F2] text-white flex items-center justify-center rounded-full hover:opacity-90 transition-opacity"
+                                >
+                                    <Facebook size={18} />
+                                </a>
                             </div>
                         </div>
                     </div>
