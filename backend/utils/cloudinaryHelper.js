@@ -34,11 +34,16 @@ export const extractPublicId = (url) => {
  * @param {string} resourceType - 'image' or 'video' (default: 'image').
  */
 export const deleteCloudinaryAsset = async (publicId, resourceType = 'image') => {
-    if (!publicId) return;
+    if (!publicId) {
+        console.warn(`[CloudinaryHelper] Attempted to delete asset without publicId (type: ${resourceType})`);
+        return;
+    }
     try {
         const result = await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
         console.log(`Cloudinary deletion result for ${publicId} (${resourceType}):`, result);
+        return result;
     } catch (error) {
         console.error(`Failed to delete Cloudinary asset ${publicId}:`, error);
+        throw error; // Rethrow to let caller handle if needed
     }
 };
