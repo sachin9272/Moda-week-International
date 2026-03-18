@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import { ArrowRight, Play, Instagram, Heart, MessageCircle, Share2, Search, Menu, X } from "lucide-react";
+import { ArrowRight, Play, Instagram, Facebook, Heart, MessageCircle, Share2, Search, Menu, X } from "lucide-react";
 import CtaSection from "../../components/CtaSection";
 // Using the same top image as PastEvents for consistency or a placeholder
 import news1 from "../../assets/news1.jpg";
