@@ -794,12 +794,22 @@ const EditUpcomingEvent = () => {
                                         {!(formData.coverImage instanceof File) && (
                                             <p className="text-center text-gray-400 text-sm mt-2">Current Image</p>
                                         )}
+                                        <label className="mt-3 block cursor-pointer text-center text-blue-400 text-sm">
+                                            Replace cover image
+                                            <input
+                                                type="file"
+                                                name="coverImage"
+                                                onChange={handleFileChange}
+                                                accept="image/*"
+                                                className="hidden"
+                                            />
+                                        </label>
                                     </div>
                                 ) : (
                                     <label className="cursor-pointer flex flex-col items-center">
                                         <Upload className="w-10 h-10 text-gray-400 mb-2" />
                                         <span className="text-blue-400">Click to upload new image</span>
-                                        <input type="file" onChange={handleFileChange} accept="image/*" className="hidden" />
+                                        <input type="file" name="coverImage" onChange={handleFileChange} accept="image/*" className="hidden" />
                                     </label>
                                 )}
                             </div>

@@ -622,7 +622,7 @@ const AddUpcomingEvent = () => {
         data.append('collections', JSON.stringify(finalCollections.map(col => ({
             ...col,
             images: [], // Images handled separately
-            designerImage: null // Handled separately
+            designerImage: typeof col.designerImage === 'string' ? col.designerImage : null
         }))));
 
         finalCollections.forEach((col, index) => {
@@ -738,7 +738,7 @@ const AddUpcomingEvent = () => {
                                     <label className="cursor-pointer flex flex-col items-center">
                                         <Upload className="w-10 h-10 text-gray-400 mb-2" />
                                         <span className="text-blue-400">Click to upload</span>
-                                        <input type="file" onChange={handleFileChange} accept="image/*" className="hidden" />
+                                        <input type="file" name="coverImage" onChange={handleFileChange} accept="image/*" className="hidden" />
                                     </label>
                                 )}
                             </div>

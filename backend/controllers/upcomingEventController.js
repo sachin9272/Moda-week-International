@@ -28,6 +28,13 @@ const syncUpcomingEventSlug = async (event) => {
 const syncUpcomingEventSlugs = async (events = []) =>
     Promise.all(events.map((event) => syncUpcomingEventSlug(event)));
 
+const getSafeImage = (img) => {
+    if (!img) return null;
+    if (typeof img === 'string') return { url: img };
+    if (img.url) return { url: img.url, publicId: img.publicId };
+    return null;
+};
+
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
@@ -106,11 +113,16 @@ export const createUpcomingEvent = async (req, res) => {
             const newImages = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
 
             const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
-            const designerImage = designerImageFile ? { url: designerImageFile.path, publicId: designerImageFile.filename } : null;
+            const designerImage = designerImageFile
+                ? { url: designerImageFile.path, publicId: designerImageFile.filename }
+                : getSafeImage(col.designerImage);
 
             return {
                 ...col,
-                images: newImages,
+                images: [
+                    ...(Array.isArray(col.images) ? col.images.map((img) => getSafeImage(img)).filter(Boolean) : []),
+                    ...newImages
+                ],
                 designerImage,
                 gridAspectRatio: col.gridAspectRatio || 'portrait'
             };
@@ -230,10 +242,11 @@ export const updateUpcomingEvent = async (req, res) => {
         if (req.body.descriptionSection) {
             try {
                 const parsedDesc = JSON.parse(req.body.descriptionSection);
+                const existingDescriptionImage = getSafeImage(event.descriptionSection?.image);
                 event.descriptionSection = {
                     ...event.descriptionSection,
                     ...parsedDesc,
-                    image: event.descriptionSection?.image // preserve existing image first
+                    image: existingDescriptionImage
                 };
             } catch(e) { console.error("Error parsing descriptionSection JSON:", e); }
         }
@@ -346,13 +359,6 @@ export const updateUpcomingEvent = async (req, res) => {
         // If we want to allow removing the image without replacing, we'd need a flag or empty value logic. 
         // For now, assume if not sent, keep existing.
 
-        const getSafeImage = (img) => {
-            if (!img) return null;
-            if (typeof img === 'string') return { url: img };
-            if (img.url) return { url: img.url, publicId: img.publicId };
-            return null;
-        };
-
         if (req.body.collections) {
             let incomingCollections = [];
             try {
@@ -446,17 +452,16 @@ export const updateUpcomingEvent = async (req, res) => {
         }
 
 
-        if (title) {
+        if (title !== undefined) {
             event.title = title;
             event.slug = generateUpcomingEventSlug(title);
         }
-        if (eventDate) event.eventDate = eventDate;
-        if (location) event.location = location;
-        if (description) event.description = description;
+        if (eventDate !== undefined) event.eventDate = eventDate;
+        if (location !== undefined) event.location = location;
+        if (description !== undefined) event.description = description;
         if (req.body.status) event.status = req.body.status;
         if (req.body.heroLayout) event.heroLayout = req.body.heroLayout;
         if (req.body.hasTickets !== undefined) event.hasTickets = (hasTickets === 'true' || hasTickets === true);
-        if (req.body.ticketTypes) event.ticketTypes = ticketTypes;
 
         const updatedEvent = await event.save();
         res.status(200).json(updatedEvent);
