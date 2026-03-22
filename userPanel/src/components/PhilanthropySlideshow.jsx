@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { optimizeCloudinaryImage } from "../utils/cloudinary";
 
 // Import images
 import img1 from "../assets/Events-1.jpg";
@@ -71,10 +72,12 @@ const PhilanthropySlideshow = ({ images = [] }) => {
                     {displayImages.map((img, i) => (
                         <div key={`orig-${i}`} className="h-[300px] md:h-[450px] w-auto relative shrink-0">
                             <img
-                                src={img}
+                                src={optimizeCloudinaryImage(img, { width: 900, height: 560, crop: "fill" })}
                                 alt={`Philanthropy Event ${i + 1}`}
                                 className="w-full h-full object-cover select-none transition-opacity duration-300 hover:opacity-90"
                                 draggable="false"
+                                loading="lazy"
+                                decoding="async"
                             />
                         </div>
                     ))}
@@ -83,10 +86,12 @@ const PhilanthropySlideshow = ({ images = [] }) => {
                     {displayImages.map((img, i) => (
                         <div key={`dup-${i}`} className="h-[300px] md:h-[450px] w-auto relative shrink-0">
                             <img
-                                src={img}
+                                src={optimizeCloudinaryImage(img, { width: 900, height: 560, crop: "fill" })}
                                 alt={`Philanthropy Event Duplicate ${i + 1}`}
                                 className="w-full h-full object-cover select-none transition-opacity duration-300 hover:opacity-90"
                                 draggable="false"
+                                loading="lazy"
+                                decoding="async"
                             />
                         </div>
                     ))}

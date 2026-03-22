@@ -4,6 +4,7 @@ import Footer from "../../components/Footer";
 import { Search, X } from "lucide-react";
 import axios from "axios";
 import { baseURL } from "../../config/api";
+import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 
 export default function ProductionTeam() {
     const [activeFilter, setActiveFilter] = useState("All");
@@ -46,6 +47,19 @@ export default function ProductionTeam() {
 
         return () => clearTimeout(timer);
     }, [searchTerm]);
+
+    useEffect(() => {
+        const shouldLockScroll = Boolean(activeModal || selectedMember);
+        const originalOverflow = document.body.style.overflow;
+
+        if (shouldLockScroll) {
+            document.body.style.overflow = "hidden";
+        }
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+        };
+    }, [activeModal, selectedMember]);
 
     const fetchMembers = async (pageNum = 1, search = "", country = "") => {
         try {
@@ -224,9 +238,11 @@ export default function ProductionTeam() {
                                 <div className="w-full pt-8 pb-4 flex justify-center bg-gray-100">
                                     <div className="w-40 h-40 flex-shrink-0 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-white shadow-md">
                                         <img
-                                            src={member.image?.url || member.image}
+                                            src={optimizeCloudinaryImage(member.image?.url || member.image, { width: 520, height: 520, crop: "fill" })}
                                             alt={member.name}
                                             className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                                            loading="lazy"
+                                            decoding="async"
                                         />
                                     </div>
                                 </div>
@@ -321,9 +337,10 @@ export default function ProductionTeam() {
                             <div className="absolute right-0 top-0 bottom-0 w-[1px] border-r border-dashed border-gray-400"></div>
 
                             <img
-                                src={selectedMember.image?.url || selectedMember.image}
+                                src={optimizeCloudinaryImage(selectedMember.image?.url || selectedMember.image, { width: 900, height: 1200, crop: "fill" })}
                                 alt={selectedMember.name}
                                 className="w-full h-auto object-cover max-h-[50vh] md:max-h-[70vh] shadow-xl z-10"
+                                decoding="async"
                             />
                         </div>
 

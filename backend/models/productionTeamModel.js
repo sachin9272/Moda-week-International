@@ -29,6 +29,10 @@ const productionTeamSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    order: {
+        type: Number,
+        default: 0
+    },
     image: {
         url: String,
         publicId: String

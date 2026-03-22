@@ -6,6 +6,8 @@ import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import CtaSection from "../../components/CtaSection";
 import { baseURL } from "../../config/api";
+import { optimizeCloudinaryImage } from "../../utils/cloudinary";
+import ProgressiveImage from "../../components/ProgressiveImage";
 
 export default function PastEvents() {
   const [events, setEvents] = useState([]);
@@ -92,10 +94,17 @@ export default function PastEvents() {
                   >
                     {/* Image */}
                     <div className="relative overflow-hidden aspect-[3/4] mb-6">
-                      <img
-                        src={event.thumbnail?.url || event.thumbnail}
+                      <ProgressiveImage
+                        wrapperClassName="w-full h-full"
+                        src={optimizeCloudinaryImage(event.thumbnail?.url || event.thumbnail, {
+                          width: 720,
+                          height: 960,
+                          crop: "fill",
+                        })}
                         alt={event.eventName}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        imgClassName="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        loading="lazy"
+                        decoding="async"
                       />
                       <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300" />
                     </div>

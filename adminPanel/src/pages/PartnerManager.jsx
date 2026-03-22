@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Upload, Loader, Plus, Image } from 'lucide-react';
 import { baseURL } from '../config/api';
+import { optimizeCloudinaryImage } from '../utils/cloudinary';
 
 const PartnerManager = () => {
     const [partners, setPartners] = useState([]);
@@ -149,9 +150,11 @@ const PartnerManager = () => {
                     <div key={partner._id} className="bg-[#1a1a1a] p-4 rounded-xl shadow-lg border border-[#2a2a2a] relative group hover:border-[#3a3a3a] transition-all">
                         <div className="h-32 flex items-center justify-center bg-[#0f0f0f] rounded-lg mb-3 p-4 border border-[#2a2a2a]">
                             <img
-                                src={partner.image?.url}
+                                src={optimizeCloudinaryImage(partner.image?.url, { width: 320, height: 160, crop: 'fit' })}
                                 alt={partner.name}
                                 className="max-h-full max-w-full object-contain"
+                                loading="lazy"
+                                decoding="async"
                             />
                         </div>
                         <div className="flex justify-between items-center">

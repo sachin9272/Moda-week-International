@@ -2,6 +2,32 @@ import UpcomingEvent from '../models/upcomingEventModel.js';
 import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
 import slugify from 'slugify';
 
+const generateUpcomingEventSlug = (title = '') =>
+    slugify(
+        title
+            .replace(/[|/\\]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim(),
+        { lower: true, strict: true }
+    ).replace(/-/g, '');
+
+const syncUpcomingEventSlug = async (event) => {
+    if (!event?.title) {
+        return event;
+    }
+
+    const expectedSlug = generateUpcomingEventSlug(event.title);
+    if (expectedSlug && event.slug !== expectedSlug) {
+        event.slug = expectedSlug;
+        await event.save();
+    }
+
+    return event;
+};
+
+const syncUpcomingEventSlugs = async (events = []) =>
+    Promise.all(events.map((event) => syncUpcomingEventSlug(event)));
+
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
@@ -90,7 +116,7 @@ export const createUpcomingEvent = async (req, res) => {
             };
         });
 
-        const slug = slugify(title, { lower: true, strict: true }).replace(/-/g, '');
+        const slug = generateUpcomingEventSlug(title);
         const newEvent = new UpcomingEvent({
             title,
             slug,
@@ -127,6 +153,7 @@ export const getUpcomingEvents = async (req, res) => {
         }
 
         const events = await UpcomingEvent.find(query).sort({ createdAt: -1 });
+        await syncUpcomingEventSlugs(events);
         res.status(200).json(events);
     } catch (error) {
         console.error("Error fetching upcoming events:", error);
@@ -147,8 +174,12 @@ export const getUpcomingEventById = async (req, res) => {
         if (!event) {
             event = await UpcomingEvent.findOne({ slug: id });
             if (!event) {
-                const eventsBySlug = await UpcomingEvent.find({ slug: { $exists: true } });
-                event = eventsBySlug.find(e => e.slug && e.slug.replace(/-/g, '') === id);
+                const eventsBySlug = await UpcomingEvent.find({ $or: [{ slug: { $exists: true } }, { title: { $exists: true } }] });
+                event = eventsBySlug.find((e) => {
+                    const storedSlug = e.slug ? e.slug.replace(/-/g, '') : '';
+                    const generatedSlug = generateUpcomingEventSlug(e.title);
+                    return storedSlug === id || generatedSlug === id;
+                });
             }
         }
 
@@ -156,6 +187,7 @@ export const getUpcomingEventById = async (req, res) => {
             return res.status(404).json({ message: "Upcoming event not found" });
         }
 
+        await syncUpcomingEventSlug(event);
         res.status(200).json(event);
     } catch (error) {
         console.error("Error fetching upcoming event:", error);
@@ -416,7 +448,7 @@ export const updateUpcomingEvent = async (req, res) => {
 
         if (title) {
             event.title = title;
-            event.slug = slugify(title, { lower: true, strict: true }).replace(/-/g, '');
+            event.slug = generateUpcomingEventSlug(title);
         }
         if (eventDate) event.eventDate = eventDate;
         if (location) event.location = location;

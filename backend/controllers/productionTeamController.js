@@ -1,11 +1,30 @@
 import ProductionTeam from '../models/productionTeamModel.js';
 import { cloudinary } from '../config/cloudinaryConfig.js';
 
+const normalizeTeamMemberOrder = async () => {
+    const members = await ProductionTeam.find().sort({ order: 1, createdAt: 1, _id: 1 });
+    const needsNormalization = members.some((member, index) => member.order !== index + 1);
+
+    if (!needsNormalization) {
+        return members;
+    }
+
+    await Promise.all(
+        members.map((member, index) =>
+            ProductionTeam.findByIdAndUpdate(member._id, { order: index + 1 }, { new: false })
+        )
+    );
+
+    return ProductionTeam.find().sort({ order: 1, createdAt: 1, _id: 1 });
+};
+
 // Create a new team member
 export const createTeamMember = async (req, res) => {
     try {
         const { name, country, countryCode, instagram, website, role, description } = req.body;
         const file = req.file;
+
+        await normalizeTeamMemberOrder();
 
         let image = null;
         if (file) {
@@ -15,6 +34,8 @@ export const createTeamMember = async (req, res) => {
             };
         }
 
+        const lastMember = await ProductionTeam.findOne().sort({ order: -1, createdAt: -1 });
+
         const newMember = new ProductionTeam({
             name,
             country,
@@ -23,6 +44,7 @@ export const createTeamMember = async (req, res) => {
             website,
             role: role || 'Team Member',
             description,
+            order: (lastMember?.order || 0) + 1,
             image
         });
 
@@ -102,8 +124,10 @@ export const getTeamMembers = async (req, res) => {
             query.role = { $regex: new RegExp(`^${role}$`, 'i') };
         }
 
+        await normalizeTeamMemberOrder();
+
         const members = await ProductionTeam.find(query)
-            .sort({ name: 1 })
+            .sort({ order: 1, createdAt: 1, _id: 1 })
             .skip(skip)
             .limit(limit);
 
@@ -118,6 +142,29 @@ export const getTeamMembers = async (req, res) => {
     } catch (error) {
         console.error("Error fetching team members:", error);
         res.status(500).json({ message: "Failed to fetch team members", error: error.message });
+    }
+};
+
+// Reorder team members
+export const reorderTeamMembers = async (req, res) => {
+    try {
+        const { orders } = req.body;
+
+        if (!orders || !Array.isArray(orders)) {
+            return res.status(400).json({ message: 'Orders array is required' });
+        }
+
+        await Promise.all(
+            orders.map(({ id, order }) =>
+                ProductionTeam.findByIdAndUpdate(id, { order }, { new: false })
+            )
+        );
+
+        const members = await ProductionTeam.find().sort({ order: 1, createdAt: 1, _id: 1 });
+        res.status(200).json({ members });
+    } catch (error) {
+        console.error("Error reordering team members:", error);
+        res.status(500).json({ message: "Failed to reorder team members", error: error.message });
     }
 };
 

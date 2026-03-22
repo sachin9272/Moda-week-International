@@ -4,6 +4,7 @@ import Footer from "../../components/Footer";
 import { Search, X } from "lucide-react";
 import axios from "axios";
 import { baseURL } from "../../config/api";
+import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 
 export default function PressAndMedia() {
     const [activeFilter, setActiveFilter] = useState("All");
@@ -222,9 +223,11 @@ export default function PressAndMedia() {
                             >
                                 <div className="w-full h-full">
                                     <img
-                                        src={member.image?.url || member.image}
+                                        src={optimizeCloudinaryImage(member.image?.url || member.image, { width: 720, height: 960, crop: "fill" })}
                                         alt={member.name}
                                         className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
                                     {/* Overlay Gradient */}

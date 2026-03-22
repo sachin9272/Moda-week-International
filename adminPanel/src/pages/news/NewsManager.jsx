@@ -4,6 +4,7 @@ import { Pencil, Trash2, Plus, Loader2, Eye, Check, X, Clock, FileText, ChevronL
 import { Link, useLocation } from 'react-router-dom';
 import { baseURL } from '../../config/api';
 import toast from 'react-hot-toast';
+import { optimizeCloudinaryImage } from '../../utils/cloudinary';
 
 const NewsManager = () => {
     const location = useLocation();
@@ -247,7 +248,7 @@ const NewsManager = () => {
                                 <div key={item._id} className="bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-lg border border-[#2a2a2a] hover:border-[#3a3a3a] transition-all flex flex-col group">
                                     <div className="relative h-56 overflow-hidden">
                                         {item.image && item.image.url ? (
-                                            <img src={item.image.url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            <img src={optimizeCloudinaryImage(item.image.url, { width: 900, height: 500, crop: 'fill' })} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
                                         ) : (
                                             <div className="w-full h-full bg-[#252525] flex items-center justify-center text-neutral-600">
                                                 <FileText size={48} />
@@ -386,7 +387,7 @@ const NewsManager = () => {
                                     </div>
                                     <div className="relative h-56 mt-6 overflow-hidden">
                                         {item.image && item.image.url ? (
-                                            <img src={item.image.url} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                            <img src={optimizeCloudinaryImage(item.image.url, { width: 900, height: 500, crop: 'fill' })} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async" />
                                         ) : (
                                             <div className="w-full h-full bg-[#252525] flex items-center justify-center text-neutral-600">
                                                 <FileText size={48} />

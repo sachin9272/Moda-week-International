@@ -18,6 +18,8 @@ import designer4 from "../assets/designer4.png";
 import ourservice from "../assets/ourservice.jpg";
 import schedule from "../assets/schedule.jpg";
 import takla from "../assets/takla.avif";
+import { optimizeCloudinaryImage } from "../utils/cloudinary";
+import ProgressiveImage from "../components/ProgressiveImage.jsx";
 
 
 
@@ -292,9 +294,15 @@ export default function LandingPage() {
                     className="block relative overflow-hidden mb-4 aspect-3/4"
                   >
                     <img
-                      src={designer.image?.url || designer.image}
+                      src={optimizeCloudinaryImage(designer.image?.url || designer.image, {
+                        width: 720,
+                        height: 960,
+                        crop: "fill",
+                      })}
                       alt={designer.name}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      loading="lazy"
+                      decoding="async"
                     />
 
                     <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/80 to-transparent"></div>
@@ -377,13 +385,18 @@ export default function LandingPage() {
                   key={idx}
                   className="group cursor-pointer shrink-0 w-88 snap-start"
                 >
-                  <div className="relative overflow-hidden mb-4 aspect-3/4">
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                  </div>
+                  <ProgressiveImage
+                    wrapperClassName="mb-4 aspect-3/4"
+                    src={optimizeCloudinaryImage(event.image, {
+                      width: 640,
+                      height: 860,
+                      crop: "fill",
+                    })}
+                    alt={event.title}
+                    imgClassName="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    loading="lazy"
+                    decoding="async"
+                  />
 
                   <h3 className="text-sm text-black font-inter">
                     {event.title}

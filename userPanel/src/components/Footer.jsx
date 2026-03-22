@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 
 import axios from "axios";
 import { baseURL } from "../config/api";
+import { optimizeCloudinaryImage } from "../utils/cloudinary";
 
 export default function Footer() {
   const [email, setEmail] = useState("");
@@ -54,9 +55,11 @@ export default function Footer() {
                 partners.map((brand, i) => (
                   <img
                     key={`${loopIndex}-${brand._id || i}`}
-                    src={brand.image?.url}
+                    src={optimizeCloudinaryImage(brand.image?.url, { width: 320, height: 160, crop: "fit" })}
                     alt={brand.name}
                     className="h-20 object-contain -mx-1" // Reduced horizontal margin to mx-2
+                    loading="lazy"
+                    decoding="async"
                   />
                 ))
               ))}

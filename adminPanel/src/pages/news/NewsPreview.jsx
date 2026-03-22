@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import { ArrowLeft, Clock, Calendar, User, Share2, Printer } from 'lucide-react';
 import { baseURL } from '../../config/api';
+import { optimizeCloudinaryImage } from '../../utils/cloudinary';
 
 export default function NewsPreview() {
     const { id } = useParams();
@@ -93,9 +94,10 @@ export default function NewsPreview() {
                     {newsItem.image && newsItem.image.url && (
                         <div className="aspect-[16/9] w-full overflow-hidden mb-12 bg-gray-100">
                             <img
-                                src={newsItem.image.url}
+                                src={optimizeCloudinaryImage(newsItem.image.url, { width: 1400, crop: 'limit' })}
                                 alt={newsItem.title}
                                 className="w-full h-full object-cover"
+                                decoding="async"
                             />
                         </div>
                     )}

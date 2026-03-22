@@ -4,6 +4,7 @@ import axios from 'axios';
 import { baseURL as API_BASE_URL } from '../../config/api';
 import { Ticket, Loader, Calendar, MapPin, ChevronRight, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { optimizeCloudinaryImage } from '../../utils/cloudinary';
 
 const TicketsList = () => {
     const [events, setEvents] = useState([]);
@@ -81,9 +82,11 @@ const TicketsList = () => {
                         >
                             <div className="relative h-60 overflow-hidden">
                                 <img
-                                    src={event.coverImage?.url || "https://via.placeholder.com/400x200?text=No+Image"}
+                                    src={optimizeCloudinaryImage(event.coverImage?.url || "https://via.placeholder.com/400x200?text=No+Image", { width: 900, height: 500, crop: 'fill' })}
                                     alt={event.title}
                                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/20 to-transparent" />
 

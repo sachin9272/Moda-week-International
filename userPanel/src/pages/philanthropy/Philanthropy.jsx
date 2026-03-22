@@ -5,6 +5,7 @@ import Footer from "../../components/Footer";
 import { Users, Calendar, Globe, Heart, ArrowRight, Play } from "lucide-react";
 import axios from 'axios';
 import { baseURL } from "../../config/api";
+import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 
 // Import Assets (Fallbacks)
 import CommunityImg from "../../assets/Events-1.jpg";
@@ -146,9 +147,11 @@ const Philanthropy = () => {
                             <div className="absolute -inset-4 bg-neutral-50 -z-10 rounded-xl transform rotate-2"></div>
                             <div className="aspect-[4/3] overflow-hidden rounded-lg shadow-2xl">
                                 <img
-                                    src={communitySection.image?.url || CommunityImg}
+                                    src={optimizeCloudinaryImage(communitySection.image?.url || CommunityImg, { width: 1000, height: 750, crop: "fill" })}
                                     alt={communitySection.title}
                                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                         </motion.div>
@@ -173,9 +176,11 @@ const Philanthropy = () => {
                                     />
                                 ) : (
                                     <img
-                                        src={eventsSection.image?.url || CommunityImg} // Fallback to image if no video
+                                        src={optimizeCloudinaryImage(eventsSection.image?.url || CommunityImg, { width: 1000, height: 560, crop: "fill" })} // Fallback to image if no video
                                         alt={eventsSection.title}
                                         className="w-full h-full object-cover"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                 )}
                             </div>
@@ -235,9 +240,11 @@ const Philanthropy = () => {
                             <div className="absolute -inset-4 bg-neutral-50 -z-10 rounded-xl transform rotate-1"></div>
                             <div className="aspect-[4/3] overflow-hidden rounded-lg shadow-2xl">
                                 <img
-                                    src={digitalSection.image?.url || GlobalImg}
+                                    src={optimizeCloudinaryImage(digitalSection.image?.url || GlobalImg, { width: 1000, height: 750, crop: "fill" })}
                                     alt={digitalSection.title}
                                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                             </div>
                         </motion.div>

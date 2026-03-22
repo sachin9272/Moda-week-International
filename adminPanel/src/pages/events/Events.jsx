@@ -4,6 +4,7 @@ import axios from 'axios';
 import { baseURL as API_BASE_URL } from '../../config/api';
 import { Pencil, Trash2, Eye, Calendar, MapPin, Search, Plus, Loader, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { optimizeCloudinaryImage } from '../../utils/cloudinary';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
@@ -136,7 +137,7 @@ const Events = () => {
                     {filteredEvents.map((event) => (
                         <div key={event._id} className="bg-[#1a1a1a] rounded-2xl overflow-hidden shadow-xl border border-[#2a2a2a] hover:border-[#C7913E]/40 transition-all flex flex-col group">
                             <div className="relative h-56 overflow-hidden">
-                                <img src={event.thumbnail?.url || event.thumbnail} alt={event.city} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                <img src={optimizeCloudinaryImage(event.thumbnail?.url || event.thumbnail, { width: 900, height: 500, crop: 'fill' })} alt={event.city} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" loading="lazy" decoding="async" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
                                 <div className="absolute top-4 right-4 flex gap-2">

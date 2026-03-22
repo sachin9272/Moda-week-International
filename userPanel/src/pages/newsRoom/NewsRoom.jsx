@@ -11,6 +11,7 @@ import news2 from "../../assets/news2.jpg";
 import news3 from "../../assets/news3.jpg";
 import news4 from "../../assets/news4.jpg";
 import { baseURL } from "../../config/api";
+import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 
 // Mock Data (Video/Instagram still using assets)
 const trendingTopics = ["PARIS FASHION WEEK", "MILAN STREET STYLE", "NEW GUCCI COLLECTION", "SUSTAINABLE LUXURY", "MET GALA PREVIEW"];
@@ -211,7 +212,7 @@ export default function NewsRoom() {
                                             className={`p-4 flex gap-4 hover:bg-white/5 transition-colors cursor-pointer border-b border-white/5 last:border-0 group ${currentVideo.id === video.id ? 'bg-white/10' : ''}`}
                                         >
                                             <div className="w-28 h-16 bg-gray-800 shrink-0 relative overflow-hidden">
-                                                <img src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" />
+                                                <img src={`https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`} alt="" className="w-full h-full object-cover opacity-70 group-hover:opacity-100 transition-opacity" loading="lazy" decoding="async" />
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <Play size={12} className="fill-white text-white" />
                                                 </div>
@@ -300,9 +301,11 @@ export default function NewsRoom() {
                                         >
                                             <div className="overflow-hidden mb-6 aspect-[16/10] bg-gray-50 border border-gray-100">
                                                 <img
-                                                    src={item.image?.url}
+                                                    src={optimizeCloudinaryImage(item.image?.url, { width: 1200, height: 800, crop: "fill" })}
                                                     alt={item.title}
                                                     className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
+                                                    loading="lazy"
+                                                    decoding="async"
                                                 />
                                             </div>
                                             <div className="flex items-center gap-4 mb-3 border-t border-gray-200 pt-3">

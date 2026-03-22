@@ -4,6 +4,7 @@ import Footer from "../../components/Footer";
 import { Search } from "lucide-react";
 import axios from "axios";
 import { baseURL } from "../../config/api";
+import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 
 export default function Participants() {
     const [activeCategory, setActiveCategory] = useState("Designer");
@@ -356,9 +357,11 @@ export default function Participants() {
                             >
                                 <div className="w-full h-full">
                                     <img
-                                        src={participant.image?.url || participant.image}
+                                        src={optimizeCloudinaryImage(participant.image?.url || participant.image, { width: 720, height: 960, crop: "fill" })}
                                         alt={participant.name}
                                         className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                     <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
                                     {/* Overlay Gradient */}

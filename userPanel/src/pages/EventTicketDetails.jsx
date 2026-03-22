@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { MapPin, Calendar, Check, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import UserDetailsModal from "../components/UserDetailsModal";
+import { optimizeCloudinaryImage } from "../utils/cloudinary";
 
 const AutoScrollCarousel = ({ images }) => {
     const scrollRef = React.useRef(null);
@@ -48,20 +49,24 @@ const AutoScrollCarousel = ({ images }) => {
                 {images.map((img, i) => (
                     <div key={`orig-${i}`} className="h-[500px] w-auto relative shrink-0">
                         <img
-                            src={img}
+                            src={optimizeCloudinaryImage(img, { width: 900, height: 1200, crop: "fill" })}
                             alt={`Collection ${i}`}
                             className="w-full h-full object-cover select-none"
                             draggable="false"
+                            loading="lazy"
+                            decoding="async"
                         />
                     </div>
                 ))}
                 {images.map((img, i) => (
                     <div key={`dup-${i}`} className="h-[500px] w-auto relative shrink-0">
                         <img
-                            src={img}
+                            src={optimizeCloudinaryImage(img, { width: 900, height: 1200, crop: "fill" })}
                             alt={`Collection Duplicate ${i}`}
                             className="w-full h-full object-cover select-none"
                             draggable="false"
+                            loading="lazy"
+                            decoding="async"
                         />
                     </div>
                 ))}
@@ -201,7 +206,7 @@ export default function EventTicketDetails() {
                             {designerImageUrl && (
                                 <div className="w-full md:w-[400px] shrink-0">
                                     <div className="relative aspect-[3/4] overflow-hidden shadow-sm">
-                                        <img src={designerImageUrl} alt={collection.title} className="w-full h-full object-cover object-top" />
+                                        <img src={optimizeCloudinaryImage(designerImageUrl, { width: 900, height: 1200, crop: "fill" })} alt={collection.title} className="w-full h-full object-cover object-top" loading="lazy" decoding="async" />
                                     </div>
                                 </div>
                             )}
@@ -251,7 +256,7 @@ export default function EventTicketDetails() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {images.map((img, i) => (
                                 <div key={i} className="relative group overflow-hidden" style={itemStyle}>
-                                    <img src={img} alt={`Walk ${i}`} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" />
+                                    <img src={optimizeCloudinaryImage(img, { width: 900, height: 1200, crop: "fill" })} alt={`Walk ${i}`} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async" />
                                 </div>
                             ))}
                         </div>
@@ -304,9 +309,10 @@ export default function EventTicketDetails() {
                                 <div className="w-full md:w-2/5 shrink-0">
                                     <div className="rounded-sm overflow-hidden shadow-xl border border-gray-100">
                                         <img
-                                            src={event.coverImage?.url || event.coverImage}
+                                            src={optimizeCloudinaryImage(event.coverImage?.url || event.coverImage, { width: 1200, crop: "limit" })}
                                             alt={event.title}
                                             className="w-full h-auto object-cover"
+                                            decoding="async"
                                         />
                                     </div>
                                 </div>

@@ -1,13 +1,109 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Upload, X, Trash2, Plus, Pencil, Loader, Users } from 'lucide-react';
+import { Upload, X, Trash2, Plus, Pencil, Loader, Users, GripVertical } from 'lucide-react';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    rectSortingStrategy,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { baseURL } from '../config/api';
 import { countries } from '../utils/countries';
 import ImageEditorModal from '../components/ImageEditorModal';
+import { optimizeCloudinaryImage } from '../utils/cloudinary';
+
+const SortableMemberCard = ({ member, onEdit, onDelete }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: member._id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : 'auto',
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`bg-[#1a1a1a] rounded-xl shadow-lg border overflow-hidden group transition-all ${isDragging
+                ? 'border-[#C7913E] ring-2 ring-[#C7913E]/30 scale-[1.02] shadow-2xl'
+                : 'border-[#2a2a2a] hover:border-[#3a3a3a]'
+                }`}
+        >
+            <div className="relative aspect-[3/4]">
+                <img
+                    src={optimizeCloudinaryImage(member.image?.url || 'https://via.placeholder.com/300x400?text=No+Image', { width: 720, height: 960, crop: 'fill' })}
+                    alt={member.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                />
+
+                <div className="absolute top-3 left-3 flex items-center gap-2">
+                    <button
+                        type="button"
+                        {...attributes}
+                        {...listeners}
+                        className="cursor-grab active:cursor-grabbing p-2 rounded-lg bg-black/50 backdrop-blur-md text-neutral-200 hover:text-[#C7913E] hover:bg-black/70 transition-colors"
+                        title="Drag to reorder"
+                    >
+                        <GripVertical size={18} />
+                    </button>
+                </div>
+            </div>
+            <div className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                    <div>
+                        <h3 className="font-bold text-lg text-white">{member.name}</h3>
+                        <p className="text-sm text-neutral-500">{member.country}</p>
+                        <span className="inline-block px-2 py-1 mt-2 text-xs font-semibold bg-[#C7913E]/20 text-[#C7913E] rounded">
+                            {member.role || 'Team Member'}
+                        </span>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                        <button
+                            onClick={() => onEdit(member)}
+                            className="p-2.5 rounded-lg bg-[#C7913E]/15 text-[#C7913E] hover:bg-[#C7913E]/25 transition-colors"
+                            title="Edit member"
+                        >
+                            <Pencil size={18} />
+                        </button>
+                        <button
+                            onClick={() => onDelete(member)}
+                            className="p-2.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
+                            title="Delete member"
+                        >
+                            <Trash2 size={18} />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const ProductionTeam = () => {
     const [members, setMembers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [reordering, setReordering] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null, name: '' });
     const [deleting, setDeleting] = useState(false);
@@ -31,6 +127,17 @@ const ProductionTeam = () => {
     // Image Editor State
     const [editorOpen, setEditorOpen] = useState(false);
     const [editorImageSrc, setEditorImageSrc] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     useEffect(() => {
         fetchMembers();
@@ -168,14 +275,53 @@ const ProductionTeam = () => {
     const handleAddClick = () => {
         resetForm();
         setShowAddModal(true);
-    }
+    };
+
+    const handleDragEnd = async (event) => {
+        const { active, over } = event;
+
+        if (!over || active.id === over.id) {
+            return;
+        }
+
+        const oldIndex = members.findIndex((member) => member._id === active.id);
+        const newIndex = members.findIndex((member) => member._id === over.id);
+
+        if (oldIndex === -1 || newIndex === -1) {
+            return;
+        }
+
+        const reorderedMembers = arrayMove(members, oldIndex, newIndex).map((member, index) => ({
+            ...member,
+            order: index + 1,
+        }));
+
+        setMembers(reorderedMembers);
+        setReordering(true);
+
+        try {
+            const orders = reorderedMembers.map((member) => ({
+                id: member._id,
+                order: member.order,
+            }));
+
+            const response = await axios.put(`${baseURL}/api/production-team/reorder`, { orders });
+            const updatedMembers = response.data.members || response.data;
+            setMembers(Array.isArray(updatedMembers) ? updatedMembers : reorderedMembers);
+        } catch (error) {
+            console.error("Error reordering production team members:", error);
+            fetchMembers();
+        } finally {
+            setReordering(false);
+        }
+    };
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-2xl font-bold text-white">Production Team</h1>
-                    <p className="text-neutral-500 mt-1">Manage production team members</p>
+                    <p className="text-neutral-500 mt-1">Manage production team members and drag cards to reorder them.</p>
                 </div>
                 <button
                     onClick={handleAddClick}
@@ -199,41 +345,45 @@ const ProductionTeam = () => {
                     <Loader className="animate-spin text-[#C7913E]" size={40} />
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    {members?.map((member) => (
-                        <div key={member._id} className="bg-[#1a1a1a] rounded-xl shadow-lg border border-[#2a2a2a] overflow-hidden group hover:border-[#3a3a3a] transition-all">
-                            <div className="relative aspect-[3/4]">
-                                <img
-                                    src={member.image?.url || 'https://via.placeholder.com/300x400?text=No+Image'}
-                                    alt={member.name}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                                    <button
-                                        onClick={() => handleEdit(member)}
-                                        className="p-2.5 bg-[#C7913E] rounded-full text-white hover:bg-[#B38135] transition-colors"
-                                    >
-                                        <Pencil size={20} />
-                                    </button>
-                                    <button
-                                        onClick={() => openDeleteConfirm(member)}
-                                        className="p-2.5 bg-red-600 rounded-full text-white hover:bg-red-700 transition-colors"
-                                    >
-                                        <Trash2 size={20} />
-                                    </button>
+                <div className="space-y-4">
+                    {members?.length > 0 && (
+                        <div className="flex items-center justify-between bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3">
+                            <p className="text-sm text-neutral-400">
+                                Use the drag handle on each card to change the display order.
+                            </p>
+                            {reordering && (
+                                <div className="flex items-center gap-2 text-sm text-[#C7913E]">
+                                    <Loader size={16} className="animate-spin" />
+                                    Saving order...
                                 </div>
-                            </div>
-                            <div className="p-4">
-                                <h3 className="font-bold text-lg text-white">{member.name}</h3>
-                                <p className="text-sm text-neutral-500">{member.country}</p>
-                                <span className="inline-block px-2 py-1 mt-2 text-xs font-semibold bg-[#C7913E]/20 text-[#C7913E] rounded">
-                                    {member.role || 'Team Member'}
-                                </span>
-                            </div>
+                            )}
                         </div>
-                    ))}
+                    )}
+
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={members.map((member) => member._id)}
+                            strategy={rectSortingStrategy}
+                        >
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                                {members?.map((member) => (
+                                    <SortableMemberCard
+                                        key={member._id}
+                                        member={member}
+                                        onEdit={handleEdit}
+                                        onDelete={openDeleteConfirm}
+                                    />
+                                ))}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
+
                     {members?.length === 0 && (
-                        <div className="col-span-full bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-12 text-center">
+                        <div className="bg-[#1a1a1a] rounded-xl border border-[#2a2a2a] p-12 text-center">
                             <div className="w-16 h-16 rounded-full bg-[#252525] flex items-center justify-center mx-auto mb-4">
                                 <Users size={28} className="text-neutral-500" />
                             </div>

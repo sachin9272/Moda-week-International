@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Calendar, MapPin, Ticket } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { optimizeCloudinaryImage } from "../utils/cloudinary";
 
 const BuyTickets = () => {
     const [events, setEvents] = useState([]);
@@ -65,9 +66,11 @@ const BuyTickets = () => {
                                 {/* Image */}
                                 <div className="relative overflow-hidden aspect-[3/4] mb-6">
                                     <img
-                                        src={event.coverImage?.url || "https://via.placeholder.com/400x300"}
+                                        src={optimizeCloudinaryImage(event.coverImage?.url || "https://via.placeholder.com/400x300", { width: 720, height: 960, crop: "fill" })}
                                         alt={event.title}
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300" />
                                 </div>

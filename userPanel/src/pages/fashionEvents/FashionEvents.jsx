@@ -7,6 +7,7 @@ import Pricing from "../../components/Pricing.jsx";
 import runnaway from "../../assets/runnaway.jpg";
 import CtaSection from "../../components/CtaSection.jsx";
 import { baseURL } from "../../config/api";
+import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 
 import event1 from "../../assets/Events.jpg";
 import event2 from "../../assets/Events-1.jpg";
@@ -169,9 +170,15 @@ export default function FashionEvents() {
                   {/* Image */}
                   <div className="relative overflow-hidden aspect-[3/4] mb-6">
                     <img
-                      src={event.coverImage?.url || event.coverImage}
+                      src={optimizeCloudinaryImage(event.coverImage?.url || event.coverImage, {
+                        width: 720,
+                        height: 960,
+                        crop: "fill",
+                      })}
                       alt={event.location}
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      loading="lazy"
+                      decoding="async"
                     />
                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-300" />
                   </div>

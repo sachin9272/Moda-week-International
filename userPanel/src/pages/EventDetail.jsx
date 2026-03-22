@@ -6,6 +6,7 @@ import CtaSection from '../components/CtaSection';
 import Footer from '../components/Footer';
 import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { baseURL as API_BASE_URL } from '../config/api';
+import { optimizeCloudinaryImage } from '../utils/cloudinary';
 
 const AutoScrollCarousel = ({ images }) => {
     const scrollRef = React.useRef(null);
@@ -49,10 +50,12 @@ const AutoScrollCarousel = ({ images }) => {
                 {images.map((img, i) => (
                     <div key={`orig-${i}`} className="h-[500px] w-auto relative shrink-0">
                         <img
-                            src={img}
+                            src={optimizeCloudinaryImage(img, { width: 900, height: 1200, crop: 'fill' })}
                             alt={`Collection ${i}`}
                             className="w-full h-full object-cover select-none"
                             draggable="false"
+                            loading="lazy"
+                            decoding="async"
                         />
                     </div>
                 ))}
@@ -61,10 +64,12 @@ const AutoScrollCarousel = ({ images }) => {
                 {images.map((img, i) => (
                     <div key={`dup-${i}`} className="h-[500px] w-auto relative shrink-0">
                         <img
-                            src={img}
+                            src={optimizeCloudinaryImage(img, { width: 900, height: 1200, crop: 'fill' })}
                             alt={`Collection Duplicate ${i}`}
                             className="w-full h-full object-cover select-none"
                             draggable="false"
+                            loading="lazy"
+                            decoding="async"
                         />
                     </div>
                 ))}
@@ -157,7 +162,7 @@ const EventDetail = () => {
     const renderCollection = (collection, index) => {
         const layout = collection.layout || 'grid';
         // Handle images array (objects or strings)
-        const images = collection.images.map(img => img?.url || img);
+        const images = collection.images.map((img) => img?.url || img);
 
         if (layout === 'masonry') {
             return (
@@ -169,7 +174,13 @@ const EventDetail = () => {
                     <div className="columns-1 md:columns-3 gap-8 space-y-8">
                         {images.map((img, i) => (
                             <div key={i} className="break-inside-avoid relative group">
-                                <img src={img} alt={`Collection ${i}`} className="w-full transition-all duration-700" />
+                                <img
+                                    src={optimizeCloudinaryImage(img, { width: 900, crop: 'limit' })}
+                                    alt={`Collection ${i}`}
+                                    className="w-full transition-all duration-700"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
                                 <div className="absolute inset-0 group-hover:bg-transparent transition-all"></div>
                             </div>
                         ))}
@@ -187,13 +198,25 @@ const EventDetail = () => {
                         {/* Large Highlight */}
                         {images[0] && (
                             <div className="md:row-span-2 relative group overflow-hidden">
-                                <img src={images[0]} alt="Highlight" className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700" />
+                                <img
+                                    src={optimizeCloudinaryImage(images[0], { width: 1200, height: 1600, crop: 'fill' })}
+                                    alt="Highlight"
+                                    className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700"
+                                    loading="lazy"
+                                    decoding="async"
+                                />
                             </div>
                         )}
                         <div className="grid grid-cols-2 gap-4 md:gap-8">
                             {images.slice(1).map((img, i) => (
                                 <div key={i} className="aspect-[3/4] overflow-hidden group">
-                                    <img src={img} alt={`Detail ${i}`} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
+                                    <img
+                                        src={optimizeCloudinaryImage(img, { width: 700, height: 900, crop: 'fill' })}
+                                        alt={`Detail ${i}`}
+                                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -216,7 +239,13 @@ const EventDetail = () => {
                             {designerImageUrl && (
                                 <div className="w-full md:w-[400px] shrink-0">
                                     <div className="relative aspect-[3/4] overflow-hidden shadow-sm">
-                                        <img src={designerImageUrl} alt={collection.title} className="w-full h-full object-cover object-top" />
+                                        <img
+                                            src={optimizeCloudinaryImage(designerImageUrl, { width: 900, height: 1200, crop: 'fill' })}
+                                            alt={collection.title}
+                                            className="w-full h-full object-cover object-top"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
                                     </div>
                                 </div>
                             )}
@@ -268,7 +297,13 @@ const EventDetail = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             {images.map((img, i) => (
                                 <div key={i} className="relative group overflow-hidden object-cover" style={itemStyle}>
-                                    <img src={img} alt={`Walk ${i}`} className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" />
+                                    <img
+                                        src={optimizeCloudinaryImage(img, { width: 900, height: 1200, crop: 'fill' })}
+                                        alt={`Walk ${i}`}
+                                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
                                 </div>
                             ))}
                         </div>
@@ -291,9 +326,10 @@ const EventDetail = () => {
                         <div className="w-full md:w-1/3">
                             <div className="h-full min-h-[500px] relative overflow-hidden">
                                 <img
-                                    src={ticketPoster}
+                                    src={optimizeCloudinaryImage(ticketPoster, { width: 900, height: 1200, crop: 'fill' })}
                                     alt="Event Poster"
                                     className="absolute inset-0 w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700"
+                                    decoding="async"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
                                 <div className="absolute bottom-8 left-8">
@@ -315,9 +351,11 @@ const EventDetail = () => {
                                     >
                                         <div className="w-full h-auto">
                                             <img
-                                                src={ticketImgUrl}
+                                                src={optimizeCloudinaryImage(ticketImgUrl, { width: 1200, crop: 'limit' })}
                                                 alt={`Ticket ${idx + 1}`}
                                                 className="w-full h-auto object-cover"
+                                                loading="lazy"
+                                                decoding="async"
                                             />
                                         </div>
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors"></div>
@@ -397,7 +435,13 @@ const EventDetail = () => {
                                     {descImageUrl && (
                                         <div className={`w-full ${imageWidthClass} relative`}>
                                             <div className="relative aspect-[3/4] shadow-xl">
-                                                <img src={descImageUrl} alt="Description" className="w-full h-full object-cover rounded-sm" />
+                                                <img
+                                                    src={optimizeCloudinaryImage(descImageUrl, { width: 1000, height: 1300, crop: 'fill' })}
+                                                    alt="Description"
+                                                    className="w-full h-full object-cover rounded-sm"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                />
                                                 <div className="absolute -inset-4 border border-[#C7913E]/30 z-0 pointer-events-none"></div>
                                             </div>
                                         </div>
@@ -426,9 +470,11 @@ const EventDetail = () => {
                                     event.partners.map((partner, i) => (
                                         <img
                                             key={`${loopIndex}-${i}`}
-                                            src={partner.url}
+                                            src={optimizeCloudinaryImage(partner.url, { width: 320, height: 160, crop: 'fit' })}
                                             alt={`Partner ${i}`}
                                             className="h-20 object-contain -mx-1"
+                                            loading="lazy"
+                                            decoding="async"
                                         />
                                     ))
                                 ))}

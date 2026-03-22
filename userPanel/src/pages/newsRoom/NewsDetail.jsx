@@ -6,6 +6,7 @@ import Footer from "../../components/Footer";
 import CtaSection from "../../components/CtaSection";
 import { ArrowLeft, Clock, Calendar, User, Share2, Printer } from 'lucide-react';
 import { baseURL } from '../../config/api';
+import { optimizeCloudinaryImage } from '../../utils/cloudinary';
 
 export default function NewsDetail() {
     const { id: slug } = useParams();
@@ -124,9 +125,10 @@ export default function NewsDetail() {
                     {newsItem.image && newsItem.image.url && (
                         <div className="w-full overflow-hidden mb-12 bg-gray-50 border border-gray-100">
                             <img
-                                src={newsItem.image.url}
+                                src={optimizeCloudinaryImage(newsItem.image.url, { width: 1400, crop: 'limit' })}
                                 alt={newsItem.title}
                                 className="w-full h-auto block"
+                                decoding="async"
                             />
                         </div>
                     )}
@@ -186,9 +188,11 @@ export default function NewsDetail() {
                                 >
                                     <div className="overflow-hidden mb-6 aspect-[16/10] bg-gray-50">
                                         <img
-                                            src={item.image?.url}
+                                            src={optimizeCloudinaryImage(item.image?.url, { width: 900, height: 560, crop: 'fill' })}
                                             alt={item.title}
                                             className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 contrast-[1.05]"
+                                            loading="lazy"
+                                            decoding="async"
                                         />
                                     </div>
                                     <div className="flex items-center gap-4 mb-3 border-t border-gray-200 pt-3">

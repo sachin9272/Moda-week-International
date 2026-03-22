@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
  * @param {number} maxSizeMB - The maximum size in MB.
  * @returns {Promise<File>} - The compressed file (or original if not an image or under limit).
  */
-export const compressImageIfNeeded = async (file, maxSizeMB = 10.0) => {
+export const compressImageIfNeeded = async (file, maxSizeMB = 2.0) => {
     // If not an image, return as is
     if (!file.type.startsWith('image/')) {
         return file;
@@ -23,7 +23,7 @@ export const compressImageIfNeeded = async (file, maxSizeMB = 10.0) => {
     try {
         const options = {
             maxSizeMB: maxSizeMB,
-            maxWidthOrHeight: 1920,
+            maxWidthOrHeight: 1600,
             useWebWorker: true,
         };
 

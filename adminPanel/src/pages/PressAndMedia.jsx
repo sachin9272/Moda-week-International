@@ -4,6 +4,7 @@ import { Upload, X, Trash2, Plus, Pencil, Loader, Users } from 'lucide-react';
 import { baseURL } from '../config/api';
 import { countries } from '../utils/countries';
 import ImageEditorModal from '../components/ImageEditorModal';
+import { optimizeCloudinaryImage } from '../utils/cloudinary';
 
 const PressAndMedia = () => {
     const [mediaMembers, setMediaMembers] = useState([]);
@@ -201,9 +202,11 @@ const PressAndMedia = () => {
                         <div key={member._id} className="bg-[#1a1a1a] rounded-xl shadow-lg border border-[#2a2a2a] overflow-hidden group hover:border-[#3a3a3a] transition-all">
                             <div className="relative aspect-[3/4]">
                                 <img
-                                    src={member.image?.url || 'https://via.placeholder.com/300x400?text=No+Image'}
+                                    src={optimizeCloudinaryImage(member.image?.url || 'https://via.placeholder.com/300x400?text=No+Image', { width: 720, height: 960, crop: 'fill' })}
                                     alt={member.name}
                                     className="w-full h-full object-cover"
+                                    loading="lazy"
+                                    decoding="async"
                                 />
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                     <button

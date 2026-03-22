@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Trash2, Plus, Edit2, Loader, X, Layers } from 'lucide-react';
 import { baseURL } from '../config/api';
+import { optimizeCloudinaryImage } from '../utils/cloudinary';
 
 const ServiceTypeManagement = () => {
     const [services, setServices] = useState([]);
@@ -228,7 +229,7 @@ const ServiceTypeManagement = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {services.map(service => (
                     <div key={service._id} className="bg-[#1a1a1a] rounded-xl shadow-lg border border-[#2a2a2a] overflow-hidden flex flex-col hover:border-[#3a3a3a] transition-all group">
-                        <img src={service.image} alt={service.title} className="w-full h-48 object-cover" />
+                        <img src={optimizeCloudinaryImage(service.image, { width: 720, height: 420, crop: 'fill' })} alt={service.title} className="w-full h-48 object-cover" loading="lazy" decoding="async" />
                         <div className="p-4 flex-1">
                             <h3 className="font-bold text-lg text-white mb-2">{service.title}</h3>
                             <p className="text-neutral-400 text-sm mb-4 line-clamp-3">{service.description}</p>
