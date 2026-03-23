@@ -45,6 +45,7 @@ const EditNews = () => {
         formData.append('status', currentNews.status || 'live');
         formData.append('author', currentNews.author);
         formData.append('date', currentNews.date);
+        formData.append('removeImage', currentNews.image === null);
 
         if (currentNews.image instanceof File) {
             formData.append('image', currentNews.image);

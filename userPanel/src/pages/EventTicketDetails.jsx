@@ -75,6 +75,34 @@ const AutoScrollCarousel = ({ images }) => {
     );
 };
 
+const URL_REGEX = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
+
+const renderTextWithLinks = (text = "") =>
+    text.split("\n").map((line, lineIndex) => (
+        <p key={`line-${lineIndex}`}>
+            {line.split(URL_REGEX).map((part, partIndex) => {
+                if (!part) return null;
+
+                if (part.match(URL_REGEX)) {
+                    const href = part.startsWith("http") ? part : `https://${part}`;
+                    return (
+                        <a
+                            key={`link-${lineIndex}-${partIndex}`}
+                            href={href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[#8C5D25] underline underline-offset-[0.18em] break-all hover:text-[#C7913E]"
+                        >
+                            {part}
+                        </a>
+                    );
+                }
+
+                return <React.Fragment key={`text-${lineIndex}-${partIndex}`}>{part}</React.Fragment>;
+            })}
+        </p>
+    ));
+
 export default function EventTicketDetails() {
     const { id } = useParams();
     const [searchParams] = useSearchParams();
@@ -106,8 +134,13 @@ export default function EventTicketDetails() {
     useEffect(() => {
         const fetchEvent = async () => {
             try {
-                // Correct API endpoint for upcoming events
-                const response = await axios.get(`${baseURL}/api/upcoming-events/${id}`);
+                const response = await axios.get(`${baseURL}/api/upcoming-events/${id}`, {
+                    params: { _t: Date.now() },
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        Pragma: 'no-cache'
+                    }
+                });
                 setEvent(response.data);
             } catch (error) {
                 console.error("Error fetching event details:", error);
@@ -193,15 +226,18 @@ export default function EventTicketDetails() {
     const renderCollection = (collection, index) => {
         const layout = collection.layout || 'grid';
         const images = collection.images.map(img => img?.url || img);
+        const designerImageUrl = collection.designerImage?.url || collection.designerImage;
+        const hasCollectionImages = images.length > 0;
 
-        if (layout === 'carousel') {
-            // Designer Profile Layout
-            const designerImageUrl = collection.designerImage?.url || collection.designerImage;
+        const shouldRenderAsDesignerProfile =
+            (layout === 'carousel') || (images.length === 0 && designerImageUrl);
+
+        if (shouldRenderAsDesignerProfile) {
             return (
-                <div key={index} className="py-10 bg-white">
+                <div key={index} className={`${hasCollectionImages ? 'py-10' : 'py-6'} bg-white`}>
                     <div className="max-w-[95%] mx-auto font-sans">
                         {/* Designer Header Section */}
-                        <div className="flex flex-col md:flex-row gap-12 items-start mb-20 border-b border-black pb-12">
+                        <div className={`flex flex-col md:flex-row gap-12 items-center ${hasCollectionImages ? 'border-b border-black mb-20 pb-12' : 'mb-10 pb-6'}`}>
                             {/* Left: Designer Image */}
                             {designerImageUrl && (
                                 <div className="w-full md:w-[400px] shrink-0">
@@ -220,10 +256,7 @@ export default function EventTicketDetails() {
 
                                 {collection.description ? (
                                     <div className="prose max-w-none text-gray-700 text-base leading-normal space-y-1 text-justify">
-                                        {/* Simple formatting: preserve line breaks */}
-                                        {collection.description.split('\n').map((para, i) => (
-                                            <p key={i}>{para}</p>
-                                        ))}
+                                        {renderTextWithLinks(collection.description)}
                                     </div>
                                 ) : (
                                     <p className="text-gray-400 italic">No biography available.</p>
@@ -232,8 +265,9 @@ export default function EventTicketDetails() {
                         </div>
                     </div>
 
-                    {/* Collection Images (Bottom) - Auto Scroll Carousel */}
-                    <AutoScrollCarousel images={images} />
+                    {hasCollectionImages && (
+                        <AutoScrollCarousel images={images} />
+                    )}
                 </div>
             );
         } else {
@@ -273,14 +307,12 @@ export default function EventTicketDetails() {
         <div className="bg-white min-h-screen text-black">
             <Navbar />
 
-            {/* Hero Section - Gradient Style */}
-            <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-white h-[400px] flex flex-col justify-center items-center relative overflow-hidden">
-                <div className="max-w-7xl mx-auto z-10">
-                    <h1 className="relative uppercase inline-block md:text-[56px] font-bold text-4xl tracking-widest mb-6 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
+            <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[300px] flex flex-col justify-center items-center">
+                <div className="max-w-7xl mx-auto">
+                    <h1 className="text-3xl md:text-[44px] font-bold uppercase tracking-wider mb-2 grad-text-up">
                         {event.title}
-                        <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-gradient-to-r from-transparent via-[#C7913E] to-transparent"></span>
                     </h1>
-                    <p className="text-black max-w-3xl mx-auto leading-relaxed md:text-2xl uppercase tracking-[0.2em] font-light !font-montserrat mt-4">
+                    <p className="text-sm md:text-lg font-medium tracking-wide mb-4 text-black">
                         {formatDate(event.eventDate)}
                     </p>
                     <div className="flex justify-center items-center gap-2 mt-2 text-[#734F1C] font-medium tracking-widest uppercase text-sm">
@@ -288,32 +320,31 @@ export default function EventTicketDetails() {
                         <span>{event.location}</span>
                     </div>
                 </div>
-
-                {/* Decorative background element if no cover image is used as background */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#C7913E] opacity-5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#C7913E] opacity-5 rounded-full -ml-32 -mb-32 blur-3xl"></div>
             </header>
 
-            <div className="container mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
                 {/* Left Column: Description - Hide if in tickets mode */}
                 {mode !== "tickets" && (
                     <div className={event.hasTickets ? "lg:col-span-2" : "lg:col-span-3"}>
-                        <h2 className="text-2xl md:text-3xl font-bold mb-6 grad-text uppercase tracking-wider border-b border-gray-200 pb-4">
+                        <h2 className="text-3xl md:text-4xl font-playfair font-bold text-black mb-8 leading-tight uppercase tracking-wider">
                             About the Event
                         </h2>
                         <div className="flex flex-col md:flex-row gap-8 items-start">
-                            <div className="prose prose-neutral max-w-none text-gray-800 text-lg leading-relaxed flex-1">
-                                <p className="whitespace-pre-line">{event.description || "No description available."}</p>
+                            <div className="!text-base rich-text-content event-rich-text text-black leading-relaxed text-lg font-light text-justify flex-1 space-y-2">
+                                {event.description
+                                    ? renderTextWithLinks(event.description)
+                                    : <p>No description available.</p>}
                             </div>
                             {event.coverImage && (
-                                <div className="w-full md:w-2/5 shrink-0">
-                                    <div className="rounded-sm overflow-hidden shadow-xl border border-gray-100">
+                                <div className="w-full md:w-1/2 relative shrink-0">
+                                    <div className="relative aspect-[3/4] shadow-xl">
                                         <img
-                                            src={optimizeCloudinaryImage(event.coverImage?.url || event.coverImage, { width: 1200, crop: "limit" })}
+                                            src={optimizeCloudinaryImage(event.coverImage?.url || event.coverImage, { width: 1000, crop: "limit" })}
                                             alt={event.title}
-                                            className="w-full h-auto object-cover"
+                                            className="w-full h-full object-contain rounded-sm bg-white"
                                             decoding="async"
                                         />
+                                        <div className="absolute -inset-4 border border-[#C7913E]/30 z-0 pointer-events-none"></div>
                                     </div>
                                 </div>
                             )}
@@ -354,7 +385,9 @@ export default function EventTicketDetails() {
                                                 </div>
                                             </div>
                                             {ticket.description && (
-                                                <p className="text-sm text-gray-600 font-light">{ticket.description}</p>
+                                                <div className="text-sm text-gray-600 font-light space-y-1">
+                                                    {renderTextWithLinks(ticket.description)}
+                                                </div>
                                             )}
                                         </div>
                                     ))

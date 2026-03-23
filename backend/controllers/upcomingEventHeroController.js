@@ -1,5 +1,5 @@
 import UpcomingEventHero from '../models/UpcomingEventHero.js';
-// import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js'; // Not needed if we don't upload images for this
+import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
 
 // Get Hero Data
 export const getHero = async (req, res) => {
@@ -14,16 +14,26 @@ export const getHero = async (req, res) => {
     }
 };
 
-// Update Hero Data (Title and Description only)
 export const updateHero = async (req, res) => {
     try {
-        const { title, description } = req.body;
-        // ignoring subtitle and image as per request
+        const { title, description, subtitle, removeImage } = req.body;
 
-        let updateData = { title, description };
+        const existingHero = await UpcomingEventHero.findOne();
+        let updateData = { title, description, subtitle };
 
-        // If we were handling images, we would handle them here.
-        // Since the requirement is to remove generic background image and subtitle, we skip them.
+        if (req.file) {
+            if (existingHero?.imageId) {
+                await deleteCloudinaryAsset(existingHero.imageId, 'image');
+            }
+            updateData.image = req.file.path;
+            updateData.imageId = req.file.filename;
+        } else if (removeImage === 'true') {
+            if (existingHero?.imageId) {
+                await deleteCloudinaryAsset(existingHero.imageId, 'image');
+            }
+            updateData.image = '';
+            updateData.imageId = '';
+        }
 
         let hero = await UpcomingEventHero.findOneAndUpdate({}, updateData, { new: true, upsert: true });
         res.status(200).json({ message: 'Hero updated successfully', hero });

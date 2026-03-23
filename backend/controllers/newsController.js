@@ -201,6 +201,12 @@ export const updateNews = async (req, res) => {
             if (oldNews && oldNews.image && oldNews.image.public_id) {
                 await deleteCloudinaryAsset(oldNews.image.public_id);
             }
+        } else if (req.body.removeImage === 'true') {
+            const oldNews = await News.findById(req.params.id);
+            if (oldNews && oldNews.image && oldNews.image.public_id) {
+                await deleteCloudinaryAsset(oldNews.image.public_id, 'image');
+            }
+            updateData.image = null;
         }
 
         if (req.body.title) {

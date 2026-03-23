@@ -57,6 +57,7 @@ const UpcomingEventHeroManager = () => {
             data.append('title', formData.title);
             data.append('subtitle', formData.subtitle);
             data.append('description', formData.description);
+            data.append('removeImage', currentImage === '' && !imageFile);
             if (imageFile) {
                 data.append('image', imageFile);
             }
@@ -110,6 +111,16 @@ const UpcomingEventHeroManager = () => {
                                 className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all"
                             />
                         </div>
+                        <div>
+                            <label className="block text-sm font-medium text-neutral-300 mb-1">Subtitle</label>
+                            <input
+                                type="text"
+                                name="subtitle"
+                                value={formData.subtitle}
+                                onChange={handleChange}
+                                className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all"
+                            />
+                        </div>
                     </div>
 
                     <div>
@@ -121,6 +132,42 @@ const UpcomingEventHeroManager = () => {
                             rows="6"
                             className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all resize-none"
                         />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-neutral-300 mb-3">Hero Image</label>
+                        {(imageFile || currentImage) ? (
+                            <div className="space-y-3">
+                                <div className="relative max-w-md">
+                                    <img
+                                        src={imageFile ? URL.createObjectURL(imageFile) : currentImage}
+                                        alt="Upcoming events hero"
+                                        className="w-full h-56 object-cover rounded-xl border border-[#2a2a2a]"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setImageFile(null);
+                                            setCurrentImage('');
+                                        }}
+                                        className="absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full p-2 shadow-lg"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                </div>
+                                <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[#2a2a2a] bg-[#0f0f0f] px-4 py-2 text-sm text-[#C7913E] hover:bg-[#151515]">
+                                    <Upload size={16} />
+                                    Replace image
+                                    <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                                </label>
+                            </div>
+                        ) : (
+                            <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#2a2a2a] bg-[#0f0f0f] px-6 py-10 text-center hover:border-[#C7913E] hover:bg-[#151515]">
+                                <Upload className="mb-3 text-[#C7913E]" size={24} />
+                                <span className="text-sm font-medium text-white">Upload hero image</span>
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                            </label>
+                        )}
                     </div>
 
                     <div className="flex justify-end pt-4 border-t border-[#2a2a2a]">

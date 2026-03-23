@@ -681,6 +681,7 @@ const EditEvent = () => {
         data.append('eventType', 'past');
         data.append('status', formData.status); // Add status
         data.append('heroLayout', formData.heroLayout);
+        data.append('removeThumbnail', formData.thumbnail === null);
 
         console.log('EditEvent - Submit - Image State:', formData.descriptionSection.image);
         console.log('EditEvent - Submit - Image Type:', typeof formData.descriptionSection.image);
@@ -695,7 +696,8 @@ const EditEvent = () => {
             credits: formData.descriptionSection.credits,
             isVisible: formData.descriptionSection.isVisible,
             imageSize: formData.descriptionSection.imageSize,
-            image: undefined
+            image: undefined,
+            removeImage: formData.descriptionSection.image === null
         };
 
         // Determine image value to send in JSON

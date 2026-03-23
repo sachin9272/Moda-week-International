@@ -236,17 +236,22 @@ export const updateUpcomingEvent = async (req, res) => {
                 await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
             }
             event.coverImage = { url: coverImageFile.path, publicId: coverImageFile.filename };
+        } else if (req.body.removeCoverImage === 'true') {
+            if (event.coverImage && event.coverImage.publicId) {
+                await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
+            }
+            event.coverImage = null;
         }
 
         // Handle description section updates
+        const previousDescriptionImage = getSafeImage(event.descriptionSection?.image);
         if (req.body.descriptionSection) {
             try {
                 const parsedDesc = JSON.parse(req.body.descriptionSection);
-                const existingDescriptionImage = getSafeImage(event.descriptionSection?.image);
                 event.descriptionSection = {
                     ...event.descriptionSection,
                     ...parsedDesc,
-                    image: existingDescriptionImage
+                    image: parsedDesc.removeImage ? null : previousDescriptionImage
                 };
             } catch(e) { console.error("Error parsing descriptionSection JSON:", e); }
         }
@@ -256,19 +261,28 @@ export const updateUpcomingEvent = async (req, res) => {
                 await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
             }
             event.descriptionSection = { ...event.descriptionSection, image: { url: descImageFile.path, publicId: descImageFile.filename } };
+        } else if (event.descriptionSection?.image === null) {
+            if (previousDescriptionImage?.publicId) {
+                await deleteCloudinaryAsset(previousDescriptionImage.publicId, 'image');
+            }
+            event.descriptionSection = { ...event.descriptionSection, image: null };
         }
 
         // Handle video section updates
         if (req.body.videoSection) {
             try {
                 const parsedVideo = JSON.parse(req.body.videoSection);
+                const previousVideoPublicId = event.videoSection?.publicId;
                 event.videoSection = {
                     ...event.videoSection,
                     ...parsedVideo,
-                    // preserve existing file info first
                     url: parsedVideo.type === 'youtube' ? parsedVideo.url : event.videoSection?.url,
                     publicId: parsedVideo.type === 'youtube' ? null : event.videoSection?.publicId,
                 };
+
+                if (parsedVideo.type === 'youtube' && previousVideoPublicId) {
+                    await deleteCloudinaryAsset(previousVideoPublicId, 'video');
+                }
             } catch(e) { console.error("Error parsing videoSection JSON:", e); }
         }
         const videoSectionFile = files.find(f => f.fieldname === 'videoSectionFile');

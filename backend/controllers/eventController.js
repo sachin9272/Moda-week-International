@@ -283,6 +283,11 @@ export const updateEvent = async (req, res) => {
                 await deleteCloudinaryAsset(event.thumbnail.publicId, 'image');
             }
             event.thumbnail = thumbnailFile;
+        } else if (req.body.removeThumbnail === 'true') {
+            if (event.thumbnail && event.thumbnail.publicId) {
+                await deleteCloudinaryAsset(event.thumbnail.publicId, 'image');
+            }
+            event.thumbnail = null;
         }
 
 
@@ -397,6 +402,12 @@ export const updateEvent = async (req, res) => {
             if (event.descriptionSection?.image?.publicId) await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
             descriptionSection.image = descriptionSectionFile;
         } else {
+            if (descriptionSection.removeImage) {
+                if (event.descriptionSection?.image?.publicId) {
+                    await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
+                }
+                descriptionSection.image = undefined;
+            } else
 
             // If keeping existing
             if (descriptionSection.image && typeof descriptionSection.image === 'string') {

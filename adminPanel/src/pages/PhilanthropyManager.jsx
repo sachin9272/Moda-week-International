@@ -81,7 +81,19 @@ const PhilanthropyManager = () => {
 
     const handleSlideshowUpload = (e) => {
         const files = Array.from(e.target.files);
-        setSlideshowFiles(prev => [...prev, ...files]);
+        const totalImages = data.slideshowImages.length + slideshowFiles.length;
+        const remainingSlots = Math.max(0, 10 - totalImages);
+
+        if (remainingSlots === 0) {
+            toast.error("Maximum 10 slideshow images allowed.");
+            return;
+        }
+
+        if (files.length > remainingSlots) {
+            toast.error(`Only ${remainingSlots} more slideshow image(s) can be added.`);
+        }
+
+        setSlideshowFiles(prev => [...prev, ...files.slice(0, remainingSlots)]);
     };
 
     const removeSlideshowImage = (index, isExisting) => {

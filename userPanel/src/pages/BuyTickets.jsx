@@ -16,7 +16,13 @@ const BuyTickets = () => {
         const fetchEvents = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${baseURL}/api/upcoming-events/all?status=live`);
+                const response = await axios.get(`${baseURL}/api/upcoming-events/all`, {
+                    params: { status: 'live', _t: Date.now() },
+                    headers: {
+                        'Cache-Control': 'no-cache',
+                        Pragma: 'no-cache'
+                    }
+                });
                 setEvents(response.data);
             } catch (error) {
                 console.error("Error fetching events:", error);
@@ -60,7 +66,7 @@ const BuyTickets = () => {
                         {events.map((event) => (
                             <Link
                                 key={event._id}
-                                to={`/${event.slug ? event.slug.replace(/-/g, '') : event._id}?mode=tickets`}
+                                to={`/event-details/${event.slug || event._id}?mode=tickets`}
                                 className="group cursor-pointer flex flex-col h-full"
                             >
                                 {/* Image */}

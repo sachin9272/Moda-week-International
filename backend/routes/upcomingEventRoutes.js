@@ -3,6 +3,13 @@ const router = express.Router();
 import { createUpcomingEvent, getUpcomingEvents, getUpcomingEventById, updateUpcomingEvent, deleteUpcomingEvent } from '../controllers/upcomingEventController.js';
 import { uploadCloudinary, setFolder } from '../config/cloudinaryConfig.js';
 
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
+
 router.post('/create', setFolder('upcoming-events'), uploadCloudinary.any(), createUpcomingEvent);
 router.get('/all', getUpcomingEvents);
 router.get('/:id', getUpcomingEventById);

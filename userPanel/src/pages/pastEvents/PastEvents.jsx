@@ -89,7 +89,7 @@ export default function PastEvents() {
                 return (
                   <Link
                     key={event._id}
-                    to={`/event-details/${event.slug || event._id}`}
+                    to={`/past-event-details/${event.slug || event._id}`}
                     className="group cursor-pointer flex flex-col h-full"
                   >
                     {/* Image */}

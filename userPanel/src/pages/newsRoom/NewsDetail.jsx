@@ -15,6 +15,34 @@ export default function NewsDetail() {
     const [relatedNews, setRelatedNews] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const handleShare = async () => {
+        const shareUrl = window.location.href;
+        const shareData = {
+            title: newsItem?.title || "MODA News",
+            text: newsItem?.title || "Check out this article",
+            url: shareUrl
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+                return;
+            }
+
+            await navigator.clipboard.writeText(shareUrl);
+            window.alert("Article link copied to clipboard.");
+        } catch (error) {
+            if (error?.name !== "AbortError") {
+                console.error("Share failed:", error);
+                window.alert("Unable to share this article right now.");
+            }
+        }
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
+
     useEffect(() => {
         const fetchNewsItem = async () => {
             try {
@@ -134,7 +162,7 @@ export default function NewsDetail() {
                     )}
 
                     {/* Content */}
-                    <div className="prose prose-lg max-w-none font-light text-gray-700 leading-relaxed mb-16">
+                    <div className="prose prose-lg max-w-none rich-text-content news-rich-text font-light text-gray-700 leading-relaxed mb-16">
                         <div dangerouslySetInnerHTML={{ __html: newsItem.content }} />
                     </div>
 
@@ -148,12 +176,20 @@ export default function NewsDetail() {
                             ))}
                         </div>
                         <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Share Article</span>
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">Share Article</span>
                             <div className="flex gap-2">
-                                <button className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-[#C7913E] hover:border-[#C7913E] hover:text-white transition-all">
+                                <button
+                                    onClick={handleShare}
+                                    type="button"
+                                    className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-[#C7913E] hover:border-[#C7913E] hover:text-white transition-all"
+                                >
                                     <Share2 size={14} />
                                 </button>
-                                <button className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-black hover:border-black hover:text-white transition-all">
+                                <button
+                                    onClick={handlePrint}
+                                    type="button"
+                                    className="w-8 h-8 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-black hover:border-black hover:text-white transition-all"
+                                >
                                     <Printer size={14} />
                                 </button>
                             </div>

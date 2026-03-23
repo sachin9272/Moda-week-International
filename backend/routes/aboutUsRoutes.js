@@ -5,7 +5,7 @@ import { uploadCloudinary, setFolder } from "../config/cloudinaryConfig.js";
 const router = express.Router();
 
 // Generate fields for dynamic cards (up to 20 cards supported)
-const cardFields = Array.from({ length: 20 }, (_, i) => ({ name: `globalPlatformCardImage_${i}`, maxCount: 1 }));
+const cardFields = Array.from({ length: 100 }, (_, i) => ({ name: `globalPlatformCardImage_${i}`, maxCount: 1 }));
 
 const uploadFields = [
     { name: 'mainSectionImage', maxCount: 1 },

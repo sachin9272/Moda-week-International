@@ -14,12 +14,12 @@ import PressAndMedia from './pages/newsRoom/PressAndMedia.jsx';
 import NewsDetail from './pages/newsRoom/NewsDetail.jsx';
 import SubmitNews from "./pages/newsRoom/SubmitNews.jsx";
 import EventDetail from "./pages/EventDetail.jsx";
+import EventTicketDetails from "./pages/EventTicketDetails.jsx";
 import MembershipProgram from "./pages/MembershipProgram.jsx";
 import TermsConditions from "./pages/TermsConditions.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 import Philanthropy from "./pages/philanthropy/Philanthropy.jsx";
 import BuyTickets from "./pages/BuyTickets.jsx";
-import EventTicketDetails from "./pages/EventTicketDetails.jsx";
 import PaymentSuccess from './pages/payment/PaymentSuccess';
 import PaymentCancel from './pages/payment/PaymentCancel';
 import CodeOfConduct from "./pages/CodeOfConduct.jsx";
@@ -52,7 +52,8 @@ function App() {
         <Route path="/news-room/submit" element={<SubmitNews />} />
         <Route path="/news-room/:id" element={<NewsDetail />} />
         <Route path="/event-details" element={<EventDetail />} />
-        <Route path="/event-details/:slug" element={<EventDetail />} />
+        <Route path="/event-details/:id" element={<EventTicketDetails />} />
+        <Route path="/past-event-details/:slug" element={<EventDetail />} />
         <Route path="/membership-program" element={<MembershipProgram />} />
         <Route path="/terms-and-conditions" element={<TermsConditions />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />

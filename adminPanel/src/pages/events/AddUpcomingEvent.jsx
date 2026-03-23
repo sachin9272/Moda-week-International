@@ -451,7 +451,8 @@ const AddUpcomingEvent = () => {
                 title: designer.name,
                 description: designer.bio,
                 designerId: designer._id,
-                designerImage: designer.image?.url
+                designerImage: designer.image?.url,
+                layout: prev.images?.length > 0 ? prev.layout : 'carousel'
             }));
         }
     };
@@ -514,6 +515,7 @@ const AddUpcomingEvent = () => {
                 ...prev,
                 collections: [...prev.collections, { ...currentCollection, id: `col-${Date.now()}` }]
             }));
+            toast.success("Collection added to the event draft. Click Create Event to publish it.");
             setCurrentCollection({
                 title: '',
                 subtitle: '',

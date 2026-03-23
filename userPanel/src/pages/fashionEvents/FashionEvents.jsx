@@ -65,8 +65,15 @@ export default function FashionEvents() {
   useEffect(() => {
     const fetchContent = async () => {
       try {
+        const cacheBust = Date.now();
         const [eventsRes, heroRes] = await Promise.all([
-          fetch(`${baseURL}/api/upcoming-events/all?status=live`),
+          fetch(`${baseURL}/api/upcoming-events/all?status=live&_t=${cacheBust}`, {
+            cache: "no-store",
+            headers: {
+              "Cache-Control": "no-cache",
+              Pragma: "no-cache",
+            },
+          }),
           fetch(`${baseURL}/api/upcoming-event-hero`)
         ]);
 
@@ -134,25 +141,18 @@ export default function FashionEvents() {
       <Navbar />
 
       {/* Hero / Global Events Section */}
-      <div className="bg-gradient-to-b from-[#C7913E] to-white text-black md:min-h-[460px] min-h-[300px] h-auto">
-        <div className="max-w-7xl mx-auto px-4 pt-36 md:pt-28 pb-8 md:pb-16">
-          {/* Header */}
-          <div className="text-center mb-8 md:mb-16 max-w-9xl mx-auto">
-            <h1 className="relative uppercase inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-6 md:mb-10 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
-              {heroContent.title}
-              <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#3C2306] to-[#C7913E]"></span>
-            </h1>
-
-            <div className="text-black max-w-4xl mx-auto leading-relaxed mb-4 !font-montserrat whitespace-pre-line">
-              {heroContent.description}
-            </div>
-          </div>
-
-          {/* Events Grid */}
+      <div className="min-h-[415px] md:min-h-[430px] h-auto bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center text-center px-4 pt-[8.5rem] md:pt-[5.5rem] pb-12 md:pb-14">
+        <div>
+          <h1 className="text-3xl md:text-[44px] mt-10 font-bold bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent mb-4 uppercase">
+            {heroContent.title}
+          </h1>
+          <p className="text-black text-[18px] md:text-base max-w-2xl mx-auto whitespace-pre-line">
+            {heroContent.description}
+          </p>
         </div>
       </div>
 
-      <div className="bg-white text-black py-6 px-10">
+      <div className="bg-white text-black pt-8 md:pt-9 pb-6 px-10">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
             {upcomingEvents.map((event, index) => {
@@ -164,7 +164,7 @@ export default function FashionEvents() {
               return (
                 <Link
                   key={event._id}
-                  to={`/${event.slug ? event.slug.replace(/-/g, '') : event._id}`}
+                  to={`/event-details/${event.slug || event._id}`}
                   className="group cursor-pointer flex flex-col h-full"
                 >
                   {/* Image */}
@@ -267,7 +267,7 @@ export default function FashionEvents() {
                     if (activeTab === "upcoming") {
                       return (
                         <Link
-                          to={`/${item.slug ? item.slug.replace(/-/g, '') : item._id}`}
+                          to={`/event-details/${item.slug || item._id}`}
                           key={idx}
                           className="grid grid-cols-3 text-sm text-gray-300 hover:bg-white/5 transition-colors cursor-pointer group"
                         >

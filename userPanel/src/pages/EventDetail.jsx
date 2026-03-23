@@ -78,6 +78,34 @@ const AutoScrollCarousel = ({ images }) => {
     );
 };
 
+const URL_REGEX = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
+
+const renderTextWithLinks = (text = "") =>
+    text.split("\n").map((line, lineIndex) => (
+        <p key={`line-${lineIndex}`}>
+            {line.split(URL_REGEX).map((part, partIndex) => {
+                if (!part) return null;
+
+                if (part.match(URL_REGEX)) {
+                    const href = part.startsWith("http") ? part : `https://${part}`;
+                    return (
+                        <a
+                            key={`link-${lineIndex}-${partIndex}`}
+                            href={href}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[#8C5D25] underline underline-offset-[0.18em] break-all hover:text-[#C7913E]"
+                        >
+                            {part}
+                        </a>
+                    );
+                }
+
+                return <React.Fragment key={`text-${lineIndex}-${partIndex}`}>{part}</React.Fragment>;
+            })}
+        </p>
+    ));
+
 const EventDetail = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
@@ -163,6 +191,10 @@ const EventDetail = () => {
         const layout = collection.layout || 'grid';
         // Handle images array (objects or strings)
         const images = collection.images.map((img) => img?.url || img);
+        const designerImageUrl = collection.designerImage?.url || collection.designerImage;
+        const hasCollectionImages = images.length > 0;
+        const shouldRenderAsDesignerProfile =
+            (layout === 'carousel') || (images.length === 0 && designerImageUrl);
 
         if (layout === 'masonry') {
             return (
@@ -223,18 +255,16 @@ const EventDetail = () => {
                     </div>
                 </div>
             );
-        } else if (layout === 'carousel') {
-            // Designer Profile Layout
-            const designerImageUrl = collection.designerImage?.url || collection.designerImage;
+        } else if (shouldRenderAsDesignerProfile) {
             return (
                 <div
                     key={index}
-                    className="py-10 bg-white"
+                    className={`${hasCollectionImages ? 'py-10' : 'py-6'} bg-white`}
                     ref={collection.day ? dayRefs[collection.day] : null}
                 >
                     <div className="max-w-[95%] mx-auto font-sans">
                         {/* Designer Header Section */}
-                        <div className="flex flex-col md:flex-row gap-12 items-start mb-20 border-b border-black pb-12">
+                        <div className={`flex flex-col md:flex-row gap-12 items-center ${hasCollectionImages ? 'border-b border-black mb-20 pb-12' : 'mb-10 pb-6'}`}>
                             {/* Left: Designer Image */}
                             {designerImageUrl && (
                                 <div className="w-full md:w-[400px] shrink-0">
@@ -259,10 +289,7 @@ const EventDetail = () => {
 
                                 {collection.description ? (
                                     <div className="prose max-w-none text-gray-700 text-base leading-normal space-y-1 text-justify">
-                                        {/* Simple formatting: preserve line breaks */}
-                                        {collection.description.split('\n').map((para, i) => (
-                                            <p key={i}>{para}</p>
-                                        ))}
+                                        {renderTextWithLinks(collection.description)}
                                     </div>
                                 ) : (
                                     <p className="text-gray-400 italic">No biography available.</p>
@@ -271,8 +298,9 @@ const EventDetail = () => {
                         </div>
                     </div>
 
-                    {/* Collection Images (Bottom) - Auto Scroll Carousel */}
-                    <AutoScrollCarousel images={images} />
+                    {hasCollectionImages && (
+                        <AutoScrollCarousel images={images} />
+                    )}
                 </div>
             );
         } else {

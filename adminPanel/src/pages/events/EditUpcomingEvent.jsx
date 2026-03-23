@@ -506,7 +506,8 @@ const EditUpcomingEvent = () => {
                 title: designer.name,
                 description: designer.bio,
                 designerId: designer._id,
-                designerImage: designer.image?.url
+                designerImage: designer.image?.url,
+                layout: prev.images?.length > 0 ? prev.layout : 'carousel'
             }));
         }
     };
@@ -569,6 +570,7 @@ const EditUpcomingEvent = () => {
                 ...prev,
                 collections: [...prev.collections, currentCollection]
             }));
+            toast.success("Collection added to the event draft. Click Update Event to publish it.");
             setCurrentCollection({
                 title: '',
                 subtitle: '',
@@ -629,6 +631,7 @@ const EditUpcomingEvent = () => {
         data.append('description', formData.description);
         data.append('heroLayout', formData.heroLayout);
         data.append('hasTickets', formData.hasTickets);
+        data.append('removeCoverImage', formData.coverImage === null);
 
         if (formData.coverImage instanceof File) {
             data.append('coverImage', formData.coverImage);
@@ -639,7 +642,8 @@ const EditUpcomingEvent = () => {
             text: formData.descriptionSection.text,
             credits: formData.descriptionSection.credits,
             isVisible: formData.descriptionSection.isVisible,
-            imageSize: formData.descriptionSection.imageSize
+            imageSize: formData.descriptionSection.imageSize,
+            removeImage: formData.descriptionSection.image === null
         };
         data.append('descriptionSection', JSON.stringify(descriptionSectionData));
 
