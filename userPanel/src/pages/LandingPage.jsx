@@ -29,14 +29,25 @@ function VideoSlider({ slides, onSlideChange }) {
   const videoRefs = useRef([]);
   const scrollTimeout = useRef(null);
 
+  useEffect(() => {
+    if (slides.length === 0) {
+      setCurrent(0);
+      videoRefs.current = [];
+    } else if (current >= slides.length) {
+      setCurrent(0);
+    }
+  }, [slides, current]);
+
   // Initial play
   useEffect(() => {
+    if (slides.length === 0) return;
     if (videoRefs.current[0]) {
       videoRefs.current[0].play().catch(e => console.log("Autoplay prevented", e));
     }
-  }, []);
+  }, [slides.length]);
 
   const handleEnded = () => {
+    if (slides.length === 0) return;
     const next = (current + 1) % slides.length;
     setCurrent(next);
     if (onSlideChange) onSlideChange(next);
@@ -44,6 +55,7 @@ function VideoSlider({ slides, onSlideChange }) {
 
   // Sync play state when current changes
   useEffect(() => {
+    if (slides.length === 0) return;
     videoRefs.current.forEach((video, index) => {
       if (!video) return;
       if (index === current) {
@@ -56,6 +68,7 @@ function VideoSlider({ slides, onSlideChange }) {
   }, [current, slides]);
 
   const handleScroll = (e) => {
+    if (slides.length === 0) return;
     if (scrollTimeout.current) return;
 
     // Use deltaX for horizontal scrolling
@@ -104,26 +117,30 @@ function VideoSlider({ slides, onSlideChange }) {
 
       {/* Dynamic Content (LEFT) */}
       <div className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-2 pointer-events-none">
-        <h1 className="text-6xl md:text-6xl lg:text-[100px]  leading-tight text-white max-w-3xl ml-10 whitespace-pre-line">
-          {slides[current].title}
-        </h1>
+        {slides[current] && (
+          <h1 className="text-6xl md:text-6xl lg:text-[100px]  leading-tight text-white max-w-3xl ml-10 whitespace-pre-line">
+            {slides[current].title}
+          </h1>
+        )}
       </div>
 
       {/* Dots (RIGHT BOTTOM) */}
-      <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
-        {slides.map((_, i) => (
-          <div
-            key={i}
-            className={`h-1 w-16 transition-all duration-300
+      {slides.length > 0 && (
+        <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
+          {slides.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 w-16 transition-all duration-300
                           ${current === i ? "bg-white scale-125" : "bg-white/50"}
                       `}
-            onClick={() => {
-              setCurrent(i);
-              if (onSlideChange) onSlideChange(i);
-            }}
-          />
-        ))}
-      </div>
+              onClick={() => {
+                setCurrent(i);
+                if (onSlideChange) onSlideChange(i);
+              }}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -138,21 +155,80 @@ export default function LandingPage() {
     return `${baseURL}${url}`; // Prepend backend URL for local paths
   };
 
+  const isPlayableSliderVideo = (url) => {
+    if (!url) return false;
+
+    const lowerUrl = url.toLowerCase();
+    if (lowerUrl.includes('youtube.com') || lowerUrl.includes('youtu.be')) {
+      return false;
+    }
+
+    return (
+      lowerUrl.startsWith('/uploads/') ||
+      lowerUrl.endsWith('.mp4') ||
+      lowerUrl.endsWith('.webm') ||
+      lowerUrl.endsWith('.ogg')
+    );
+  };
+
+  const canLoadVideo = (src) =>
+    new Promise((resolve) => {
+      if (!src) {
+        resolve(false);
+        return;
+      }
+
+      const testVideo = document.createElement("video");
+      let settled = false;
+
+      const finalize = (result) => {
+        if (settled) return;
+        settled = true;
+        testVideo.removeAttribute("src");
+        testVideo.load();
+        resolve(result);
+      };
+
+      const timeout = setTimeout(() => finalize(false), 4000);
+
+      testVideo.preload = "metadata";
+      testVideo.muted = true;
+      testVideo.playsInline = true;
+      testVideo.onloadedmetadata = () => {
+        clearTimeout(timeout);
+        finalize(true);
+      };
+      testVideo.onerror = () => {
+        clearTimeout(timeout);
+        finalize(false);
+      };
+      testVideo.src = src;
+    });
+
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const [slides, setSlides] = useState([
-    {
-      video: video1,
-      title: "",
-    },
-    {
-      video: video2,
-      title: "NEW YORK\nCITY",
-    },
-    {
-      video: video3,
-      title: "AMAZONAS\nFASHION WEEK",
-    },
-  ]);
+  const [slides, setSlides] = useState([]);
+  const [pendingSlides, setPendingSlides] = useState([]);
+  const displaySlides = slides.length > 0 ? slides : pendingSlides;
+
+  useEffect(() => {
+    if (slides.length > 0 || displaySlides.length <= 1) {
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % displaySlides.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [slides.length, displaySlides.length]);
+
+  useEffect(() => {
+    if (displaySlides.length === 0) {
+      setCurrentSlideIndex(0);
+    } else if (currentSlideIndex >= displaySlides.length) {
+      setCurrentSlideIndex(0);
+    }
+  }, [displaySlides.length, currentSlideIndex]);
 
   useEffect(() => {
     const fetchVideos = async () => {
@@ -161,13 +237,28 @@ export default function LandingPage() {
         const data = await response.json();
 
         if (data && data.length > 0) {
-          const formattedSlides = data.map(item => ({
+          const candidateSlides = data
+            .filter(item => isPlayableSliderVideo(item.videoUrl))
+            .map(item => ({
             video: getVideoSrc(item.videoUrl),
             title: item.title.replace("NEW YORK CITY", "NEW YORK\nCITY").replace("AMAZONAS FASHION WEEK", "AMAZONAS\nFASHION WEEK"),
             subtitle: item.subtitle,
             isDynamic: true
           }));
-          setSlides(formattedSlides);
+
+          if (candidateSlides.length > 0) {
+            setPendingSlides(candidateSlides);
+            const validationResults = await Promise.all(
+              candidateSlides.map((slide) => canLoadVideo(slide.video))
+            );
+
+            const playableSlides = candidateSlides.filter((_, index) => validationResults[index]);
+
+            if (playableSlides.length > 0) {
+              setSlides(playableSlides);
+              setCurrentSlideIndex(0);
+            }
+          }
         }
       } catch (error) {
         console.error("Failed to fetch landing videos:", error);
@@ -233,18 +324,34 @@ export default function LandingPage() {
       >
         <Navbar />
         <VideoSlider slides={slides} onSlideChange={setCurrentSlideIndex} />
+        {slides.length === 0 && displaySlides[currentSlideIndex]?.title && (
+          <div className="absolute inset-0 z-10 flex flex-col justify-end pb-24 md:pb-2 pointer-events-none">
+            <h1 className="text-6xl md:text-6xl lg:text-[100px] leading-tight text-white max-w-3xl ml-10 whitespace-pre-line">
+              {displaySlides[currentSlideIndex].title}
+            </h1>
+          </div>
+        )}
+        {slides.length === 0 && displaySlides.length > 0 && (
+          <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
+            {displaySlides.map((_, i) => (
+              <div
+                key={i}
+                className={`h-1 w-16 transition-all duration-300 ${currentSlideIndex === i ? "bg-white scale-125" : "bg-white/50"}`}
+                onClick={() => setCurrentSlideIndex(i)}
+              />
+            ))}
+          </div>
+        )}
       </section>
 
       <div className="bg-black mb-10 ml-10">
-        <p className="text-white uppercase">
-          {slides[currentSlideIndex]?.subtitle ? (
-            <span className="whitespace-pre-line">{slides[currentSlideIndex].subtitle}</span>
-          ) : (
-            <>
-              FASHION DESIGNERS APPLICATIONS NOW OPEN FOR <br /> SEPTEMBER SS26/AW27
-            </>
-          )}
-        </p>
+        {displaySlides[currentSlideIndex]?.subtitle && (
+          <p className="text-white uppercase">
+            <span className="whitespace-pre-line">
+              {displaySlides[currentSlideIndex].subtitle}
+            </span>
+          </p>
+        )}
         <Link to="/service?tab=designer">
           <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">
             APPLY NOW
