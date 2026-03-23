@@ -28,6 +28,38 @@ const initialInstagramPosts = [
     { id: 4, link: "https://www.instagram.com/p/DS6rnloDv8f/", image: news4, likes: "12.4k" }
 ];
 
+const normalizeInstagramPosts = (posts = []) => {
+    const usablePosts = posts
+        .filter((post) => {
+            if (typeof post?.image !== "string" || post.image.trim().length === 0) {
+                return false;
+            }
+
+            // Ignore backend mock/fallback asset URLs that are not actually hosted.
+            if (post.image.includes("/assets/instagram/")) {
+                return false;
+            }
+
+            return true;
+        })
+        .map((post, index) => ({
+            id: post.id || `remote-${index}`,
+            link: post.link || initialInstagramPosts[index % initialInstagramPosts.length].link,
+            image: post.image,
+            likes: post.likes || "N/A"
+        }));
+
+    if (usablePosts.length >= 4) {
+        return usablePosts.slice(0, 4);
+    }
+
+    const fallbackPosts = initialInstagramPosts.filter(
+        (fallback) => !usablePosts.some((post) => post.image === fallback.image)
+    );
+
+    return [...usablePosts, ...fallbackPosts].slice(0, 4);
+};
+
 export default function NewsRoom() {
     const navigate = useNavigate();
     const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -132,7 +164,7 @@ export default function NewsRoom() {
                 if (response.data) {
                     if (response.data.followers) setFollowerCount(response.data.followers);
                     if (response.data.posts && response.data.posts.length > 0) {
-                        setInstagramPosts(response.data.posts);
+                        setInstagramPosts(normalizeInstagramPosts(response.data.posts));
                     }
                 }
             } catch (error) {
