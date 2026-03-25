@@ -146,9 +146,21 @@ function VideoSlider({ slides, onSlideChange }) {
 }
 
 export default function LandingPage() {
+  const defaultModaIntroSection = {
+    title: "MODA WEEK INTERNATIONAL",
+    content:
+      "We offer a international exposure business platform that showcases established, emerging fashion designers and business acumen . Our mission is to celebrate diversity, sustainability, and foster innovation. Through our comprehensive services, including fashion expos, international fashion events, and impactful marketing and promotion strategies, we aim to elevate the visibility and success of all our clientele participants and companies partnership.",
+    image: null,
+  };
   const getUpcomingEventName = (event) => event.eventName || "";
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const [landingPageContent, setLandingPageContent] = useState({
+    modaIntroSection: {
+      ...defaultModaIntroSection,
+      useDefaultImage: true,
+    },
+  });
   /* Helper to format video URL */
   const getVideoSrc = (url) => {
     if (!url) return '';
@@ -232,6 +244,31 @@ export default function LandingPage() {
   }, [displaySlides.length, currentSlideIndex]);
 
   useEffect(() => {
+    const fetchLandingPageContent = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/api/landing-page`);
+        setLandingPageContent({
+          modaIntroSection: {
+            title:
+              response.data?.modaIntroSection?.title ??
+              defaultModaIntroSection.title,
+            content:
+              response.data?.modaIntroSection?.content ??
+              defaultModaIntroSection.content,
+            useDefaultImage:
+              response.data?.modaIntroSection?.useDefaultImage ?? true,
+            image: response.data?.modaIntroSection?.image || null,
+          },
+        });
+      } catch (error) {
+        console.error("Error fetching landing page content:", error);
+      }
+    };
+
+    fetchLandingPageContent();
+  }, []);
+
+  useEffect(() => {
     const fetchVideos = async () => {
       try {
         const response = await fetch(`${baseURL}/api/landing-videos?type=landing`);
@@ -268,6 +305,18 @@ export default function LandingPage() {
 
     fetchVideos();
   }, []);
+
+  const modaIntroSection = landingPageContent?.modaIntroSection || defaultModaIntroSection;
+  const modaIntroImage = modaIntroSection.image?.url
+    ? modaIntroSection.image.url
+    : modaIntroSection.useDefaultImage
+      ? AboutUs
+      : null;
+  const hasModaIntroContent = Boolean(
+    modaIntroImage ||
+    modaIntroSection.title?.trim() ||
+    modaIntroSection.content?.trim()
+  );
 
   const [pastEvents, setPastEvents] = useState([]);
 
@@ -361,24 +410,36 @@ export default function LandingPage() {
       </div>
 
       {/* MODA Week International */}
-      <section className="py-12 px-6 bg-white mt-10">
-        <div className="container md:h-96 mx-auto px-5 py-5 md:py-0 bg-black">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-12 h-full">
-            <img
-              src={AboutUs}
-              alt="Fashion Models"
-              className="shadow-2xl md:h-84 h-64 w-[427px]"
-            />
+      {hasModaIntroContent && (
+        <section className="py-12 px-6 bg-white mt-10">
+          <div className="container mx-auto bg-black p-6 md:p-7">
+            <div className="flex h-full flex-col items-center justify-center gap-6 md:flex-row md:items-stretch md:gap-7">
+              {modaIntroImage && (
+                <div className="flex w-full max-w-[427px] shrink-0 items-center justify-center bg-black shadow-2xl md:min-h-[336px] md:w-auto md:max-w-none">
+                  <img
+                    src={modaIntroImage}
+                    alt="Fashion Models"
+                    className="h-auto max-h-[520px] w-full max-w-[427px] object-contain md:w-auto"
+                  />
+                </div>
+              )}
 
-            <div>
-              <h2 className="text-2xl font-bold mb-6 grad-text">
-                MODA WEEK INTERNATIONAL
-              </h2>
-              <p className="leading-relaxed mr-4">We offer a international exposure business platform that showcases established, emerging fashion designers and business acumen . Our mission is to celebrate diversity,  sustainability, and foster innovation. Through our comprehensive services, including fashion expos, international fashion events, and impactful marketing and promotion strategies, we aim to elevate the visibility and success of all our clientele participants and companies partnership. </p>
+              <div className="flex-1 self-center py-1 text-white">
+                {modaIntroSection.title?.trim() && (
+                  <h2 className="text-2xl font-bold mb-6 grad-text">
+                    {modaIntroSection.title}
+                  </h2>
+                )}
+                {modaIntroSection.content?.trim() && (
+                  <p className="leading-relaxed whitespace-pre-line">
+                    {modaIntroSection.content}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Fashion Designers
       <section className="bg-white">

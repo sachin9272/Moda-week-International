@@ -35,6 +35,7 @@ import NewsPreview from './pages/news/NewsPreview';
 import FashionDesigners from './pages/FashionDesigners';
 import ProductionTeam from './pages/ProductionTeam';
 import PressAndMedia from './pages/PressAndMedia';
+import LandingPageManager from './pages/LandingPageManager';
 import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -81,6 +82,7 @@ function App() {
             <Route path="upcoming-event-content" element={<UpcomingEventHeroManager />} />
             <Route path="past-event-content" element={<PastEventHeroManager />} />
             <Route path="participants-content" element={<ParticipantsHeroManager />} />
+            <Route path="landing-page-content" element={<LandingPageManager />} />
             <Route path="events/upcoming" element={<UpcomingEventsList />} />
             <Route path="events/upcoming/dashboard/:id" element={<EventAnalyticsDashboard />} />
             <Route path="events/upcoming/transactions/:id" element={<EventTransactions />} />

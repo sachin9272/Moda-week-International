@@ -83,6 +83,8 @@ import donationPageRoutes from './routes/donationPageRoutes.js';
 app.use('/api/donation-page', donationPageRoutes);
 import aboutUsRoutes from './routes/aboutUsRoutes.js';
 app.use('/api/about-us', aboutUsRoutes);
+import landingPageRoutes from './routes/landingPageRoutes.js';
+app.use('/api/landing-page', landingPageRoutes);
 
 // Payment Routes
 app.post('/api/payment/create-checkout-session', createCheckoutSession);

@@ -61,6 +61,7 @@ const Sidebar = () => {
                 { path: '/philanthropy', icon: Heart, label: 'Philanthropy' },
                 { path: '/donation-content', icon: Heart, label: 'Donation' },
                 { path: '/about-us-content', icon: Info, label: 'About Us' },
+                { path: '/landing-page-content', icon: Info, label: 'Landing Page' },
                 { path: '/service-content', icon: Briefcase, label: 'Services' },
                 { path: '/upcoming-event-content', icon: Calendar, label: 'Upcoming Event' },
                 { path: '/past-event-content', icon: Calendar, label: 'Past Event' },
