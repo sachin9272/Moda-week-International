@@ -17,6 +17,7 @@ import event5 from "../../assets/Events-4.jpg";
 import event6 from "../../assets/Events-5.jpg";
 
 export default function FashionEvents() {
+  const getUpcomingEventName = (event) => event.eventName || "";
   // const events - Removed hardcoded events as we now use upcomingEvents from API
   const location = useLocation();
 
@@ -185,9 +186,11 @@ export default function FashionEvents() {
 
                   {/* Content */}
                   <div className="flex flex-col grow">
-                    <h3 className="text-xl md:text-2xl font-[Inter] font-semibold mb-2 uppercase leading-tight group-hover:text-[#C7913E] transition-colors">
-                      {event.title}
-                    </h3>
+                    {getUpcomingEventName(event) && (
+                      <h3 className="text-xl md:text-2xl font-[Inter] font-semibold mb-2 uppercase leading-tight group-hover:text-[#C7913E] transition-colors">
+                        {getUpcomingEventName(event)}
+                      </h3>
+                    )}
 
                     <p className="text-gray-500 text-xs tracking-widest uppercase mb-4 font-semibold">
                       {event.eventDate}
@@ -278,7 +281,7 @@ export default function FashionEvents() {
                             {item.location || item.city}
                           </div>
                           <div className="p-6 text-gray-400 border-b border-white/20">
-                            {item.title || item.event}
+                            {item.eventName || item.event}
                           </div>
                         </Link>
                       );
@@ -295,7 +298,7 @@ export default function FashionEvents() {
                             {item.location || item.city}
                           </div>
                           <div className="p-6 text-gray-400 border-b border-white/20">
-                            {item.title || item.event}
+                            {item.eventName || item.event}
                           </div>
                         </div>
                       );

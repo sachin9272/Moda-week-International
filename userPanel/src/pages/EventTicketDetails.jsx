@@ -112,6 +112,8 @@ export default function EventTicketDetails() {
     const [quantities, setQuantities] = useState({});
     const [totalPrice, setTotalPrice] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const eventDisplayName = event?.eventName || '';
+    const eventMainTitle = event?.title || '';
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -309,9 +311,11 @@ export default function EventTicketDetails() {
 
             <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[300px] flex flex-col justify-center items-center">
                 <div className="max-w-7xl mx-auto">
-                    <h1 className="text-3xl md:text-[44px] font-bold uppercase tracking-wider mb-2 grad-text-up">
-                        {event.title}
-                    </h1>
+                    {eventMainTitle && (
+                        <h1 className="text-3xl md:text-[44px] font-bold uppercase tracking-wider mb-2 grad-text-up">
+                            {eventMainTitle}
+                        </h1>
+                    )}
                     <p className="text-sm md:text-lg font-medium tracking-wide mb-4 text-black">
                         {formatDate(event.eventDate)}
                     </p>
@@ -326,9 +330,11 @@ export default function EventTicketDetails() {
                 {/* Left Column: Description - Hide if in tickets mode */}
                 {mode !== "tickets" && (
                     <div className={event.hasTickets ? "lg:col-span-2" : "lg:col-span-3"}>
-                        <h2 className="text-3xl md:text-4xl font-playfair font-bold text-black mb-8 leading-tight uppercase tracking-wider">
-                            About the Event
-                        </h2>
+                        {eventDisplayName && (
+                            <h2 className="text-3xl md:text-4xl font-playfair font-bold text-black mb-8 leading-tight uppercase tracking-wider">
+                                {eventDisplayName}
+                            </h2>
+                        )}
                         <div className="flex flex-col md:flex-row gap-8 items-start">
                             <div className="!text-base rich-text-content event-rich-text text-black leading-relaxed text-lg font-light text-justify flex-1 space-y-2">
                                 {event.description
@@ -340,7 +346,7 @@ export default function EventTicketDetails() {
                                     <div className="relative aspect-[3/4] shadow-xl">
                                         <img
                                             src={optimizeCloudinaryImage(event.coverImage?.url || event.coverImage, { width: 1000, crop: "limit" })}
-                                            alt={event.title}
+                                            alt={eventDisplayName || event.title || 'Event cover'}
                                             className="w-full h-full object-contain rounded-sm bg-white"
                                             decoding="async"
                                         />

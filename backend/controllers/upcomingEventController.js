@@ -38,7 +38,7 @@ const getSafeImage = (img) => {
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
-        const { title, eventDate, location, description, status, hasTickets, heroLayout } = req.body;
+        const { title, eventName, eventDate, location, description, status, hasTickets, heroLayout } = req.body;
 
         // Parse ticketTypes if it's a string (from FormData)
         let ticketTypes = [];
@@ -131,6 +131,7 @@ export const createUpcomingEvent = async (req, res) => {
         const slug = generateUpcomingEventSlug(title);
         const newEvent = new UpcomingEvent({
             title,
+            eventName: eventName?.trim() || '',
             slug,
             eventDate,
             location,
@@ -211,7 +212,7 @@ export const getUpcomingEventById = async (req, res) => {
 export const updateUpcomingEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, eventDate, location, description, hasTickets } = req.body;
+        const { title, eventName, eventDate, location, description, hasTickets } = req.body;
 
         const event = await UpcomingEvent.findById(id);
         if (!event) {
@@ -470,6 +471,7 @@ export const updateUpcomingEvent = async (req, res) => {
             event.title = title;
             event.slug = generateUpcomingEventSlug(title);
         }
+        if (eventName !== undefined) event.eventName = eventName.trim();
         if (eventDate !== undefined) event.eventDate = eventDate;
         if (location !== undefined) event.location = location;
         if (description !== undefined) event.description = description;

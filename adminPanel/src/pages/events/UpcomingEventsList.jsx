@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { optimizeCloudinaryImage } from '../../utils/cloudinary';
 
 const UpcomingEventsList = () => {
+    const getUpcomingEventName = (event) => event.eventName || event.title;
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -80,6 +81,7 @@ const UpcomingEventsList = () => {
     };
 
     const filteredEvents = events.filter(event =>
+        getUpcomingEventName(event)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.location?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -161,7 +163,7 @@ const UpcomingEventsList = () => {
                                             UPCOMING
                                         </div>
                                         <h2 className="text-2xl font-bold text-white drop-shadow-md">
-                                            {event.title}
+                                            {getUpcomingEventName(event)}
                                         </h2>
                                     </div>
                                     <div className="flex flex-col items-end gap-2">
@@ -200,7 +202,7 @@ const UpcomingEventsList = () => {
                                         <div className="w-8 h-8 rounded-lg bg-[#252525] flex items-center justify-center text-[#C7913E]">
                                             <MapPin size={16} />
                                         </div>
-                                        <span className="font-medium line-clamp-1">{event.title}</span>
+                                        <span className="font-medium line-clamp-1">{getUpcomingEventName(event)}</span>
                                     </div>
                                 </div>
 
@@ -242,7 +244,7 @@ const UpcomingEventsList = () => {
                                 Are you sure you want to delete
                             </p>
                             <p className="text-white font-bold text-center text-lg truncate px-4 mb-6 uppercase tracking-tight">
-                                {eventToDelete?.title}
+                                {eventToDelete ? getUpcomingEventName(eventToDelete) : ''}
                             </p>
                             <div className="bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl p-4 mb-6 text-center">
                                 <p className="text-xs text-red-400/80 leading-relaxed font-medium">

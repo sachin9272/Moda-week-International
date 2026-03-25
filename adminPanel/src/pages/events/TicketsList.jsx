@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { optimizeCloudinaryImage } from '../../utils/cloudinary';
 
 const TicketsList = () => {
+    const getUpcomingEventName = (event) => event.eventName || event.title;
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +31,7 @@ const TicketsList = () => {
     };
 
     const filteredEvents = events.filter(event =>
+        getUpcomingEventName(event)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         event.location?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -102,7 +104,7 @@ const TicketsList = () => {
                                         {event.ticketTypes?.length || 0} Ticket Classes
                                     </div>
                                     <h2 className="text-2xl font-bold text-white leading-tight drop-shadow-lg group-hover:text-[#C7913E] transition-colors">
-                                        {event.title}
+                                        {getUpcomingEventName(event)}
                                     </h2>
                                 </div>
                             </div>

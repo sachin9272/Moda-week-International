@@ -8,6 +8,7 @@ import Footer from "../components/Footer";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
 
 const BuyTickets = () => {
+    const getUpcomingEventName = (event) => event.eventName || '';
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -73,7 +74,7 @@ const BuyTickets = () => {
                                 <div className="relative overflow-hidden aspect-[3/4] mb-6">
                                     <img
                                         src={optimizeCloudinaryImage(event.coverImage?.url || "https://via.placeholder.com/400x300", { width: 720, height: 960, crop: "fill" })}
-                                        alt={event.title}
+                                        alt={getUpcomingEventName(event) || event.title || 'Upcoming event'}
                                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                         loading="lazy"
                                         decoding="async"
@@ -83,9 +84,11 @@ const BuyTickets = () => {
 
                                 {/* Content */}
                                 <div className="flex flex-col grow">
-                                    <h3 className="text-xl md:text-2xl font-[Inter] font-semibold mb-2 uppercase leading-tight group-hover:text-[#C7913E] transition-colors">
-                                        {event.title}
-                                    </h3>
+                                    {getUpcomingEventName(event) && (
+                                        <h3 className="text-xl md:text-2xl font-[Inter] font-semibold mb-2 uppercase leading-tight group-hover:text-[#C7913E] transition-colors">
+                                            {getUpcomingEventName(event)}
+                                        </h3>
+                                    )}
 
                                     <p className="text-gray-500 text-xs tracking-widest uppercase mb-4 font-semibold">
                                         {event.eventDate}

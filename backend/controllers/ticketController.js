@@ -8,7 +8,7 @@ export const verifyTicket = async (req, res) => {
         const { id } = req.params;
 
         // Find the ticket
-        const ticket = await TicketSale.findById(id).populate('eventId', 'title eventDate location');
+        const ticket = await TicketSale.findById(id).populate('eventId', 'title eventName eventDate location');
 
         if (!ticket) {
             return res.status(404).json({
@@ -38,7 +38,7 @@ export const verifyTicket = async (req, res) => {
                 id: ticket._id,
                 buyerName: ticket.buyerName,
                 ticketName: ticket.ticketName,
-                eventName: ticket.eventId?.title || "Unknown Event",
+                eventName: ticket.eventId?.eventName || ticket.eventId?.title || "Unknown Event",
                 eventDate: ticket.eventId?.eventDate,
                 quantity: ticket.quantity,
                 status: ticket.status,

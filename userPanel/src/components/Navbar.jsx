@@ -165,6 +165,13 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ))}
+            <a
+              href="https://selectvoyage.net/"
+              onMouseEnter={() => setActiveDropdown(null)}
+              className="text-sm font-bold tracking-[0.2em] uppercase text-[#C7913E] hover:text-white transition-colors"
+            >
+              Travel
+            </a>
           </div>
 
           {/* Logo - Right (Mobile) / Center (Desktop? kept right for now to match layout) */}
@@ -293,6 +300,26 @@ const Navbar = () => {
                         </Link>
                       </motion.div>
                     ))}
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
+                    Travel
+                  </h3>
+                  <motion.div
+                    custom={10}
+                    variants={linkVariants}
+                    initial="closed"
+                    animate="open"
+                  >
+                    <a
+                      href="https://selectvoyage.net/"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                    >
+                      Travel
+                    </a>
+                  </motion.div>
                 </div>
               </div>
             </div>

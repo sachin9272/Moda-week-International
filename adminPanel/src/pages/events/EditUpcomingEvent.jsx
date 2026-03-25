@@ -95,6 +95,7 @@ const EditUpcomingEvent = () => {
 
     const [formData, setFormData] = useState({
         title: '',
+        eventName: '',
         eventDate: '',
         location: '',
         description: '',
@@ -240,6 +241,7 @@ const EditUpcomingEvent = () => {
                 const event = response.data;
                 setFormData({
                     title: event.title,
+                    eventName: event.eventName || '',
                     eventDate: event.eventDate,
                     location: event.location,
                     description: event.description || '',
@@ -626,6 +628,7 @@ const EditUpcomingEvent = () => {
 
         const data = new FormData();
         data.append('title', formData.title);
+        data.append('eventName', formData.eventName);
         data.append('eventDate', formData.eventDate);
         data.append('location', formData.location);
         data.append('description', formData.description);
@@ -754,6 +757,10 @@ const EditUpcomingEvent = () => {
                         <div className="md:col-span-2">
                             <label className="block text-gray-400 mb-1">Title <span className="text-red-500">*</span></label>
                             <input type="text" name="title" value={formData.title} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-gray-400 mb-1">Event Name</label>
+                            <input type="text" name="eventName" value={formData.eventName} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" placeholder="Used for the public event heading" />
                         </div>
                         <div>
                             <label className="block text-gray-400 mb-1">Event Date <span className="text-red-500">*</span></label>

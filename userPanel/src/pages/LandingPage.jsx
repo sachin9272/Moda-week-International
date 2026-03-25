@@ -146,6 +146,7 @@ function VideoSlider({ slides, onSlideChange }) {
 }
 
 export default function LandingPage() {
+  const getUpcomingEventName = (event) => event.eventName || "";
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   /* Helper to format video URL */
@@ -499,15 +500,17 @@ export default function LandingPage() {
                       height: 860,
                       crop: "fill",
                     })}
-                    alt={event.title}
+                    alt={getUpcomingEventName(event)}
                     imgClassName="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
                     decoding="async"
                   />
 
-                  <h3 className="text-sm text-black font-inter">
-                    {event.title}
-                  </h3>
+                  {getUpcomingEventName(event) && (
+                    <h3 className="text-sm text-black font-inter">
+                      {getUpcomingEventName(event)}
+                    </h3>
+                  )}
                 </Link>
               ))}
             </div>
@@ -566,6 +569,7 @@ export default function LandingPage() {
                   <img
                     src={event.image}
                     alt={event.title}
+                    alt={getUpcomingEventName(event)}
                     className="w-full h-80 object-cover"
                   />
                   <span className="absolute top-4 right-4 bg-white text-xs text-black px-3 py-1">
@@ -573,7 +577,7 @@ export default function LandingPage() {
                   </span>
                 </div>
                 <div className="p-6">
-                  <h3 className="text-xl font-bold mb-4">{event.title}</h3>
+                  {getUpcomingEventName(event) && <h3 className="text-xl font-bold mb-4">{getUpcomingEventName(event)}</h3>}
                   <div className="space-y-2 text-sm text-gray-400">
                     <div className="flex items-center gap-2">
                       <Calendar size={16} className="text-[#BC8739]" />

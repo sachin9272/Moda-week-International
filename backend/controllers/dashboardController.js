@@ -61,7 +61,7 @@ export const getEventAnalytics = async (req, res) => {
         // For now, sticking to the requested basics but adding structure for it if needed.
 
         res.status(200).json({
-            eventName: event.title,
+            eventName: event.eventName || event.title,
             eventDate: event.eventDate,
             totalTicketsSold,
             totalRevenue,
@@ -150,7 +150,7 @@ export const getGlobalAnalytics = async (req, res) => {
                 $project: {
                     _id: 0,
                     eventId: "$_id",
-                    eventName: "$eventConfig.title",
+                    eventName: { $ifNull: ["$eventConfig.eventName", "$eventConfig.title"] },
                     totalTickets: 1,
                     totalRevenue: 1
                 }
@@ -222,7 +222,7 @@ export const getGlobalRecentTransactions = async (req, res) => {
                     quantity: 1,
                     totalAmount: 1,
                     purchaseDate: 1,
-                    eventName: "$event.title"
+                    eventName: { $ifNull: ["$event.eventName", "$event.title"] }
                 }
             }
         ]);
@@ -261,5 +261,4 @@ export const getGlobalTicketTypeStats = async (req, res) => {
         res.status(500).json({ message: "Failed to fetch ticket stats", error: error.message });
     }
 };
-
 
