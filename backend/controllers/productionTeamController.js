@@ -168,11 +168,24 @@ export const reorderTeamMembers = async (req, res) => {
     }
 };
 
-// Get single team member by ID
+// Get single team member by ID or Slug
 export const getTeamMemberById = async (req, res) => {
     try {
         const { id } = req.params;
-        const member = await ProductionTeam.findById(id);
+        let member;
+
+        // Check if id is a valid MongoDB ObjectID
+        if (id.match(/^[0-9a-fA-F]{24}$/)) {
+            member = await ProductionTeam.findById(id);
+        } else {
+            // Find by slug generated from name
+            const members = await ProductionTeam.find();
+            member = members.find(m => {
+                if (!m.name) return false;
+                const memberSlug = m.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                return memberSlug === id;
+            });
+        }
 
         if (!member) {
             return res.status(404).json({ message: "Team member not found" });
