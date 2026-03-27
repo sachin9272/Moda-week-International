@@ -4,6 +4,7 @@ import ScrollToTop from "./components/ScrollToTop.jsx";
 import LandingPage from './pages/LandingPage.jsx';
 import About from './pages/about/About.jsx';
 import ProductionTeam from './pages/productionTeam/ProductionTeam.jsx';
+import ProductionTeamMember from './pages/productionTeam/ProductionTeamMember.jsx';
 import FashioEvents from './pages/fashionEvents/FashionEvents.jsx'
 import Service from "./pages/services/Service.jsx";
 import Pricing from "./components/Pricing.jsx"
@@ -43,6 +44,7 @@ function App() {
         {/* Add more pages */}
         <Route path="/about" element={<About />} />
         <Route path="/production-team" element={<ProductionTeam />} />
+        <Route path="/production-team/:slug" element={<ProductionTeamMember />} />
         <Route path="/events" element={<FashioEvents />} />
         <Route path="/service" element={<Service />} />
         <Route path="/participants" element={<Participants />} />

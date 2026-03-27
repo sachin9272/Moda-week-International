@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { Search, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { baseURL } from "../../config/api";
 import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 
 export default function ProductionTeam() {
+    const navigate = useNavigate();
     const [activeFilter, setActiveFilter] = useState("All");
     const [members, setMembers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -19,7 +21,6 @@ export default function ProductionTeam() {
     const [availableCountries, setAvailableCountries] = useState([]);
     const [selectedCountry, setSelectedCountry] = useState(null);
     const [activeModal, setActiveModal] = useState(null);
-    const [selectedMember, setSelectedMember] = useState(null);
 
     const heroContent = {
         title: "MEET THE PRODUCTION TEAM",
@@ -49,7 +50,7 @@ export default function ProductionTeam() {
     }, [searchTerm]);
 
     useEffect(() => {
-        const shouldLockScroll = Boolean(activeModal || selectedMember);
+        const shouldLockScroll = Boolean(activeModal);
         const originalOverflow = document.body.style.overflow;
 
         if (shouldLockScroll) {
@@ -59,7 +60,7 @@ export default function ProductionTeam() {
         return () => {
             document.body.style.overflow = originalOverflow;
         };
-    }, [activeModal, selectedMember]);
+    }, [activeModal]);
 
     const fetchMembers = async (pageNum = 1, search = "", country = "") => {
         try {
@@ -290,7 +291,10 @@ export default function ProductionTeam() {
                                             )}
                                         </div>
                                         <button 
-                                            onClick={() => setSelectedMember(member)}
+                                            onClick={() => {
+                                                const slug = member.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                                                navigate(`/production-team/${slug}`);
+                                            }}
                                             className="w-full max-w-[200px] mt-6 bg-[#c58f3b] text-white px-5 py-3 text-sm font-bold tracking-widest uppercase hover:bg-[#a6762c] transition-colors rounded-full shadow-md"
                                         >
                                             Show More
@@ -314,71 +318,6 @@ export default function ProductionTeam() {
                     </div>
                 )}
             </div>
-
-            {/* Member Detail Modal */}
-            {selectedMember && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8 animate-fadeIn" onClick={() => setSelectedMember(null)}>
-                    <div className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row relative shadow-[0_0_40px_rgba(0,0,0,0.3)] animate-scaleIn rounded-sm" onClick={(e) => e.stopPropagation()}>
-                        
-                        {/* Close Button */}
-                        <button
-                            onClick={() => setSelectedMember(null)}
-                            className="absolute top-4 right-4 z-[70] p-2 bg-black/10 hover:bg-black hover:text-white rounded-full transition-colors text-black"
-                        >
-                            <X size={24} />
-                        </button>
-
-                        {/* Image Section */}
-                        <div className="w-full md:w-5/12 relative p-6 md:p-10 flex items-center justify-center bg-[#eaeaea] overflow-hidden">
-                            {/* Decorative Line inspired by design user provided */}
-                            <div className="absolute left-0 md:left-4 top-1/4 bottom-1/4 w-[3px] bg-[#C7913E]"></div>
-                            
-                            {/* The vertical dashed line next to image */}
-                            <div className="absolute right-0 top-0 bottom-0 w-[1px] border-r border-dashed border-gray-400"></div>
-
-                            <img
-                                src={optimizeCloudinaryImage(selectedMember.image?.url || selectedMember.image, { width: 900, height: 1200, crop: "fill" })}
-                                alt={selectedMember.name}
-                                className="w-full h-auto object-cover max-h-[50vh] md:max-h-[70vh] shadow-xl z-10"
-                                decoding="async"
-                            />
-                        </div>
-
-                        {/* Details Section */}
-                        <div className="w-full md:w-7/12 p-8 md:p-12 flex flex-col bg-white relative">
-                            {/* Decorative right dashed line */}
-                            <div className="absolute right-6 top-0 bottom-0 w-[1px] hidden xl:block"></div>
-
-                            <h2 className="text-3xl md:text-5xl font-serif text-[#C7913E] mb-2 leading-tight">
-                                {selectedMember.name}
-                            </h2>
-                            <p className="text-sm md:text-base text-gray-500 mb-6 pb-6">
-                                {selectedMember.role}
-                            </p>
-                            
-                            <div className="text-gray-600 text-sm md:text-base leading-relaxed whitespace-pre-line overflow-y-auto pr-4 custom-scrollbar font-light">
-                                {selectedMember.description || "No detailed description available for this member yet."}
-                            </div>
-
-                            {/* Social Links */}
-                            <div className="mt-auto pt-8 flex gap-4">
-                                {selectedMember.instagram && (
-                                    <a href={selectedMember.instagram} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium flex items-center gap-2 text-sm uppercase tracking-wider">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-                                        Instagram
-                                    </a>
-                                )}
-                                {selectedMember.website && (
-                                    <a href={selectedMember.website} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium flex items-center gap-2 text-sm uppercase tracking-wider">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                                        Website
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             <Footer />
         </div>
