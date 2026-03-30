@@ -21,7 +21,7 @@ const normalizeTeamMemberOrder = async () => {
 // Create a new team member
 export const createTeamMember = async (req, res) => {
     try {
-        const { name, country, countryCode, instagram, website, role, description } = req.body;
+        const { name, country, countryCode, instagram, website, role, description, cardDescription } = req.body;
         const file = req.file;
 
         await normalizeTeamMemberOrder();
@@ -44,6 +44,7 @@ export const createTeamMember = async (req, res) => {
             website,
             role: role || 'Team Member',
             description,
+            cardDescription,
             order: (lastMember?.order || 0) + 1,
             image
         });
@@ -60,7 +61,7 @@ export const createTeamMember = async (req, res) => {
 export const updateTeamMember = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, country, countryCode, instagram, website, role, description } = req.body;
+        const { name, country, countryCode, instagram, website, role, description, cardDescription } = req.body;
         const file = req.file;
 
         const member = await ProductionTeam.findById(id);
@@ -76,6 +77,7 @@ export const updateTeamMember = async (req, res) => {
         if (website !== undefined) member.website = website;
         if (role !== undefined) member.role = role;
         if (description !== undefined) member.description = description;
+        if (cardDescription !== undefined) member.cardDescription = cardDescription;
 
         // Handle image update
         if (file) {

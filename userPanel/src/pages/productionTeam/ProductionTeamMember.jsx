@@ -4,6 +4,8 @@ import axios from "axios";
 import { baseURL } from "../../config/api";
 import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 import { motion } from "framer-motion";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
 
 export default function ProductionTeamMember() {
     const { slug } = useParams();
@@ -52,13 +54,15 @@ export default function ProductionTeamMember() {
 
     return (
         <div className="bg-white min-h-screen w-full font-sans overflow-x-hidden">
-            <div className="w-full max-w-[1400px] mx-auto px-6 md:px-12 lg:px-24 py-12 md:py-20 relative">
+            <Navbar />
+
+            <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 lg:px-24 pt-28 pb-12 md:pt-36 md:pb-20 relative">
                 
                 {/* BACK Button */}
-                <div className="mb-12 md:mb-16">
+                <div className="mb-8 md:mb-16">
                     <button 
                         onClick={() => navigate('/production-team')}
-                        className="inline-block border border-[#C7913E] text-[#C7913E] px-10 py-2.5 text-xs tracking-[0.2em] hover:bg-[#C7913E] hover:text-white transition-all uppercase font-medium"
+                        className="inline-block border border-[#C7913E] text-[#C7913E] px-6 py-2.5 text-xs tracking-[0.2em] hover:bg-[#C7913E] hover:text-white transition-all uppercase font-medium md:px-10"
                     >
                         BACK
                     </button>
@@ -69,13 +73,13 @@ export default function ProductionTeamMember() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="flex flex-col lg:flex-row gap-12 lg:gap-20 relative"
+                    className="flex flex-col lg:flex-row gap-8 lg:gap-20 relative"
                 >
                     {/* Empty placeholder to match image width */}
                     <div className="hidden lg:block w-[40%] flex-shrink-0"></div>
                     
                     {/* Header Details */}
-                    <div className="w-full lg:w-[60%] flex flex-col mb-4">
+                    <div className="w-full lg:w-[60%] flex flex-col mb-2 md:mb-4">
                         <h1 className="text-3xl md:text-4xl lg:text-[50px] font-serif text-[#C7913E] mb-2 leading-tight uppercase">
                             {member.name}
                         </h1>
@@ -85,7 +89,7 @@ export default function ProductionTeamMember() {
                     </div>
                 </motion.div>
 
-                <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 relative">
+                <div className="flex flex-col lg:flex-row gap-8 lg:gap-20 relative">
                     
                     {/* Left Decorative Line (positioned to the left of image) */}
                     <div className="hidden lg:block absolute left-[-40px] bottom-[10%] w-[1.5px] h-[35%] bg-[#C7913E]"></div>
@@ -113,12 +117,12 @@ export default function ProductionTeamMember() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
-                        className="w-full lg:w-[60%] flex flex-col pt-0 pb-12"
+                        className="w-full lg:w-[60%] flex flex-col pt-0 pb-6 md:pb-12"
                     >
-                        <div className="text-[#555] font-light leading-normal text-[14px] md:text-[14.5px] text-justify pt-0">
+                        <div className="pt-0 text-left text-[14px] leading-7 text-[#555] md:text-[14.5px] md:text-justify">
                             {member.description ? (
                                 member.description.split('\n').map((paragraph, idx) => (
-                                    paragraph.trim() ? <p key={idx} className="mb-1.5">{paragraph}</p> : null
+                                    paragraph.trim() ? <p key={idx} className="mb-3 md:mb-1.5">{paragraph}</p> : null
                                 ))
                             ) : (
                                 <p>No detailed description available.</p>
@@ -126,7 +130,7 @@ export default function ProductionTeamMember() {
                         </div>
 
                         {/* Social Links */}
-                        <div className="mt-12 flex gap-6">
+                        <div className="mt-10 flex flex-wrap gap-4 md:mt-12 md:gap-6">
                             {member.instagram && (
                                 <a href={member.instagram} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium text-xs uppercase tracking-[0.15em] underline underline-offset-[6px]">
                                     Instagram
@@ -141,6 +145,8 @@ export default function ProductionTeamMember() {
                     </motion.div>
                 </div>
             </div>
+
+            <Footer />
         </div>
     );
 }

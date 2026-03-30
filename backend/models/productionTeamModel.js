@@ -29,6 +29,10 @@ const productionTeamSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    cardDescription: {
+        type: String,
+        required: false
+    },
     order: {
         type: Number,
         default: 0
