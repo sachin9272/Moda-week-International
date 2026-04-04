@@ -81,7 +81,7 @@ export default function ProductionTeam() {
                                             </h2>
                                             <div className="mt-4 h-px w-full bg-[#efe2bf]" />
 
-                                            <div className="mt-1 w-full max-w-full overflow-hidden bg-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.25)] sm:max-w-[320px] md:max-w-[340px]">
+                                            <div className="mt-4 w-full max-w-full overflow-hidden bg-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.25)] sm:max-w-[320px] md:max-w-[340px]">
                                                 <img
                                                     src={getMemberImage(member)}
                                                     alt={member.name}
@@ -91,8 +91,8 @@ export default function ProductionTeam() {
                                                 />
                                             </div>
 
-                                            <div className="mt-4 flex flex-col items-start gap-3">
-                                                <p className="text-left text-sm uppercase tracking-[0.04em] text-[#f3e0b5] md:text-[1.05rem]">
+                                            <div className="mt-4 flex flex-col items-center gap-3 text-center sm:max-w-[320px] md:max-w-[340px]">
+                                                <p className="w-full text-justify text-sm uppercase tracking-[0.08em] text-[#f3e0b5] md:text-center md:text-[1.05rem]">
                                                     {member.role || "Production Team"}
                                                 </p>
                                                 <button
@@ -108,7 +108,7 @@ export default function ProductionTeam() {
                                         <div className="flex min-h-full flex-col justify-center pt-4 md:pt-16 md:pl-10">
                                             <div className="md:px-2 min-h-[2rem] md:min-h-[12rem] flex items-center">
                                                 {getMemberCardDescription(member) && (
-                                                    <p className="text-left font-playfair text-[1.45rem] uppercase leading-[1.45] tracking-[0.03em] text-[#d7a74c] md:text-center md:text-[2.95rem] md:leading-[1.45]">
+                                                    <p className="text-justify font-playfair text-[1.45rem] uppercase leading-[1.45] tracking-[0.03em] text-[#d7a74c] md:text-center md:text-[2.95rem] md:leading-[1.45]">
                                                         {getMemberCardDescription(member)}
                                                     </p>
                                                 )}

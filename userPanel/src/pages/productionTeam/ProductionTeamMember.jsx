@@ -59,7 +59,7 @@ export default function ProductionTeamMember() {
             <div className="w-full max-w-[1400px] mx-auto px-4 sm:px-6 md:px-12 lg:px-24 pt-28 pb-12 md:pt-36 md:pb-20 relative">
                 
                 {/* BACK Button */}
-                <div className="mb-8 md:mb-16">
+                <div className="mb-4 md:mb-8">
                     <button 
                         onClick={() => navigate('/production-team')}
                         className="inline-block border border-[#C7913E] text-[#C7913E] px-6 py-2.5 text-xs tracking-[0.2em] hover:bg-[#C7913E] hover:text-white transition-all uppercase font-medium md:px-10"
@@ -68,28 +68,7 @@ export default function ProductionTeamMember() {
                     </button>
                 </div>
 
-                {/* Header Section (Above Image & Content aligned to right column) */}
-                <motion.div 
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="flex flex-col lg:flex-row gap-8 lg:gap-20 relative"
-                >
-                    {/* Empty placeholder to match image width */}
-                    <div className="hidden lg:block w-[40%] flex-shrink-0"></div>
-                    
-                    {/* Header Details */}
-                    <div className="w-full lg:w-[60%] flex flex-col mb-2 md:mb-4">
-                        <h1 className="text-3xl md:text-4xl lg:text-[50px] font-serif text-[#C7913E] mb-2 leading-tight uppercase">
-                            {member.name}
-                        </h1>
-                        <p className="text-[13px] md:text-[14.5px] text-gray-400 font-light italic leading-relaxed uppercase tracking-widest">
-                            "{member.role || 'Production Team'}"
-                        </p>
-                    </div>
-                </motion.div>
-
-                <div className="flex flex-col lg:flex-row gap-8 lg:gap-20 relative">
+                <div className="flex flex-col lg:flex-row lg:items-center gap-8 lg:gap-20 relative">
                     
                     {/* Left Decorative Line (positioned to the left of image) */}
                     <div className="hidden lg:block absolute left-[-40px] bottom-[10%] w-[1.5px] h-[35%] bg-[#C7913E]"></div>
@@ -102,7 +81,7 @@ export default function ProductionTeamMember() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.7, delay: 0.2, ease: "easeOut" }}
-                        className="w-full lg:w-[40%] flex-shrink-0"
+                        className="w-full lg:w-[40%] flex shrink-0 items-center"
                     >
                         <img
                             src={optimizeCloudinaryImage(member.image?.url || member.image, { width: 900, height: 1200, crop: "fill" })}
@@ -117,12 +96,21 @@ export default function ProductionTeamMember() {
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
-                        className="w-full lg:w-[60%] flex flex-col pt-0 pb-6 md:pb-12"
+                        className="w-full lg:w-[60%] flex flex-col justify-center pt-0 pb-6 md:pb-12"
                     >
-                        <div className="pt-0 text-left text-[14px] leading-7 text-[#555] md:text-[14.5px] md:text-justify">
+                        <div className="mb-5 md:mb-7">
+                            <h1 className="text-3xl md:text-4xl lg:text-[50px] font-serif text-[#C7913E] mb-2 leading-[1.08] uppercase tracking-[0.01em]">
+                                {member.name}
+                            </h1>
+                            <p className="text-[13px] md:text-[14.5px] text-gray-400 font-light italic leading-[1.45] uppercase tracking-[0.14em]">
+                                "{member.role || 'Production Team'}"
+                            </p>
+                        </div>
+
+                        <div className="max-w-[720px] pt-0 text-left text-[14px] leading-[1.6] tracking-[0.01em] text-[#555] md:text-[14.5px] md:leading-[1.7]">
                             {member.description ? (
                                 member.description.split('\n').map((paragraph, idx) => (
-                                    paragraph.trim() ? <p key={idx} className="mb-3 md:mb-1.5">{paragraph}</p> : null
+                                    paragraph.trim() ? <p key={idx} className="mb-2.5 md:mb-2">{paragraph}</p> : null
                                 ))
                             ) : (
                                 <p>No detailed description available.</p>
