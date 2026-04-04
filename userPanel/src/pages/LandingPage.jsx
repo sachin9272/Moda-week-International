@@ -421,7 +421,7 @@ export default function LandingPage() {
 
       {/* MODA Week International */}
       {hasModaIntroContent && (
-        <section className="py-12 px-6 bg-white mt-10">
+        <section className="py-12 px-6 bg-white">
           <div className="container mx-auto bg-black p-6 md:p-7">
             <div className="flex h-full flex-col items-center justify-center gap-6 md:flex-row md:items-stretch md:gap-7">
               {modaIntroImage && (
