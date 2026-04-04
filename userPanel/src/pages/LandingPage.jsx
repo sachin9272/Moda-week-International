@@ -113,12 +113,26 @@ function VideoSlider({ slides, onSlideChange }) {
       </div>
 
       {/* Dynamic Content (LEFT) */}
-      <div className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-2 pointer-events-none">
+      <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-10 md:px-10 md:pb-8">
         {slides[current] && (
-          <h1 className="text-6xl md:text-6xl lg:text-[100px]  leading-tight text-white max-w-3xl ml-10 whitespace-pre-line">
+          <h1 className="pointer-events-none text-6xl md:text-6xl lg:text-[100px] leading-tight text-white max-w-3xl whitespace-pre-line">
             {slides[current].title}
           </h1>
         )}
+        {slides[current]?.subtitle && (
+          <p className="mt-4 max-w-3xl text-sm uppercase tracking-wide text-white md:text-base">
+            <span className="whitespace-pre-line">
+              {slides[current].subtitle}
+            </span>
+          </p>
+        )}
+        <div className="mt-4">
+          <Link to="/service?tab=designer">
+            <button className="grad-bg h-[45px] w-[181px] text-2xl">
+              APPLY NOW
+            </button>
+          </Link>
+        </div>
       </div>
 
       {/* Dots (RIGHT BOTTOM) */}
@@ -372,10 +386,24 @@ export default function LandingPage() {
         <Navbar />
         <VideoSlider slides={slides} onSlideChange={setCurrentSlideIndex} />
         {slides.length === 0 && displaySlides[currentSlideIndex]?.title && (
-          <div className="absolute inset-0 z-10 flex flex-col justify-end pb-24 md:pb-2 pointer-events-none">
-            <h1 className="text-6xl md:text-6xl lg:text-[100px] leading-tight text-white max-w-3xl ml-10 whitespace-pre-line">
+          <div className="absolute inset-0 z-10 flex flex-col justify-end px-6 pb-10 md:px-10 md:pb-8">
+            <h1 className="pointer-events-none text-6xl md:text-6xl lg:text-[100px] leading-tight text-white max-w-3xl whitespace-pre-line">
               {displaySlides[currentSlideIndex].title}
             </h1>
+            {displaySlides[currentSlideIndex]?.subtitle && (
+              <p className="mt-4 max-w-3xl text-sm uppercase tracking-wide text-white md:text-base">
+                <span className="whitespace-pre-line">
+                  {displaySlides[currentSlideIndex].subtitle}
+                </span>
+              </p>
+            )}
+            <div className="mt-4">
+              <Link to="/service?tab=designer">
+                <button className="grad-bg h-[45px] w-[181px] text-2xl">
+                  APPLY NOW
+                </button>
+              </Link>
+            </div>
           </div>
         )}
         {slides.length === 0 && displaySlides.length > 0 && (
@@ -390,21 +418,6 @@ export default function LandingPage() {
           </div>
         )}
       </section>
-
-      <div className="bg-black mb-10 ml-10">
-        {displaySlides[currentSlideIndex]?.subtitle && (
-          <p className="text-white uppercase">
-            <span className="whitespace-pre-line">
-              {displaySlides[currentSlideIndex].subtitle}
-            </span>
-          </p>
-        )}
-        <Link to="/service?tab=designer">
-          <button className="grad-bg h-[45px] w-[181px] mt-2 text-2xl">
-            APPLY NOW
-          </button>
-        </Link>
-      </div>
 
       {/* MODA Week International */}
       {hasModaIntroContent && (
