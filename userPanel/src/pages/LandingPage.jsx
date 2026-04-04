@@ -112,9 +112,6 @@ function VideoSlider({ slides, onSlideChange }) {
         ))}
       </div>
 
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-linear-to-b from-black/40 to-black pointer-events-none"></div>
-
       {/* Dynamic Content (LEFT) */}
       <div className="relative z-10 h-full flex flex-col justify-end pb-24 md:pb-2 pointer-events-none">
         {slides[current] && (
