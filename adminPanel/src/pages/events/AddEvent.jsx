@@ -132,6 +132,7 @@ const AddEvent = () => {
         layout: 'grid', // Default collection layout
         gridAspectRatio: 'portrait',
         day: '', // Add Day field
+        dayLabel: '',
         images: []
     });
     const [editingIndex, setEditingIndex] = useState(null);
@@ -441,7 +442,17 @@ const AddEvent = () => {
 
     const handleCollectionChange = (e) => {
         const { name, value } = e.target;
-        setCurrentCollection(prev => ({ ...prev, [name]: value }));
+        setCurrentCollection(prev => {
+            if (name === 'day') {
+                return {
+                    ...prev,
+                    day: value,
+                    dayLabel: value === 'custom' ? prev.dayLabel : ''
+                };
+            }
+
+            return { ...prev, [name]: value };
+        });
     };
 
     const handleCollectionImages = async (e) => {
@@ -494,6 +505,11 @@ const AddEvent = () => {
     };
 
     const addCollection = () => {
+        if (currentCollection.day === 'custom' && !currentCollection.dayLabel?.trim()) {
+            toast.error("Please enter a custom day name.");
+            return;
+        }
+
         if (currentCollection.title && currentCollection.images.length > 0) {
             setFormData(prev => {
                 const newCollections = [...prev.collections];
@@ -513,7 +529,7 @@ const AddEvent = () => {
                 }
                 return { ...prev, collections: newCollections };
             });
-            setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', day: '', images: [] });
+            setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', day: '', dayLabel: '', images: [] });
             setEditingIndex(null);
 
             // Reset file inputs
@@ -536,7 +552,7 @@ const AddEvent = () => {
 
     const cancelEditCollection = () => {
         setEditingIndex(null);
-        setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', day: '', images: [] });
+        setCurrentCollection({ title: '', subtitle: '', description: '', designerId: null, designerImage: null, layout: 'grid', gridAspectRatio: 'portrait', day: '', dayLabel: '', images: [] });
     };
 
     const removeCollection = (index) => {
@@ -680,7 +696,8 @@ const AddEvent = () => {
             designerId: col.designerId, // Include ID
             layout: col.layout,
             gridAspectRatio: col.gridAspectRatio,
-            day: col.day // Include Day
+            day: col.day, // Include Day
+            dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : ''
         }));
         data.append('collections', JSON.stringify(collectionsMeta));
 
@@ -1180,7 +1197,20 @@ const AddEvent = () => {
                                         <option value="1">Day 1</option>
                                         <option value="2">Day 2</option>
                                         <option value="3">Day 3</option>
+                                        <option value="4">Day 4</option>
+                                        <option value="5">Day 5</option>
+                                        <option value="custom">Custom Name</option>
                                     </select>
+                                    {currentCollection.day === 'custom' && (
+                                        <input
+                                            type="text"
+                                            name="dayLabel"
+                                            value={currentCollection.dayLabel || ''}
+                                            onChange={handleCollectionChange}
+                                            placeholder="Enter custom day name"
+                                            className="mt-2 w-full p-2 bg-gray-700 rounded text-white"
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>

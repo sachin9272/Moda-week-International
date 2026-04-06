@@ -380,6 +380,7 @@ export const updateEvent = async (req, res) => {
                 designerImage,
                 gridAspectRatio: col.gridAspectRatio || 'portrait',
                 day: col.day,
+                dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : '',
                 images: [...existingImagesObjects, ...newImagesParts]
             };
         });

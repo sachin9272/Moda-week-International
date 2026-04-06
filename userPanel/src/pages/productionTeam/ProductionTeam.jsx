@@ -76,10 +76,11 @@ export default function ProductionTeam() {
                                 >
                                     <div className="grid items-start gap-8 md:min-h-[520px] md:grid-cols-[minmax(360px,420px)_1fr] md:gap-8">
                                         <div className="pl-0 md:pl-12">
-                                            <h2 className="break-words px-0 font-playfair text-[1.9rem] uppercase leading-tight tracking-[0.01em] text-white md:whitespace-nowrap md:text-[2.9rem]">
-                                                {member.name}
-                                            </h2>
-                                            <div className="mt-4 h-px w-full bg-[#efe2bf]" />
+                                            <div className="inline-block max-w-full">
+                                                <h2 className="inline-block break-words border-b border-[#efe2bf] px-0 pb-4 font-playfair text-[1.9rem] uppercase leading-tight tracking-[0.01em] text-white md:whitespace-nowrap md:text-[2.9rem]">
+                                                    {member.name}
+                                                </h2>
+                                            </div>
 
                                             <div className="mt-4 w-full max-w-full overflow-hidden bg-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.25)] sm:max-w-[320px] md:max-w-[340px]">
                                                 <img
