@@ -19,7 +19,15 @@ function centerAspectCrop(mediaWidth, mediaHeight, aspect) {
     )
 }
 
-const ImageEditorModal = ({ image, isOpen, onClose, onSave, aspect = 16 / 9 }) => {
+const ImageEditorModal = ({
+    image,
+    isOpen,
+    onClose,
+    onSave,
+    aspect = 16 / 9,
+    outputType = 'image/jpeg',
+    outputQuality = 0.95
+}) => {
     const [crop, setCrop] = useState();
     const [completedCrop, setCompletedCrop] = useState();
     const [aspectRatio, setAspectRatio] = useState(aspect);
@@ -52,9 +60,19 @@ const ImageEditorModal = ({ image, isOpen, onClose, onSave, aspect = 16 / 9 }) =
         const canvas = document.createElement('canvas');
         const scaleX = image.naturalWidth / image.width;
         const scaleY = image.naturalHeight / image.height;
-        canvas.width = crop.width;
-        canvas.height = crop.height;
+        const pixelWidth = Math.max(1, Math.round(crop.width * scaleX));
+        const pixelHeight = Math.max(1, Math.round(crop.height * scaleY));
+
+        canvas.width = pixelWidth;
+        canvas.height = pixelHeight;
         const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+            throw new Error('Could not get canvas context');
+        }
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
 
         ctx.drawImage(
             image,
@@ -64,8 +82,8 @@ const ImageEditorModal = ({ image, isOpen, onClose, onSave, aspect = 16 / 9 }) =
             crop.height * scaleY,
             0,
             0,
-            crop.width,
-            crop.height
+            pixelWidth,
+            pixelHeight
         );
 
         return new Promise((resolve, reject) => {
@@ -75,7 +93,7 @@ const ImageEditorModal = ({ image, isOpen, onClose, onSave, aspect = 16 / 9 }) =
                     return;
                 }
                 resolve(blob);
-            }, 'image/jpeg');
+            }, outputType, outputQuality);
         });
     };
 

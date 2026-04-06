@@ -420,6 +420,36 @@ export default function EventTicketDetails() {
                 )}
             </div>
 
+            {event.partners && event.partners.length > 0 && (
+                <div className="py-1 bg-white border-t border-gray-100">
+                    <div className="max-w-7xl mx-auto px-6 text-center mb-10">
+                        <h2 className="text-3xl md:text-5xl font-playfair font-bold text-black uppercase tracking-wider mb-2">
+                            Event Partners
+                        </h2>
+                        <div className="w-24 h-0.5 bg-[#C7913E] mx-auto"></div>
+                    </div>
+
+                    <div className="border-gray-800 py-8">
+                        <div className="marquee-wrapper py-8">
+                            <div className="marquee-track">
+                                {[...Array(10)].map((_, loopIndex) => (
+                                    event.partners.map((partner, i) => (
+                                        <img
+                                            key={`${loopIndex}-${i}`}
+                                            src={optimizeCloudinaryImage(partner.url, { width: 320, height: 160, crop: "fit" })}
+                                            alt={`Partner ${i}`}
+                                            className="h-20 object-contain -mx-1"
+                                            loading="lazy"
+                                            decoding="async"
+                                        />
+                                    ))
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Collections Section - Hide if in tickets mode */}
             {mode !== "tickets" && (
                 <div className="mt-10 bg-white">
