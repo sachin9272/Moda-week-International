@@ -31,6 +31,7 @@ import Contact from "./pages/Contact.jsx";
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
+import ChatWidget from "./components/ChatWidget.jsx";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
       <ScrollToTop />
       <Toaster position="top-right" />
       <WhatsAppButton />
+      <ChatWidget />
       <Routes>
         {/* Default route */}
         <Route path="/" element={<LandingPage />} />
