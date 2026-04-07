@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { Calendar, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
 import { baseURL } from "../config/api";
@@ -29,6 +29,24 @@ function VideoSlider({ slides, onSlideChange }) {
   const videoRefs = useRef([]);
   const scrollTimeout = useRef(null);
 
+  const goToSlide = useCallback((index) => {
+    if (slides.length === 0) return;
+    setCurrent(index);
+    if (onSlideChange) onSlideChange(index);
+  }, [onSlideChange, slides.length]);
+
+  const goToPrevious = useCallback(() => {
+    if (slides.length === 0) return;
+    const prevIndex = current === 0 ? slides.length - 1 : current - 1;
+    goToSlide(prevIndex);
+  }, [current, goToSlide, slides.length]);
+
+  const goToNext = useCallback(() => {
+    if (slides.length === 0) return;
+    const nextIndex = (current + 1) % slides.length;
+    goToSlide(nextIndex);
+  }, [current, goToSlide, slides.length]);
+
   useEffect(() => {
     if (slides.length === 0) {
       setCurrent(0);
@@ -48,9 +66,7 @@ function VideoSlider({ slides, onSlideChange }) {
 
   const handleEnded = () => {
     if (slides.length === 0) return;
-    const next = (current + 1) % slides.length;
-    setCurrent(next);
-    if (onSlideChange) onSlideChange(next);
+    goToNext();
   };
 
   // Sync play state when current changes
@@ -76,14 +92,10 @@ function VideoSlider({ slides, onSlideChange }) {
     if (Math.abs(e.deltaX) > 20) {
       if (e.deltaX > 0) {
         // Scroll Right -> Next
-        const next = (current + 1) % slides.length;
-        setCurrent(next);
-        if (onSlideChange) onSlideChange(next);
+        goToNext();
       } else {
         // Scroll Left -> Prev
-        const prevIndex = current === 0 ? slides.length - 1 : current - 1;
-        setCurrent(prevIndex);
-        if (onSlideChange) onSlideChange(prevIndex);
+        goToPrevious();
       }
 
       scrollTimeout.current = setTimeout(() => {
@@ -111,6 +123,27 @@ function VideoSlider({ slides, onSlideChange }) {
           />
         ))}
       </div>
+
+      {slides.length > 1 && (
+        <>
+          <button
+            type="button"
+            aria-label="Previous video"
+            onClick={goToPrevious}
+            className="absolute left-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:left-8 md:h-14 md:w-14"
+          >
+            <ChevronLeft size={28} />
+          </button>
+          <button
+            type="button"
+            aria-label="Next video"
+            onClick={goToNext}
+            className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:right-8 md:h-14 md:w-14"
+          >
+            <ChevronRight size={28} />
+          </button>
+        </>
+      )}
 
       {/* Dynamic Content (LEFT) */}
       <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-10 md:px-10 md:pb-8">
@@ -144,10 +177,7 @@ function VideoSlider({ slides, onSlideChange }) {
               className={`h-1 w-16 transition-all duration-300
                           ${current === i ? "bg-white scale-125" : "bg-white/50"}
                       `}
-              onClick={() => {
-                setCurrent(i);
-                if (onSlideChange) onSlideChange(i);
-              }}
+              onClick={() => goToSlide(i)}
             />
           ))}
         </div>
@@ -405,6 +435,32 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
+        )}
+        {slides.length === 0 && displaySlides.length > 1 && (
+          <>
+            <button
+              type="button"
+              aria-label="Previous video"
+              onClick={() =>
+                setCurrentSlideIndex((prev) =>
+                  prev === 0 ? displaySlides.length - 1 : prev - 1
+                )
+              }
+              className="absolute left-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:left-8 md:h-14 md:w-14"
+            >
+              <ChevronLeft size={28} />
+            </button>
+            <button
+              type="button"
+              aria-label="Next video"
+              onClick={() =>
+                setCurrentSlideIndex((prev) => (prev + 1) % displaySlides.length)
+              }
+              className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:right-8 md:h-14 md:w-14"
+            >
+              <ChevronRight size={28} />
+            </button>
+          </>
         )}
         {slides.length === 0 && displaySlides.length > 0 && (
           <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
