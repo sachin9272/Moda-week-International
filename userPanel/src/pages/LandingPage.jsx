@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
-import { Calendar, MapPin, Clock, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, MapPin, Clock, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
 import { baseURL } from "../config/api";
@@ -34,12 +34,6 @@ function VideoSlider({ slides, onSlideChange }) {
     setCurrent(index);
     if (onSlideChange) onSlideChange(index);
   }, [onSlideChange, slides.length]);
-
-  const goToPrevious = useCallback(() => {
-    if (slides.length === 0) return;
-    const prevIndex = current === 0 ? slides.length - 1 : current - 1;
-    goToSlide(prevIndex);
-  }, [current, goToSlide, slides.length]);
 
   const goToNext = useCallback(() => {
     if (slides.length === 0) return;
@@ -90,13 +84,7 @@ function VideoSlider({ slides, onSlideChange }) {
     // Use deltaX for horizontal scrolling
     // Add a small threshold to avoid accidental triggers from imperfect vertical scrolling
     if (Math.abs(e.deltaX) > 20) {
-      if (e.deltaX > 0) {
-        // Scroll Right -> Next
-        goToNext();
-      } else {
-        // Scroll Left -> Prev
-        goToPrevious();
-      }
+      goToNext();
 
       scrollTimeout.current = setTimeout(() => {
         scrollTimeout.current = null;
@@ -125,24 +113,14 @@ function VideoSlider({ slides, onSlideChange }) {
       </div>
 
       {slides.length > 1 && (
-        <>
-          <button
-            type="button"
-            aria-label="Previous video"
-            onClick={goToPrevious}
-            className="absolute left-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:left-8 md:h-14 md:w-14"
-          >
-            <ChevronLeft size={28} />
-          </button>
-          <button
-            type="button"
-            aria-label="Next video"
-            onClick={goToNext}
-            className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:right-8 md:h-14 md:w-14"
-          >
-            <ChevronRight size={28} />
-          </button>
-        </>
+        <button
+          type="button"
+          aria-label="Next video"
+          onClick={goToNext}
+          className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:right-8 md:h-14 md:w-14"
+        >
+          <ChevronRight size={28} />
+        </button>
       )}
 
       {/* Dynamic Content (LEFT) */}
@@ -167,21 +145,6 @@ function VideoSlider({ slides, onSlideChange }) {
           </Link>
         </div>
       </div>
-
-      {/* Dots (RIGHT BOTTOM) */}
-      {slides.length > 0 && (
-        <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
-          {slides.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 w-16 transition-all duration-300
-                          ${current === i ? "bg-white scale-125" : "bg-white/50"}
-                      `}
-              onClick={() => goToSlide(i)}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
@@ -437,41 +400,16 @@ export default function LandingPage() {
           </div>
         )}
         {slides.length === 0 && displaySlides.length > 1 && (
-          <>
-            <button
-              type="button"
-              aria-label="Previous video"
-              onClick={() =>
-                setCurrentSlideIndex((prev) =>
-                  prev === 0 ? displaySlides.length - 1 : prev - 1
-                )
-              }
-              className="absolute left-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:left-8 md:h-14 md:w-14"
-            >
-              <ChevronLeft size={28} />
-            </button>
-            <button
-              type="button"
-              aria-label="Next video"
-              onClick={() =>
-                setCurrentSlideIndex((prev) => (prev + 1) % displaySlides.length)
-              }
-              className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:right-8 md:h-14 md:w-14"
-            >
-              <ChevronRight size={28} />
-            </button>
-          </>
-        )}
-        {slides.length === 0 && displaySlides.length > 0 && (
-          <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
-            {displaySlides.map((_, i) => (
-              <div
-                key={i}
-                className={`h-1 w-16 transition-all duration-300 ${currentSlideIndex === i ? "bg-white scale-125" : "bg-white/50"}`}
-                onClick={() => setCurrentSlideIndex(i)}
-              />
-            ))}
-          </div>
+          <button
+            type="button"
+            aria-label="Next video"
+            onClick={() =>
+              setCurrentSlideIndex((prev) => (prev + 1) % displaySlides.length)
+            }
+            className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:right-8 md:h-14 md:w-14"
+          >
+            <ChevronRight size={28} />
+          </button>
         )}
       </section>
 
