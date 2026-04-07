@@ -63,6 +63,14 @@ function VideoSlider({ slides, onSlideChange }) {
     goToNext();
   };
 
+  const handleVideoError = (index, src) => {
+    console.error("Landing slider video failed to load:", src);
+
+    if (index === current && slides.length > 1) {
+      goToNext();
+    }
+  };
+
   // Sync play state when current changes
   useEffect(() => {
     if (slides.length === 0) return;
@@ -101,6 +109,8 @@ function VideoSlider({ slides, onSlideChange }) {
             key={index}
             ref={el => videoRefs.current[index] = el}
             src={slide.video}
+            preload="metadata"
+            autoPlay={current === index}
             muted
             playsInline
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000
@@ -108,6 +118,7 @@ function VideoSlider({ slides, onSlideChange }) {
                           ${index === 1 ? "object-top" : ""}
                       `}
             onEnded={handleEnded}
+            onError={() => handleVideoError(index, slide.video)}
           />
         ))}
       </div>
@@ -188,64 +199,16 @@ export default function LandingPage() {
     );
   };
 
-  const canLoadVideo = (src) =>
-    new Promise((resolve) => {
-      if (!src) {
-        resolve(false);
-        return;
-      }
-
-      const testVideo = document.createElement("video");
-      let settled = false;
-
-      const finalize = (result) => {
-        if (settled) return;
-        settled = true;
-        testVideo.removeAttribute("src");
-        testVideo.load();
-        resolve(result);
-      };
-
-      const timeout = setTimeout(() => finalize(false), 4000);
-
-      testVideo.preload = "metadata";
-      testVideo.muted = true;
-      testVideo.playsInline = true;
-      testVideo.onloadedmetadata = () => {
-        clearTimeout(timeout);
-        finalize(true);
-      };
-      testVideo.onerror = () => {
-        clearTimeout(timeout);
-        finalize(false);
-      };
-      testVideo.src = src;
-    });
-
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slides, setSlides] = useState([]);
-  const [pendingSlides, setPendingSlides] = useState([]);
-  const displaySlides = slides.length > 0 ? slides : pendingSlides;
 
   useEffect(() => {
-    if (slides.length > 0 || displaySlides.length <= 1) {
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % displaySlides.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [slides.length, displaySlides.length]);
-
-  useEffect(() => {
-    if (displaySlides.length === 0) {
+    if (slides.length === 0) {
       setCurrentSlideIndex(0);
-    } else if (currentSlideIndex >= displaySlides.length) {
+    } else if (currentSlideIndex >= slides.length) {
       setCurrentSlideIndex(0);
     }
-  }, [displaySlides.length, currentSlideIndex]);
+  }, [slides.length, currentSlideIndex]);
 
   useEffect(() => {
     const fetchLandingPageContent = async () => {
@@ -289,17 +252,8 @@ export default function LandingPage() {
           }));
 
           if (candidateSlides.length > 0) {
-            setPendingSlides(candidateSlides);
-            const validationResults = await Promise.all(
-              candidateSlides.map((slide) => canLoadVideo(slide.video))
-            );
-
-            const playableSlides = candidateSlides.filter((_, index) => validationResults[index]);
-
-            if (playableSlides.length > 0) {
-              setSlides(playableSlides);
-              setCurrentSlideIndex(0);
-            }
+            setSlides(candidateSlides);
+            setCurrentSlideIndex(0);
           }
         }
       } catch (error) {
@@ -378,39 +332,6 @@ export default function LandingPage() {
       >
         <Navbar />
         <VideoSlider slides={slides} onSlideChange={setCurrentSlideIndex} />
-        {slides.length === 0 && displaySlides[currentSlideIndex]?.title && (
-          <div className="absolute inset-0 z-10 flex flex-col justify-end px-6 pb-10 md:px-10 md:pb-8">
-            <h1 className="pointer-events-none text-6xl md:text-6xl lg:text-[100px] leading-tight text-white max-w-3xl whitespace-pre-line">
-              {displaySlides[currentSlideIndex].title}
-            </h1>
-            {displaySlides[currentSlideIndex]?.subtitle && (
-              <p className="mt-4 max-w-3xl text-sm uppercase tracking-wide text-white md:text-base">
-                <span className="whitespace-pre-line">
-                  {displaySlides[currentSlideIndex].subtitle}
-                </span>
-              </p>
-            )}
-            <div className="mt-4">
-              <Link to="/service?tab=designer">
-                <button className="grad-bg h-[45px] w-[181px] text-2xl">
-                  APPLY NOW
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
-        {slides.length === 0 && displaySlides.length > 1 && (
-          <button
-            type="button"
-            aria-label="Next video"
-            onClick={() =>
-              setCurrentSlideIndex((prev) => (prev + 1) % displaySlides.length)
-            }
-            className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:right-8 md:h-14 md:w-14"
-          >
-            <ChevronRight size={28} />
-          </button>
-        )}
       </section>
 
       {/* MODA Week International */}

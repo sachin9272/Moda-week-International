@@ -268,14 +268,14 @@ export default function Footer() {
                       Past Events
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
-                      to="/news-room"
+                      to="/press-media"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Press & Media
                     </Link>
-                  </li>
+                  </li> */}
                 </ul>
               </div>
 

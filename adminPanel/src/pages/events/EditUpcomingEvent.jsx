@@ -87,6 +87,89 @@ const SortableCollectionItem = ({ col, idx, onEdit, onRemove }) => {
     );
 };
 
+const SortableTicketItem = ({ ticket, idx, onEdit, onRemove }) => {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id: ticket.id || ticket._id || `ticket-${idx}` });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : 'auto',
+    };
+
+    const imageSrc = ticket.image
+        ? (typeof ticket.image === 'string' ? ticket.image : URL.createObjectURL(ticket.image))
+        : null;
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`flex items-center justify-between bg-gray-700/50 p-3 rounded border border-gray-600 ${isDragging ? 'shadow-2xl border-blue-500 scale-[1.02] ring-2 ring-blue-500/30 opacity-50' : ''}`}
+        >
+            <div className="flex items-center gap-3">
+                <button
+                    type="button"
+                    {...attributes}
+                    {...listeners}
+                    className="cursor-grab active:cursor-grabbing p-1 hover:bg-gray-600 rounded text-gray-400 hover:text-white"
+                >
+                    <GripVertical size={20} />
+                </button>
+                {imageSrc && (
+                    <img
+                        src={imageSrc}
+                        alt={ticket.name}
+                        className="w-12 h-12 object-cover rounded shadow-sm"
+                    />
+                )}
+                <div>
+                    <p className="font-bold text-white text-sm leading-tight">
+                        {ticket.name} - {ticket.currency} ${ticket.price} (Qty: {ticket.amount})
+                    </p>
+                    {ticket.description && (
+                        <p className="text-xs text-gray-400">{ticket.description}</p>
+                    )}
+                </div>
+            </div>
+            <div className="flex items-center gap-2">
+                <button
+                    type="button"
+                    onClick={onEdit}
+                    className="text-blue-400 hover:text-blue-300 p-2 hover:bg-blue-900/20 rounded-full transition-colors"
+                >
+                    <Pencil size={16} />
+                </button>
+                <button
+                    type="button"
+                    onClick={onRemove}
+                    className="text-red-400 hover:text-red-300 p-2 hover:bg-red-900/20 rounded-full transition-colors"
+                >
+                    <Trash2 size={16} />
+                </button>
+            </div>
+        </div>
+    );
+};
+
+const createEmptyTicket = () => ({
+    id: '',
+    name: '',
+    price: '',
+    currency: 'USD',
+    amount: 100,
+    description: '',
+    image: null
+});
+
+const createTicketId = () => `ticket-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
 const EditUpcomingEvent = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -119,14 +202,8 @@ const EditUpcomingEvent = () => {
         hasTickets: false
     });
 
-    const [currentTicket, setCurrentTicket] = useState({
-        name: '',
-        price: '',
-        currency: 'USD',
-        amount: 100,
-        description: '',
-        image: null
-    });
+    const [currentTicket, setCurrentTicket] = useState(createEmptyTicket);
+    const [editingTicketId, setEditingTicketId] = useState(null);
 
     const [currentCollection, setCurrentCollection] = useState({
         title: '',
@@ -206,20 +283,45 @@ const EditUpcomingEvent = () => {
         })
     );
 
-    const handleDragEnd = (event) => {
+    const handleCollectionDragEnd = (event) => {
         const { active, over } = event;
 
-        if (active.id !== over.id) {
-            setFormData(prev => {
-                const oldIndex = prev.collections.findIndex((col, idx) => (col.id || col._id || `col-${idx}`) === active.id);
-                const newIndex = prev.collections.findIndex((col, idx) => (col.id || col._id || `col-${idx}`) === over.id);
+        if (!over || active.id === over.id) return;
 
-                return {
-                    ...prev,
-                    collections: arrayMove(prev.collections, oldIndex, newIndex)
-                };
-            });
-        }
+        setFormData(prev => {
+            const oldIndex = prev.collections.findIndex((col, idx) => (col.id || col._id || `col-${idx}`) === active.id);
+            const newIndex = prev.collections.findIndex((col, idx) => (col.id || col._id || `col-${idx}`) === over.id);
+
+            if (oldIndex < 0 || newIndex < 0) return prev;
+
+            return {
+                ...prev,
+                collections: arrayMove(prev.collections, oldIndex, newIndex)
+            };
+        });
+    };
+
+    const handleTicketDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (!over || active.id === over.id) return;
+
+        setFormData(prev => {
+            const oldIndex = prev.ticketTypes.findIndex((ticket, idx) => (ticket.id || ticket._id || `ticket-${idx}`) === active.id);
+            const newIndex = prev.ticketTypes.findIndex((ticket, idx) => (ticket.id || ticket._id || `ticket-${idx}`) === over.id);
+
+            if (oldIndex < 0 || newIndex < 0) return prev;
+
+            return {
+                ...prev,
+                ticketTypes: arrayMove(prev.ticketTypes, oldIndex, newIndex)
+            };
+        });
+    };
+
+    const resetCurrentTicket = () => {
+        setCurrentTicket(createEmptyTicket());
+        setEditingTicketId(null);
     };
 
     useEffect(() => {
@@ -264,6 +366,7 @@ const EditUpcomingEvent = () => {
                     },
                     ticketTypes: (event.ticketTypes || []).map(t => ({
                         ...t,
+                        id: t._id || createTicketId(),
                         image: t.image?.url || t.image || null
                     })),
                     collections: (event.collections || []).map(col => ({
@@ -455,15 +558,36 @@ const EditUpcomingEvent = () => {
     };
 
     const addTicket = () => {
-        if (currentTicket.name && currentTicket.price) {
-            setFormData(prev => ({
-                ...prev,
-                ticketTypes: [...prev.ticketTypes, currentTicket]
-            }));
-            setCurrentTicket({ name: '', price: '', currency: 'USD', amount: 100, description: '', image: null });
-        } else {
+        if (!currentTicket.name || !currentTicket.price) {
             toast.error("Ticket must have a Name and Price.");
+            return;
         }
+
+        const ticketToSave = {
+            ...currentTicket,
+            id: editingTicketId || currentTicket.id || createTicketId()
+        };
+
+        setFormData(prev => {
+            const existingIndex = prev.ticketTypes.findIndex((ticket, idx) => (ticket.id || ticket._id || `ticket-${idx}`) === ticketToSave.id);
+
+            if (existingIndex >= 0) {
+                const updatedTickets = [...prev.ticketTypes];
+                updatedTickets[existingIndex] = ticketToSave;
+                return {
+                    ...prev,
+                    ticketTypes: updatedTickets
+                };
+            }
+
+            return {
+                ...prev,
+                ticketTypes: [...prev.ticketTypes, ticketToSave]
+            };
+        });
+
+        toast.success(editingTicketId ? "Ticket updated in the event draft." : "Ticket added to the event draft.");
+        resetCurrentTicket();
     };
 
     const handleTicketImage = async (e) => {
@@ -481,11 +605,20 @@ const EditUpcomingEvent = () => {
         }
     };
 
-    const removeTicket = (index) => {
+    const editTicket = (ticket) => {
+        setCurrentTicket({ ...ticket });
+        setEditingTicketId(ticket.id || ticket._id || null);
+    };
+
+    const removeTicket = (ticketId) => {
         setFormData(prev => ({
             ...prev,
-            ticketTypes: prev.ticketTypes.filter((_, i) => i !== index)
+            ticketTypes: prev.ticketTypes.filter((ticket, idx) => (ticket.id || ticket._id || `ticket-${idx}`) !== ticketId)
         }));
+
+        if (editingTicketId === ticketId) {
+            resetCurrentTicket();
+        }
     };
 
     const handleDesignerSelect = (e) => {
@@ -626,6 +759,23 @@ const EditUpcomingEvent = () => {
             toast.success("Unsaved collection changes included in update.");
         }
 
+        let finalTicketTypes = [...formData.ticketTypes];
+        if (formData.hasTickets && currentTicket.name && currentTicket.price) {
+            const ticketToSave = {
+                ...currentTicket,
+                id: editingTicketId || currentTicket.id || createTicketId()
+            };
+            const existingIndex = finalTicketTypes.findIndex((ticket, idx) => (ticket.id || ticket._id || `ticket-${idx}`) === ticketToSave.id);
+
+            if (existingIndex >= 0) {
+                finalTicketTypes[existingIndex] = ticketToSave;
+            } else {
+                finalTicketTypes.push(ticketToSave);
+            }
+
+            toast.success("Unsaved ticket changes included in update.");
+        }
+
         const data = new FormData();
         data.append('title', formData.title);
         data.append('eventName', formData.eventName);
@@ -665,17 +815,13 @@ const EditUpcomingEvent = () => {
             data.append('videoSectionFile', formData.videoSection.file);
         }
 
-        const ticketTypesMeta = formData.ticketTypes.map(t => ({
-            name: t.name,
-            price: t.price,
-            currency: t.currency,
-            amount: t.amount,
-            description: t.description,
-            image: typeof t.image === 'string' ? t.image : null
+        const ticketTypesMeta = finalTicketTypes.map(({ id, _id, image, ...ticket }) => ({
+            ...ticket,
+            image: typeof image === 'string' ? image : null
         }));
         data.append('ticketTypes', JSON.stringify(formData.hasTickets ? ticketTypesMeta : []));
 
-        formData.ticketTypes.forEach((ticket, index) => {
+        finalTicketTypes.forEach((ticket, index) => {
             if (ticket.image instanceof File) {
                 data.append(`ticketImage_${index}`, ticket.image);
             }
@@ -1014,34 +1160,67 @@ const EditUpcomingEvent = () => {
                             onClick={addTicket}
                             className="bg-blue-600 p-2 rounded hover:bg-blue-700 text-white h-[42px]"
                             disabled={!formData.hasTickets}
+                            title={editingTicketId ? 'Update ticket' : 'Add ticket'}
                         >
-                            <Plus />
+                            {editingTicketId ? <Pencil size={18} /> : <Plus />}
                         </button>
                     </div>
 
-                    {formData.hasTickets && formData.ticketTypes.length > 0 && (
-                        <div className="space-y-2">
-                            {formData.ticketTypes.map((ticket, idx) => (
-                                <div key={idx} className="flex items-center justify-between bg-gray-700 p-3 rounded">
-                                    <div className="flex gap-4 items-center">
-                                        {ticket.image && (
-                                            <img
-                                                src={ticket.image instanceof File ? URL.createObjectURL(ticket.image) : ticket.image}
-                                                alt="Ticket"
-                                                className="w-12 h-12 rounded object-cover"
-                                            />
-                                        )}
-                                        <div>
-                                            <p className="font-bold text-white">{ticket.name} - {ticket.currency} ${ticket.price} (Qty: {ticket.amount})</p>
-                                            <p className="text-sm text-gray-400">{ticket.description}</p>
-                                        </div>
-                                    </div>
-                                    <button type="button" onClick={() => removeTicket(idx)} className="text-red-400 hover:text-red-300">
-                                        <Trash2 size={18} />
-                                    </button>
-                                </div>
-                            ))}
+                    {currentTicket.image && (
+                        <div className="mb-4 flex items-center gap-3 rounded border border-gray-600 bg-gray-900 p-3">
+                            <img
+                                src={typeof currentTicket.image === 'string' ? currentTicket.image : URL.createObjectURL(currentTicket.image)}
+                                alt="Current ticket preview"
+                                className="h-14 w-14 rounded object-cover"
+                            />
+                            <div className="flex-1 text-sm text-gray-300">
+                                {editingTicketId ? 'Editing selected ticket image' : 'Ticket image ready'}
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setCurrentTicket(prev => ({ ...prev, image: null }))}
+                                className="rounded-full bg-red-900/30 p-2 text-red-400 hover:text-red-300"
+                            >
+                                <X size={14} />
+                            </button>
                         </div>
+                    )}
+
+                    {editingTicketId && (
+                        <div className="mb-4 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={resetCurrentTicket}
+                                className="text-sm text-gray-400 hover:text-white"
+                            >
+                                Cancel ticket edit
+                            </button>
+                        </div>
+                    )}
+
+                    {formData.hasTickets && formData.ticketTypes.length > 0 && (
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleTicketDragEnd}
+                        >
+                            <SortableContext
+                                items={formData.ticketTypes.map((ticket, idx) => ticket.id || ticket._id || `ticket-${idx}`)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className="space-y-2">
+                                    {formData.ticketTypes.map((ticket, idx) => (
+                                        <SortableTicketItem
+                                            key={ticket.id || ticket._id || `ticket-${idx}`}
+                                            ticket={ticket}
+                                            idx={idx}
+                                            onEdit={() => editTicket(ticket)}
+                                            onRemove={() => removeTicket(ticket.id || ticket._id || `ticket-${idx}`)}
+                                        />
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
                     )}
                 </div>
 
@@ -1190,7 +1369,7 @@ const EditUpcomingEvent = () => {
                         <DndContext
                             sensors={sensors}
                             collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
+                            onDragEnd={handleCollectionDragEnd}
                         >
                             <SortableContext
                                 items={formData.collections.map((col, idx) => col.id || col._id || `col-${idx}`)}

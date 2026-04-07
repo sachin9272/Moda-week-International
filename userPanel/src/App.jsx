@@ -11,7 +11,6 @@ import Pricing from "./components/Pricing.jsx"
 import Participants from "./pages/participants/Participants.jsx";
 import PastEvents from "./pages/pastEvents/PastEvents.jsx";
 import NewsRoom from './pages/newsRoom/NewsRoom.jsx';
-import PressAndMedia from './pages/newsRoom/PressAndMedia.jsx';
 import NewsDetail from './pages/newsRoom/NewsDetail.jsx';
 import SubmitNews from "./pages/newsRoom/SubmitNews.jsx";
 import EventDetail from "./pages/EventDetail.jsx";
@@ -52,7 +51,7 @@ function App() {
         <Route path="/participants" element={<Participants />} />
         <Route path="/past-events" element={<PastEvents />} />
         <Route path="/news-room" element={<NewsRoom />} />
-        <Route path="/press-media" element={<PressAndMedia />} />
+        {/* <Route path="/press-media" element={<PressAndMedia />} /> */}
         <Route path="/news-room/submit" element={<SubmitNews />} />
         <Route path="/news-room/:id" element={<NewsDetail />} />
         <Route path="/event-details" element={<EventDetail />} />

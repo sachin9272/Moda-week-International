@@ -69,7 +69,7 @@ const Navbar = () => {
     { name: "About Us", path: "/about", category: "ABOUT MODA" },
     { name: "Production Team", path: "/production-team", category: "ABOUT MODA" },
     { name: "Newsroom", path: "/news-room", category: "News" },
-    { name: "Press & Media", path: "/press-media", category: "News" },
+    // { name: "Press & Media", path: "/press-media", category: "News" },
     { name: "Philanthropy", path: "/philanthropy", category: "ABOUT MODA" },
     { name: "Donation", path: "/donation", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Contact Us", path: "/contact", category: "ABOUT MODA" },
@@ -124,46 +124,57 @@ const Navbar = () => {
           {/* Desktop Navigation - Left/Center */}
           <div className="hidden md:flex items-center gap-12 h-full">
             {["ABOUT MODA", "Events", "MEMBERSHIPS & SUPPORT", "News"].map((category) => (
-              <div
-                key={category}
-                className="relative h-full flex items-center"
-                onMouseEnter={() => setActiveDropdown(category)}
-              >
-                <button
-                  className={`text-sm font-bold tracking-[0.2em] uppercase transition-colors ${activeDropdown === category ? "text-white" : "text-[#C7913E] hover:text-white"
-                    }`}
+              category === "News" ? (
+                <Link
+                  key={category}
+                  to="/news-room"
+                  onMouseEnter={() => setActiveDropdown(null)}
+                  className="relative h-full flex items-center text-sm font-bold tracking-[0.2em] uppercase text-[#C7913E] hover:text-white transition-colors"
                 >
                   {category}
-                </button>
-                {/* Dropdown */}
-                <AnimatePresence>
-                  {activeDropdown === category && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 10 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute top-full left-0 bg-black/60 backdrop-blur-md min-w-[240px] shadow-2xl border-t border-white/20"
-                    >
-                      <div className="py-4 flex flex-col">
-                        {navLinks
-                          .filter((link) => link.category === category)
-                          .map((link) => (
-                            <Link
-                              key={link.name}
-                              to={link.path}
-                              onClick={() => setActiveDropdown(null)}
-                              className="px-6 py-3 text-sm text-[#C7913E] hover:text-white hover:bg-black/10 transition-all flex items-center justify-between group font-medium"
-                            >
-                              <span>{link.name}</span>
-                              <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-white" />
-                            </Link>
-                          ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                </Link>
+              ) : (
+                <div
+                  key={category}
+                  className="relative h-full flex items-center"
+                  onMouseEnter={() => setActiveDropdown(category)}
+                >
+                  <button
+                    className={`text-sm font-bold tracking-[0.2em] uppercase transition-colors ${activeDropdown === category ? "text-white" : "text-[#C7913E] hover:text-white"
+                      }`}
+                  >
+                    {category}
+                  </button>
+                  {/* Dropdown */}
+                  <AnimatePresence>
+                    {activeDropdown === category && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 bg-black/60 backdrop-blur-md min-w-[240px] shadow-2xl border-t border-white/20"
+                      >
+                        <div className="py-4 flex flex-col">
+                          {navLinks
+                            .filter((link) => link.category === category)
+                            .map((link) => (
+                              <Link
+                                key={link.name}
+                                to={link.path}
+                                onClick={() => setActiveDropdown(null)}
+                                className="px-6 py-3 text-sm text-[#C7913E] hover:text-white hover:bg-black/10 transition-all flex items-center justify-between group font-medium"
+                              >
+                                <span>{link.name}</span>
+                                <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-white" />
+                              </Link>
+                            ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )
             ))}
             <a
               href="https://selectvoyage.net/"
