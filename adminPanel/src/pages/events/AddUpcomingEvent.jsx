@@ -1006,8 +1006,8 @@ const AddUpcomingEvent = () => {
                             />
                         </label>
                     </div>
-                    <div className="flex gap-4 mb-4 items-end">
-                        <div className="flex-1">
+                    <div className="mb-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                        <div className="md:col-span-4">
                             <label className="block text-gray-400 mb-1 text-sm">Ticket Name</label>
                             <input
                                 type="text"
@@ -1019,7 +1019,7 @@ const AddUpcomingEvent = () => {
                                 disabled={!formData.hasTickets}
                             />
                         </div>
-                        <div className="w-24">
+                        <div className="md:col-span-2">
                             <label className="block text-gray-400 mb-1 text-sm">Qty</label>
                             <input
                                 type="number"
@@ -1031,7 +1031,7 @@ const AddUpcomingEvent = () => {
                                 disabled={!formData.hasTickets}
                             />
                         </div>
-                        <div className="w-24">
+                        <div className="md:col-span-2">
                             <label className="block text-gray-400 mb-1 text-sm">Currency</label>
                             <input
                                 type="text"
@@ -1043,7 +1043,7 @@ const AddUpcomingEvent = () => {
                                 disabled={!formData.hasTickets}
                             />
                         </div>
-                        <div className="w-32">
+                        <div className="md:col-span-2">
                             <label className="block text-gray-400 mb-1 text-sm">Price</label>
                             <input
                                 type="number"
@@ -1055,19 +1055,7 @@ const AddUpcomingEvent = () => {
                                 disabled={!formData.hasTickets}
                             />
                         </div>
-                        <div className="flex-1">
-                            <label className="block text-gray-400 mb-1 text-sm">Description</label>
-                            <input
-                                type="text"
-                                name="description"
-                                value={currentTicket.description}
-                                onChange={handleTicketChange}
-                                className="w-full p-2 bg-gray-700 rounded text-white text-sm"
-                                placeholder="Includes..."
-                                disabled={!formData.hasTickets}
-                            />
-                        </div>
-                        <div className="w-48">
+                        <div className="md:col-span-3">
                             <label className="block text-gray-400 mb-1 text-sm">Ticket Image</label>
                             <input
                                 type="file"
@@ -1077,15 +1065,28 @@ const AddUpcomingEvent = () => {
                                 disabled={!formData.hasTickets}
                             />
                         </div>
-                        <button
-                            type="button"
-                            onClick={addTicket}
-                            className="bg-blue-600 p-2 rounded hover:bg-blue-700 text-white h-[42px]"
-                            disabled={!formData.hasTickets}
-                            title={editingTicketId ? 'Update ticket' : 'Add ticket'}
-                        >
-                            {editingTicketId ? <Pencil size={18} /> : <Plus />}
-                        </button>
+                        <div className="md:col-span-1">
+                            <button
+                                type="button"
+                                onClick={addTicket}
+                                className="bg-blue-600 p-2 rounded hover:bg-blue-700 text-white h-[42px] w-full"
+                                disabled={!formData.hasTickets}
+                                title={editingTicketId ? 'Update ticket' : 'Add ticket'}
+                            >
+                                {editingTicketId ? <Pencil size={18} className="mx-auto" /> : <Plus className="mx-auto" />}
+                            </button>
+                        </div>
+                        <div className="md:col-span-12">
+                            <label className="block text-gray-400 mb-1 text-sm">Description</label>
+                            <textarea
+                                name="description"
+                                value={currentTicket.description}
+                                onChange={handleTicketChange}
+                                className="w-full p-2 bg-gray-700 rounded text-white min-h-[100px]"
+                                placeholder="Includes..."
+                                disabled={!formData.hasTickets}
+                            />
+                        </div>
                     </div>
 
                     {currentTicket.image && (

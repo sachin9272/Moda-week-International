@@ -107,6 +107,7 @@ export default function EventTicketDetails() {
     const { id } = useParams();
     const [searchParams] = useSearchParams();
     const mode = searchParams.get("mode");
+    const showTicketsOnly = mode === "tickets";
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [quantities, setQuantities] = useState({});
@@ -327,9 +328,9 @@ export default function EventTicketDetails() {
             </header>
 
             <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
-                {/* Left Column: Description - Hide if in tickets mode */}
-                {mode !== "tickets" && (
-                    <div className={event.hasTickets ? "lg:col-span-2" : "lg:col-span-3"}>
+                {/* Left Column: Description - Hide on ticket purchase view */}
+                {!showTicketsOnly && (
+                    <div className="lg:col-span-3">
                         {eventDisplayName && (
                             <h2 className="text-3xl md:text-4xl font-playfair font-bold text-black mb-8 leading-tight uppercase tracking-wider">
                                 {eventDisplayName}
@@ -358,9 +359,9 @@ export default function EventTicketDetails() {
                     </div>
                 )}
 
-                {/* Right Column: Ticket Selection - Center if ONLY tickets shown */}
-                {event.hasTickets && (
-                    <div className={mode === "tickets" ? "lg:col-span-3 max-w-4xl mx-auto w-full" : "lg:col-span-1"}>
+                {/* Ticket Selection - Only show on Buy Tickets flow */}
+                {showTicketsOnly && event.hasTickets && (
+                    <div className="lg:col-span-3 max-w-4xl mx-auto w-full">
                         <div className="bg-white border border-gray-200 rounded-lg p-8 sticky top-24 shadow-2xl">
                             <h3 className="text-2xl font-bold mb-8 uppercase tracking-widest text-[#C7913E]">Select Tickets</h3>
 
@@ -450,8 +451,8 @@ export default function EventTicketDetails() {
                 </div>
             )}
 
-            {/* Collections Section - Hide if in tickets mode */}
-            {mode !== "tickets" && (
+            {/* Collections Section - Hide on ticket purchase view */}
+            {!showTicketsOnly && (
                 <div className="mt-10 bg-white">
                     {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
                 </div>

@@ -40,6 +40,9 @@ export default function ProductionTeam() {
         fetchMembers();
     }, []);
 
+    const featuredMember = members[0] || null;
+    const secondaryMembers = members.slice(1);
+
     return (
         <div className="bg-white min-h-screen">
             <Navbar />
@@ -68,24 +71,21 @@ export default function ProductionTeam() {
                     ) : members.length === 0 ? (
                         <div className="py-24 text-center text-[#7a4c10]">No team members found.</div>
                     ) : (
-                        <div className="space-y-6 md:space-y-8">
-                            {members.map((member) => (
-                                <article
-                                    key={member._id}
-                                    className="overflow-hidden border-y border-[#e8d9bf] bg-[linear-gradient(180deg,#a06a18_0%,#6f430e_48%,#2a1405_100%)] px-4 py-6 shadow-[0_18px_40px_rgba(67,34,7,0.16)] md:px-8 md:py-8"
-                                >
+                        <div className="space-y-8 md:space-y-10">
+                            {featuredMember && (
+                                <article className="overflow-hidden border-y border-[#e8d9bf] bg-[linear-gradient(180deg,#a06a18_0%,#6f430e_48%,#2a1405_100%)] px-4 py-6 shadow-[0_18px_40px_rgba(67,34,7,0.16)] md:px-8 md:py-8">
                                     <div className="grid items-start gap-8 md:min-h-[520px] md:grid-cols-[minmax(360px,420px)_1fr] md:gap-8">
                                         <div className="pl-0 md:pl-12">
                                             <div className="inline-block max-w-full">
                                                 <h2 className="inline-block break-words border-b border-[#efe2bf] px-0 pb-4 font-playfair text-[1.9rem] uppercase leading-tight tracking-[0.01em] text-white md:whitespace-nowrap md:text-[2.9rem]">
-                                                    {member.name}
+                                                    {featuredMember.name}
                                                 </h2>
                                             </div>
 
                                             <div className="mt-4 w-full max-w-full overflow-hidden bg-white/10 shadow-[0_15px_35px_rgba(0,0,0,0.25)] sm:max-w-[320px] md:max-w-[340px]">
                                                 <img
-                                                    src={getMemberImage(member)}
-                                                    alt={member.name}
+                                                    src={getMemberImage(featuredMember)}
+                                                    alt={featuredMember.name}
                                                     className="h-[360px] w-full object-cover object-top md:h-[430px]"
                                                     loading="lazy"
                                                     decoding="async"
@@ -94,11 +94,11 @@ export default function ProductionTeam() {
 
                                             <div className="mt-4 flex flex-col items-center gap-3 text-center sm:max-w-[320px] md:max-w-[340px]">
                                                 <p className="w-full text-justify text-sm uppercase tracking-[0.08em] text-[#f3e0b5] md:text-center md:text-[1.05rem]">
-                                                    {member.role || "Production Team"}
+                                                    {featuredMember.role || "Production Team"}
                                                 </p>
                                                 <button
                                                     type="button"
-                                                    onClick={() => navigate(`/production-team/${member._id}`)}
+                                                    onClick={() => navigate(`/production-team/${featuredMember._id}`)}
                                                     className="border border-white px-6 py-3 text-sm tracking-[0.08em] text-white transition hover:bg-white hover:text-[#2a1405]"
                                                 >
                                                     Learn More
@@ -108,9 +108,9 @@ export default function ProductionTeam() {
 
                                         <div className="flex min-h-full flex-col justify-center pt-4 md:pt-16 md:pl-10">
                                             <div className="md:px-2 min-h-[2rem] md:min-h-[12rem] flex items-center">
-                                                {getMemberCardDescription(member) && (
+                                                {getMemberCardDescription(featuredMember) && (
                                                     <p className="text-justify font-playfair text-[1.45rem] uppercase leading-[1.45] tracking-[0.03em] text-[#d7a74c] md:text-center md:text-[2.95rem] md:leading-[1.45]">
-                                                        {getMemberCardDescription(member)}
+                                                        {getMemberCardDescription(featuredMember)}
                                                     </p>
                                                 )}
                                             </div>
@@ -118,9 +118,9 @@ export default function ProductionTeam() {
                                             <div className="mt-8 h-px w-full bg-[#d7a74c] md:mx-auto md:mt-10 md:max-w-[88%]" />
 
                                             <div className="mt-5 flex flex-wrap gap-4 text-sm uppercase tracking-[0.16em] text-[#f4d49a] md:justify-center md:gap-6">
-                                                {member.instagram && (
+                                                {featuredMember.instagram && (
                                                     <a
-                                                        href={member.instagram}
+                                                        href={featuredMember.instagram}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="transition hover:text-white"
@@ -128,9 +128,9 @@ export default function ProductionTeam() {
                                                         Instagram
                                                     </a>
                                                 )}
-                                                {member.website && (
+                                                {featuredMember.website && (
                                                     <a
-                                                        href={member.website}
+                                                        href={featuredMember.website}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="transition hover:text-white"
@@ -142,7 +142,51 @@ export default function ProductionTeam() {
                                         </div>
                                     </div>
                                 </article>
-                            ))}
+                            )}
+
+                            {secondaryMembers.length > 0 && (
+                                <section className="px-4 md:px-8">
+                                    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+                                        {secondaryMembers.map((member) => (
+                                            <article
+                                                key={member._id}
+                                                className="flex h-full flex-col overflow-hidden border border-[#e8d9bf]/60 bg-[linear-gradient(180deg,#a06a18_0%,#6f430e_48%,#2a1405_100%)] shadow-[0_18px_40px_rgba(67,34,7,0.16)]"
+                                            >
+                                                <div className="group relative h-[300px] overflow-hidden bg-white/10 md:h-[400px]">
+                                                    <img
+                                                        src={getMemberImage(member, { width: 720, height: 900, crop: "fill" })}
+                                                        alt={member.name}
+                                                        className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                                                        loading="lazy"
+                                                        decoding="async"
+                                                    />
+                                                    <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/25 to-transparent opacity-80 transition-opacity duration-300 group-hover:opacity-90" />
+                                                    <div className="absolute bottom-0 left-0 right-0 flex min-h-[5.5rem] flex-col items-center justify-center gap-2 bg-black/60 p-5 text-center backdrop-blur-xs">
+                                                        <h3 className="font-playfair text-2xl uppercase leading-tight text-white">
+                                                            {member.name}
+                                                        </h3>
+                                                        <p className="text-sm uppercase tracking-[0.12em] text-[#f3e0b5]">
+                                                            {member.role || "Production Team"}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="flex flex-1 flex-col px-5 py-5 text-center">
+                                                    <div className="h-px w-full bg-[#d7a74c]" />
+
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => navigate(`/production-team/${member._id}`)}
+                                                        className="mt-5 border border-white px-5 py-3 text-sm tracking-[0.08em] text-white transition hover:bg-white hover:text-[#2a1405]"
+                                                    >
+                                                        Learn More
+                                                    </button>
+                                                </div>
+                                            </article>
+                                        ))}
+                                    </div>
+                                </section>
+                            )}
                         </div>
                     )}
                 </div>
