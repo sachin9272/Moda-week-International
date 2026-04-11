@@ -176,6 +176,13 @@ const Navbar = () => {
                 </div>
               )
             ))}
+            <Link
+              to="/service?tab=service#application-forms"
+              onMouseEnter={() => setActiveDropdown(null)}
+              className="text-sm font-bold tracking-[0.2em] uppercase text-[#C7913E] hover:text-white transition-colors"
+            >
+              Registeration
+            </Link>
             <a
               href="https://selectvoyage.net/"
               onMouseEnter={() => setActiveDropdown(null)}
@@ -319,6 +326,20 @@ const Navbar = () => {
                   </h3>
                   <motion.div
                     custom={10}
+                    variants={linkVariants}
+                    initial="closed"
+                    animate="open"
+                  >
+                    <Link
+                      to="/service?tab=service#application-forms"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                    >
+                      Registeration
+                    </Link>
+                  </motion.div>
+                  <motion.div
+                    custom={11}
                     variants={linkVariants}
                     initial="closed"
                     animate="open"
