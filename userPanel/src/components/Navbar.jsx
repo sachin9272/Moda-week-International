@@ -322,7 +322,7 @@ const Navbar = () => {
 
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
-                    Travel
+                    Registeration
                   </h3>
                   <motion.div
                     custom={10}
@@ -338,6 +338,12 @@ const Navbar = () => {
                       Registration
                     </Link>
                   </motion.div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
+                    Travel
+                  </h3>
                   <motion.div
                     custom={11}
                     variants={linkVariants}
