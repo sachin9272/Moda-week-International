@@ -182,6 +182,7 @@ const EditUpcomingEvent = () => {
         eventDate: '',
         location: '',
         description: '',
+        showOnLandingPage: false,
         coverImage: null,
         heroLayout: 'split',
         descriptionSection: {
@@ -347,6 +348,7 @@ const EditUpcomingEvent = () => {
                     eventDate: event.eventDate,
                     location: event.location,
                     description: event.description || '',
+                    showOnLandingPage: event.showOnLandingPage || false,
                     coverImage: event.coverImage?.url || null,
                     heroLayout: event.heroLayout || 'split',
                     descriptionSection: {
@@ -782,6 +784,7 @@ const EditUpcomingEvent = () => {
         data.append('eventDate', formData.eventDate);
         data.append('location', formData.location);
         data.append('description', formData.description);
+        data.append('showOnLandingPage', formData.showOnLandingPage);
         data.append('heroLayout', formData.heroLayout);
         data.append('hasTickets', formData.hasTickets);
         data.append('removeCoverImage', formData.coverImage === null);
@@ -919,6 +922,19 @@ const EditUpcomingEvent = () => {
                         <div className="md:col-span-2">
                             <label className="block text-gray-400 mb-1">Description</label>
                             <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white min-h-[100px]" />
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    name="showOnLandingPage"
+                                    checked={formData.showOnLandingPage}
+                                    onChange={handleInputChange}
+                                    className="h-4 w-4 rounded border-gray-600 bg-gray-700"
+                                />
+                                <span className="text-gray-300">Enable this on landing page</span>
+                            </label>
                         </div>
 
                         <div className="md:col-span-2">

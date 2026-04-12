@@ -30,6 +30,10 @@ const upcomingEventSchema = new mongoose.Schema({
         enum: ['live', 'hidden'],
         default: 'hidden'
     },
+    showOnLandingPage: {
+        type: Boolean,
+        default: false
+    },
     heroLayout: {
         type: String,
         enum: ['split', 'full', 'minimal'],

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseURL as API_BASE_URL } from '../../config/api';
-import { Ticket, Loader, Calendar, MapPin, ChevronRight, Search } from 'lucide-react';
+import { Ticket, Loader, Calendar, MapPin, ChevronRight, Search, Pencil } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { optimizeCloudinaryImage } from '../../utils/cloudinary';
 
@@ -92,10 +92,23 @@ const TicketsList = () => {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/20 to-transparent" />
 
-                                <div className="absolute top-4 left-4 z-10 flex items-center gap-2 bg-black/40 backdrop-blur-md rounded-lg px-2.5 py-1.5 border border-white/10">
-                                    <span className={`text-[10px] font-bold uppercase tracking-widest ${event.status === 'live' ? 'text-green-500' : 'text-neutral-500'}`}>
-                                        {event.status === 'live' ? 'Live' : 'Hidden'}
-                                    </span>
+                                <div className="absolute top-4 left-4 right-4 z-10 flex items-start justify-between gap-2">
+                                    <div className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/40 px-2.5 py-1.5 backdrop-blur-md">
+                                        <span className={`text-[10px] font-bold uppercase tracking-widest ${event.status === 'live' ? 'text-green-500' : 'text-neutral-500'}`}>
+                                            {event.status === 'live' ? 'Live' : 'Hidden'}
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(`/tickets/edit/${event._id}`);
+                                        }}
+                                        className="rounded-lg border border-white/10 bg-black/40 p-2 text-white backdrop-blur-md transition-colors hover:bg-[#C7913E]"
+                                        title="Edit tickets"
+                                    >
+                                        <Pencil size={16} />
+                                    </button>
                                 </div>
 
                                 <div className="absolute bottom-4 left-5 right-5 z-10">

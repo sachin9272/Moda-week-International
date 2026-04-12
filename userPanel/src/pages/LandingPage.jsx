@@ -21,8 +21,7 @@ import takla from "../assets/takla.avif";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
 import ProgressiveImage from "../components/ProgressiveImage.jsx";
 
-
-
+const stripHtml = (value = "") => value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
 function VideoSlider({ slides, onSlideChange }) {
   const [current, setCurrent] = useState(0);
@@ -168,6 +167,12 @@ export default function LandingPage() {
     image: null,
   };
   const getUpcomingEventName = (event) => event.eventName || "";
+  const getUpcomingEventMeta = (event) =>
+    event.location ||
+    event.eventDate ||
+    event.date ||
+    event.city ||
+    "";
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const [landingPageContent, setLandingPageContent] = useState({
@@ -277,6 +282,7 @@ export default function LandingPage() {
   );
 
   const [pastEvents, setPastEvents] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -300,6 +306,20 @@ export default function LandingPage() {
       }
     };
     fetchEvents();
+  }, []);
+
+  useEffect(() => {
+    const fetchUpcomingEvents = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/api/upcoming-events/all?status=live&showOnLandingPage=true`);
+        const events = Array.isArray(response.data) ? response.data : [];
+        setUpcomingEvents(events);
+      } catch (error) {
+        console.error("Failed to fetch upcoming events", error);
+      }
+    };
+
+    fetchUpcomingEvents();
   }, []);
   const [designers, setDesigners] = useState([]);
   useEffect(() => {
@@ -333,6 +353,81 @@ export default function LandingPage() {
         <Navbar />
         <VideoSlider slides={slides} onSlideChange={setCurrentSlideIndex} />
       </section>
+
+      {upcomingEvents.length > 0 && (
+        <section className="bg-white py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            <div className="mb-10 text-center">
+              <h2 className="text-4xl md:text-5xl font-bold bg-linear-to-l from-[#8C5D25] to-[#C7913E] bg-clip-text text-transparent uppercase">
+                WHAT&apos;S HAPPENING
+              </h2>
+            </div>
+
+            <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-16 md:gap-20">
+              {upcomingEvents.map((event) => {
+                const description = stripHtml(
+                  event.bottomSection?.text ||
+                  event.description ||
+                  event.descriptionSection?.text ||
+                  ""
+                );
+                const eventImage =
+                  event.coverImage?.url ||
+                  event.coverImage ||
+                  event.thumbnail?.url ||
+                  event.thumbnail;
+
+                return (
+                  <Link
+                    key={event._id}
+                    to={`/event-details/${event.slug || event._id}`}
+                    className="group flex h-full w-full max-w-[420px] flex-col text-black"
+                  >
+                    <ProgressiveImage
+                      wrapperClassName="mb-5 aspect-[4/5] overflow-hidden rounded-[10px] border border-black/15 shadow-sm"
+                      src={optimizeCloudinaryImage(eventImage, {
+                        width: 700,
+                        height: 880,
+                        crop: "fill",
+                      })}
+                      alt={getUpcomingEventName(event)}
+                      imgClassName="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                    />
+
+                    <div className="flex flex-1 flex-col">
+                      {getUpcomingEventName(event) && (
+                        <h3 className="mb-2 text-xl font-extrabold uppercase leading-tight transition-colors group-hover:text-[#C7913E] md:text-2xl">
+                          {getUpcomingEventName(event)}
+                        </h3>
+                      )}
+
+                      {getUpcomingEventMeta(event) && (
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#8C5D25] md:text-sm">
+                          {getUpcomingEventMeta(event)}
+                        </p>
+                      )}
+
+                      {description && (
+                        <p className="mb-5 line-clamp-4 text-sm leading-relaxed text-[#222] md:text-base">
+                          {description}
+                        </p>
+                      )}
+
+                      <div className="mt-auto">
+                        <span className="inline-flex bg-linear-to-r from-[#8C5D25] to-[#C7913E] px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.14em] text-white shadow-[0_6px_18px_rgba(140,93,37,0.25)] transition-transform duration-300 group-hover:-translate-y-1">
+                          View Details
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* MODA Week International */}
       {hasModaIntroContent && (

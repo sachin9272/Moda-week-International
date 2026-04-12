@@ -181,7 +181,7 @@ const Navbar = () => {
               onMouseEnter={() => setActiveDropdown(null)}
               className="text-sm font-bold tracking-[0.2em] uppercase text-[#C7913E] hover:text-white transition-colors"
             >
-              Registeration
+              Registration
             </Link>
             <a
               href="https://selectvoyage.net/"
@@ -335,7 +335,7 @@ const Navbar = () => {
                       onClick={() => setIsMenuOpen(false)}
                       className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
                     >
-                      Registeration
+                      Registration
                     </Link>
                   </motion.div>
                   <motion.div

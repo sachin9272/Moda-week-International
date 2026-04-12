@@ -27,6 +27,7 @@ import EventAnalyticsDashboard from './pages/events/EventAnalyticsDashboard';
 import EventTransactions from './pages/events/EventTransactions';
 import UpcomingEventsList from './pages/events/UpcomingEventsList';
 import TicketsList from './pages/events/TicketsList';
+import EditEventTickets from './pages/events/EditEventTickets';
 import UpcomingEventHeroManager from './pages/events/UpcomingEventHeroManager';
 import ParticipantsHeroManager from './pages/participants/ParticipantsHeroManager';
 import PastEventHeroManager from './pages/events/PastEventHeroManager';
@@ -89,6 +90,7 @@ function App() {
             <Route path="events/upcoming/add" element={<AddUpcomingEvent />} />
             <Route path="events/upcoming/edit/:id" element={<EditUpcomingEvent />} />
             <Route path="tickets" element={<TicketsList />} />
+            <Route path="tickets/edit/:id" element={<EditEventTickets />} />
             <Route path="events/past" element={<EventsList type="past" />} />
 
             <Route path="events/add" element={<AddEvent />} />

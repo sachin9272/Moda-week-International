@@ -337,7 +337,7 @@ export default function EventTicketDetails() {
                             </h2>
                         )}
                         <div className="flex flex-col md:flex-row gap-8 items-start">
-                            <div className="!text-base rich-text-content event-rich-text text-black leading-relaxed text-lg font-light text-justify flex-1 space-y-2">
+                            <div className="prose max-w-none flex-1 space-y-1 text-base leading-normal text-gray-700 text-justify">
                                 {event.description
                                     ? renderTextWithLinks(event.description)
                                     : <p>No description available.</p>}

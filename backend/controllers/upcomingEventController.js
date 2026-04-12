@@ -38,7 +38,7 @@ const getSafeImage = (img) => {
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
-        const { title, eventName, eventDate, location, description, status, hasTickets, heroLayout } = req.body;
+        const { title, eventName, eventDate, location, description, status, hasTickets, heroLayout, showOnLandingPage } = req.body;
 
         // Parse ticketTypes if it's a string (from FormData)
         let ticketTypes = [];
@@ -137,6 +137,7 @@ export const createUpcomingEvent = async (req, res) => {
             location,
             description,
             status: status || 'hidden',
+            showOnLandingPage: showOnLandingPage === 'true' || showOnLandingPage === true,
             heroLayout: heroLayout || 'split',
             coverImage,
             hasTickets: hasTickets === 'true' || hasTickets === true,
@@ -158,11 +159,15 @@ export const createUpcomingEvent = async (req, res) => {
 // Get all upcoming events
 export const getUpcomingEvents = async (req, res) => {
     try {
-        const { status } = req.query;
+        const { status, showOnLandingPage } = req.query;
         let query = {};
 
         if (status) {
             query.status = status;
+        }
+
+        if (showOnLandingPage !== undefined) {
+            query.showOnLandingPage = showOnLandingPage === 'true';
         }
 
         const events = await UpcomingEvent.find(query).sort({ createdAt: -1 });
@@ -212,7 +217,7 @@ export const getUpcomingEventById = async (req, res) => {
 export const updateUpcomingEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, eventName, eventDate, location, description, hasTickets } = req.body;
+        const { title, eventName, eventDate, location, description, hasTickets, showOnLandingPage } = req.body;
 
         const event = await UpcomingEvent.findById(id);
         if (!event) {
@@ -476,6 +481,9 @@ export const updateUpcomingEvent = async (req, res) => {
         if (location !== undefined) event.location = location;
         if (description !== undefined) event.description = description;
         if (req.body.status) event.status = req.body.status;
+        if (showOnLandingPage !== undefined) {
+            event.showOnLandingPage = showOnLandingPage === 'true' || showOnLandingPage === true;
+        }
         if (req.body.heroLayout) event.heroLayout = req.body.heroLayout;
         if (req.body.hasTickets !== undefined) event.hasTickets = (hasTickets === 'true' || hasTickets === true);
 
