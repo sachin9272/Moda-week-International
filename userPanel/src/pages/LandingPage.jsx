@@ -160,12 +160,6 @@ function VideoSlider({ slides, onSlideChange }) {
 }
 
 export default function LandingPage() {
-  const defaultModaIntroSection = {
-    title: "MODA WEEK INTERNATIONAL",
-    content:
-      "We offer a international exposure business platform that showcases established, emerging fashion designers and business acumen . Our mission is to celebrate diversity, sustainability, and foster innovation. Through our comprehensive services, including fashion expos, international fashion events, and impactful marketing and promotion strategies, we aim to elevate the visibility and success of all our clientele participants and companies partnership.",
-    image: null,
-  };
   const getUpcomingEventName = (event) => event.eventName || "";
   const getUpcomingEventMeta = (event) =>
     event.location ||
@@ -177,10 +171,13 @@ export default function LandingPage() {
   const navigate = useNavigate();
   const [landingPageContent, setLandingPageContent] = useState({
     modaIntroSection: {
-      ...defaultModaIntroSection,
-      useDefaultImage: true,
+      title: "",
+      content: "",
+      useDefaultImage: false,
+      image: null,
     },
   });
+  const [landingPageLoaded, setLandingPageLoaded] = useState(false);
   /* Helper to format video URL */
   const getVideoSrc = (url) => {
     if (!url) return '';
@@ -221,19 +218,17 @@ export default function LandingPage() {
         const response = await axios.get(`${baseURL}/api/landing-page`);
         setLandingPageContent({
           modaIntroSection: {
-            title:
-              response.data?.modaIntroSection?.title ??
-              defaultModaIntroSection.title,
-            content:
-              response.data?.modaIntroSection?.content ??
-              defaultModaIntroSection.content,
+            title: response.data?.modaIntroSection?.title || "",
+            content: response.data?.modaIntroSection?.content || "",
             useDefaultImage:
-              response.data?.modaIntroSection?.useDefaultImage ?? true,
+              response.data?.modaIntroSection?.useDefaultImage ?? false,
             image: response.data?.modaIntroSection?.image || null,
           },
         });
       } catch (error) {
         console.error("Error fetching landing page content:", error);
+      } finally {
+        setLandingPageLoaded(true);
       }
     };
 
@@ -269,7 +264,7 @@ export default function LandingPage() {
     fetchVideos();
   }, []);
 
-  const modaIntroSection = landingPageContent?.modaIntroSection || defaultModaIntroSection;
+  const modaIntroSection = landingPageContent?.modaIntroSection || {};
   const modaIntroImage = modaIntroSection.image?.url
     ? modaIntroSection.image.url
     : modaIntroSection.useDefaultImage
@@ -430,7 +425,7 @@ export default function LandingPage() {
       )}
 
       {/* MODA Week International */}
-      {hasModaIntroContent && (
+      {landingPageLoaded && hasModaIntroContent && (
         <section className="py-12 px-6 bg-white">
           <div className="container mx-auto bg-black p-6 md:p-7">
             <div className="flex h-full flex-col items-center justify-center gap-6 md:flex-row md:items-stretch md:gap-7">
