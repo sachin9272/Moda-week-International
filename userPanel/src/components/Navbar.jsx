@@ -322,7 +322,7 @@ const Navbar = () => {
 
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
-                    Registeration
+                    Registration
                   </h3>
                   <motion.div
                     custom={10}
