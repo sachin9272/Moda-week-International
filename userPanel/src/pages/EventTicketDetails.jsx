@@ -111,6 +111,26 @@ const getSafeId = (value, fallback) => ensureString(value) || fallback;
 
 const stripHtml = (text = "") => ensureString(text).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
+const extractYoutubeId = (url = "") => {
+    const normalizedUrl = ensureString(url).trim();
+    if (!normalizedUrl) return "";
+
+    const regExp = /^.*(?:youtu\.be\/|v\/|u\/\w\/|embed\/|shorts\/|watch\?v=|&v=)([^#&?]{11}).*/;
+    const match = normalizedUrl.match(regExp);
+    return match?.[1] || "";
+};
+
+const getVideoEmbedUrl = (videoSection) => {
+    if (!videoSection || videoSection.type !== "youtube") return "";
+
+    const videoUrl = ensureString(videoSection.url).trim();
+    const youtubeId = extractYoutubeId(videoUrl);
+
+    return youtubeId
+        ? `https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1&rel=0`
+        : videoUrl;
+};
+
 const getDescriptionLines = (text = "") =>
     stripHtml(text)
         .split(/\n|•|·|-/)
@@ -725,6 +745,41 @@ export default function EventTicketDetails() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {event.videoSection && event.videoSection.isVisible && (event.videoSection.url || event.videoSection.file) && (
+                <section className="bg-white px-4 py-12 md:px-8 md:py-16">
+                    <div className="mx-auto max-w-5xl">
+                        {event.videoSection.title && (
+                            <h2 className="mb-6 text-center font-playfair text-3xl font-bold uppercase tracking-wider text-black md:text-4xl">
+                                {event.videoSection.title}
+                            </h2>
+                        )}
+                        <div className="relative aspect-video overflow-hidden rounded-sm bg-black shadow-2xl">
+                            {event.videoSection.type === "youtube" ? (
+                                <iframe
+                                    src={getVideoEmbedUrl(event.videoSection)}
+                                    title={event.videoSection.title || "Event Video"}
+                                    className="absolute inset-0 h-full w-full"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
+                            ) : (
+                                <video
+                                    src={event.videoSection.url || event.videoSection.file}
+                                    className="h-full w-full object-contain"
+                                    controls
+                                    autoPlay
+                                    muted
+                                    loop
+                                    playsInline
+                                >
+                                    Your browser does not support the video tag.
+                                </video>
+                            )}
+                        </div>
+                    </div>
+                </section>
             )}
 
             {/* Collections Section - Hide on ticket purchase view */}

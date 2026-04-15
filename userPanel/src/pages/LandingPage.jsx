@@ -585,7 +585,7 @@ export default function LandingPage() {
             <div className="flex gap-2.5 snap-x snap-mandatory">
               {pastEvents.map((event, idx) => (
                 <Link
-                  to={`/event-details/${event.slug || event.id}`}
+                  to={`/past-event-details/${event.slug || event.id}`}
                   key={idx}
                   className="group cursor-pointer shrink-0 w-88 snap-start"
                 >
