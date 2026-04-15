@@ -101,6 +101,17 @@ export const generateUserConfirmationEmail = (type, data) => {
                 'You will receive a response within 24-48 hours',
                 'We will provide detailed information about our services'
             ]
+        },
+        rsvp: {
+            title: 'VIP RSVP Profile',
+            icon: '🥂',
+            greeting: data.fullName,
+            message: 'Thank you for submitting your confidential VIP RSVP profile to Moda Week International. Your request has been received and is now under review.',
+            nextSteps: [
+                'Our team will review your confidential profile',
+                'Qualified guests may be contacted for a brief introductory call',
+                'Approved guests will receive private RSVP access details'
+            ]
         }
     };
 
@@ -237,6 +248,18 @@ export const generateAdminNotificationEmail = (type, data) => {
                 { label: 'Country', value: data.country },
                 { label: 'Service Type', value: data.requestParticipation || 'General Inquiry' },
                 { label: 'Message', value: data.additionalInfo || 'No additional message' }
+            ]
+        },
+        rsvp: {
+            title: 'New VIP RSVP Submission',
+            color: '#c7913e',
+            fields: [
+                { label: 'Full Name', value: data.fullName },
+                { label: 'Private Email', value: data.privateEmail },
+                { label: 'Direct Contact', value: data.directContact },
+                { label: 'Nationality', value: data.nationality },
+                { label: 'Organization / Brand', value: data.organization },
+                { label: 'Role / Title', value: data.roleTitle }
             ]
         }
     };

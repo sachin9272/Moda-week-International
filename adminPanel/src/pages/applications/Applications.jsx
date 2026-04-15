@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Palette, Briefcase, Wrench, TrendingUp, ArrowRight, Loader } from 'lucide-react';
+import { Users, Palette, Briefcase, Wrench, TrendingUp, ArrowRight, Loader, ShieldCheck } from 'lucide-react';
 import axios from 'axios';
 import { baseURL } from '../../config/api';
 
@@ -41,10 +41,12 @@ const Applications = () => {
         designers: 0,
         sponsors: 0,
         services: 0,
+        rsvps: 0,
         buyersLastMonth: 0,
         designersLastMonth: 0,
         sponsorsLastMonth: 0,
-        servicesLastMonth: 0
+        servicesLastMonth: 0,
+        rsvpsLastMonth: 0
     });
     const [loading, setLoading] = useState(true);
 
@@ -114,6 +116,15 @@ const Applications = () => {
                     path="/applications/services"
                     count={stats.services}
                     lastMonthCount={stats.servicesLastMonth}
+                />
+                <ApplicationCard
+                    title="RSVP Applications"
+                    description="Review confidential VIP RSVP submissions and private access interest forms."
+                    icon={ShieldCheck}
+                    gradient="bg-gradient-to-br from-[#8C5D25] to-[#C7913E]"
+                    path="/applications/rsvps"
+                    count={stats.rsvps}
+                    lastMonthCount={stats.rsvpsLastMonth}
                 />
             </div>
         </div>

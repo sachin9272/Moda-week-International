@@ -637,7 +637,7 @@ export default function LandingPage() {
               <p className="mb-10">
                 Register to Attend Our Upcoming Global <br /> Fashion Showcases.{" "}
               </p>
-              <Link to="/events">
+              <Link to="/rsvp">
                 <button className="bg-white text-black px-8 py-3 rounded hover:bg-gray-100 transition-colors font-semibold">
                   RSVP NOW
                 </button>

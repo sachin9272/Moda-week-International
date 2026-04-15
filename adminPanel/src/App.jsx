@@ -7,6 +7,7 @@ import Buyers from './pages/applications/Buyers';
 import Designers from './pages/applications/Designers';
 import Sponsors from './pages/applications/Sponsors';
 import Services from './pages/applications/Services';
+import Rsvps from './pages/applications/Rsvps';
 import LandingVideos from './pages/LandingVideos';
 import ServicesManager from './pages/ServicesManager';
 import LegalPagesManager from './pages/LegalPagesManager';
@@ -37,6 +38,7 @@ import FashionDesigners from './pages/FashionDesigners';
 import ProductionTeam from './pages/ProductionTeam';
 import PressAndMedia from './pages/PressAndMedia';
 import LandingPageManager from './pages/LandingPageManager';
+import RsvpManager from './pages/RsvpManager';
 import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -68,6 +70,7 @@ function App() {
             <Route path="applications/designers" element={<Designers />} />
             <Route path="applications/sponsors" element={<Sponsors />} />
             <Route path="applications/services" element={<Services />} />
+            <Route path="applications/rsvps" element={<Rsvps />} />
 
             <Route path="landing-videos" element={<LandingVideos />} />
             <Route path="service-content" element={<ServicesManager />} />
@@ -84,6 +87,7 @@ function App() {
             <Route path="past-event-content" element={<PastEventHeroManager />} />
             <Route path="participants-content" element={<ParticipantsHeroManager />} />
             <Route path="landing-page-content" element={<LandingPageManager />} />
+            <Route path="rsvp-content" element={<RsvpManager />} />
             <Route path="events/upcoming" element={<UpcomingEventsList />} />
             <Route path="events/upcoming/dashboard/:id" element={<EventAnalyticsDashboard />} />
             <Route path="events/upcoming/transactions/:id" element={<EventTransactions />} />

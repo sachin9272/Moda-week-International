@@ -62,6 +62,7 @@ const Sidebar = () => {
                 { path: '/donation-content', icon: Heart, label: 'Donation' },
                 { path: '/about-us-content', icon: Info, label: 'About Us' },
                 { path: '/landing-page-content', icon: Info, label: 'Landing Page' },
+                { path: '/rsvp-content', icon: Info, label: 'RSVP' },
                 { path: '/service-content', icon: Briefcase, label: 'Services' },
                 { path: '/upcoming-event-content', icon: Calendar, label: 'Upcoming Event' },
                 { path: '/past-event-content', icon: Calendar, label: 'Past Event' },

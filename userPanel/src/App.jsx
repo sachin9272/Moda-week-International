@@ -27,6 +27,7 @@ import DataProtection from "./pages/DataProtection.jsx";
 import MediaReleasePolicy from "./pages/MediaReleasePolicy.jsx";
 import Donation from "./pages/donation/Donation.jsx";
 import Contact from "./pages/Contact.jsx";
+import Rsvp from "./pages/Rsvp.jsx";
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
@@ -67,6 +68,7 @@ function App() {
         <Route path="/philanthropy" element={<Philanthropy />} />
         <Route path="/donation" element={<Donation />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/rsvp" element={<Rsvp />} />
 
         {/* Payment Routes */}
         <Route path="/tickets/payment/success" element={<PaymentSuccess />} />
