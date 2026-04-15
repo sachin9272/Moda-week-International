@@ -48,6 +48,7 @@ function App() {
         <Route path="/production-team/:slug" element={<ProductionTeamMember />} />
         <Route path="/events" element={<FashioEvents />} />
         <Route path="/service" element={<Service />} />
+        <Route path="/registration" element={<Service />} />
         <Route path="/participants" element={<Participants />} />
         <Route path="/past-events" element={<PastEvents />} />
         <Route path="/news-room" element={<NewsRoom />} />

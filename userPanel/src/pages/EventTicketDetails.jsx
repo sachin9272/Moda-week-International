@@ -1,10 +1,23 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { baseURL } from "../config/api";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { MapPin, Calendar, Check, Minus, Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+    MapPin,
+    Calendar,
+    Check,
+    Minus,
+    Plus,
+    Crown,
+    GraduationCap,
+    Armchair,
+    Sparkles,
+    Globe2,
+    Users,
+    HeartHandshake
+} from "lucide-react";
 import UserDetailsModal from "../components/UserDetailsModal";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
 
@@ -77,8 +90,46 @@ const AutoScrollCarousel = ({ images }) => {
 
 const URL_REGEX = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
 
+const ensureString = (value) => {
+    if (typeof value === "string") return value;
+    if (value == null) return "";
+    return String(value);
+};
+
+const getImageUrl = (value) => {
+    if (typeof value === "string") return value;
+    if (value && typeof value === "object" && typeof value.url === "string") return value.url;
+    return "";
+};
+
+const getSafeCurrency = (value) => {
+    const normalized = ensureString(value).trim().toUpperCase();
+    return /^[A-Z]{3}$/.test(normalized) ? normalized : "USD";
+};
+
+const getSafeId = (value, fallback) => ensureString(value) || fallback;
+
+const stripHtml = (text = "") => ensureString(text).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+
+const getDescriptionLines = (text = "") =>
+    stripHtml(text)
+        .split(/\n|•|·|-/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+const getTicketIcon = (ticketName = "", index = 0) => {
+    const normalized = ticketName.toLowerCase();
+
+    if (normalized.includes("vip")) return Crown;
+    if (normalized.includes("student")) return GraduationCap;
+    if (normalized.includes("general") || normalized.includes("seat")) return Armchair;
+
+    const fallbackIcons = [Sparkles, GraduationCap, Armchair, Crown];
+    return fallbackIcons[index % fallbackIcons.length];
+};
+
 const renderTextWithLinks = (text = "") =>
-    text.split("\n").map((line, lineIndex) => (
+    ensureString(text).split("\n").map((line, lineIndex) => (
         <p key={`line-${lineIndex}`}>
             {line.split(URL_REGEX).map((part, partIndex) => {
                 if (!part) return null;
@@ -113,10 +164,39 @@ export default function EventTicketDetails() {
     const [quantities, setQuantities] = useState({});
     const [totalPrice, setTotalPrice] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const eventDisplayName = event?.eventName || '';
-    const eventMainTitle = event?.title || '';
-
-    const formatDate = (dateString) => {
+    const eventDisplayName = ensureString(event?.eventName);
+    const eventMainTitle = ensureString(event?.title);
+    const ticketTypes = Array.isArray(event?.ticketTypes) ? event.ticketTypes : [];
+    const partners = Array.isArray(event?.partners) ? event.partners : [];
+    const collections = Array.isArray(event?.collections) ? event.collections : [];
+    const coverImageUrl = getImageUrl(event?.coverImage);
+    const aboutTitle = ensureString(event?.descriptionSection?.title) || `About ${eventDisplayName || eventMainTitle || "This Event"}`;
+    const aboutText = ensureString(event?.descriptionSection?.text || event?.description || "");
+    const aboutImageUrl = getImageUrl(event?.descriptionSection?.image) || coverImageUrl;
+    const dressCode = ensureString(event?.dressCode) || "Black Tie / Cocktail Attire";
+    const eventFacts = [
+        {
+            icon: Calendar,
+            label: "Date",
+            value: formatDateSafe(event?.eventDate),
+        },
+        {
+            icon: MapPin,
+            label: "Location",
+            value: ensureString(event?.location) || "Venue to be announced",
+        },
+        {
+            icon: Sparkles,
+            label: "Dress Code",
+            value: dressCode,
+        },
+    ];
+    const aboutHighlights = [
+        { icon: Globe2, title: "International Designers" },
+        { icon: Users, title: "Empowering Models" },
+        { icon: HeartHandshake, title: "Global Philanthropy" },
+    ];
+    function formatDate(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
         if (isNaN(date.getTime())) return dateString;
@@ -132,7 +212,12 @@ export default function EventTicketDetails() {
         };
 
         return `${month} ${getOrdinal(day)}, ${year}`;
-    };
+    }
+
+    function formatDateSafe(dateString) {
+        if (!dateString) return "";
+        return formatDate(dateString);
+    }
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -154,7 +239,7 @@ export default function EventTicketDetails() {
         fetchEvent();
     }, [id]);
 
-    const handleQuantityChange = (ticketId, delta, price) => {
+    const handleQuantityChange = (ticketId, delta) => {
         setQuantities((prev) => {
             const currentQty = prev[ticketId] || 0;
             const newQty = Math.max(0, Math.min(10, currentQty + delta));
@@ -163,30 +248,155 @@ export default function EventTicketDetails() {
     };
 
     useEffect(() => {
-        if (!event || !event.ticketTypes) return;
+        if (!ticketTypes.length) return;
         let total = 0;
-        event.ticketTypes.forEach((ticket) => {
-            const qty = quantities[ticket._id] || 0;
+        ticketTypes.forEach((ticket, index) => {
+            const qty = quantities[getSafeId(ticket._id, `ticket-${index}`)] || 0;
             total += qty * ticket.price;
         });
         setTotalPrice(total);
-    }, [quantities, event]);
+    }, [quantities, ticketTypes]);
 
     const getSelectedTickets = () => {
-        if (!event || !event.ticketTypes) return [];
-        return event.ticketTypes
-            .map(t => ({
+        if (!ticketTypes.length) return [];
+        return ticketTypes
+            .map((t, index) => ({
                 ticketTypeId: t._id,
                 name: t.name,
                 price: t.price,
-                quantity: quantities[t._id] || 0
+                quantity: quantities[getSafeId(t._id, `ticket-${index}`)] || 0
             }))
             .filter(t => t.quantity > 0);
     };
 
+    const formatCurrency = (amount, currency = "USD") =>
+        new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: getSafeCurrency(currency),
+            maximumFractionDigits: 0,
+        }).format(Number(amount) || 0);
+
+    const renderTicketExperienceCards = () => {
+        if (ticketTypes.length === 0) {
+            return (
+                <div className="text-center py-14 italic text-[#6D584D]">
+                    No tickets available yet.
+                </div>
+            );
+        }
+
+        return (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+                {ticketTypes.map((ticket, index) => {
+                    const ticketId = getSafeId(ticket._id, `ticket-${index}`);
+                    const ticketName = ensureString(ticket.name) || "Ticket";
+                    const TicketIcon = getTicketIcon(ticketName, index);
+                    const features = getDescriptionLines(ticket.description);
+                    const quantity = quantities[ticketId] || 0;
+                    const ticketPrice = Number(ticket.price) || 0;
+                    const totalForTicket = quantity * ticketPrice;
+                    const ticketImageUrl = getImageUrl(ticket.image);
+
+                    return (
+                        <article
+                            key={ticketId}
+                            className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 shadow-lg transition-transform duration-300 hover:scale-[1.02]"
+                        >
+                            <div className="absolute inset-x-0 top-0 h-1 grad-bg" />
+
+                            {ticketImageUrl && (
+                                <div className="h-44 overflow-hidden">
+                                    <img
+                                        src={optimizeCloudinaryImage(ticketImageUrl, { width: 900, height: 600, crop: "fill" })}
+                                        alt={ticketName}
+                                        className="h-full w-full object-cover"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
+                                </div>
+                            )}
+
+                            <div className="p-6 text-center md:p-7">
+                                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full grad-bg text-white shadow-lg">
+                                    <TicketIcon size={24} />
+                                </div>
+
+                                <h4 className="font-playfair text-[1.55rem] leading-tight text-black uppercase">
+                                    {ticketName}
+                                </h4>
+
+                                <div className="my-5 h-px w-full bg-gray-200" />
+
+                                <ul className="min-h-[150px] space-y-3 text-left text-[15px] leading-6 text-gray-700">
+                                    {features.length > 0 ? features.map((feature, featureIndex) => (
+                                        <li key={`${ticketId}-feature-${featureIndex}`} className="flex gap-3">
+                                            <Check size={15} className="mt-1 shrink-0 text-[#C7913E]" />
+                                            <span>{feature}</span>
+                                        </li>
+                                    )) : (
+                                        <li className="flex gap-3">
+                                            <Check size={16} className="mt-1 shrink-0 text-[#C7913E]" />
+                                            <span>Entry to the featured event experience.</span>
+                                        </li>
+                                    )}
+                                </ul>
+
+                                <div className="my-6 h-px w-full bg-gray-200" />
+
+                                <div className="mb-5">
+                                    <p className="text-sm uppercase tracking-[0.24em] text-gray-500">Price</p>
+                                    <p className="font-playfair text-[2.15rem] text-black">
+                                        {formatCurrency(ticketPrice, ticket.currency)}
+                                    </p>
+                                    {quantity > 0 && (
+                                        <p className="mt-2 text-sm text-gray-500">
+                                            {quantity} selected • {formatCurrency(totalForTicket, ticket.currency)}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="mb-5 flex items-center justify-center gap-4">
+                                    <button
+                                        onClick={() => handleQuantityChange(ticketId, -1)}
+                                        className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 text-[#734F1C] transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40"
+                                        disabled={!quantity}
+                                        aria-label={`Decrease ${ticketName} quantity`}
+                                    >
+                                        <Minus size={18} />
+                                    </button>
+                                    <div className="min-w-[84px] rounded-full border border-gray-300 bg-white px-5 py-2 text-center text-lg font-semibold text-black">
+                                        {quantity}
+                                    </div>
+                                    <button
+                                        onClick={() => handleQuantityChange(ticketId, 1)}
+                                        className="flex h-11 w-11 items-center justify-center rounded-full border border-gray-300 text-[#734F1C] transition hover:bg-gray-100"
+                                        aria-label={`Increase ${ticketName} quantity`}
+                                    >
+                                        <Plus size={18} />
+                                    </button>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        if (!quantity) {
+                                            handleQuantityChange(ticketId, 1);
+                                        }
+                                    }}
+                                    className={`w-full rounded-lg px-5 py-3 text-sm font-bold uppercase tracking-widest transition-colors duration-200 ${quantity > 0 ? "grad-bg text-white" : "bg-black text-white hover:bg-gray-800"}`}
+                                >
+                                    {quantity > 0 ? "Selected" : `Select ${ticketName}`}
+                                </button>
+                            </div>
+                        </article>
+                    );
+                })}
+            </div>
+        );
+    };
+
     const handleCheckout = () => {
         // Safe check for ticketTypes
-        if (!event.ticketTypes) return;
+        if (!ticketTypes.length) return;
 
         const selectedTickets = getSelectedTickets();
 
@@ -228,8 +438,8 @@ export default function EventTicketDetails() {
 
     const renderCollection = (collection, index) => {
         const layout = collection.layout || 'grid';
-        const images = collection.images.map(img => img?.url || img);
-        const designerImageUrl = collection.designerImage?.url || collection.designerImage;
+        const images = Array.isArray(collection.images) ? collection.images.map(img => getImageUrl(img)).filter(Boolean) : [];
+        const designerImageUrl = getImageUrl(collection.designerImage);
         const hasCollectionImages = images.length > 0;
 
         const shouldRenderAsDesignerProfile =
@@ -306,28 +516,154 @@ export default function EventTicketDetails() {
     if (loading) return <div className="bg-white min-h-screen text-black flex justify-center items-center">Loading...</div>;
     if (!event) return <div className="bg-white min-h-screen text-black flex justify-center items-center">Event not found</div>;
 
+    try {
     return (
         <div className="bg-white min-h-screen text-black">
             <Navbar />
 
-            <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[300px] flex flex-col justify-center items-center">
-                <div className="max-w-7xl mx-auto">
-                    {eventMainTitle && (
-                        <h1 className="text-3xl md:text-[44px] font-bold uppercase tracking-wider mb-2 grad-text-up">
-                            {eventMainTitle}
-                        </h1>
-                    )}
-                    <p className="text-sm md:text-lg font-medium tracking-wide mb-4 text-black">
-                        {formatDate(event.eventDate)}
-                    </p>
-                    <div className="flex justify-center items-center gap-2 mt-2 text-[#734F1C] font-medium tracking-widest uppercase text-sm">
-                        <MapPin size={16} />
-                        <span>{event.location}</span>
-                    </div>
-                </div>
-            </header>
+            {showTicketsOnly ? (
+                <div className="bg-white">
+                    <section className="relative overflow-hidden pt-24">
+                        <div className="relative min-h-[540px] md:min-h-[620px]">
+                            {coverImageUrl && (
+                                <img
+                                    src={optimizeCloudinaryImage(coverImageUrl, { width: 1800, height: 1100, crop: "fill" })}
+                                    alt={eventDisplayName || eventMainTitle || "Event"}
+                                    className="absolute inset-0 h-full w-full object-cover"
+                                    decoding="async"
+                                />
+                            )}
+                            <div className="absolute inset-0 bg-black/45" />
+                            <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-transparent" />
+                            <div className="relative mx-auto flex min-h-[540px] max-w-7xl items-center px-6 py-16 md:min-h-[620px] md:px-10">
+                                <div className="max-w-[430px]">
+                                    <p className="text-xs md:text-sm tracking-[0.35em] uppercase text-[#C7913E] mb-4 font-semibold">
+                                        BUY TICKETS
+                                    </p>
+                                    <h1 className="font-playfair text-5xl leading-[1.02] text-white md:text-7xl">
+                                        {eventDisplayName || eventMainTitle}
+                                    </h1>
+                                    <p className="mt-8 text-lg leading-8 text-white/90">
+                                        {stripHtml(aboutText).slice(0, 145) || "A global fashion experience blending luxury, culture, and purpose in the heart of New York City."}
+                                    </p>
+                                    <button
+                                        onClick={() => document.getElementById("ticket-experience-section")?.scrollIntoView({ behavior: "smooth" })}
+                                        className="mt-8 grad-bg px-8 py-3 rounded-lg font-bold uppercase tracking-widest text-white transition-colors duration-200"
+                                    >
+                                        View Tickets
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
-            <div className="max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12">
+                    <section className="px-4 py-0 md:px-8 bg-white">
+                        <div className="mx-auto max-w-7xl border-x border-b border-gray-200 bg-white px-6 py-10 md:px-10">
+                            <div className="mb-8 flex items-center justify-center gap-4">
+                                <div className="h-px w-14 grad-bg md:w-24" />
+                                <h2 className="font-playfair text-3xl text-black md:text-5xl">Event Details</h2>
+                                <div className="h-px w-14 grad-bg md:w-24" />
+                            </div>
+                            <div className="grid gap-6 md:grid-cols-3">
+                                {eventFacts.map((fact, index) => {
+                                    const Icon = fact.icon;
+                                    return (
+                                        <div key={`${fact.label}-${index}`} className={`text-center ${index < eventFacts.length - 1 ? "md:border-r md:border-gray-200" : ""} md:px-6`}>
+                                            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 text-[#C7913E]">
+                                                <Icon size={22} />
+                                            </div>
+                                            <p className="font-playfair text-[2rem] text-black">{fact.label}</p>
+                                            <p className="mt-3 text-lg leading-8 text-gray-600">{ensureString(fact.value)}</p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </section>
+
+                    <section id="ticket-experience-section" className="px-4 py-12 md:px-8 md:py-16 bg-white">
+                        <div className="mx-auto max-w-7xl">
+                            <h2 className="text-center font-playfair text-4xl text-black md:text-5xl">Choose Your Experience</h2>
+                            <div className="mt-12">
+                                {renderTicketExperienceCards()}
+                            </div>
+
+                            <div className="mt-10 rounded-2xl border border-gray-200 bg-gray-50 p-6 md:p-8">
+                                <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                                    <div>
+                                        <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Total Amount</p>
+                                        <p className="mt-2 font-playfair text-4xl text-black">
+                                            {formatCurrency(totalPrice, ticketTypes[0]?.currency || "USD")}
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={handleCheckout}
+                                        disabled={totalPrice === 0}
+                                        className="grad-bg rounded-lg px-8 py-4 text-sm font-bold uppercase tracking-widest text-white disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        Proceed to Checkout
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section className="px-4 pb-16 md:px-8 md:pb-24 bg-white">
+                        <div className="mx-auto grid max-w-7xl gap-0 overflow-hidden border border-gray-200 bg-gray-50 lg:grid-cols-[1.1fr_0.9fr]">
+                            <div className="p-8 md:p-12">
+                                <h2 className="font-playfair text-4xl text-black md:text-5xl">{aboutTitle}</h2>
+                                <div className="event-rich-text mt-5 max-w-2xl space-y-3 text-lg leading-8 text-gray-700">
+                                    {aboutText ? renderTextWithLinks(aboutText) : <p>This event brings together fashion, culture, and a premium runway experience.</p>}
+                                </div>
+                                <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                                    {aboutHighlights.map((item) => {
+                                        const Icon = item.icon;
+                                        return (
+                                            <div key={item.title} className="text-center">
+                                                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-gray-200 bg-white text-[#C7913E]">
+                                                    <Icon size={24} />
+                                                </div>
+                                                <p className="mt-3 font-playfair text-xl text-black">{item.title}</p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                            <div className="min-h-[320px] overflow-hidden bg-white">
+                                {aboutImageUrl ? (
+                                    <img
+                                        src={optimizeCloudinaryImage(aboutImageUrl, { width: 1000, height: 900, crop: "fill" })}
+                                        alt={aboutTitle}
+                                        className="h-full w-full object-cover"
+                                        decoding="async"
+                                    />
+                                ) : (
+                                    <div className="flex h-full items-center justify-center text-[#8a6b56]">Event Image</div>
+                                )}
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            ) : (
+                <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[300px] flex flex-col justify-center items-center">
+                    <div className="max-w-7xl mx-auto">
+                            {eventMainTitle && (
+                            <h1 className="text-3xl md:text-[44px] font-bold uppercase tracking-wider mb-2 grad-text-up">
+                                {eventMainTitle}
+                            </h1>
+                        )}
+                        <p className="text-sm md:text-lg font-medium tracking-wide mb-4 text-black">
+                            {formatDate(event.eventDate)}
+                        </p>
+                        <div className="flex justify-center items-center gap-2 mt-2 text-[#734F1C] font-medium tracking-widest uppercase text-sm">
+                            <MapPin size={16} />
+                            <span>{ensureString(event.location)}</span>
+                        </div>
+                    </div>
+                </header>
+            )}
+
+            <div className={`max-w-7xl mx-auto px-8 py-12 grid grid-cols-1 lg:grid-cols-3 gap-12 ${showTicketsOnly ? "hidden" : ""}`}>
                 {/* Left Column: Description - Hide on ticket purchase view */}
                 {!showTicketsOnly && (
                     <div className="lg:col-span-3">
@@ -359,69 +695,9 @@ export default function EventTicketDetails() {
                     </div>
                 )}
 
-                {/* Ticket Selection - Only show on Buy Tickets flow */}
-                {showTicketsOnly && event.hasTickets && (
-                    <div className="lg:col-span-3 max-w-4xl mx-auto w-full">
-                        <div className="bg-white border border-gray-200 rounded-lg p-8 sticky top-24 shadow-2xl">
-                            <h3 className="text-2xl font-bold mb-8 uppercase tracking-widest text-[#C7913E]">Select Tickets</h3>
-
-                            <div className="space-y-8">
-                                {event.ticketTypes && event.ticketTypes.length > 0 ? (
-                                    event.ticketTypes.map((ticket) => (
-                                        <div key={ticket._id} className="border-b border-gray-100 pb-8 last:border-0 last:pb-0">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div>
-                                                    <h4 className="font-bold text-lg text-black uppercase">{ticket.name}</h4>
-                                                    <p className="text-[#C7913E] font-bold text-xl">${ticket.price}</p>
-                                                </div>
-                                                <div className="flex items-center gap-4 bg-gray-50 rounded-full px-4 py-2 border border-gray-100">
-                                                    <button
-                                                        onClick={() => handleQuantityChange(ticket._id, -1, ticket.price)}
-                                                        className="text-gray-500 hover:text-[#C7913E] transition-colors disabled:opacity-30"
-                                                        disabled={!quantities[ticket._id]}
-                                                    >
-                                                        <Minus size={20} />
-                                                    </button>
-                                                    <span className="w-6 text-center font-bold text-black">{quantities[ticket._id] || 0}</span>
-                                                    <button
-                                                        onClick={() => handleQuantityChange(ticket._id, 1, ticket.price)}
-                                                        className="text-gray-500 hover:text-[#C7913E] transition-colors"
-                                                    >
-                                                        <Plus size={20} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                            {ticket.description && (
-                                                <div className="text-sm text-gray-600 font-light space-y-1">
-                                                    {renderTextWithLinks(ticket.description)}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-gray-400 text-center py-8 italic font-light">No tickets available yet.</div>
-                                )}
-                            </div>
-
-                            <div className="mt-10 pt-8 border-t border-gray-100">
-                                <div className="flex justify-between items-center mb-8">
-                                    <span className="text-lg text-gray-600 uppercase tracking-widest">Total Amount</span>
-                                    <span className="text-3xl font-bold text-black">${totalPrice}</span>
-                                </div>
-                                <button
-                                    onClick={handleCheckout}
-                                    disabled={totalPrice === 0}
-                                    className="w-full py-5 bg-gradient-to-r from-[#3C2306] via-[#734F1C] to-[#C7913E] text-white font-bold rounded-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-[0.2em] shadow-xl hover:shadow-[#C7913E]/20"
-                                >
-                                    Proceed to Checkout
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
 
-            {event.partners && event.partners.length > 0 && (
+            {partners.length > 0 && (
                 <div className="py-1 bg-white border-t border-gray-100">
                     <div className="max-w-7xl mx-auto px-6 text-center mb-10">
                         <h2 className="text-3xl md:text-5xl font-playfair font-bold text-black uppercase tracking-wider mb-2">
@@ -434,10 +710,10 @@ export default function EventTicketDetails() {
                         <div className="marquee-wrapper py-8">
                             <div className="marquee-track">
                                 {[...Array(10)].map((_, loopIndex) => (
-                                    event.partners.map((partner, i) => (
+                                    partners.map((partner, i) => (
                                         <img
                                             key={`${loopIndex}-${i}`}
-                                            src={optimizeCloudinaryImage(partner.url, { width: 320, height: 160, crop: "fit" })}
+                                            src={optimizeCloudinaryImage(getImageUrl(partner), { width: 320, height: 160, crop: "fit" })}
                                             alt={`Partner ${i}`}
                                             className="h-20 object-contain -mx-1"
                                             loading="lazy"
@@ -454,7 +730,7 @@ export default function EventTicketDetails() {
             {/* Collections Section - Hide on ticket purchase view */}
             {!showTicketsOnly && (
                 <div className="mt-10 bg-white">
-                    {event.collections && event.collections.map((col, idx) => renderCollection(col, idx))}
+                    {collections.map((col, idx) => renderCollection(col, idx))}
                 </div>
             )}
 
@@ -469,4 +745,21 @@ export default function EventTicketDetails() {
             <Footer />
         </div>
     );
+    } catch (error) {
+        console.error("EventTicketDetails render error:", error, event);
+        return (
+            <div className="bg-white min-h-screen text-black">
+                <Navbar />
+                <div className="min-h-[60vh] flex items-center justify-center px-6 text-center">
+                    <div>
+                        <h1 className="font-playfair text-3xl text-[#2b1811]">Unable to load this ticket page</h1>
+                        <p className="mt-4 text-[#6b5649]">
+                            This event has some missing or unsupported ticket data. Please try another event or contact support.
+                        </p>
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        );
+    }
 }

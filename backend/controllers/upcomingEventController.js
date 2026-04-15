@@ -38,7 +38,7 @@ const getSafeImage = (img) => {
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
-        const { title, eventName, eventDate, location, description, status, hasTickets, heroLayout, showOnLandingPage } = req.body;
+        const { title, eventName, eventDate, location, dressCode, description, status, hasTickets, heroLayout, showOnLandingPage } = req.body;
 
         // Parse ticketTypes if it's a string (from FormData)
         let ticketTypes = [];
@@ -135,6 +135,7 @@ export const createUpcomingEvent = async (req, res) => {
             slug,
             eventDate,
             location,
+            dressCode: dressCode?.trim() || '',
             description,
             status: status || 'hidden',
             showOnLandingPage: showOnLandingPage === 'true' || showOnLandingPage === true,
@@ -217,7 +218,7 @@ export const getUpcomingEventById = async (req, res) => {
 export const updateUpcomingEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, eventName, eventDate, location, description, hasTickets, showOnLandingPage } = req.body;
+        const { title, eventName, eventDate, location, dressCode, description, hasTickets, showOnLandingPage } = req.body;
 
         const event = await UpcomingEvent.findById(id);
         if (!event) {
@@ -479,6 +480,7 @@ export const updateUpcomingEvent = async (req, res) => {
         if (eventName !== undefined) event.eventName = eventName.trim();
         if (eventDate !== undefined) event.eventDate = eventDate;
         if (location !== undefined) event.location = location;
+        if (dressCode !== undefined) event.dressCode = dressCode.trim();
         if (description !== undefined) event.description = description;
         if (req.body.status) event.status = req.body.status;
         if (showOnLandingPage !== undefined) {

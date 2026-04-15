@@ -349,6 +349,26 @@ export default function LandingPage() {
         <VideoSlider slides={slides} onSlideChange={setCurrentSlideIndex} />
       </section>
 
+      <section className="bg-linear-to-r from-[#050505] via-[#6F4A17] to-[#D29B33] shadow-[0_10px_22px_rgba(0,0,0,0.16)]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-9 md:py-4.5">
+          <div className="text-white">
+            <h2 className="text-xl font-extrabold uppercase tracking-[0.03em] md:text-2xl">
+              Calling All Designers
+            </h2>
+            <p className="mt-1 text-sm tracking-[0.06em] text-white/90 md:text-base">
+              Showcase your collections on a global stage.
+            </p>
+          </div>
+
+          <Link
+            to="/registration"
+            className="inline-flex w-full items-center justify-center border border-[#d2ab59] bg-white px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.16em] text-[#8C5D25] shadow-[0_6px_14px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#fff8eb] md:w-auto md:min-w-[260px] md:px-7"
+          >
+            Apply to Showcase Today
+          </Link>
+        </div>
+      </section>
+
       {upcomingEvents.length > 0 && (
         <section className="bg-white py-12 md:py-16">
           <div className="container mx-auto px-4">

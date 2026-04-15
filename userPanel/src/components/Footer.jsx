@@ -20,6 +20,8 @@ import { optimizeCloudinaryImage } from "../utils/cloudinary";
 export default function Footer() {
   const [email, setEmail] = useState("");
   const [partners, setPartners] = useState([]);
+  const visiblePartners = partners.filter((brand) => brand?.image?.url);
+  const marqueePartners = [...visiblePartners, ...visiblePartners];
 
   React.useEffect(() => {
     const fetchPartners = async () => {
@@ -50,18 +52,19 @@ export default function Footer() {
         <div className="border-gray-800 py-8">
           <div className="marquee-wrapper py-8">
             <div className="marquee-track">
-              {/* Original list */}
-              {[...Array(6)].map((_, loopIndex) => (
-                partners.map((brand, i) => (
+              {marqueePartners.map((brand, i) => (
+                <div
+                  key={`${brand._id || brand.name || "partner"}-${i}`}
+                  className="marquee-item"
+                >
                   <img
-                    key={`${loopIndex}-${brand._id || i}`}
                     src={optimizeCloudinaryImage(brand.image?.url, { width: 320, height: 160, crop: "fit" })}
-                    alt={brand.name}
-                    className="h-20 object-contain -mx-1" // Reduced horizontal margin to mx-2
+                    alt={brand.name || "Partner logo"}
+                    className="h-20 object-contain"
                     loading="lazy"
                     decoding="async"
                   />
-                ))
+                </div>
               ))}
             </div>
           </div>

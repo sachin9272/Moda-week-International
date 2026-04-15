@@ -112,6 +112,7 @@ export default function EditEventTickets() {
     const [saving, setSaving] = useState(false);
     const [event, setEvent] = useState(null);
     const [hasTickets, setHasTickets] = useState(false);
+    const [dressCode, setDressCode] = useState('');
     const [ticketTypes, setTicketTypes] = useState([]);
     const [currentTicket, setCurrentTicket] = useState(createEmptyTicket());
     const [editingTicketId, setEditingTicketId] = useState(null);
@@ -132,6 +133,7 @@ export default function EditEventTickets() {
                 const eventData = response.data;
                 setEvent(eventData);
                 setHasTickets(eventData.hasTickets || false);
+                setDressCode(eventData.dressCode || '');
                 setTicketTypes(
                     (eventData.ticketTypes || []).map((ticket) => ({
                         ...ticket,
@@ -249,6 +251,7 @@ export default function EditEventTickets() {
 
         const data = new FormData();
         data.append('hasTickets', hasTickets);
+        data.append('dressCode', dressCode);
         const ticketTypesMeta = finalTicketTypes.map(({ id: _clientId, _id, image, ...ticket }) => ({
             ...ticket,
             image: typeof image === 'string' ? image : null,
@@ -322,6 +325,18 @@ export default function EditEventTickets() {
                                 className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
                             />
                         </label>
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="mb-1 block text-sm text-gray-400">Dress Code</label>
+                        <input
+                            type="text"
+                            value={dressCode}
+                            onChange={(e) => setDressCode(e.target.value)}
+                            className="w-full rounded bg-gray-700 p-2 text-sm text-white"
+                            placeholder="e.g. Black Tie / Cocktail Attire"
+                            disabled={!hasTickets}
+                        />
                     </div>
 
                     <div className="mb-4 grid grid-cols-1 items-end gap-4 md:grid-cols-12">

@@ -65,7 +65,6 @@ const Navbar = () => {
   const navLinks = [
     { name: "Upcoming Events", path: "/events", category: "Events" },
     { name: "Past Events", path: "/past-events", category: "Events" },
-    { name: "Services", path: "/service", category: "MEMBERSHIPS & SUPPORT" },
     { name: "About Us", path: "/about", category: "ABOUT MODA" },
     { name: "Production Team", path: "/production-team", category: "ABOUT MODA" },
     { name: "Newsroom", path: "/news-room", category: "News" },
@@ -177,7 +176,7 @@ const Navbar = () => {
               )
             ))}
             <Link
-              to="/service?tab=service#application-forms"
+              to="/registration"
               onMouseEnter={() => setActiveDropdown(null)}
               className="text-sm font-bold tracking-[0.2em] uppercase text-[#C7913E] hover:text-white transition-colors"
             >
@@ -331,7 +330,7 @@ const Navbar = () => {
                     animate="open"
                   >
                     <Link
-                      to="/service?tab=service#application-forms"
+                      to="/registration"
                       onClick={() => setIsMenuOpen(false)}
                       className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
                     >

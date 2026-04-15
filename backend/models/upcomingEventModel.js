@@ -22,6 +22,11 @@ const upcomingEventSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    dressCode: {
+        type: String,
+        trim: true,
+        default: '',
+    },
     description: {
         type: String,
     },

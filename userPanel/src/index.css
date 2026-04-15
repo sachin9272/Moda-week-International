@@ -91,24 +91,28 @@ body {
 
 .marquee-wrapper {
   overflow: hidden;
-  white-space: nowrap;
+  width: 100%;
 }
 
 .marquee-track {
-  display: inline-flex;
+  display: flex;
+  width: max-content;
   gap: 40px;
-  animation: marquee-right 10s linear infinite;
+  animation: marquee-right 24s linear infinite;
+  will-change: transform;
+}
+
+.marquee-item {
+  flex: 0 0 auto;
 }
 
 @keyframes marquee-right {
   0% {
     transform: translateX(-50%);
-    /* Start outside left */
   }
 
   100% {
     transform: translateX(0);
-    /* End in center */
   }
 }
 

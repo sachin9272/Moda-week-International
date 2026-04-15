@@ -178,6 +178,7 @@ const AddUpcomingEvent = () => {
         eventName: '',
         eventDate: '',
         location: '',
+        dressCode: '',
         description: '',
         showOnLandingPage: false,
         coverImage: null,
@@ -728,6 +729,7 @@ const AddUpcomingEvent = () => {
         data.append('eventName', formData.eventName);
         data.append('eventDate', formData.eventDate);
         data.append('location', formData.location);
+        data.append('dressCode', formData.dressCode);
         data.append('description', formData.description);
         data.append('showOnLandingPage', formData.showOnLandingPage);
         data.append('heroLayout', formData.heroLayout);
@@ -1020,6 +1022,18 @@ const AddUpcomingEvent = () => {
                                 className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
                             />
                         </label>
+                    </div>
+                    <div className="mb-4">
+                        <label className="block text-gray-400 mb-1 text-sm">Dress Code</label>
+                        <input
+                            type="text"
+                            name="dressCode"
+                            value={formData.dressCode}
+                            onChange={handleInputChange}
+                            className="w-full p-2 bg-gray-700 rounded text-white text-sm"
+                            placeholder="e.g. Black Tie / Cocktail Attire"
+                            disabled={!formData.hasTickets}
+                        />
                     </div>
                     <div className="mb-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
                         <div className="md:col-span-4">
