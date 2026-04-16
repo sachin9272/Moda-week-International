@@ -1,0 +1,103 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - hey
+    - hello
+    - hi
+    - hello there
+    - good morning
+    - good evening
+    - hey there
+    - let's go
+    - goodmorning
+    - goodevening
+    - good afternoon
+
+- intent: goodbye
+  examples: |
+    - good bye
+    - catch you later
+    - good night
+    - bye
+    - goodbye
+    - have a nice day
+    - see you around
+    - bye bye
+    - see you later
+
+- intent: ask_tickets
+  examples: |
+    - how much are tickets
+    - where do I buy passes?
+    - I want a VIP ticket
+    - get me front row tickets
+    - price for entry
+    - tickets please
+    - pass prices
+    - buy tickets
+    - entry fee
+
+- intent: ask_schedule
+  examples: |
+    - when does it start?
+    - what is the show schedule?
+    - who is presenting today
+    - show me the timeline
+    - when are the runway shows?
+    - daily schedule
+    - event dates
+    - when is fashion week?
+
+- intent: bot_challenge
+  examples: |
+    - are you a bot?
+    - are you a human?
+    - am I talking to a bot?
+    - am I talking to a human?
+
+- intent: ask_designers
+  examples: |
+    - who is showcasing?
+    - names of designers
+    - tell me about the emerging designers
+    - who are the designers?
+    - which brands are coming?
+    - lineup for the show
+
+- intent: ask_location
+  examples: |
+    - where is it located?
+    - venue address
+    - how to reach the fashion show?
+    - where are the shows happening?
+    - location details
+
+- intent: ask_dress_code
+  examples: |
+    - what should I wear?
+    - is there a dress code?
+    - attire for the runway show
+    - do I need to dress up?
+    - what is the attire?
+
+- intent: ask_upcoming_events
+  examples: |
+    - what are the upcoming events?
+    - any future shows?
+    - next fashion event
+    - what's coming up?
+    - future schedule
+    - upcoming fashion weeks
+    - future events
+
+- intent: ask_past_events
+  examples: |
+    - what were the past events?
+    - tell me about previous shows
+    - past fashion weeks
+    - history of events
+    - what happened last year?
+    - previous fashion shows
+    - past events

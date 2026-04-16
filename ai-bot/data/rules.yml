@@ -1,0 +1,52 @@
+version: "3.1"
+
+rules:
+- rule: Say hello anytime the user says hello
+  steps:
+  - intent: greet
+  - action: utter_greet
+
+- rule: Say goodbye anytime the user says goodbye
+  steps:
+  - intent: goodbye
+  - action: utter_goodbye
+
+- rule: Say 'I am a bot' anytime the user challenges
+  steps:
+  - intent: bot_challenge
+  - action: utter_iamabot
+
+- rule: Answer ticket questions
+  steps:
+  - intent: ask_tickets
+  - action: utter_tickets
+
+- rule: Answer schedule questions
+  steps:
+  - intent: ask_schedule
+  - action: utter_schedule
+
+- rule: Answer designer questions
+  steps:
+  - intent: ask_designers
+  - action: utter_designers
+
+- rule: Answer location questions
+  steps:
+  - intent: ask_location
+  - action: utter_location
+
+- rule: Answer dress code questions
+  steps:
+  - intent: ask_dress_code
+  - action: utter_dress_code
+
+- rule: Answer upcoming events questions
+  steps:
+  - intent: ask_upcoming_events
+  - action: utter_upcoming_events
+
+- rule: Answer past events questions
+  steps:
+  - intent: ask_past_events
+  - action: utter_past_events

@@ -1,0 +1,54 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - affirm
+  - deny
+  - ask_tickets
+  - ask_schedule
+  - bot_challenge
+  - ask_designers
+  - ask_location
+  - ask_dress_code
+  - ask_upcoming_events
+  - ask_past_events
+
+responses:
+  utter_greet:
+  - text: "Welcome to Moda Week International! I am your High-Fashion Concierge. How may I assist you with our upcoming shows today?"
+  - text: "Hello darling! Accessorize your day with fashion. How can I help you regarding Moda Week?"
+
+  utter_goodbye:
+  - text: "Stay fabulous! Goodbye!"
+  - text: "Au revoir! See you on the runway."
+
+  utter_tickets:
+  - text: "Tickets for Moda Week International are available at the Registration Desk or via our VIP partners. Standard passes start at $150, and VIP front-row passes are $500."
+
+  utter_schedule:
+  - text: "Moda Week International showcases emerging and elite designers over 5 days. For the exact daily schedule, please refer to the 'Schedule' section on your dashboard."
+
+  utter_iamabot:
+  - text: "I am an AI High-Fashion Concierge, specifically styled and designed for Moda Week International."
+
+  utter_designers:
+  - text: "We have an incredible lineup including established brands as well as emerging talents from around the world. Please check the 'Designers' page for the full roster!"
+
+  utter_location:
+  - text: "Moda Week International is primarily hosted at the Grand Metropolitan Convention Center. Certain VIP events take place at exclusive off-site venues."
+
+  utter_dress_code:
+  - text: "Dress to impress! We encourage high-fashion, avant-garde, and chic attire. Formal evening wear is required for the VIP after-parties."
+
+  utter_upcoming_events:
+  - text: "Our next major event is the 'Spring Awakening' Fashion Gala next month, featuring exclusive avant-garde collections! Keep an eye on the schedule tab for exact dates."
+  - text: "Upcoming events include our eagerly awaited Summer Showcase and the exclusive VIP Designer Mixer. Stay tuned to our announcements!"
+
+  utter_past_events:
+  - text: "Last season's 'Winter Elegance' show was a massive success, highlighting eco-friendly couture. You can view highlights in our media gallery!"
+  - text: "Our previous events have set global trends, with the 'Autumn Chic' collection drawing top fashion houses globally. Check the archives for photos!"
+
+session_config:
+  session_expiration_time: 60
+  carry_over_slots_to_new_session: true

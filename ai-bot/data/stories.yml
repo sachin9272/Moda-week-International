@@ -1,0 +1,18 @@
+version: "3.1"
+
+stories:
+- story: happy path tickets
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_tickets
+  - action: utter_tickets
+  - intent: goodbye
+  - action: utter_goodbye
+
+- story: schedule path
+  steps:
+  - intent: greet
+  - action: utter_greet
+  - intent: ask_schedule
+  - action: utter_schedule
