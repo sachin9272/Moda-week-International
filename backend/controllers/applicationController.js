@@ -2,6 +2,7 @@ import Buyer from '../models/buyerModel.js';
 import Designer from '../models/designerModel.js';
 import Sponsor from '../models/sponsorModel.js';
 import Service from '../models/serviceModel.js';
+import RsvpApplication from '../models/rsvpApplicationModel.js';
 import sendEmail from '../utils/emailService.js';
 import { generateUserConfirmationEmail, generateAdminNotificationEmail } from '../utils/emailTemplates.js';
 
@@ -119,6 +120,33 @@ export const createServiceApplication = async (req, res) => {
         res.status(201).json({ success: true, message: 'Service application submitted successfully', data: service });
     } catch (error) {
         console.error("Error creating service application:", error);
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+// Create RSVP Application
+export const createRsvpApplication = async (req, res) => {
+    try {
+        const rsvp = new RsvpApplication(req.body);
+        await rsvp.save();
+
+        await sendEmail({
+            email: rsvp.privateEmail,
+            subject: 'VIP RSVP Received - Moda Week International',
+            message: `Dear ${rsvp.fullName}, thank you for submitting your VIP RSVP profile. We have received your request and will review it shortly.`,
+            html: generateUserConfirmationEmail('rsvp', rsvp)
+        });
+
+        await sendEmail({
+            email: ADMIN_EMAIL,
+            subject: 'New VIP RSVP Submission - Moda Week',
+            message: `New VIP RSVP: ${rsvp.fullName} - ${rsvp.privateEmail}`,
+            html: generateAdminNotificationEmail('rsvp', rsvp)
+        });
+
+        res.status(201).json({ success: true, message: 'RSVP application submitted successfully', data: rsvp });
+    } catch (error) {
+        console.error("Error creating RSVP application:", error);
         res.status(400).json({ success: false, message: error.message });
     }
 };

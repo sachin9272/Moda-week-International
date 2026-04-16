@@ -84,7 +84,9 @@ app.use('/api/donation-page', donationPageRoutes);
 import aboutUsRoutes from './routes/aboutUsRoutes.js';
 app.use('/api/about-us', aboutUsRoutes);
 import landingPageRoutes from './routes/landingPageRoutes.js';
+import rsvpPageRoutes from './routes/rsvpPageRoutes.js';
 app.use('/api/landing-page', landingPageRoutes);
+app.use('/api/rsvp-page', rsvpPageRoutes);
 import chatRoutes from './routes/chatRoutes.js';
 app.use('/api/chat', chatRoutes);
 

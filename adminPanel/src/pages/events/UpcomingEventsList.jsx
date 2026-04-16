@@ -167,6 +167,9 @@ const UpcomingEventsList = () => {
                                         </h2>
                                     </div>
                                     <div className="flex flex-col items-end gap-2">
+                                        <span className={`text-[10px] font-bold tracking-widest uppercase ${event.showOnLandingPage ? 'text-[#C7913E]' : 'text-neutral-500'}`}>
+                                            {event.showOnLandingPage ? 'Landing On' : 'Landing Off'}
+                                        </span>
                                         <span className={`text-[10px] font-bold tracking-widest uppercase ${event.status === 'live' ? 'text-green-500' : 'text-neutral-500'}`}>
                                             {event.status === 'live' ? 'Live' : 'Hidden'}
                                         </span>

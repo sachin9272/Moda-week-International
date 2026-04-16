@@ -7,6 +7,7 @@ import Buyers from './pages/applications/Buyers';
 import Designers from './pages/applications/Designers';
 import Sponsors from './pages/applications/Sponsors';
 import Services from './pages/applications/Services';
+import Rsvps from './pages/applications/Rsvps';
 import LandingVideos from './pages/LandingVideos';
 import ServicesManager from './pages/ServicesManager';
 import LegalPagesManager from './pages/LegalPagesManager';
@@ -27,6 +28,7 @@ import EventAnalyticsDashboard from './pages/events/EventAnalyticsDashboard';
 import EventTransactions from './pages/events/EventTransactions';
 import UpcomingEventsList from './pages/events/UpcomingEventsList';
 import TicketsList from './pages/events/TicketsList';
+import EditEventTickets from './pages/events/EditEventTickets';
 import UpcomingEventHeroManager from './pages/events/UpcomingEventHeroManager';
 import ParticipantsHeroManager from './pages/participants/ParticipantsHeroManager';
 import PastEventHeroManager from './pages/events/PastEventHeroManager';
@@ -36,6 +38,7 @@ import FashionDesigners from './pages/FashionDesigners';
 import ProductionTeam from './pages/ProductionTeam';
 import PressAndMedia from './pages/PressAndMedia';
 import LandingPageManager from './pages/LandingPageManager';
+import RsvpManager from './pages/RsvpManager';
 import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -67,6 +70,7 @@ function App() {
             <Route path="applications/designers" element={<Designers />} />
             <Route path="applications/sponsors" element={<Sponsors />} />
             <Route path="applications/services" element={<Services />} />
+            <Route path="applications/rsvps" element={<Rsvps />} />
 
             <Route path="landing-videos" element={<LandingVideos />} />
             <Route path="service-content" element={<ServicesManager />} />
@@ -83,12 +87,14 @@ function App() {
             <Route path="past-event-content" element={<PastEventHeroManager />} />
             <Route path="participants-content" element={<ParticipantsHeroManager />} />
             <Route path="landing-page-content" element={<LandingPageManager />} />
+            <Route path="rsvp-content" element={<RsvpManager />} />
             <Route path="events/upcoming" element={<UpcomingEventsList />} />
             <Route path="events/upcoming/dashboard/:id" element={<EventAnalyticsDashboard />} />
             <Route path="events/upcoming/transactions/:id" element={<EventTransactions />} />
             <Route path="events/upcoming/add" element={<AddUpcomingEvent />} />
             <Route path="events/upcoming/edit/:id" element={<EditUpcomingEvent />} />
             <Route path="tickets" element={<TicketsList />} />
+            <Route path="tickets/edit/:id" element={<EditEventTickets />} />
             <Route path="events/past" element={<EventsList type="past" />} />
 
             <Route path="events/add" element={<AddEvent />} />

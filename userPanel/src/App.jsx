@@ -11,7 +11,6 @@ import Pricing from "./components/Pricing.jsx"
 import Participants from "./pages/participants/Participants.jsx";
 import PastEvents from "./pages/pastEvents/PastEvents.jsx";
 import NewsRoom from './pages/newsRoom/NewsRoom.jsx';
-import PressAndMedia from './pages/newsRoom/PressAndMedia.jsx';
 import NewsDetail from './pages/newsRoom/NewsDetail.jsx';
 import SubmitNews from "./pages/newsRoom/SubmitNews.jsx";
 import EventDetail from "./pages/EventDetail.jsx";
@@ -28,6 +27,7 @@ import DataProtection from "./pages/DataProtection.jsx";
 import MediaReleasePolicy from "./pages/MediaReleasePolicy.jsx";
 import Donation from "./pages/donation/Donation.jsx";
 import Contact from "./pages/Contact.jsx";
+import Rsvp from "./pages/Rsvp.jsx";
 
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
@@ -49,10 +49,11 @@ function App() {
         <Route path="/production-team/:slug" element={<ProductionTeamMember />} />
         <Route path="/events" element={<FashioEvents />} />
         <Route path="/service" element={<Service />} />
+        <Route path="/registration" element={<Service />} />
         <Route path="/participants" element={<Participants />} />
         <Route path="/past-events" element={<PastEvents />} />
         <Route path="/news-room" element={<NewsRoom />} />
-        <Route path="/press-media" element={<PressAndMedia />} />
+        {/* <Route path="/press-media" element={<PressAndMedia />} /> */}
         <Route path="/news-room/submit" element={<SubmitNews />} />
         <Route path="/news-room/:id" element={<NewsDetail />} />
         <Route path="/event-details" element={<EventDetail />} />
@@ -67,6 +68,7 @@ function App() {
         <Route path="/philanthropy" element={<Philanthropy />} />
         <Route path="/donation" element={<Donation />} />
         <Route path="/contact" element={<Contact />} />
+        <Route path="/rsvp" element={<Rsvp />} />
 
         {/* Payment Routes */}
         <Route path="/tickets/payment/success" element={<PaymentSuccess />} />

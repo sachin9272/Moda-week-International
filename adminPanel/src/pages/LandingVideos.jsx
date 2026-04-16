@@ -316,6 +316,9 @@ const LandingVideos = () => {
             });
 
             if (response.ok) {
+                if (editingId === deleteConfirm.id) {
+                    resetForm();
+                }
                 fetchVideos();
                 closeDeleteConfirm();
                 toast.success('Video deleted');
@@ -355,6 +358,8 @@ const LandingVideos = () => {
                     onClick={() => {
                         if (showForm) resetForm();
                         else {
+                            setEditingId(null);
+                            setVideoFile(null);
                             setFormData({ title: '', subtitle: '', order: videos.length + 1, videoUrl: '' });
                             setShowForm(true);
                         }
@@ -552,6 +557,8 @@ const LandingVideos = () => {
                         </p>
                         <button
                             onClick={() => {
+                                setEditingId(null);
+                                setVideoFile(null);
                                 setFormData({ title: '', subtitle: '', order: 1, videoUrl: '' });
                                 setShowForm(true);
                             }}

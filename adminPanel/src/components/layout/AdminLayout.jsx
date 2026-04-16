@@ -82,6 +82,7 @@ const AdminLayout = () => {
         if (path.includes('/fashion-designers')) return 'Participants';
         if (path.includes('/partners')) return 'Partners';
         if (path.includes('/service-content')) return 'Service Content';
+        if (path.includes('/rsvp-content')) return 'RSVP Content';
         if (path.includes('/legal-pages')) return 'Legal Pages';
         return 'Admin Panel';
     };

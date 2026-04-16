@@ -57,7 +57,7 @@ const ChatWidget = () => {
     };
 
     return (
-        <div className="fixed bottom-[24px] right-6 z-[9999] font-inter">
+        <div className="fixed bottom-[96px] right-6 z-[9999] font-inter">
             {/* Pulsating Brand Toggle Button */}
             <motion.button 
                 whileHover={{ scale: 1.1 }}

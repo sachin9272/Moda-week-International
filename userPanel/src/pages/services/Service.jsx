@@ -6,12 +6,13 @@ import ApplicationForm from "./Forms";
 import CtaSection from "../../components/CtaSection";
 import Footer from "../../components/Footer";
 import { baseURL } from '../../config/api';
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 export default function Service() {
   /* State for dynamic services */
   const [services, setServices] = React.useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [heroData, setHeroData] = React.useState({
     title: "COLLABORATION & EXPOSURE PLATFORM",
     subtitle: "OUR SERVICES",
@@ -62,7 +63,7 @@ export default function Service() {
 
   React.useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab) {
+    if (tab || location.pathname === "/registration") {
       const element = document.getElementById("application-forms");
       if (element) {
         // Scroll adjustment to handle dynamic content loading
@@ -71,7 +72,7 @@ export default function Service() {
         }, 500);
       }
     }
-  }, [searchParams, services]);
+  }, [location.pathname, searchParams, services]);
 
 
   const handleCardClick = () => {

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar.jsx";
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { Calendar, MapPin, Clock, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer.jsx";
 import { baseURL } from "../config/api";
@@ -21,13 +21,24 @@ import takla from "../assets/takla.avif";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
 import ProgressiveImage from "../components/ProgressiveImage.jsx";
 
-
-
+const stripHtml = (value = "") => value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
 
 function VideoSlider({ slides, onSlideChange }) {
   const [current, setCurrent] = useState(0);
   const videoRefs = useRef([]);
   const scrollTimeout = useRef(null);
+
+  const goToSlide = useCallback((index) => {
+    if (slides.length === 0) return;
+    setCurrent(index);
+    if (onSlideChange) onSlideChange(index);
+  }, [onSlideChange, slides.length]);
+
+  const goToNext = useCallback(() => {
+    if (slides.length === 0) return;
+    const nextIndex = (current + 1) % slides.length;
+    goToSlide(nextIndex);
+  }, [current, goToSlide, slides.length]);
 
   useEffect(() => {
     if (slides.length === 0) {
@@ -48,9 +59,15 @@ function VideoSlider({ slides, onSlideChange }) {
 
   const handleEnded = () => {
     if (slides.length === 0) return;
-    const next = (current + 1) % slides.length;
-    setCurrent(next);
-    if (onSlideChange) onSlideChange(next);
+    goToNext();
+  };
+
+  const handleVideoError = (index, src) => {
+    console.error("Landing slider video failed to load:", src);
+
+    if (index === current && slides.length > 1) {
+      goToNext();
+    }
   };
 
   // Sync play state when current changes
@@ -74,17 +91,7 @@ function VideoSlider({ slides, onSlideChange }) {
     // Use deltaX for horizontal scrolling
     // Add a small threshold to avoid accidental triggers from imperfect vertical scrolling
     if (Math.abs(e.deltaX) > 20) {
-      if (e.deltaX > 0) {
-        // Scroll Right -> Next
-        const next = (current + 1) % slides.length;
-        setCurrent(next);
-        if (onSlideChange) onSlideChange(next);
-      } else {
-        // Scroll Left -> Prev
-        const prevIndex = current === 0 ? slides.length - 1 : current - 1;
-        setCurrent(prevIndex);
-        if (onSlideChange) onSlideChange(prevIndex);
-      }
+      goToNext();
 
       scrollTimeout.current = setTimeout(() => {
         scrollTimeout.current = null;
@@ -101,6 +108,8 @@ function VideoSlider({ slides, onSlideChange }) {
             key={index}
             ref={el => videoRefs.current[index] = el}
             src={slide.video}
+            preload="metadata"
+            autoPlay={current === index}
             muted
             playsInline
             className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000
@@ -108,9 +117,21 @@ function VideoSlider({ slides, onSlideChange }) {
                           ${index === 1 ? "object-top" : ""}
                       `}
             onEnded={handleEnded}
+            onError={() => handleVideoError(index, slide.video)}
           />
         ))}
       </div>
+
+      {slides.length > 1 && (
+        <button
+          type="button"
+          aria-label="Next video"
+          onClick={goToNext}
+          className="absolute right-4 top-1/2 z-30 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/25 text-white backdrop-blur-sm transition hover:bg-black/45 md:right-8 md:h-14 md:w-14"
+        >
+          <ChevronRight size={28} />
+        </button>
+      )}
 
       {/* Dynamic Content (LEFT) */}
       <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-10 md:px-10 md:pb-8">
@@ -134,44 +155,29 @@ function VideoSlider({ slides, onSlideChange }) {
           </Link>
         </div>
       </div>
-
-      {/* Dots (RIGHT BOTTOM) */}
-      {slides.length > 0 && (
-        <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
-          {slides.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 w-16 transition-all duration-300
-                          ${current === i ? "bg-white scale-125" : "bg-white/50"}
-                      `}
-              onClick={() => {
-                setCurrent(i);
-                if (onSlideChange) onSlideChange(i);
-              }}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
 
 export default function LandingPage() {
-  const defaultModaIntroSection = {
-    title: "MODA WEEK INTERNATIONAL",
-    content:
-      "We offer a international exposure business platform that showcases established, emerging fashion designers and business acumen . Our mission is to celebrate diversity, sustainability, and foster innovation. Through our comprehensive services, including fashion expos, international fashion events, and impactful marketing and promotion strategies, we aim to elevate the visibility and success of all our clientele participants and companies partnership.",
-    image: null,
-  };
   const getUpcomingEventName = (event) => event.eventName || "";
+  const getUpcomingEventMeta = (event) =>
+    event.location ||
+    event.eventDate ||
+    event.date ||
+    event.city ||
+    "";
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const [landingPageContent, setLandingPageContent] = useState({
     modaIntroSection: {
-      ...defaultModaIntroSection,
-      useDefaultImage: true,
+      title: "",
+      content: "",
+      useDefaultImage: false,
+      image: null,
     },
   });
+  const [landingPageLoaded, setLandingPageLoaded] = useState(false);
   /* Helper to format video URL */
   const getVideoSrc = (url) => {
     if (!url) return '';
@@ -195,64 +201,16 @@ export default function LandingPage() {
     );
   };
 
-  const canLoadVideo = (src) =>
-    new Promise((resolve) => {
-      if (!src) {
-        resolve(false);
-        return;
-      }
-
-      const testVideo = document.createElement("video");
-      let settled = false;
-
-      const finalize = (result) => {
-        if (settled) return;
-        settled = true;
-        testVideo.removeAttribute("src");
-        testVideo.load();
-        resolve(result);
-      };
-
-      const timeout = setTimeout(() => finalize(false), 4000);
-
-      testVideo.preload = "metadata";
-      testVideo.muted = true;
-      testVideo.playsInline = true;
-      testVideo.onloadedmetadata = () => {
-        clearTimeout(timeout);
-        finalize(true);
-      };
-      testVideo.onerror = () => {
-        clearTimeout(timeout);
-        finalize(false);
-      };
-      testVideo.src = src;
-    });
-
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [slides, setSlides] = useState([]);
-  const [pendingSlides, setPendingSlides] = useState([]);
-  const displaySlides = slides.length > 0 ? slides : pendingSlides;
 
   useEffect(() => {
-    if (slides.length > 0 || displaySlides.length <= 1) {
-      return;
-    }
-
-    const interval = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % displaySlides.length);
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [slides.length, displaySlides.length]);
-
-  useEffect(() => {
-    if (displaySlides.length === 0) {
+    if (slides.length === 0) {
       setCurrentSlideIndex(0);
-    } else if (currentSlideIndex >= displaySlides.length) {
+    } else if (currentSlideIndex >= slides.length) {
       setCurrentSlideIndex(0);
     }
-  }, [displaySlides.length, currentSlideIndex]);
+  }, [slides.length, currentSlideIndex]);
 
   useEffect(() => {
     const fetchLandingPageContent = async () => {
@@ -260,19 +218,17 @@ export default function LandingPage() {
         const response = await axios.get(`${baseURL}/api/landing-page`);
         setLandingPageContent({
           modaIntroSection: {
-            title:
-              response.data?.modaIntroSection?.title ??
-              defaultModaIntroSection.title,
-            content:
-              response.data?.modaIntroSection?.content ??
-              defaultModaIntroSection.content,
+            title: response.data?.modaIntroSection?.title || "",
+            content: response.data?.modaIntroSection?.content || "",
             useDefaultImage:
-              response.data?.modaIntroSection?.useDefaultImage ?? true,
+              response.data?.modaIntroSection?.useDefaultImage ?? false,
             image: response.data?.modaIntroSection?.image || null,
           },
         });
       } catch (error) {
         console.error("Error fetching landing page content:", error);
+      } finally {
+        setLandingPageLoaded(true);
       }
     };
 
@@ -296,17 +252,8 @@ export default function LandingPage() {
           }));
 
           if (candidateSlides.length > 0) {
-            setPendingSlides(candidateSlides);
-            const validationResults = await Promise.all(
-              candidateSlides.map((slide) => canLoadVideo(slide.video))
-            );
-
-            const playableSlides = candidateSlides.filter((_, index) => validationResults[index]);
-
-            if (playableSlides.length > 0) {
-              setSlides(playableSlides);
-              setCurrentSlideIndex(0);
-            }
+            setSlides(candidateSlides);
+            setCurrentSlideIndex(0);
           }
         }
       } catch (error) {
@@ -317,7 +264,7 @@ export default function LandingPage() {
     fetchVideos();
   }, []);
 
-  const modaIntroSection = landingPageContent?.modaIntroSection || defaultModaIntroSection;
+  const modaIntroSection = landingPageContent?.modaIntroSection || {};
   const modaIntroImage = modaIntroSection.image?.url
     ? modaIntroSection.image.url
     : modaIntroSection.useDefaultImage
@@ -330,6 +277,7 @@ export default function LandingPage() {
   );
 
   const [pastEvents, setPastEvents] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -353,6 +301,20 @@ export default function LandingPage() {
       }
     };
     fetchEvents();
+  }, []);
+
+  useEffect(() => {
+    const fetchUpcomingEvents = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/api/upcoming-events/all?status=live&showOnLandingPage=true`);
+        const events = Array.isArray(response.data) ? response.data : [];
+        setUpcomingEvents(events);
+      } catch (error) {
+        console.error("Failed to fetch upcoming events", error);
+      }
+    };
+
+    fetchUpcomingEvents();
   }, []);
   const [designers, setDesigners] = useState([]);
   useEffect(() => {
@@ -385,42 +347,105 @@ export default function LandingPage() {
       >
         <Navbar />
         <VideoSlider slides={slides} onSlideChange={setCurrentSlideIndex} />
-        {slides.length === 0 && displaySlides[currentSlideIndex]?.title && (
-          <div className="absolute inset-0 z-10 flex flex-col justify-end px-6 pb-10 md:px-10 md:pb-8">
-            <h1 className="pointer-events-none text-6xl md:text-6xl lg:text-[100px] leading-tight text-white max-w-3xl whitespace-pre-line">
-              {displaySlides[currentSlideIndex].title}
-            </h1>
-            {displaySlides[currentSlideIndex]?.subtitle && (
-              <p className="mt-4 max-w-3xl text-sm uppercase tracking-wide text-white md:text-base">
-                <span className="whitespace-pre-line">
-                  {displaySlides[currentSlideIndex].subtitle}
-                </span>
-              </p>
-            )}
-            <div className="mt-4">
-              <Link to="/service?tab=designer">
-                <button className="grad-bg h-[45px] w-[181px] text-2xl">
-                  APPLY NOW
-                </button>
-              </Link>
-            </div>
-          </div>
-        )}
-        {slides.length === 0 && displaySlides.length > 0 && (
-          <div className="absolute bottom-10 right-20 flex gap-4 z-20 pointer-events-auto">
-            {displaySlides.map((_, i) => (
-              <div
-                key={i}
-                className={`h-1 w-16 transition-all duration-300 ${currentSlideIndex === i ? "bg-white scale-125" : "bg-white/50"}`}
-                onClick={() => setCurrentSlideIndex(i)}
-              />
-            ))}
-          </div>
-        )}
       </section>
 
+      <section className="bg-linear-to-r from-[#050505] via-[#6F4A17] to-[#D29B33] shadow-[0_10px_22px_rgba(0,0,0,0.16)]">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-9 md:py-4.5">
+          <div className="text-white">
+            <h2 className="text-xl font-extrabold uppercase tracking-[0.03em] md:text-2xl">
+              Calling All Designers
+            </h2>
+            <p className="mt-1 text-sm tracking-[0.06em] text-white/90 md:text-base">
+              Showcase your collections on a global stage.
+            </p>
+          </div>
+
+          <Link
+            to="/registration"
+            className="inline-flex w-full items-center justify-center border border-[#d2ab59] bg-white px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.16em] text-[#8C5D25] shadow-[0_6px_14px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#fff8eb] md:w-auto md:min-w-[260px] md:px-7"
+          >
+            Apply to Showcase Today
+          </Link>
+        </div>
+      </section>
+
+      {upcomingEvents.length > 0 && (
+        <section className="bg-white py-12 md:py-16">
+          <div className="container mx-auto px-4">
+            <div className="mb-10 text-center">
+              <h2 className="text-4xl md:text-5xl font-bold bg-linear-to-l from-[#8C5D25] to-[#C7913E] bg-clip-text text-transparent uppercase">
+                WHAT&apos;S HAPPENING
+              </h2>
+            </div>
+
+            <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-16 md:gap-20">
+              {upcomingEvents.map((event) => {
+                const description = stripHtml(
+                  event.bottomSection?.text ||
+                  event.description ||
+                  event.descriptionSection?.text ||
+                  ""
+                );
+                const eventImage =
+                  event.coverImage?.url ||
+                  event.coverImage ||
+                  event.thumbnail?.url ||
+                  event.thumbnail;
+
+                return (
+                  <Link
+                    key={event._id}
+                    to={`/event-details/${event.slug || event._id}`}
+                    className="group flex h-full w-full max-w-[420px] flex-col text-black"
+                  >
+                    <ProgressiveImage
+                      wrapperClassName="mb-5 aspect-[4/5] overflow-hidden rounded-[10px] border border-black/15 shadow-sm"
+                      src={optimizeCloudinaryImage(eventImage, {
+                        width: 700,
+                        height: 880,
+                        crop: "fill",
+                      })}
+                      alt={getUpcomingEventName(event)}
+                      imgClassName="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      loading="lazy"
+                      decoding="async"
+                    />
+
+                    <div className="flex flex-1 flex-col">
+                      {getUpcomingEventName(event) && (
+                        <h3 className="mb-2 text-xl font-extrabold uppercase leading-tight transition-colors group-hover:text-[#C7913E] md:text-2xl">
+                          {getUpcomingEventName(event)}
+                        </h3>
+                      )}
+
+                      {getUpcomingEventMeta(event) && (
+                        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#8C5D25] md:text-sm">
+                          {getUpcomingEventMeta(event)}
+                        </p>
+                      )}
+
+                      {description && (
+                        <p className="mb-5 line-clamp-4 text-sm leading-relaxed text-[#222] md:text-base">
+                          {description}
+                        </p>
+                      )}
+
+                      <div className="mt-auto">
+                        <span className="inline-flex bg-linear-to-r from-[#8C5D25] to-[#C7913E] px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.14em] text-white shadow-[0_6px_18px_rgba(140,93,37,0.25)] transition-transform duration-300 group-hover:-translate-y-1">
+                          View Details
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* MODA Week International */}
-      {hasModaIntroContent && (
+      {landingPageLoaded && hasModaIntroContent && (
         <section className="py-12 px-6 bg-white">
           <div className="container mx-auto bg-black p-6 md:p-7">
             <div className="flex h-full flex-col items-center justify-center gap-6 md:flex-row md:items-stretch md:gap-7">
@@ -560,7 +585,7 @@ export default function LandingPage() {
             <div className="flex gap-2.5 snap-x snap-mandatory">
               {pastEvents.map((event, idx) => (
                 <Link
-                  to={`/event-details/${event.slug || event.id}`}
+                  to={`/past-event-details/${event.slug || event.id}`}
                   key={idx}
                   className="group cursor-pointer shrink-0 w-88 snap-start"
                 >
@@ -612,7 +637,7 @@ export default function LandingPage() {
               <p className="mb-10">
                 Register to Attend Our Upcoming Global <br /> Fashion Showcases.{" "}
               </p>
-              <Link to="/events">
+              <Link to="/rsvp">
                 <button className="bg-white text-black px-8 py-3 rounded hover:bg-gray-100 transition-colors font-semibold">
                   RSVP NOW
                 </button>

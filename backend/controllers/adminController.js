@@ -2,6 +2,7 @@ import Buyer from '../models/buyerModel.js';
 import Designer from '../models/designerModel.js';
 import Sponsor from '../models/sponsorModel.js';
 import Service from '../models/serviceModel.js';
+import RsvpApplication from '../models/rsvpApplicationModel.js';
 import News from '../models/newsModel.js';
 import Admin from '../models/adminModel.js';
 import Event from '../models/eventModel.js';
@@ -78,12 +79,14 @@ export const getDashboardStats = async (req, res) => {
         const sponsorCount = await Sponsor.countDocuments();
         const serviceCount = await Service.countDocuments();
         const newsCount = await News.countDocuments();
+        const rsvpCount = await RsvpApplication.countDocuments();
 
         // Last month counts
         const buyersLastMonth = await Buyer.countDocuments({ createdAt: { $gte: lastMonthDate } });
         const designersLastMonth = await Designer.countDocuments({ createdAt: { $gte: lastMonthDate } });
         const sponsorsLastMonth = await Sponsor.countDocuments({ createdAt: { $gte: lastMonthDate } });
         const servicesLastMonth = await Service.countDocuments({ createdAt: { $gte: lastMonthDate } });
+        const rsvpsLastMonth = await RsvpApplication.countDocuments({ createdAt: { $gte: lastMonthDate } });
 
         // Event counts - Past events from Event model where eventType is 'past'
         const pastEventsCount = await Event.countDocuments({ eventType: 'past' });
@@ -100,17 +103,38 @@ export const getDashboardStats = async (req, res) => {
                 designers: designerCount,
                 sponsors: sponsorCount,
                 services: serviceCount,
+                rsvps: rsvpCount,
                 news: newsCount,
                 buyersLastMonth,
                 designersLastMonth,
                 sponsorsLastMonth,
                 servicesLastMonth,
+                rsvpsLastMonth,
                 pastEvents: pastEventsCount,
                 pastEventsLastMonth,
                 upcomingEvents: upcomingEventsCount,
                 upcomingEventsLastMonth
             }
         });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// --- RSVP ---
+export const getAllRsvps = async (req, res) => {
+    try {
+        const rsvps = await RsvpApplication.find().sort({ createdAt: -1 });
+        res.status(200).json({ success: true, data: rsvps });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const deleteRsvp = async (req, res) => {
+    try {
+        await RsvpApplication.findByIdAndDelete(req.params.id);
+        res.status(200).json({ success: true, message: 'RSVP deleted successfully' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

@@ -169,7 +169,7 @@ const Contact = () => {
                                 >
                                     <option value="" className="text-gray-400">SELECT A SUBJECT</option>
                                     <option value="General Inquiry">General Inquiry</option>
-                                    <option value="Press & Media">Press & Media</option>
+                                    {/* <option value="Press & Media">Press & Media</option> */}
                                     <option value="Partnership">Partnership Opportunities</option>
                                     <option value="Designer Application">Designer Application</option>
                                     <option value="Support">Support</option>

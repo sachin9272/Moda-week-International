@@ -22,6 +22,11 @@ const upcomingEventSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    dressCode: {
+        type: String,
+        trim: true,
+        default: '',
+    },
     description: {
         type: String,
     },
@@ -29,6 +34,10 @@ const upcomingEventSchema = new mongoose.Schema({
         type: String,
         enum: ['live', 'hidden'],
         default: 'hidden'
+    },
+    showOnLandingPage: {
+        type: Boolean,
+        default: false
     },
     heroLayout: {
         type: String,
