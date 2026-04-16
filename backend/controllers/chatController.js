@@ -1,46 +1,37 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import axios from "axios";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
 export const chatWithAI = async (req, res) => {
     try {
-        const { message, history } = req.body;
+        const { message, history, sessionId } = req.body;
 
         if (!message) {
             return res.status(400).json({ message: "Message is required" });
         }
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        // Use Rasa Webhook URL from environment variables, or fallback to dev default
+        const rasaUrl = process.env.RASA_WEBHOOK_URL || "http://localhost:5005/webhooks/rest/webhook";
+        const senderId = sessionId || req.ip || "default_user";
 
-        // System prompt to give context about Moda Week International
-        const systemInstruction = `
-            You are Moda Bot, the official AI Assistant for Moda Week International. 
-            Moda Week International is a premium fashion event showcasing global designers, models, and talent.
-            
-            Your goal is to help visitors with:
-            1. Information about upcoming events and fashion shows.
-            2. Details about our production team, designers, and performers.
-            3. Ticketing and registration inquiries.
-            4. General fashion event questions.
-            
-            Keep your tone professional, stylish, and helpful. 
-            If you don't know a specific detail (like a specific seat number), advise the user to contact our support team at support@modaweekinternational.com.
-        `;
-
-        const chat = model.startChat({
-            history: history || [],
-            generationConfig: {
-                maxOutputTokens: 500,
-            },
+        // Send message to Rasa webhook
+        const rasaResponse = await axios.post(rasaUrl, {
+            sender: senderId,
+            message: message
         });
 
-        const result = await chat.sendMessage(systemInstruction + "\n\nUser: " + message);
-        const response = await result.response;
-        const text = response.text();
+        // Combine all text responses from Rasa
+        let text = "I'm currently attending a show at the moment. Please try again in just a bit!";
+        
+        if (rasaResponse.data && rasaResponse.data.length > 0) {
+            text = rasaResponse.data
+                .filter(msg => msg.text)
+                .map(msg => msg.text)
+                .join("\n\n");
+        }
 
+        // Return in the format expected by the frontend
         res.status(200).json({
             reply: text,
             history: [
@@ -50,7 +41,7 @@ export const chatWithAI = async (req, res) => {
             ]
         });
     } catch (error) {
-        console.error("AI Chat Error:", error);
+        console.error("AI Chat Error (Rasa):", error);
         res.status(500).json({ message: "Failed to communicate with AI", error: error.message });
     }
 };

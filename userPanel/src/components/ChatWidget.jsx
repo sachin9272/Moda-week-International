@@ -12,6 +12,7 @@ const ChatWidget = () => {
     const [message, setMessage] = useState("");
     const [chatHistory, setChatHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [sessionId] = useState(() => Math.random().toString(36).substring(2, 15));
     const chatEndRef = useRef(null);
 
     const toggleChat = () => setIsOpen(!isOpen);
@@ -39,7 +40,8 @@ const ChatWidget = () => {
         try {
             const response = await axios.post(`${baseURL}/api/chat`, {
                 message: userMessage,
-                history: chatHistory
+                history: chatHistory,
+                sessionId
             });
 
             setChatHistory(response.data.history);
