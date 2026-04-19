@@ -163,7 +163,11 @@ const ChatWidget = () => {
                                         ? "bg-linear-to-br from-[#8C5D25] to-[#C7913E] text-white rounded-br-none" 
                                         : "bg-white text-gray-800 rounded-bl-none border border-gray-100"
                                     }`}>
-                                        {item.parts[0].text}
+                                        {item.role === 'model' ? (
+                                            <div dangerouslySetInnerHTML={{ __html: item.parts[0].text }} />
+                                        ) : (
+                                            item.parts[0].text
+                                        )}
                                         <div className={`absolute bottom-[-18px] text-[9px] uppercase tracking-widest text-gray-400 font-bold ${item.role === 'user' ? "right-0" : "left-0"}`}>
                                             {item.role === 'user' ? 'You' : 'Moda Bot'}
                                         </div>
