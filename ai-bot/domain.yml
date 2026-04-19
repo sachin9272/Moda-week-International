@@ -13,6 +13,8 @@ intents:
   - ask_dress_code
   - ask_upcoming_events
   - ask_past_events
+  - ask_about_moda
+  - ask_contact
 
 responses:
   utter_greet:
@@ -24,7 +26,7 @@ responses:
   - text: "Au revoir! See you on the runway."
 
   utter_tickets:
-  - text: "Tickets for Moda Week International are available at the Registration Desk or via our VIP partners. Standard passes start at $150, and VIP front-row passes are $500."
+  - text: "You can purchase tickets for Moda Week International directly on our website! Head over to <a href='https://modaweekinternational.com/tickets' style='text-decoration: underline;' target='_blank'><b>tickets</b></a> to pick your experience (General, VIP, Student, etc)."
 
   utter_schedule:
   - text: "Moda Week International showcases emerging and elite designers over 5 days. For the exact daily schedule, please refer to the 'Schedule' section on your dashboard."
@@ -33,7 +35,7 @@ responses:
   - text: "I am an AI High-Fashion Concierge, specifically styled and designed for Moda Week International."
 
   utter_designers:
-  - text: "We have an incredible lineup including established brands as well as emerging talents from around the world. Please check the 'Designers' page for the full roster!"
+  - text: "We have an incredible lineup of visionary designers from across the globe! If you are a designer looking to showcase your collection, please apply directly via our <a href='https://modaweekinternational.com/registration' style='text-decoration: underline;' target='_blank'><b>registration</b></a> page."
 
   utter_location:
   - text: "Moda Week International is primarily hosted at the Grand Metropolitan Convention Center. Certain VIP events take place at exclusive off-site venues."
@@ -48,6 +50,12 @@ responses:
   utter_past_events:
   - text: "Last season's 'Winter Elegance' show was a massive success, highlighting eco-friendly couture. You can view highlights in our media gallery!"
   - text: "Our previous events have set global trends, with the 'Autumn Chic' collection drawing top fashion houses globally. Check the archives for photos!"
+
+  utter_about_moda:
+  - text: "Moda Week International (MWINTL) is a prestigious philanthropic fashion show production organization with the purpose of conveying glamorous events, education & community support."
+
+  utter_contact:
+  - text: "You can reach us directly via email at info@modaweekinternational.com, or call us at +1 (680) 2145633. We are available Monday to Friday, 9am - 6pm EST."
 
 session_config:
   session_expiration_time: 60

@@ -101,3 +101,24 @@ nlu:
     - what happened last year?
     - previous fashion shows
     - past events
+
+- intent: ask_about_moda
+  examples: |
+    - what is moda week international?
+    - tell me about your organization
+    - what is Moda Week?
+    - who are you guys
+    - about moda week
+    - what do you do
+    - tell me about the foundation
+
+- intent: ask_contact
+  examples: |
+    - how can I contact you
+    - what is your email
+    - phone number please
+    - how do I reach support
+    - contact information
+    - give me the contact details
+    - email address
+    - call you

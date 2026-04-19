@@ -50,3 +50,13 @@ rules:
   steps:
   - intent: ask_past_events
   - action: utter_past_events
+
+- rule: Answer about moda questions
+  steps:
+  - intent: ask_about_moda
+  - action: utter_about_moda
+
+- rule: Answer contact questions
+  steps:
+  - intent: ask_contact
+  - action: utter_contact
