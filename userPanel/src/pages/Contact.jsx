@@ -83,7 +83,7 @@ const Contact = () => {
                                             <Phone size={20} />
                                         </div>
                                         <div>
-                                            <h3 className="font-serif text-xl font-medium mb-2 text-black">Call Us</h3>
+                                            <h3 className="font-serif text-xl font-medium mb-2 text-black">Contact Us</h3>
                                             <p className="text-gray-600 text-base leading-relaxed">
                                                 +1 (680) 2145633<br />
                                                 <span className="text-sm text-gray-500 mt-1 block">Mon - Fri, 9am - 6pm EST</span>

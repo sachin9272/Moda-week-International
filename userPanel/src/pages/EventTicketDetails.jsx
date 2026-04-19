@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import axios from "axios";
 import { baseURL } from "../config/api";
 import Navbar from "../components/Navbar";
@@ -7,6 +7,7 @@ import Footer from "../components/Footer";
 import {
     MapPin,
     Calendar,
+    Clock,
     Check,
     Minus,
     Plus,
@@ -187,18 +188,26 @@ export default function EventTicketDetails() {
     const eventDisplayName = ensureString(event?.eventName);
     const eventMainTitle = ensureString(event?.title);
     const ticketTypes = Array.isArray(event?.ticketTypes) ? event.ticketTypes : [];
+    const hasTicketOptions = Boolean(event?.hasTickets) && ticketTypes.length > 0;
+    const ticketPageHref = `/event-details/${event?.slug || event?._id}?mode=tickets`;
     const partners = Array.isArray(event?.partners) ? event.partners : [];
     const collections = Array.isArray(event?.collections) ? event.collections : [];
-    const coverImageUrl = getImageUrl(event?.coverImage);
+    const coverImageUrl = getImageUrl(event?.ticketBannerImage) || getImageUrl(event?.coverImage);
     const aboutTitle = ensureString(event?.descriptionSection?.title) || `About ${eventDisplayName || eventMainTitle || "This Event"}`;
     const aboutText = ensureString(event?.descriptionSection?.text || event?.description || "");
     const aboutImageUrl = getImageUrl(event?.descriptionSection?.image) || coverImageUrl;
     const dressCode = ensureString(event?.dressCode) || "Black Tie / Cocktail Attire";
+    const eventTime = ensureString(event?.eventTime);
     const eventFacts = [
         {
             icon: Calendar,
             label: "Date",
             value: formatDateSafe(event?.eventDate),
+        },
+        {
+            icon: Clock,
+            label: "Time",
+            value: eventTime,
         },
         {
             icon: MapPin,
@@ -210,7 +219,7 @@ export default function EventTicketDetails() {
             label: "Dress Code",
             value: dressCode,
         },
-    ];
+    ].filter((fact) => ensureString(fact.value));
     const aboutHighlights = [
         { icon: Globe2, title: "International Designers" },
         { icon: Users, title: "Empowering Models" },
@@ -584,7 +593,7 @@ export default function EventTicketDetails() {
                                 <h2 className="font-playfair text-3xl text-black md:text-5xl">Event Details</h2>
                                 <div className="h-px w-14 grad-bg md:w-24" />
                             </div>
-                            <div className="grid gap-6 md:grid-cols-3">
+                            <div className={`grid gap-6 ${eventFacts.length >= 4 ? "md:grid-cols-4" : "md:grid-cols-3"}`}>
                                 {eventFacts.map((fact, index) => {
                                     const Icon = fact.icon;
                                     return (
@@ -628,41 +637,43 @@ export default function EventTicketDetails() {
                         </div>
                     </section>
 
-                    <section className="px-4 pb-16 md:px-8 md:pb-24 bg-white">
-                        <div className="mx-auto grid max-w-7xl gap-0 overflow-hidden border border-gray-200 bg-gray-50 lg:grid-cols-[1.1fr_0.9fr]">
-                            <div className="p-8 md:p-12">
-                                <h2 className="font-playfair text-4xl text-black md:text-5xl">{aboutTitle}</h2>
-                                <div className="event-rich-text mt-5 max-w-2xl space-y-3 text-lg leading-8 text-gray-700">
-                                    {aboutText ? renderTextWithLinks(aboutText) : <p>This event brings together fashion, culture, and a premium runway experience.</p>}
-                                </div>
-                                <div className="mt-8 grid gap-4 sm:grid-cols-3">
-                                    {aboutHighlights.map((item) => {
-                                        const Icon = item.icon;
-                                        return (
-                                            <div key={item.title} className="text-center">
-                                                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-gray-200 bg-white text-[#C7913E]">
-                                                    <Icon size={24} />
+                    {!showTicketsOnly && (
+                        <section className="px-4 pb-16 md:px-8 md:pb-24 bg-white">
+                            <div className="mx-auto grid max-w-7xl gap-0 overflow-hidden border border-gray-200 bg-gray-50 lg:grid-cols-[1.1fr_0.9fr]">
+                                <div className="p-8 md:p-12">
+                                    <h2 className="font-playfair text-4xl text-black md:text-5xl">{aboutTitle}</h2>
+                                    <div className="event-rich-text mt-5 max-w-2xl space-y-3 text-lg leading-8 text-gray-700">
+                                        {aboutText ? renderTextWithLinks(aboutText) : <p>This event brings together fashion, culture, and a premium runway experience.</p>}
+                                    </div>
+                                    <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                                        {aboutHighlights.map((item) => {
+                                            const Icon = item.icon;
+                                            return (
+                                                <div key={item.title} className="text-center">
+                                                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-gray-200 bg-white text-[#C7913E]">
+                                                        <Icon size={24} />
+                                                    </div>
+                                                    <p className="mt-3 font-playfair text-xl text-black">{item.title}</p>
                                                 </div>
-                                                <p className="mt-3 font-playfair text-xl text-black">{item.title}</p>
-                                            </div>
-                                        );
-                                    })}
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                                <div className="min-h-[320px] overflow-hidden bg-white">
+                                    {aboutImageUrl ? (
+                                        <img
+                                            src={optimizeCloudinaryImage(aboutImageUrl, { width: 1000, height: 900, crop: "fill" })}
+                                            alt={aboutTitle}
+                                            className="h-full w-full object-cover"
+                                            decoding="async"
+                                        />
+                                    ) : (
+                                        <div className="flex h-full items-center justify-center text-[#8a6b56]">Event Image</div>
+                                    )}
                                 </div>
                             </div>
-                            <div className="min-h-[320px] overflow-hidden bg-white">
-                                {aboutImageUrl ? (
-                                    <img
-                                        src={optimizeCloudinaryImage(aboutImageUrl, { width: 1000, height: 900, crop: "fill" })}
-                                        alt={aboutTitle}
-                                        className="h-full w-full object-cover"
-                                        decoding="async"
-                                    />
-                                ) : (
-                                    <div className="flex h-full items-center justify-center text-[#8a6b56]">Event Image</div>
-                                )}
-                            </div>
-                        </div>
-                    </section>
+                        </section>
+                    )}
                 </div>
             ) : (
                 <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[300px] flex flex-col justify-center items-center">
@@ -709,6 +720,16 @@ export default function EventTicketDetails() {
                                         />
                                         <div className="absolute -inset-4 border border-[#C7913E]/30 z-0 pointer-events-none"></div>
                                     </div>
+                                    {hasTicketOptions && (
+                                        <div className="mt-10 flex justify-center">
+                                            <Link
+                                                to={ticketPageHref}
+                                                className="grad-bg inline-flex items-center justify-center rounded-lg px-8 py-3 text-sm font-bold uppercase tracking-widest text-white shadow-lg transition-colors duration-200"
+                                            >
+                                                Buy Tickets
+                                            </Link>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -747,7 +768,7 @@ export default function EventTicketDetails() {
                 </div>
             )}
 
-            {event.videoSection && event.videoSection.isVisible && (event.videoSection.url || event.videoSection.file) && (
+            {!showTicketsOnly && event.videoSection && event.videoSection.isVisible && (event.videoSection.url || event.videoSection.file) && (
                 <section className="bg-white px-4 py-12 md:px-8 md:py-16">
                     <div className="mx-auto max-w-5xl">
                         {event.videoSection.title && (

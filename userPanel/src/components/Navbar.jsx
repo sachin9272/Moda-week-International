@@ -69,7 +69,6 @@ const Navbar = () => {
     { name: "Production Team", path: "/production-team", category: "ABOUT MODA" },
     { name: "Newsroom", path: "/news-room", category: "News" },
     // { name: "Press & Media", path: "/press-media", category: "News" },
-    { name: "Philanthropy", path: "/philanthropy", category: "ABOUT MODA" },
     { name: "Donation", path: "/donation", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Contact Us", path: "/contact", category: "ABOUT MODA" },
     { name: "Membership Programs", path: "/membership-program", category: "MEMBERSHIPS & SUPPORT" },

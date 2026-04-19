@@ -560,7 +560,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 flex items-end p-8  bg-linear-to-t from-black/90 to-transparent">
                 <div>
                   <h3 className="text-5xl font-bold mb-2">SCHEDULE</h3>
-                  <button className="grad-bg px-5 py-2" onClick={() => navigate("/events")}>VIEW NOW</button>
+                  <button className="grad-bg px-5 py-2" onClick={() => navigate("/events#runway-calendar")}>VIEW NOW</button>
                 </div>
               </div>
             </div>

@@ -13,7 +13,7 @@ const AddNews = () => {
     const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null, category: 'FASHION', status: 'hidden', author: '', date: '' });
     const [isDragging, setIsDragging] = useState(false);
 
-    const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
+    const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PARTNERSHIPS', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
 
     const handleSubmit = async (e) => {
         e.preventDefault();

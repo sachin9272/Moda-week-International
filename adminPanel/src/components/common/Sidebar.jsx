@@ -58,8 +58,7 @@ const Sidebar = () => {
             label: 'Pages',
             icon: Layers,
             children: [
-                { path: '/philanthropy', icon: Heart, label: 'Philanthropy' },
-                { path: '/donation-content', icon: Heart, label: 'Donation' },
+                { path: '/impact-content', icon: Heart, label: 'Philanthropy & Donation' },
                 { path: '/about-us-content', icon: Info, label: 'About Us' },
                 { path: '/landing-page-content', icon: Info, label: 'Landing Page' },
                 { path: '/rsvp-content', icon: Info, label: 'RSVP' },

@@ -5,6 +5,7 @@ import { baseURL as API_BASE_URL } from '../../config/api';
 import { ArrowLeft, GripVertical, Loader, Pencil, Plus, Ticket, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { compressImageIfNeeded } from '../../utils/imageCompression';
+import ImageEditorModal from '../../components/ImageEditorModal';
 import {
     DndContext,
     closestCenter,
@@ -113,9 +114,12 @@ export default function EditEventTickets() {
     const [event, setEvent] = useState(null);
     const [hasTickets, setHasTickets] = useState(false);
     const [dressCode, setDressCode] = useState('');
+    const [ticketBannerImage, setTicketBannerImage] = useState(null);
     const [ticketTypes, setTicketTypes] = useState([]);
     const [currentTicket, setCurrentTicket] = useState(createEmptyTicket());
     const [editingTicketId, setEditingTicketId] = useState(null);
+    const [editorOpen, setEditorOpen] = useState(false);
+    const [editorImageSrc, setEditorImageSrc] = useState(null);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -134,6 +138,7 @@ export default function EditEventTickets() {
                 setEvent(eventData);
                 setHasTickets(eventData.hasTickets || false);
                 setDressCode(eventData.dressCode || '');
+                setTicketBannerImage(eventData.ticketBannerImage?.url || null);
                 setTicketTypes(
                     (eventData.ticketTypes || []).map((ticket) => ({
                         ...ticket,
@@ -172,6 +177,41 @@ export default function EditEventTickets() {
 
             setCurrentTicket((prev) => ({ ...prev, image: file }));
         }
+    };
+
+    const handleTicketBannerImage = async (e) => {
+        if (e.target.files && e.target.files[0]) {
+            let file = e.target.files[0];
+
+            if (file.type.startsWith('image/')) {
+                file = await compressImageIfNeeded(file);
+            } else if (file.size > 10 * 1024 * 1024) {
+                toast.error('File size too large. Maximum is 10MB.');
+                e.target.value = '';
+                return;
+            }
+
+            setTicketBannerImage(file);
+        }
+    };
+
+    const handleEditBannerImage = () => {
+        if (!ticketBannerImage) return;
+        const imageUrl = typeof ticketBannerImage === 'string'
+            ? ticketBannerImage
+            : URL.createObjectURL(ticketBannerImage);
+        setEditorImageSrc(imageUrl);
+        setEditorOpen(true);
+    };
+
+    const handleSaveEditedBannerImage = (blob) => {
+        const fileName = ticketBannerImage instanceof File ? ticketBannerImage.name : 'ticket_banner_image.jpg';
+        const fileType = ticketBannerImage instanceof File ? ticketBannerImage.type : 'image/jpeg';
+        const file = new File([blob], fileName, { type: fileType });
+
+        setTicketBannerImage(file);
+        setEditorOpen(false);
+        setEditorImageSrc(null);
     };
 
     const resetCurrentTicket = () => {
@@ -252,6 +292,12 @@ export default function EditEventTickets() {
         const data = new FormData();
         data.append('hasTickets', hasTickets);
         data.append('dressCode', dressCode);
+        data.append('removeTicketBannerImage', ticketBannerImage === null);
+
+        if (ticketBannerImage instanceof File) {
+            data.append('ticketBannerImage', ticketBannerImage);
+        }
+
         const ticketTypesMeta = finalTicketTypes.map(({ id: _clientId, _id, image, ...ticket }) => ({
             ...ticket,
             image: typeof image === 'string' ? image : null,
@@ -294,6 +340,17 @@ export default function EditEventTickets() {
 
     return (
         <div className="min-h-screen space-y-8 p-6 text-black">
+            <ImageEditorModal
+                isOpen={editorOpen}
+                onClose={() => {
+                    setEditorOpen(false);
+                    setEditorImageSrc(null);
+                }}
+                onSave={handleSaveEditedBannerImage}
+                image={editorImageSrc}
+                aspect={16 / 9}
+            />
+
             <div className="flex items-center gap-4">
                 <button
                     onClick={() => navigate('/tickets')}
@@ -325,6 +382,58 @@ export default function EditEventTickets() {
                                 className="h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
                             />
                         </label>
+                    </div>
+
+                    <div className="mb-6">
+                        <label className="mb-2 block text-sm text-gray-400">Buy Tickets Banner Image</label>
+                        <div className="rounded-lg border border-dashed border-gray-600 bg-gray-900 p-4">
+                            {ticketBannerImage ? (
+                                <div className="relative inline-block">
+                                    <img
+                                        src={ticketBannerImage instanceof File ? URL.createObjectURL(ticketBannerImage) : ticketBannerImage}
+                                        alt="Buy tickets banner preview"
+                                        className="max-h-52 rounded object-cover"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setTicketBannerImage(null)}
+                                        className="absolute -right-2 -top-2 rounded-full bg-red-600 p-1 text-white"
+                                        title="Remove banner image"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                    <label className="mt-3 block cursor-pointer text-sm text-[#C7913E]">
+                                        Replace banner image
+                                        <input
+                                            type="file"
+                                            onChange={handleTicketBannerImage}
+                                            accept="image/*"
+                                            className="hidden"
+                                        />
+                                    </label>
+                                    <button
+                                        type="button"
+                                        onClick={handleEditBannerImage}
+                                        className="mt-2 block text-sm text-blue-400 hover:text-blue-300"
+                                    >
+                                        Crop / Edit image
+                                    </button>
+                                </div>
+                            ) : (
+                                <label className="cursor-pointer text-sm text-[#C7913E]">
+                                    Upload banner image
+                                    <input
+                                        type="file"
+                                        onChange={handleTicketBannerImage}
+                                        accept="image/*"
+                                        className="hidden"
+                                    />
+                                </label>
+                            )}
+                            <p className="mt-2 text-xs text-gray-500">
+                                This image appears at the top of the event&apos;s buy tickets page.
+                            </p>
+                        </div>
                     </div>
 
                     <div className="mb-4">

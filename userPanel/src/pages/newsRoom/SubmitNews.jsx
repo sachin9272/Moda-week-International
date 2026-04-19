@@ -14,6 +14,7 @@ const CATEGORIES = [
     "EDUCATION",
     "FASHION",
     "FINE ART",
+    "PARTNERSHIPS",
     "PEFORMANCES",
     "PAST EVENTS",
     "TRAVEL",

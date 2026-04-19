@@ -18,6 +18,11 @@ const upcomingEventSchema = new mongoose.Schema({
         type: String, // Keeping as string to match requested "event date"
         required: true,
     },
+    eventTime: {
+        type: String,
+        trim: true,
+        default: '',
+    },
     location: {
         type: String,
         required: true,
@@ -45,6 +50,10 @@ const upcomingEventSchema = new mongoose.Schema({
         default: 'split'
     },
     coverImage: {
+        url: { type: String },
+        publicId: { type: String }
+    },
+    ticketBannerImage: {
         url: { type: String },
         publicId: { type: String }
     },
@@ -128,6 +137,7 @@ const upcomingEventSchema = new mongoose.Schema({
 upcomingEventSchema.set('toJSON', {
     transform: (doc, ret) => {
         if (ret.coverImage) delete ret.coverImage.publicId;
+        if (ret.ticketBannerImage) delete ret.ticketBannerImage.publicId;
 
         if (ret.collections && Array.isArray(ret.collections)) {
             ret.collections.forEach(col => {

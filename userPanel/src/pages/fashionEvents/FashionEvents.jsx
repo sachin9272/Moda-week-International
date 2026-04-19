@@ -213,7 +213,7 @@ export default function FashionEvents() {
       </div>
 
       {/* Runway Calendar Section */}
-      <div className="px-4 bg-white">
+      <div id="runway-calendar" className="px-4 bg-white">
         <div className="relative py-20 px-4 bg-[#1a1a1a] min-h-[450px]">
           {/* Background Image Overlay */}
           <div

@@ -15,7 +15,7 @@ const EditNews = () => {
     const [currentNews, setCurrentNews] = useState({ title: '', content: '', image: null, category: 'FASHION', status: 'live', author: '', date: '' });
     const [isDragging, setIsDragging] = useState(false);
 
-    const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
+    const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PARTNERSHIPS', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
 
     useEffect(() => {
         const fetchNews = async () => {

@@ -177,6 +177,7 @@ const AddUpcomingEvent = () => {
         title: '',
         eventName: '',
         eventDate: '',
+        eventTime: '',
         location: '',
         dressCode: '',
         description: '',
@@ -728,6 +729,7 @@ const AddUpcomingEvent = () => {
         data.append('title', formData.title);
         data.append('eventName', formData.eventName);
         data.append('eventDate', formData.eventDate);
+        data.append('eventTime', formData.eventTime);
         data.append('location', formData.location);
         data.append('dressCode', formData.dressCode);
         data.append('description', formData.description);
@@ -854,6 +856,10 @@ const AddUpcomingEvent = () => {
                         <div>
                             <label className="block text-gray-400 mb-1">Event Date <span className="text-red-500">*</span></label>
                             <input type="text" name="eventDate" value={formData.eventDate} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" placeholder="e.g. October 15, 2026" />
+                        </div>
+                        <div>
+                            <label className="block text-gray-400 mb-1">Event Time</label>
+                            <input type="text" name="eventTime" value={formData.eventTime} onChange={handleInputChange} className="w-full p-2 bg-gray-700 rounded text-white" placeholder="e.g. 7:00 PM" />
                         </div>
                         <div>
                             <label className="block text-gray-400 mb-1">Location <span className="text-red-500">*</span></label>

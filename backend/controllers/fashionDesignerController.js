@@ -4,7 +4,7 @@ import { cloudinary } from '../config/cloudinaryConfig.js';
 // Create a new designer
 export const createDesigner = async (req, res) => {
     try {
-        const { name, country, countryCode, instagram, website, category } = req.body;
+        const { name, country, countryCode, instagram, website, category, description } = req.body;
         const file = req.file;
 
         let image = null;
@@ -22,6 +22,7 @@ export const createDesigner = async (req, res) => {
             instagram,
             website,
             category: category || 'Designer', // Default to Designer if not provided
+            description: description || '',
             image
         });
 
@@ -37,7 +38,7 @@ export const createDesigner = async (req, res) => {
 export const updateDesigner = async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, country, countryCode, instagram, website, category } = req.body;
+        const { name, country, countryCode, instagram, website, category, description } = req.body;
         const file = req.file;
 
         const designer = await FashionDesigner.findById(id);
@@ -52,6 +53,7 @@ export const updateDesigner = async (req, res) => {
         if (instagram !== undefined) designer.instagram = instagram;
         if (website !== undefined) designer.website = website;
         if (category !== undefined) designer.category = category;
+        if (description !== undefined) designer.description = description;
 
         // Handle image update
         if (file) {

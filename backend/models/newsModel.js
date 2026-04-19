@@ -7,7 +7,7 @@ const newsSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL']
+    enum: ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PARTNERSHIPS', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL']
   },
   date: { type: String }, // Custom display date
   slug: { type: String, unique: true },
