@@ -43,6 +43,99 @@ const toFilenameSafe = (value = 'ticket') =>
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '') || 'ticket';
 
+const normalizePdfText = (value, chunkSize = 18) =>
+    String(value || '')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .replace(new RegExp(`(\\S{${chunkSize}})(?=\\S)`, 'g'), '$1 ');
+
+const formatTicketIdentifier = (value) => {
+    const ticketId = normalizePdfText(value, 16);
+    if (!ticketId) return 'Ticket ID unavailable';
+
+    if (ticketId.length <= 28) return ticketId;
+
+    return ticketId.match(/.{1,28}/g)?.join(' ') || ticketId;
+};
+
+const fitWrappedText = (pdf, text, options = {}) => {
+    const {
+        width,
+        maxHeight = Number.POSITIVE_INFINITY,
+        maxFontSize = 12,
+        minFontSize = 9,
+        lineHeightFactor = 1.4,
+        maxLines = Number.POSITIVE_INFINITY,
+    } = options;
+
+    const safeText = normalizePdfText(text);
+
+    for (let fontSize = maxFontSize; fontSize >= minFontSize; fontSize -= 1) {
+        pdf.setFontSize(fontSize);
+        const lines = pdf.splitTextToSize(safeText || ' ', width);
+        const limitedLines = lines.slice(0, maxLines);
+        const lineHeight = fontSize * lineHeightFactor;
+        const totalHeight = limitedLines.length * lineHeight;
+
+        if (totalHeight <= maxHeight && lines.length <= maxLines) {
+            return { lines: limitedLines, fontSize, lineHeight };
+        }
+    }
+
+    pdf.setFontSize(minFontSize);
+    const fallbackLines = pdf.splitTextToSize(safeText || ' ', width).slice(0, maxLines);
+    return {
+        lines: fallbackLines,
+        fontSize: minFontSize,
+        lineHeight: minFontSize * lineHeightFactor,
+    };
+};
+
+const drawTextBlock = (pdf, lines, x, y, options = {}) => {
+    const {
+        font = 'helvetica',
+        fontStyle = 'normal',
+        fontSize = 12,
+        color = [17, 24, 39],
+        lineHeight = fontSize * 1.45,
+        align = 'left',
+    } = options;
+
+    const normalizedLines = Array.isArray(lines) ? lines : [lines];
+
+    pdf.setFont(font, fontStyle);
+    pdf.setFontSize(fontSize);
+    pdf.setTextColor(...color);
+    pdf.text(normalizedLines, x, y, { align, lineHeightFactor: lineHeight / fontSize });
+
+    return y + (normalizedLines.length * lineHeight);
+};
+
+const drawLabelValue = (pdf, { x, y, width, label, value, accentColor = [199, 145, 62] }) => {
+    const safeValue = normalizePdfText(value || 'Not available');
+    const labelBottom = drawTextBlock(pdf, label.toUpperCase(), x, y, {
+        fontStyle: 'bold',
+        fontSize: 9,
+        color: accentColor,
+        lineHeight: 12,
+    });
+    const fittedValue = fitWrappedText(pdf, safeValue, {
+        width,
+        maxHeight: 48,
+        maxFontSize: 12,
+        minFontSize: 10,
+        lineHeightFactor: 1.33,
+        maxLines: 3,
+    });
+    const valueBottom = drawTextBlock(pdf, fittedValue.lines, x, labelBottom + 6, {
+        fontSize: fittedValue.fontSize,
+        color: [55, 65, 81],
+        lineHeight: fittedValue.lineHeight,
+    });
+
+    return valueBottom;
+};
+
 const PaymentSuccess = () => {
     const [searchParams] = useSearchParams();
     const sessionId = searchParams.get('session_id');
@@ -119,6 +212,26 @@ const PaymentSuccess = () => {
             const pdf = new jsPDF({ unit: 'pt', format: 'a4' });
             const pageWidth = pdf.internal.pageSize.getWidth();
             const pageHeight = pdf.internal.pageSize.getHeight();
+            const pageMargin = 34;
+            const cardX = pageMargin;
+            const cardY = pageMargin;
+            const cardWidth = pageWidth - (pageMargin * 2);
+            const cardHeight = pageHeight - (pageMargin * 2);
+            const headerHeight = 156;
+            const contentX = cardX + 22;
+            const contentY = cardY + headerHeight - 18;
+            const contentWidth = cardWidth - 44;
+            const qrPanelWidth = 156;
+            const contentGap = 22;
+            const infoWidth = contentWidth - qrPanelWidth - contentGap;
+            const footerY = cardY + cardHeight - 36;
+            const accent = [199, 145, 62];
+            const ivory = [243, 238, 228];
+            const charcoal = [10, 10, 10];
+
+            const safeEventTitle = eventDetails?.title || 'Moda Week Event';
+            const safeEventDate = formatDate(eventDetails?.date || eventDetails?.eventDate);
+            const safeEventLocation = eventDetails?.location || 'Venue to be announced';
 
             for (let index = 0; index < tickets.length; index += 1) {
                 const ticket = tickets[index];
@@ -128,89 +241,247 @@ const PaymentSuccess = () => {
                     pdf.addPage();
                 }
 
-                pdf.setFillColor(245, 241, 233);
+                pdf.setFillColor(...ivory);
                 pdf.rect(0, 0, pageWidth, pageHeight, 'F');
 
-                pdf.setFillColor(12, 12, 12);
-                pdf.roundedRect(36, 36, pageWidth - 72, 130, 20, 20, 'F');
+                pdf.setFillColor(...charcoal);
+                pdf.roundedRect(cardX, cardY, cardWidth, cardHeight, 28, 28, 'F');
 
-                pdf.setTextColor(199, 145, 62);
-                pdf.setFont('helvetica', 'bold');
-                pdf.setFontSize(28);
-                pdf.text('MODA WEEK', 56, 85);
+                pdf.setDrawColor(64, 64, 64);
+                pdf.roundedRect(cardX + 16, cardY + 16, cardWidth - 32, cardHeight - 32, 22, 22, 'S');
 
-                pdf.setTextColor(255, 255, 255);
-                pdf.setFontSize(12);
-                pdf.text('TICKET CONFIRMATION', 56, 112);
+                pdf.setDrawColor(...accent);
+                pdf.setLineWidth(2.5);
+                pdf.line(cardX + 22, cardY + 94, cardX + 128, cardY + 94);
 
-                pdf.setDrawColor(217, 119, 6);
-                pdf.setLineWidth(1.2);
-                pdf.line(56, 126, 178, 126);
+                drawTextBlock(pdf, 'MODA WEEK INTERNATIONAL', cardX + 22, cardY + 52, {
+                    fontStyle: 'bold',
+                    fontSize: 25,
+                    color: accent,
+                    lineHeight: 28,
+                });
+                drawTextBlock(pdf, 'Ticket confirmation', cardX + 22, cardY + 78, {
+                    fontStyle: 'bold',
+                    fontSize: 11,
+                    color: [255, 255, 255],
+                    lineHeight: 14,
+                });
+                drawTextBlock(pdf, `Order ${String(index + 1).padStart(2, '0')} of ${String(tickets.length).padStart(2, '0')}`, cardX + 22, cardY + 114, {
+                    fontSize: 10,
+                    color: [209, 213, 219],
+                    lineHeight: 13,
+                });
 
                 pdf.setFillColor(255, 255, 255);
-                pdf.roundedRect(36, 188, pageWidth - 72, pageHeight - 240, 22, 22, 'F');
+                pdf.roundedRect(contentX - 2, contentY, contentWidth + 4, cardHeight - headerHeight - 26, 24, 24, 'F');
 
-                pdf.setTextColor(17, 24, 39);
-                pdf.setFontSize(24);
-                pdf.text(eventDetails?.title || 'Moda Week Event', 56, 235, {
-                    maxWidth: pageWidth - 240,
+                const qrPanelX = contentX + infoWidth + contentGap;
+                const qrPanelY = contentY + 26;
+                const qrPanelInnerSize = qrPanelWidth - 32;
+                const qrImageSize = 92;
+                const qrImageX = qrPanelX + ((qrPanelWidth - qrImageSize) / 2);
+                const qrImageY = qrPanelY + 48;
+
+                pdf.setFillColor(248, 244, 236);
+                pdf.roundedRect(qrPanelX, qrPanelY, qrPanelWidth, 208, 20, 20, 'F');
+                pdf.setDrawColor(232, 222, 204);
+                pdf.setLineWidth(1);
+                pdf.roundedRect(qrPanelX, qrPanelY, qrPanelWidth, 208, 20, 20, 'S');
+
+                drawTextBlock(pdf, 'ENTRY PASS', qrPanelX + (qrPanelWidth / 2), qrPanelY + 28, {
+                    fontStyle: 'bold',
+                    fontSize: 10,
+                    color: accent,
+                    align: 'center',
+                    lineHeight: 12,
                 });
 
-                pdf.setFontSize(18);
-                pdf.setTextColor(217, 119, 6);
-                pdf.text(ticket.ticketName || 'Ticket', 56, 270);
+                pdf.setFillColor(255, 255, 255);
+                pdf.roundedRect(qrPanelX + 16, qrPanelY + 38, qrPanelInnerSize, qrPanelInnerSize, 16, 16, 'F');
+                pdf.addImage(qrDataUrl, 'PNG', qrImageX, qrImageY, qrImageSize, qrImageSize);
 
-                pdf.setFontSize(12);
-                pdf.setTextColor(75, 85, 99);
-                pdf.text(`Date: ${formatDate(eventDetails?.date)}`, 56, 300);
-                pdf.text(`Location: ${eventDetails?.location || 'Venue to be announced'}`, 56, 320, {
-                    maxWidth: pageWidth - 220,
+                drawTextBlock(pdf, 'Scan this code at venue entry', qrPanelX + (qrPanelWidth / 2), qrPanelY + 164, {
+                    fontSize: 10,
+                    color: [75, 85, 99],
+                    align: 'center',
+                    lineHeight: 13,
                 });
-                pdf.text(`Ticket ID: ${ticket._id}`, 56, 340, {
-                    maxWidth: pageWidth - 220,
+                drawTextBlock(pdf, `Qty ${ticket.quantity || 0}`, qrPanelX + (qrPanelWidth / 2), qrPanelY + 184, {
+                    fontStyle: 'bold',
+                    fontSize: 11,
+                    color: [17, 24, 39],
+                    align: 'center',
+                    lineHeight: 14,
                 });
 
+                let cursorY = contentY + 34;
+                const titleBlock = fitWrappedText(pdf, safeEventTitle, {
+                    width: infoWidth - 12,
+                    maxHeight: 86,
+                    maxFontSize: 23,
+                    minFontSize: 16,
+                    lineHeightFactor: 1.18,
+                    maxLines: 4,
+                });
+                cursorY = drawTextBlock(pdf, titleBlock.lines, contentX + 12, cursorY, {
+                    fontStyle: 'bold',
+                    fontSize: titleBlock.fontSize,
+                    color: [17, 24, 39],
+                    lineHeight: titleBlock.lineHeight,
+                });
+
+                const ticketNameBlock = fitWrappedText(pdf, ticket.ticketName || 'Ticket', {
+                    width: infoWidth - 12,
+                    maxHeight: 48,
+                    maxFontSize: 15,
+                    minFontSize: 11,
+                    lineHeightFactor: 1.25,
+                    maxLines: 3,
+                });
+                cursorY = drawTextBlock(pdf, ticketNameBlock.lines, contentX + 12, cursorY + 8, {
+                    fontStyle: 'bold',
+                    fontSize: ticketNameBlock.fontSize,
+                    color: accent,
+                    lineHeight: ticketNameBlock.lineHeight,
+                });
+
+                cursorY += 8;
                 pdf.setDrawColor(229, 231, 235);
-                pdf.line(56, 366, pageWidth - 56, 366);
+                pdf.setLineWidth(1);
+                pdf.line(contentX + 12, cursorY, contentX + infoWidth, cursorY);
+                cursorY += 20;
 
-                pdf.setFontSize(11);
-                pdf.setTextColor(107, 114, 128);
-                pdf.text('PURCHASE DETAILS', 56, 396);
+                cursorY = drawLabelValue(pdf, {
+                    x: contentX + 12,
+                    y: cursorY,
+                    width: infoWidth - 12,
+                    label: 'Date',
+                    value: safeEventDate,
+                    accentColor: accent,
+                });
+                cursorY += 12;
 
-                pdf.setFontSize(16);
-                pdf.setTextColor(17, 24, 39);
-                pdf.text(`Paid: ${formatCurrency(ticket.price || 0)}`, 56, 425);
-                pdf.text(`Quantity: ${ticket.quantity || 0}`, 56, 450);
-                pdf.text(`Line Total: ${formatCurrency((Number(ticket.price) || 0) * (Number(ticket.quantity) || 0))}`, 56, 475);
+                cursorY = drawLabelValue(pdf, {
+                    x: contentX + 12,
+                    y: cursorY,
+                    width: infoWidth - 12,
+                    label: 'Location',
+                    value: safeEventLocation,
+                    accentColor: accent,
+                });
+                cursorY += 12;
 
-                pdf.setFillColor(249, 250, 251);
-                pdf.roundedRect(pageWidth - 186, 232, 130, 130, 18, 18, 'F');
-                pdf.addImage(qrDataUrl, 'PNG', pageWidth - 171, 247, 100, 100);
+                cursorY = drawLabelValue(pdf, {
+                    x: contentX + 12,
+                    y: cursorY,
+                    width: infoWidth - 12,
+                    label: 'Ticket ID',
+                    value: formatTicketIdentifier(ticket._id),
+                    accentColor: accent,
+                });
+                cursorY += 22;
 
-                pdf.setFontSize(11);
-                pdf.setTextColor(107, 114, 128);
-                pdf.text('Scan at venue entry', pageWidth - 175, 382);
+                drawTextBlock(pdf, 'Purchase details', contentX + 12, cursorY, {
+                    fontStyle: 'bold',
+                    fontSize: 11,
+                    color: [107, 114, 128],
+                    lineHeight: 14,
+                });
+                cursorY += 18;
 
-                pdf.setFillColor(255, 251, 235);
-                pdf.setDrawColor(252, 211, 77);
-                pdf.roundedRect(56, 520, pageWidth - 112, 86, 14, 14, 'FD');
-                pdf.setFontSize(12);
-                pdf.setTextColor(146, 64, 14);
-                pdf.text('Important', 74, 548);
-                pdf.setTextColor(120, 53, 15);
-                pdf.text(
-                    pdf.splitTextToSize(
-                        'Present this PDF or the QR code from your confirmation screen/email at the venue entrance for fast check-in.',
-                        pageWidth - 150
-                    ),
-                    74,
-                    570
+                const statY = cursorY;
+                const statGap = 12;
+                const statWidth = (contentWidth - statGap * 2) / 3;
+                const statHeight = 74;
+                const statItems = [
+                    { label: 'Paid', value: formatCurrency(ticket.price || 0) },
+                    { label: 'Quantity', value: String(ticket.quantity || 0) },
+                    { label: 'Line total', value: formatCurrency((Number(ticket.price) || 0) * (Number(ticket.quantity) || 0)) },
+                ];
+
+                statItems.forEach((item, statIndex) => {
+                    const statX = contentX + (statIndex * (statWidth + statGap));
+                    pdf.setFillColor(248, 244, 236);
+                    pdf.roundedRect(statX, statY, statWidth, statHeight, 16, 16, 'F');
+                    drawTextBlock(pdf, item.label.toUpperCase(), statX + 14, statY + 20, {
+                        fontStyle: 'bold',
+                        fontSize: 9,
+                        color: [107, 114, 128],
+                        lineHeight: 11,
+                    });
+                    const statValueBlock = fitWrappedText(pdf, item.value, {
+                        width: statWidth - 28,
+                        maxHeight: 28,
+                        maxFontSize: 13,
+                        minFontSize: 10,
+                        lineHeightFactor: 1.15,
+                        maxLines: 2,
+                    });
+                    drawTextBlock(pdf, statValueBlock.lines, statX + 14, statY + 44, {
+                        fontStyle: 'bold',
+                        fontSize: statValueBlock.fontSize,
+                        color: [17, 24, 39],
+                        lineHeight: statValueBlock.lineHeight,
+                    });
+                });
+
+                cursorY = statY + statHeight + 22;
+
+                const noteBoxY = Math.max(cursorY, qrPanelY + 208 + 18);
+                const noteBoxHeight = Math.max(84, footerY - noteBoxY - 24);
+                pdf.setFillColor(255, 249, 235);
+                pdf.setDrawColor(245, 158, 11);
+                pdf.roundedRect(contentX, noteBoxY, contentWidth, noteBoxHeight, 16, 16, 'FD');
+
+                drawTextBlock(pdf, 'Important', contentX + 18, noteBoxY + 24, {
+                    fontStyle: 'bold',
+                    fontSize: 12,
+                    color: [146, 64, 14],
+                    lineHeight: 14,
+                });
+                const noteTextBlock = fitWrappedText(
+                    pdf,
+                    'Present this PDF or your confirmation email at the entrance. Keep the QR code visible for quick verification during check-in.',
+                    {
+                        width: contentWidth - 36,
+                        maxHeight: Math.max(26, noteBoxHeight - 52),
+                        maxFontSize: 11,
+                        minFontSize: 9,
+                        lineHeightFactor: 1.3,
+                        maxLines: 4,
+                    }
+                );
+                drawTextBlock(
+                    pdf,
+                    noteTextBlock.lines,
+                    contentX + 18,
+                    noteBoxY + 46,
+                    {
+                        fontSize: noteTextBlock.fontSize,
+                        color: [120, 53, 15],
+                        lineHeight: noteTextBlock.lineHeight,
+                    }
                 );
 
-                pdf.setTextColor(156, 163, 175);
-                pdf.setFontSize(10);
-                pdf.text('Moda Week International', 56, pageHeight - 54);
-                pdf.text(`Generated from confirmation ${sessionId || 'manual'}`, pageWidth - 206, pageHeight - 54);
+                drawTextBlock(pdf, 'Moda Week International', cardX + 22, footerY, {
+                    fontSize: 10,
+                    color: [156, 163, 175],
+                    lineHeight: 12,
+                });
+                const footerMeta = fitWrappedText(pdf, `Generated from confirmation ${sessionId || 'manual'}`, {
+                    width: 180,
+                    maxHeight: 24,
+                    maxFontSize: 10,
+                    minFontSize: 8,
+                    lineHeightFactor: 1.2,
+                    maxLines: 2,
+                });
+                drawTextBlock(pdf, footerMeta.lines, cardX + cardWidth - 22, footerY, {
+                    fontSize: footerMeta.fontSize,
+                    color: [156, 163, 175],
+                    align: 'right',
+                    lineHeight: footerMeta.lineHeight,
+                });
             }
 
             pdf.save(`${toFilenameSafe(eventDetails?.title || 'moda-week')}-tickets.pdf`);
