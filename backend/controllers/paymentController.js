@@ -118,7 +118,27 @@ export const confirmPayment = async (req, res) => {
         });
 
         if (existingSale) {
-            return res.status(200).json({ message: "Order already fulfilled", status: 'completed' });
+            const [existingTickets, existingEvent] = await Promise.all([
+                TicketSale.find({
+                    buyerEmail,
+                    eventId,
+                    status: 'completed',
+                    createdAt: { $gt: new Date(Date.now() - 5 * 60 * 1000) }
+                }).sort({ createdAt: 1 }),
+                UpcomingEvent.findById(eventId)
+            ]);
+
+            return res.status(200).json({
+                message: "Order already fulfilled",
+                status: 'completed',
+                tickets: existingTickets,
+                event: {
+                    title: existingEvent?.title || "Event",
+                    date: existingEvent?.eventDate,
+                    location: existingEvent?.location,
+                    coverImage: existingEvent?.coverImage
+                }
+            });
         }
 
         const tickets = JSON.parse(ticketDetails);

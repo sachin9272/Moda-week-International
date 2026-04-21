@@ -2,6 +2,15 @@ import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import { generateQRCode } from './qrCodeService.js';
 dotenv.config();
+
+const escapeHtml = (value = '') =>
+    String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
 const sendEmail = async (options) => {
     // Create a transporter
     const transporter = nodemailer.createTransport({
@@ -46,11 +55,18 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
 
     // Attachments array for Nodemailer
     const attachments = [];
+    const safeTitle = escapeHtml(title);
+    const safeLocation = escapeHtml(location);
+    const formattedDate = date ? new Date(date).toDateString() : 'Date to be announced';
 
     // Generate QR Codes and prepare attachments
     const ticketRows = await Promise.all(tickets.map(async (t) => {
         // Safety check for _id
         const ticketId = t._id ? t._id.toString() : 'unknown-id';
+        const safeTicketName = escapeHtml(t.ticketName || 'Ticket');
+        const safeTicketDisplayId = escapeHtml(ticketId);
+        const price = Number(t.price) || 0;
+        const quantity = Number(t.quantity) || 0;
 
         const qrCodeDataUrl = await generateQRCode(ticketId);
         const cid = `qr-${ticketId}@modaweek`; // Unique Data CID
@@ -65,60 +81,112 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
         }
 
         return `
-        <div style="border: 1px solid #ddd; border-radius: 8px; margin-bottom: 15px; overflow: hidden; display: flex; flex-direction: row; background: #fff;">
-            <div style="padding: 15px; flex: 1;">
-                <h3 style="margin: 0 0 5px 0; color: #d97706;">${t.ticketName}</h3>
-                <p style="margin: 5px 0; font-size: 14px; color: #666;">Ticket ID: ${t._id}</p>
-                <p style="margin: 5px 0; font-weight: bold;">$${t.price}</p>
-                <p style="margin: 5px 0; font-size: 12px; color: #999;">Qty: ${t.quantity}</p> 
-            </div>
-            <div style="padding: 10px; background: #f9f9f9; display: flex; align-items: center; justify-content: center;">
-                <img src="cid:${cid}" alt="QR Code" style="width: 100px; height: 100px; display: block;" />
-            </div>
-        </div>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; border: 1px solid #e5e7eb; border-radius: 16px; margin-bottom: 16px; overflow: hidden; background: #ffffff; border-collapse: separate;">
+            <tr>
+                <td class="ticket-stack ticket-copy" style="padding: 18px 18px 14px; vertical-align: top;">
+                    <h3 style="margin: 0 0 8px 0; color: #d97706; font-size: 20px; line-height: 1.3;">${safeTicketName}</h3>
+                    <p style="margin: 0 0 8px 0; font-size: 13px; line-height: 1.5; color: #6b7280; word-break: break-word;">Ticket ID: ${safeTicketDisplayId}</p>
+                    <p style="margin: 0 0 6px 0; font-size: 18px; line-height: 1.4; font-weight: bold; color: #111827;">$${price.toFixed(2)}</p>
+                    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #6b7280;">Quantity: ${quantity}</p>
+                </td>
+                <td class="ticket-stack ticket-qr" width="132" style="width: 132px; padding: 18px; background: #f9fafb; text-align: center; vertical-align: middle; border-left: 1px dashed #d1d5db;">
+                    <img src="cid:${cid}" alt="QR Code" style="width: 96px; height: 96px; display: inline-block; margin: 0 auto;" />
+                </td>
+            </tr>
+        </table>
         `;
     }));
 
     const totalAmount = tickets.reduce((sum, t) => sum + (t.price * t.quantity), 0);
 
     const message = `
-        <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; background-color: #f4f4f4; padding: 20px;">
-            <div style="background-color: #000; color: #d97706; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0;">
-                <h1 style="margin: 0; font-family: serif; letter-spacing: 1px;">MODA WEEK</h1>
-                <p style="margin: 10px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; color: #fff;">Ticket Confirmation</p>
-            </div>
-            
-            <div style="background-color: #fff; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                <p style="font-size: 16px; line-height: 1.5;">Hi there,</p>
-                <p style="font-size: 16px; line-height: 1.5;">Thank you for your purchase. Here are your tickets for <strong>${title}</strong>.</p>
-                
-                <div style="margin: 25px 0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                    <img src="${coverImage?.url || ''}" alt="${title}" style="width: 100%; height: 200px; object-fit: cover;" />
-                    <div style="padding: 20px; background: #111; color: #fff;">
-                        <h2 style="margin: 0 0 10px 0; font-size: 20px;">${title}</h2>
-                        <p style="margin: 5px 0; color: #ccc;">📅 ${new Date(date).toDateString()}</p>
-                        <p style="margin: 5px 0; color: #ccc;">📍 ${location}</p>
-                    </div>
-                </div>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <style>
+                body, table, td, p, a { font-family: Helvetica, Arial, sans-serif; }
+                img { border: 0; line-height: 100%; outline: none; text-decoration: none; }
+                table { border-collapse: collapse; }
+                @media only screen and (max-width: 600px) {
+                    .email-shell { width: 100% !important; }
+                    .email-body { padding: 20px !important; }
+                    .hero-body { padding: 18px !important; }
+                    .ticket-stack { display: block !important; width: 100% !important; box-sizing: border-box !important; }
+                    .ticket-copy { padding-bottom: 8px !important; }
+                    .ticket-qr { border-left: none !important; border-top: 1px dashed #d1d5db !important; padding-top: 14px !important; }
+                    .event-image { height: auto !important; }
+                    .summary-total { text-align: left !important; }
+                }
+            </style>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #f3f4f6; color: #333333;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; background-color: #f3f4f6;">
+                <tr>
+                    <td align="center" style="padding: 20px 12px;">
+                        <table role="presentation" class="email-shell" width="600" cellpadding="0" cellspacing="0" border="0" style="width: 100%; max-width: 600px;">
+                            <tr>
+                                <td style="background-color: #000000; color: #d97706; padding: 28px 20px; text-align: center; border-radius: 16px 16px 0 0;">
+                                    <h1 style="margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 32px; line-height: 1.2; letter-spacing: 1px;">MODA WEEK</h1>
+                                    <p style="margin: 10px 0 0 0; font-size: 13px; line-height: 1.5; text-transform: uppercase; letter-spacing: 2px; color: #ffffff;">Ticket Confirmation</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="email-body" style="background-color: #ffffff; padding: 30px; border-radius: 0 0 16px 16px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                                    <p style="margin: 0 0 14px 0; font-size: 16px; line-height: 1.6;">Hi there,</p>
+                                    <p style="margin: 0 0 22px 0; font-size: 16px; line-height: 1.6;">Thank you for your purchase. Here are your tickets for <strong>${safeTitle}</strong>.</p>
 
-                <div style="margin-top: 30px;">
-                    <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">Your Tickets</h3>
-                    ${ticketRows.join('')}
-                </div>
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin: 0 0 26px 0; border-radius: 16px; overflow: hidden; background: #111111;">
+                                        ${coverImage?.url ? `
+                                        <tr>
+                                            <td>
+                                                <img class="event-image" src="${coverImage.url}" alt="${safeTitle}" style="width: 100%; height: 200px; display: block; object-fit: cover;" />
+                                            </td>
+                                        </tr>` : ''}
+                                        <tr>
+                                            <td class="hero-body" style="padding: 20px; color: #ffffff;">
+                                                <h2 style="margin: 0 0 10px 0; font-size: 22px; line-height: 1.3;">${safeTitle}</h2>
+                                                <p style="margin: 0 0 6px 0; font-size: 14px; line-height: 1.6; color: #d1d5db;">Date: ${formattedDate}</p>
+                                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #d1d5db;">Location: ${safeLocation}</p>
+                                            </td>
+                                        </tr>
+                                    </table>
 
-                <div style="margin-top: 30px; text-align: right; border-top: 2px solid #eee; padding-top: 15px;">
-                    <p style="font-size: 18px; font-weight: bold; margin: 0;">Total Paid: $${totalAmount.toFixed(2)}</p>
-                </div>
+                                    <div style="margin-top: 10px;">
+                                        <h3 style="margin: 0 0 18px 0; padding-bottom: 10px; font-size: 20px; line-height: 1.4; border-bottom: 2px solid #eeeeee; color: #111827;">Your Tickets</h3>
+                                        ${ticketRows.join('')}
+                                    </div>
 
-                <div style="margin-top: 40px; background-color: #fffbeb; border: 1px solid #fcd34d; padding: 15px; border-radius: 8px; font-size: 14px; color: #92400e;">
-                    <strong>Important:</strong> Please simply present the QR code(s) above at the venue entrance for scanning.
-                </div>
-            </div>
-            
-            <div style="text-align: center; padding: 20px; color: #888; font-size: 12px;">
-                &copy; ${new Date().getFullYear()} Moda Week International. All rights reserved.
-            </div>
-        </div>
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin-top: 26px; border-top: 2px solid #eeeeee;">
+                                        <tr>
+                                            <td class="summary-total" style="padding-top: 16px; text-align: right;">
+                                                <p style="margin: 0; font-size: 18px; line-height: 1.5; font-weight: bold; color: #111827;">Total Paid: $${totalAmount.toFixed(2)}</p>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width: 100%; margin-top: 32px; background-color: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px;">
+                                        <tr>
+                                            <td style="padding: 16px; font-size: 14px; line-height: 1.6; color: #92400e;">
+                                                <strong>Important:</strong> Please present the QR code(s) above at the venue entrance for scanning.
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 18px 8px 0; text-align: center; color: #888888; font-size: 12px; line-height: 1.6;">
+                                    &copy; ${new Date().getFullYear()} Moda Week International. All rights reserved.
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
     `;
 
     await sendEmail({

@@ -72,7 +72,10 @@ function App() {
         <Route path="/rsvp" element={<Rsvp />} />
 
         {/* Payment Routes */}
+        <Route path="/buy-tickets/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/tickets/payment/success" element={<PaymentSuccess />} />
+        <Route path="/buy-tickets/payment/cancel" element={<PaymentCancel />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
 
         {/* Ticket Routes */}
