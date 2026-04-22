@@ -1,24 +1,42 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { useEffect } from 'react';
+import { Colors } from '../constants/Config';
+import * as Font from 'expo-font';
+import { Inter_400Regular, Inter_700Bold } from '@expo-google-fonts/inter';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync({
+        Inter_400Regular,
+        Inter_700Bold,
+      });
+    }
+    loadFonts();
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <>
+      <StatusBar style="light" />
+      <Stack
+        screenOptions={{
+          headerStyle: {
+            backgroundColor: Colors.background,
+          },
+          headerTintColor: Colors.primary,
+          headerTitleStyle: {
+            fontFamily: 'Inter_700Bold',
+          },
+          contentStyle: {
+            backgroundColor: Colors.background,
+          },
+        }}
+      >
+        <Stack.Screen name="index" options={{ title: 'MODA SCANNER', headerTitleAlign: 'center' }} />
+        <Stack.Screen name="scanner" options={{ title: 'Scan Ticket', headerBackTitle: 'Back' }} />
+        <Stack.Screen name="result" options={{ title: 'Verification Result', presentation: 'modal' }} />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    </>
   );
 }
