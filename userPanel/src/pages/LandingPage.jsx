@@ -146,11 +146,11 @@ function VideoSlider({ slides, onSlideChange }) {
           </p>
         )}
         <div className="mt-4">
-          <a href="http://localhost:5174/service?tab=designer">
+          <Link to="/service?tab=designer">
             <button className="grad-bg h-[45px] w-[181px] text-2xl">
               APPLY NOW
             </button>
-          </a>
+          </Link>
         </div>
       </div>
     </div>
@@ -358,12 +358,12 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <a
-            href="http://localhost:5174/service?tab=designer"
+          <Link
+            to="/service?tab=designer"
             className="inline-flex w-full items-center justify-center border border-[#d2ab59] bg-white px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.16em] text-[#8C5D25] shadow-[0_6px_14px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#fff8eb] md:w-auto md:min-w-[260px] md:px-7"
           >
             Apply to Showcase Today
-          </a>
+          </Link>
         </div>
       </section>
 
