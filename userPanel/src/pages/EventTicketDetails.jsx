@@ -180,6 +180,7 @@ export default function EventTicketDetails() {
     const [searchParams] = useSearchParams();
     const mode = searchParams.get("mode");
     const showTicketsOnly = mode === "tickets";
+    const checkoutSectionRef = React.useRef(null);
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [quantities, setQuantities] = useState({});
@@ -273,6 +274,25 @@ export default function EventTicketDetails() {
             const currentQty = prev[ticketId] || 0;
             const newQty = Math.max(0, Math.min(10, currentQty + delta));
             return { ...prev, [ticketId]: newQty };
+        });
+    };
+
+    const handleSelectTicket = (ticketId, quantity) => {
+        if (!quantity) {
+            handleQuantityChange(ticketId, 1);
+            return;
+        }
+
+        const checkoutSection = checkoutSectionRef.current;
+        if (!checkoutSection) return;
+
+        const rect = checkoutSection.getBoundingClientRect();
+        const absoluteTop = window.scrollY + rect.top;
+        const centeredTop = absoluteTop - (window.innerHeight / 2) + (rect.height / 2);
+
+        window.scrollTo({
+            top: Math.max(0, centeredTop),
+            behavior: "smooth",
         });
     };
 
@@ -406,11 +426,7 @@ export default function EventTicketDetails() {
                                 </div>
 
                                 <button
-                                    onClick={() => {
-                                        if (!quantity) {
-                                            handleQuantityChange(ticketId, 1);
-                                        }
-                                    }}
+                                    onClick={() => handleSelectTicket(ticketId, quantity)}
                                     className={`w-full rounded-lg px-5 py-3 text-sm font-bold uppercase tracking-widest transition-colors duration-200 ${quantity > 0 ? "grad-bg text-white" : "bg-black text-white hover:bg-gray-800"}`}
                                 >
                                     {quantity > 0 ? "Selected" : `Select ${ticketName}`}
@@ -617,7 +633,7 @@ export default function EventTicketDetails() {
                                 {renderTicketExperienceCards()}
                             </div>
 
-                            <div className="mt-10 rounded-2xl border border-gray-200 bg-gray-50 p-6 md:p-8">
+                            <div ref={checkoutSectionRef} className="mt-10 rounded-2xl border border-gray-200 bg-gray-50 p-6 md:p-8">
                                 <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                                     <div>
                                         <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Total Amount</p>
@@ -642,7 +658,7 @@ export default function EventTicketDetails() {
                             <div className="mx-auto grid max-w-7xl gap-0 overflow-hidden border border-gray-200 bg-gray-50 lg:grid-cols-[1.1fr_0.9fr]">
                                 <div className="p-8 md:p-12">
                                     <h2 className="font-playfair text-4xl text-black md:text-5xl">{aboutTitle}</h2>
-                                    <div className="event-rich-text mt-5 max-w-2xl space-y-3 text-lg leading-8 text-gray-700">
+                                    <div className="rich-text-content event-rich-text mt-5 max-w-none text-lg leading-relaxed font-light text-black">
                                         {aboutText ? renderTextWithLinks(aboutText) : <p>This event brings together fashion, culture, and a premium runway experience.</p>}
                                     </div>
                                     <div className="mt-8 grid gap-4 sm:grid-cols-3">

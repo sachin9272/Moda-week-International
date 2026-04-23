@@ -190,7 +190,7 @@ const PricingComponent = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <h1 className="text-5xl md:text-6xl !font-playfair bg-linear-to-b from-[#BC8739] to-[#563E1A] bg-clip-text text-transparent tracking-wide">
-            MEMBERSHIP
+            EVENT MEMBERSHIP
           </h1>
 
           <div className="w-38 h-px grad-bg mx-auto mb-6 mt-4"></div>

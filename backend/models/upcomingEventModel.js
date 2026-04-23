@@ -85,9 +85,14 @@ const upcomingEventSchema = new mongoose.Schema({
                 publicId: { type: String }
             },
             day: {
-                type: Number,
-                enum: [1, 2, 3],
+                type: String,
+                enum: ['1', '2', '3', '4', '5', 'custom'],
                 required: false
+            },
+            dayLabel: {
+                type: String,
+                trim: true,
+                default: ''
             },
             layout: {
                 type: String,

@@ -546,8 +546,8 @@ const ApplicationForm = () => {
 
             {renderCheckboxGroup("I'm interested sponsor my company corporation in:", "sponsorshipRegions", [
               "Sponsorship information in UNITED STATES OF AMERICA",
-              "Sponsorship information in EUROPE",
-              "Sponsorship information in CANADA",
+              // "Sponsorship information in EUROPE",
+              // "Sponsorship information in CANADA",
               "Sponsorship information in SOUTH AMERICA"
             ])}
 

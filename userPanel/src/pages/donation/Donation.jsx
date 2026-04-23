@@ -5,6 +5,28 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import PhilanthropySlideshow from '../../components/PhilanthropySlideshow';
 
+const normalizeTextSpacing = (text = '') =>
+    String(text)
+        .replace(/[\u00A0\u1680\u2000-\u200A\u202F\u205F\u3000]/g, ' ')
+        .replace(/[ \t]+/g, ' ')
+        .replace(/ *\n */g, '\n')
+        .trim();
+
+const escapeHtml = (text = '') =>
+    String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+
+const toRichTextHtml = (text = '') =>
+    normalizeTextSpacing(text)
+        .split('\n')
+        .filter((line) => line.trim())
+        .map((line) => `<p>${escapeHtml(line)}</p>`)
+        .join('');
+
 const Donation = () => {
     const [frequency, setFrequency] = useState('One time');
     const [amount, setAmount] = useState(100);
@@ -93,26 +115,32 @@ const Donation = () => {
 
                     {/* Left Column: Text Content */}
                     <div className="space-y-6 lg:col-span-4 relative z-10 lg:pr-12">
-                        <div className="text-gray-600 space-y-4 text-justify font-inter whitespace-pre-wrap">
-                            {mainContent?.introText || (
-                                <>
-                                    <p>
-                                        Moda Week International (MWINTL) is a philanthropic platform that merges glamour with purpose. As a fashion show production organization, MWINTL is committed to creating impactful events that promote not only high fashion but also educational advancement and community empowerment.
-                                    </p>
-                                    <p>
-                                        MWINTL is proudly defined by its dual mission: to showcase world-class fashion while fostering a culture of giving, learning, and social responsibility. Through each initiative, we promote artistic brilliance while uplifting lives.
-                                    </p>
-                                </>
-                            )}
-                        </div>
+                        <div
+                            className="!text-base rich-text-content text-black leading-relaxed text-lg font-light"
+                            style={{ textAlign: 'left', wordSpacing: 'normal', letterSpacing: 'normal' }}
+                            dangerouslySetInnerHTML={{
+                                __html: mainContent?.introText
+                                    ? toRichTextHtml(mainContent.introText)
+                                    : toRichTextHtml(`Moda Week International (MWINTL) is a philanthropic platform that merges glamour with purpose. As a fashion show production organization, MWINTL is committed to creating impactful events that promote not only high fashion but also educational advancement and community empowerment.
+
+MWINTL is proudly defined by its dual mission: to showcase world-class fashion while fostering a culture of giving, learning, and social responsibility. Through each initiative, we promote artistic brilliance while uplifting lives.`)
+                            }}
+                        />
 
                         <div className="space-y-2 mt-8">
                             <h3 className="text-xl font-bold text-gray-800 uppercase font-playfair">
                                 {mainContent?.powerOfGivingTitle || "The Power of Giving Back"}
                             </h3>
-                            <p className="text-gray-600 text-justify font-inter whitespace-pre-wrap">
-                                {mainContent?.powerOfGivingText || "Every contribution serves a greater purpose, opening doors for emerging talent, supporting marginalized communities, and igniting hope through education and creative opportunities."}
-                            </p>
+                            <div
+                                className="!text-base rich-text-content text-black leading-relaxed text-lg font-light"
+                                style={{ textAlign: 'left', wordSpacing: 'normal', letterSpacing: 'normal' }}
+                                dangerouslySetInnerHTML={{
+                                    __html: toRichTextHtml(
+                                        mainContent?.powerOfGivingText ||
+                                        "Every contribution serves a greater purpose, opening doors for emerging talent, supporting marginalized communities, and igniting hope through education and creative opportunities."
+                                    )
+                                }}
+                            />
                         </div>
 
                         <div className="pt-8 font-medium text-gray-800 font-inter">

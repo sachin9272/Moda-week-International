@@ -24,6 +24,14 @@ import { Editor } from '@tinymce/tinymce-react';
 import toast from 'react-hot-toast';
 import { compressImageIfNeeded } from '../../utils/imageCompression';
 
+const getCollectionDayText = (collection) => {
+    if (!collection?.day) return '';
+    if (collection.day === 'custom') {
+        return collection.dayLabel?.trim() || 'Custom Day';
+    }
+    return `Day ${collection.day}`;
+};
+
 // Sortable Collection Item Component
 const SortableCollectionItem = ({ col, idx, onEdit, onRemove }) => {
     const {
@@ -63,7 +71,7 @@ const SortableCollectionItem = ({ col, idx, onEdit, onRemove }) => {
                     />
                 )}
                 <div>
-                    <p className="font-bold text-white text-sm leading-tight">{col.title} {col.day ? `(Day ${col.day})` : ''}</p>
+                    <p className="font-bold text-white text-sm leading-tight">{col.title} {col.day ? `(${getCollectionDayText(col)})` : ''}</p>
                     <p className="text-xs text-gray-400">{col.images.length} images - {col.layout} ({col.gridAspectRatio})</p>
                 </div>
             </div>
@@ -214,6 +222,7 @@ const AddUpcomingEvent = () => {
         layout: 'grid',
         gridAspectRatio: 'portrait',
         day: '',
+        dayLabel: '',
         images: []
     });
 
@@ -595,7 +604,17 @@ const AddUpcomingEvent = () => {
 
     const handleCollectionChange = (e) => {
         const { name, value } = e.target;
-        setCurrentCollection(prev => ({ ...prev, [name]: value }));
+        setCurrentCollection(prev => {
+            if (name === 'day') {
+                return {
+                    ...prev,
+                    day: value,
+                    dayLabel: value === 'custom' ? prev.dayLabel : ''
+                };
+            }
+
+            return { ...prev, [name]: value };
+        });
     };
 
     const handleCollectionImages = async (e) => {
@@ -646,6 +665,11 @@ const AddUpcomingEvent = () => {
     };
 
     const addCollection = () => {
+        if (currentCollection.day === 'custom' && !currentCollection.dayLabel?.trim()) {
+            toast.error("Please enter a custom day name.");
+            return;
+        }
+
         if (currentCollection.title) {
             setFormData(prev => ({
                 ...prev,
@@ -661,6 +685,7 @@ const AddUpcomingEvent = () => {
                 layout: 'grid',
                 gridAspectRatio: 'portrait',
                 day: '',
+                dayLabel: '',
                 images: []
             });
         } else {
@@ -704,6 +729,11 @@ const AddUpcomingEvent = () => {
         // Auto-save logic
         let finalCollections = [...formData.collections];
         if (currentCollection.title) {
+            if (currentCollection.day === 'custom' && !currentCollection.dayLabel?.trim()) {
+                toast.error("Please enter a custom day name.");
+                setLoading(false);
+                return;
+            }
             finalCollections.push(currentCollection);
             toast.success("Unsaved collection included in event.");
         }
@@ -777,6 +807,7 @@ const AddUpcomingEvent = () => {
         data.append('collections', JSON.stringify(finalCollections.map(col => ({
             ...col,
             images: [], // Images handled separately
+            dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : '',
             designerImage: typeof col.designerImage === 'string' ? col.designerImage : null
         }))));
 
@@ -1276,7 +1307,20 @@ const AddUpcomingEvent = () => {
                                     <option value="1">Day 1</option>
                                     <option value="2">Day 2</option>
                                     <option value="3">Day 3</option>
+                                    <option value="4">Day 4</option>
+                                    <option value="5">Day 5</option>
+                                    <option value="custom">Custom Name</option>
                                 </select>
+                                {currentCollection.day === 'custom' && (
+                                    <input
+                                        type="text"
+                                        name="dayLabel"
+                                        value={currentCollection.dayLabel || ''}
+                                        onChange={handleCollectionChange}
+                                        className="mt-2 w-full p-2 bg-gray-700 rounded text-white text-sm"
+                                        placeholder="Enter custom day name"
+                                    />
+                                )}
                             </div>
                             <div className="md:col-span-2">
                                 <label className="block text-gray-400 mb-1 text-sm">Designer Biography</label>
