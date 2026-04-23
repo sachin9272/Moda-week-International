@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import axios from "axios";
 import { baseURL } from "../config/api";
@@ -132,6 +132,32 @@ const getVideoEmbedUrl = (videoSection) => {
         : videoUrl;
 };
 
+const getCollectionDayKey = (collection) => {
+    if (!collection?.day) return "";
+    if (collection.day === "custom") {
+        return collection.dayLabel?.trim() ? `custom:${collection.dayLabel.trim()}` : "";
+    }
+    return String(collection.day);
+};
+
+const getCollectionDayLabel = (collection) => {
+    if (!collection?.day) return "";
+
+    const dayMap = {
+        "1": "FIRST DAY",
+        "2": "SECOND DAY",
+        "3": "THIRD DAY",
+        "4": "FOURTH DAY",
+        "5": "FIFTH DAY",
+    };
+
+    if (collection.day === "custom") {
+        return collection.dayLabel?.trim() || "CUSTOM DAY";
+    }
+
+    return dayMap[String(collection.day)] || `DAY ${collection.day}`;
+};
+
 const getDescriptionLines = (text = "") =>
     stripHtml(text)
         .split(/\n|•|·|-/)
@@ -181,8 +207,10 @@ export default function EventTicketDetails() {
     const mode = searchParams.get("mode");
     const showTicketsOnly = mode === "tickets";
     const checkoutSectionRef = React.useRef(null);
+    const dayRefs = React.useRef({});
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [activeDay, setActiveDay] = useState("");
     const [quantities, setQuantities] = useState({});
     const [totalPrice, setTotalPrice] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -193,6 +221,23 @@ export default function EventTicketDetails() {
     const ticketPageHref = `/event-details/${event?.slug || event?._id}?mode=tickets`;
     const partners = Array.isArray(event?.partners) ? event.partners : [];
     const collections = Array.isArray(event?.collections) ? event.collections : [];
+    const collectionDays = useMemo(() => {
+        const uniqueDays = [];
+        const seen = new Set();
+
+        collections.forEach((collection) => {
+            const key = getCollectionDayKey(collection);
+            if (!key || seen.has(key)) return;
+
+            seen.add(key);
+            uniqueDays.push({
+                key,
+                label: getCollectionDayLabel(collection),
+            });
+        });
+
+        return uniqueDays;
+    }, [collections]);
     const coverImageUrl = getImageUrl(event?.ticketBannerImage) || getImageUrl(event?.coverImage);
     const aboutTitle = ensureString(event?.descriptionSection?.title) || `About ${eventDisplayName || eventMainTitle || "This Event"}`;
     const aboutText = ensureString(event?.descriptionSection?.text || event?.description || "");
@@ -260,6 +305,10 @@ export default function EventTicketDetails() {
                     }
                 });
                 setEvent(response.data);
+
+                const eventCollections = Array.isArray(response.data?.collections) ? response.data.collections : [];
+                const firstTaggedCollection = eventCollections.find((collection) => getCollectionDayKey(collection));
+                setActiveDay(firstTaggedCollection ? getCollectionDayKey(firstTaggedCollection) : "");
             } catch (error) {
                 console.error("Error fetching event details:", error);
             } finally {
@@ -324,6 +373,13 @@ export default function EventTicketDetails() {
             currency: getSafeCurrency(currency),
             maximumFractionDigits: 0,
         }).format(Number(amount) || 0);
+
+    const scrollToDay = (dayKey) => {
+        const section = dayRefs.current[dayKey];
+        if (section) {
+            section.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+    };
 
     const renderTicketExperienceCards = () => {
         if (ticketTypes.length === 0) {
@@ -819,10 +875,53 @@ export default function EventTicketDetails() {
                 </section>
             )}
 
+            {!showTicketsOnly && collectionDays.length > 0 && (
+                <div className="bg-white py-8 px-4 border-b border-gray-100">
+                    <div className="max-w-7xl mx-auto flex justify-center flex-wrap gap-6">
+                        {collectionDays.map((day) => {
+                            const isActive = activeDay === day.key;
+
+                            return (
+                                <button
+                                    key={day.key}
+                                    onClick={() => {
+                                        setActiveDay(day.key);
+                                        scrollToDay(day.key);
+                                    }}
+                                    className={`
+                                        px-8 py-3 uppercase tracking-widest text-sm font-semibold transition-all duration-300
+                                        border ${isActive ? "border-[#C7913E] text-[#C7913E]" : "border-white text-gray-500 hover:text-black"}
+                                    `}
+                                >
+                                    {day.label} &gt;
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+
             {/* Collections Section - Hide on ticket purchase view */}
             {!showTicketsOnly && (
                 <div className="mt-10 bg-white">
-                    {collections.map((col, idx) => renderCollection(col, idx))}
+                    {collections
+                        .filter((collection) => !collection.day || getCollectionDayKey(collection) === activeDay)
+                        .map((col, idx) => {
+                            const dayKey = getCollectionDayKey(col);
+
+                            return (
+                                <div
+                                    key={col._id || col.id || `${dayKey || "collection"}-${idx}`}
+                                    ref={(element) => {
+                                        if (dayKey && element) {
+                                            dayRefs.current[dayKey] = element;
+                                        }
+                                    }}
+                                >
+                                    {renderCollection(col, idx)}
+                                </div>
+                            );
+                        })}
                 </div>
             )}
 
