@@ -178,6 +178,34 @@ const createEmptyTicket = () => ({
 
 const createTicketId = () => `ticket-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
+const createEmptyCollection = () => ({
+    title: '',
+    subtitle: '',
+    description: '',
+    designerId: null,
+    designerImage: null,
+    layout: 'grid',
+    gridAspectRatio: 'portrait',
+    day: '',
+    dayLabel: '',
+    images: []
+});
+
+const normalizeCollection = (collection = {}) => {
+    const normalizedDay = collection.day === 'custom'
+        ? 'custom'
+        : (['1', '2', '3', '4', '5'].includes(String(collection.day || '')) ? String(collection.day) : '');
+
+    return {
+        ...createEmptyCollection(),
+        ...collection,
+        day: normalizedDay,
+        dayLabel: normalizedDay === 'custom' ? (collection.dayLabel || '').trim() : '',
+        images: Array.isArray(collection.images) ? [...collection.images] : [],
+        designerId: collection.designerId || null
+    };
+};
+
 const EditUpcomingEvent = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -216,18 +244,7 @@ const EditUpcomingEvent = () => {
     const [currentTicket, setCurrentTicket] = useState(createEmptyTicket);
     const [editingTicketId, setEditingTicketId] = useState(null);
 
-    const [currentCollection, setCurrentCollection] = useState({
-        title: '',
-        subtitle: '',
-        description: '',
-        designerId: null,
-        designerImage: null,
-        layout: 'grid',
-        gridAspectRatio: 'portrait',
-        day: '',
-        dayLabel: '',
-        images: []
-    });
+    const [currentCollection, setCurrentCollection] = useState(createEmptyCollection);
 
     const [partners, setPartners] = useState([]);
 
@@ -384,7 +401,7 @@ const EditUpcomingEvent = () => {
                         id: t._id || createTicketId(),
                         image: t.image?.url || t.image || null
                     })),
-                    collections: (event.collections || []).map(col => ({
+                    collections: (event.collections || []).map(col => normalizeCollection({
                         ...col,
                         designerImage: col.designerImage?.url || col.designerImage,
                         images: (col.images || []).map(img => typeof img === 'string' ? img : img.url)
@@ -733,21 +750,10 @@ const EditUpcomingEvent = () => {
         if (currentCollection.title) {
             setFormData(prev => ({
                 ...prev,
-                collections: [...prev.collections, currentCollection]
+                collections: [...prev.collections, normalizeCollection(currentCollection)]
             }));
             toast.success("Collection added to the event draft. Click Update Event to publish it.");
-            setCurrentCollection({
-                title: '',
-                subtitle: '',
-                description: '',
-                designerId: null,
-                designerImage: null,
-                layout: 'grid',
-                gridAspectRatio: 'portrait',
-                day: '',
-                dayLabel: '',
-                images: []
-            });
+            setCurrentCollection(createEmptyCollection());
         } else {
             toast.error("Collection must have a Title.");
         }
@@ -789,7 +795,10 @@ const EditUpcomingEvent = () => {
                 setSubmitting(false);
                 return;
             }
-            finalCollections.push({ ...currentCollection, id: currentCollection.id || currentCollection._id || `col-${Date.now()}` });
+            finalCollections.push(normalizeCollection({
+                ...currentCollection,
+                id: currentCollection.id || currentCollection._id || `col-${Date.now()}`
+            }));
             // Verify validation for the implicit collection if needed, but for now we assume user intends to save it
             // If title is there, we try to save it.
             toast.success("Unsaved collection changes included in update.");
@@ -878,12 +887,20 @@ const EditUpcomingEvent = () => {
             }
         });
 
-        data.append('collections', JSON.stringify(finalCollections.map(col => ({
-            ...col,
-            dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : '',
-            images: col.images.filter(img => !(img instanceof File)),
-            designerImage: typeof col.designerImage === 'string' ? col.designerImage : null
-        }))));
+        data.append('collections', JSON.stringify(finalCollections.map(col => {
+            const normalizedCollection = normalizeCollection(col);
+            const payload = {
+                ...normalizedCollection,
+                images: normalizedCollection.images.filter(img => !(img instanceof File)),
+                designerImage: typeof normalizedCollection.designerImage === 'string' ? normalizedCollection.designerImage : null
+            };
+
+            if (!payload.day) {
+                delete payload.day;
+            }
+
+            return payload;
+        })));
 
         finalCollections.forEach((col, index) => {
             col.images.forEach(img => {
@@ -1465,7 +1482,7 @@ const EditUpcomingEvent = () => {
                                             col={col}
                                             idx={idx}
                                             onEdit={() => {
-                                                setCurrentCollection(col);
+                                                setCurrentCollection(normalizeCollection(col));
                                                 removeCollection(idx);
                                             }}
                                             onRemove={() => removeCollection(idx)}

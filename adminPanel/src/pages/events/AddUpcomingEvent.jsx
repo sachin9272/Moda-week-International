@@ -32,6 +32,34 @@ const getCollectionDayText = (collection) => {
     return `Day ${collection.day}`;
 };
 
+const createEmptyCollection = () => ({
+    title: '',
+    subtitle: '',
+    description: '',
+    designerId: null,
+    designerImage: null,
+    layout: 'grid',
+    gridAspectRatio: 'portrait',
+    day: '',
+    dayLabel: '',
+    images: []
+});
+
+const normalizeCollection = (collection = {}) => {
+    const normalizedDay = collection.day === 'custom'
+        ? 'custom'
+        : (['1', '2', '3', '4', '5'].includes(String(collection.day || '')) ? String(collection.day) : '');
+
+    return {
+        ...createEmptyCollection(),
+        ...collection,
+        day: normalizedDay,
+        dayLabel: normalizedDay === 'custom' ? (collection.dayLabel || '').trim() : '',
+        images: Array.isArray(collection.images) ? [...collection.images] : [],
+        designerId: collection.designerId || null
+    };
+};
+
 // Sortable Collection Item Component
 const SortableCollectionItem = ({ col, idx, onEdit, onRemove }) => {
     const {
@@ -213,18 +241,7 @@ const AddUpcomingEvent = () => {
     const [currentTicket, setCurrentTicket] = useState(createEmptyTicket);
     const [editingTicketId, setEditingTicketId] = useState(null);
 
-    const [currentCollection, setCurrentCollection] = useState({
-        title: '',
-        subtitle: '',
-        description: '',
-        designerId: null,
-        designerImage: null,
-        layout: 'grid',
-        gridAspectRatio: 'portrait',
-        day: '',
-        dayLabel: '',
-        images: []
-    });
+    const [currentCollection, setCurrentCollection] = useState(createEmptyCollection);
 
     const [partners, setPartners] = useState([]);
     
@@ -673,21 +690,10 @@ const AddUpcomingEvent = () => {
         if (currentCollection.title) {
             setFormData(prev => ({
                 ...prev,
-                collections: [...prev.collections, { ...currentCollection, id: `col-${Date.now()}` }]
+                collections: [...prev.collections, normalizeCollection({ ...currentCollection, id: `col-${Date.now()}` })]
             }));
             toast.success("Collection added to the event draft. Click Create Event to publish it.");
-            setCurrentCollection({
-                title: '',
-                subtitle: '',
-                description: '',
-                designerId: null,
-                designerImage: null,
-                layout: 'grid',
-                gridAspectRatio: 'portrait',
-                day: '',
-                dayLabel: '',
-                images: []
-            });
+            setCurrentCollection(createEmptyCollection());
         } else {
             toast.error("Collection must have a Title.");
         }
@@ -734,7 +740,7 @@ const AddUpcomingEvent = () => {
                 setLoading(false);
                 return;
             }
-            finalCollections.push(currentCollection);
+            finalCollections.push(normalizeCollection(currentCollection));
             toast.success("Unsaved collection included in event.");
         }
 
@@ -804,12 +810,20 @@ const AddUpcomingEvent = () => {
              }
         });
 
-        data.append('collections', JSON.stringify(finalCollections.map(col => ({
-            ...col,
-            images: [], // Images handled separately
-            dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : '',
-            designerImage: typeof col.designerImage === 'string' ? col.designerImage : null
-        }))));
+        data.append('collections', JSON.stringify(finalCollections.map(col => {
+            const normalizedCollection = normalizeCollection(col);
+            const payload = {
+                ...normalizedCollection,
+                images: [], // Images handled separately
+                designerImage: typeof normalizedCollection.designerImage === 'string' ? normalizedCollection.designerImage : null
+            };
+
+            if (!payload.day) {
+                delete payload.day;
+            }
+
+            return payload;
+        })));
 
         finalCollections.forEach((col, index) => {
             col.images.forEach(img => {
@@ -1385,7 +1399,7 @@ const AddUpcomingEvent = () => {
                                             col={col}
                                             idx={idx}
                                             onEdit={() => {
-                                                setCurrentCollection(col);
+                                                setCurrentCollection(normalizeCollection(col));
                                                 removeCollection(idx);
                                             }}
                                             onRemove={() => removeCollection(idx)}

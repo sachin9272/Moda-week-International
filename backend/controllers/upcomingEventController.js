@@ -35,6 +35,18 @@ const getSafeImage = (img) => {
     return null;
 };
 
+const normalizeCollectionDay = (collection = {}) => {
+    const normalizedDay = collection.day === 'custom'
+        ? 'custom'
+        : (['1', '2', '3', '4', '5'].includes(String(collection.day || '')) ? String(collection.day) : undefined);
+
+    return {
+        ...collection,
+        day: normalizedDay,
+        dayLabel: normalizedDay === 'custom' ? (collection.dayLabel || '').trim() : ''
+    };
+};
+
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
@@ -111,22 +123,23 @@ export const createUpcomingEvent = async (req, res) => {
         }
 
         const collectionsWithImages = collections.map((col, index) => {
+            const normalizedCol = normalizeCollectionDay(col);
             const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
             const newImages = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
 
             const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
             const designerImage = designerImageFile
                 ? { url: designerImageFile.path, publicId: designerImageFile.filename }
-                : getSafeImage(col.designerImage);
+                : getSafeImage(normalizedCol.designerImage);
 
             return {
-                ...col,
+                ...normalizedCol,
                 images: [
-                    ...(Array.isArray(col.images) ? col.images.map((img) => getSafeImage(img)).filter(Boolean) : []),
+                    ...(Array.isArray(normalizedCol.images) ? normalizedCol.images.map((img) => getSafeImage(img)).filter(Boolean) : []),
                     ...newImages
                 ],
                 designerImage,
-                gridAspectRatio: col.gridAspectRatio || 'portrait'
+                gridAspectRatio: normalizedCol.gridAspectRatio || 'portrait'
             };
         });
 
@@ -439,6 +452,7 @@ export const updateUpcomingEvent = async (req, res) => {
 
             // Map new collections
             const newCollections = incomingCollections.map((col, index) => {
+                const normalizedCol = normalizeCollectionDay(col);
                 const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
                 const newImagesParts = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
 
@@ -447,8 +461,8 @@ export const updateUpcomingEvent = async (req, res) => {
 
                 if (designerImageFile) {
                     designerImage = { url: designerImageFile.path, publicId: designerImageFile.filename };
-                } else if (col.designerImage) {
-                    const diUrl = typeof col.designerImage === 'string' ? col.designerImage : col.designerImage.url;
+                } else if (normalizedCol.designerImage) {
+                    const diUrl = typeof normalizedCol.designerImage === 'string' ? normalizedCol.designerImage : normalizedCol.designerImage.url;
                     let foundDI = null;
                     if (event.collections) {
                         event.collections.forEach(oldCol => {
@@ -456,12 +470,12 @@ export const updateUpcomingEvent = async (req, res) => {
                             if (safeDI && safeDI.url === diUrl) foundDI = safeDI;
                         });
                     }
-                    designerImage = foundDI || (typeof col.designerImage === 'string' ? { url: col.designerImage } : col.designerImage);
+                    designerImage = foundDI || (typeof normalizedCol.designerImage === 'string' ? { url: normalizedCol.designerImage } : normalizedCol.designerImage);
                 }
 
                 const existingImagesObjects = [];
-                if (col.images) {
-                    col.images.forEach(imgData => {
+                if (normalizedCol.images) {
+                    normalizedCol.images.forEach(imgData => {
                         const urlStr = typeof imgData === 'string' ? imgData : imgData.url;
                         let found = null;
                         if (event.collections) {
@@ -481,7 +495,7 @@ export const updateUpcomingEvent = async (req, res) => {
                 }
 
                 return {
-                    ...col,
+                    ...normalizedCol,
                     designerImage,
                     images: [...existingImagesObjects, ...newImagesParts]
                 };
