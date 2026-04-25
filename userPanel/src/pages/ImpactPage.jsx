@@ -97,8 +97,8 @@ export default function ImpactPage() {
         <div className="min-h-screen bg-white text-black font-sans selection:bg-[#C7913E] selection:text-white">
             <Navbar />
 
-            <div className="bg-gradient-to-b from-[#C7913E] to-white text-black min-h-[400px] h-auto flex flex-col items-center justify-center text-center px-4 pt-32 pb-10">
-                <h1 className="text-4xl md:text-[52px] font-bold mb-6 tracking-wide uppercase grad-text-up font-playfair">
+            <div className="bg-gradient-to-b from-[#C7913E] to-white text-black min-h-[400px] h-auto flex flex-col items-center justify-center text-center px-6 pt-32 pb-12">
+                <h1 className="text-3xl md:text-[52px] font-bold mb-6 tracking-wide uppercase grad-text-up font-playfair leading-tight">
                     {hero.title || 'MAKING A DIFFERENCE TOGETHER'}
                 </h1>
                 <span className="w-[50%] md:w-[20%] h-[2px] bg-gradient-to-r from-transparent via-[#C7913E] to-transparent mb-8"></span>
@@ -283,7 +283,7 @@ export default function ImpactPage() {
                                 </motion.div>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-32">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-24 md:mb-32 px-4 md:px-0">
                                 <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="space-y-6">
                                     <div className="flex items-center gap-4 mb-2">
                                         <div className="p-3 bg-neutral-50 rounded-full">
@@ -312,7 +312,7 @@ export default function ImpactPage() {
                                 </motion.div>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-32">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-24 md:mb-32 px-4 md:px-0">
                                 <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="relative order-2 lg:order-1">
                                     <div className="absolute -inset-4 bg-neutral-50 -z-10 rounded-xl transform -rotate-2"></div>
                                     <div className="aspect-video overflow-hidden rounded-lg shadow-2xl relative group">
@@ -345,7 +345,7 @@ export default function ImpactPage() {
                                 </motion.div>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-32">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center mb-24 md:mb-32 px-4 md:px-0">
                                 <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.8 }} className="space-y-6">
                                     <div className="flex items-center gap-4 mb-2">
                                         <div className="p-3 bg-neutral-50 rounded-full">
@@ -375,7 +375,7 @@ export default function ImpactPage() {
                                 </motion.div>
                             </div>
 
-                            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-[#0f0f0f] text-white p-12 md:p-20 rounded-2xl relative overflow-hidden shadow-2xl text-center">
+                            <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="bg-[#0f0f0f] text-white p-8 md:p-20 rounded-2xl relative overflow-hidden shadow-2xl text-center mx-4 md:mx-0">
                                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-5 pointer-events-none">
                                     <Heart size={400} strokeWidth={0.5} />
                                 </div>

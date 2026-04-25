@@ -86,7 +86,7 @@ const Navbar = () => {
           }`}
         onMouseLeave={() => setActiveDropdown(null)}
       >
-        <div className="w-full px-6 h-20 flex justify-between items-center">
+        <div className="w-full px-8 sm:px-10 md:px-12 h-20 flex justify-between items-center">
           {/* Menu Toggle - Left (Mobile/Tablet Only) */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
