@@ -98,34 +98,34 @@ export default function ProductionTeamMember() {
                         transition={{ duration: 0.7, delay: 0.4, ease: "easeOut" }}
                         className="w-full lg:w-[60%] flex flex-col justify-center pt-0 pb-6 md:pb-12"
                     >
-                        <div className="mb-5 md:mb-7">
-                            <h1 className="text-3xl md:text-4xl lg:text-[50px] font-serif text-[#C7913E] mb-2 leading-[1.08] uppercase tracking-[0.01em]">
+                        <div className="mb-6 md:mb-7 text-center lg:text-left">
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[50px] font-serif text-[#C7913E] mb-3 leading-tight uppercase tracking-[0.02em]">
                                 {member.name}
                             </h1>
-                            <p className="text-[13px] md:text-[14.5px] text-gray-400 font-light italic leading-[1.45] uppercase tracking-[0.14em]">
+                            <p className="text-[12px] md:text-[14.5px] text-gray-400 font-light italic leading-loose uppercase tracking-[0.16em]">
                                 "{member.role || 'Production Team'}"
                             </p>
                         </div>
 
-                        <div className="max-w-[720px] pt-0 text-left text-[14px] leading-[1.6] tracking-[0.01em] text-[#555] md:text-[14.5px] md:leading-[1.7]">
+                        <div className="max-w-[720px] pt-0 text-justify lg:text-left text-[14px] leading-relaxed tracking-normal text-[#555] md:text-[14.5px] md:leading-[1.7]">
                             {member.description ? (
                                 member.description.split('\n').map((paragraph, idx) => (
-                                    paragraph.trim() ? <p key={idx} className="mb-2.5 md:mb-2">{paragraph}</p> : null
+                                    paragraph.trim() ? <p key={idx} className="mb-4 md:mb-3">{paragraph}</p> : null
                                 ))
                             ) : (
-                                <p>No detailed description available.</p>
+                                <p className="text-center lg:text-left">No detailed description available.</p>
                             )}
                         </div>
 
                         {/* Social Links */}
-                        <div className="mt-10 flex flex-wrap gap-4 md:mt-12 md:gap-6">
+                        <div className="mt-8 flex flex-wrap justify-center lg:justify-start gap-6 md:mt-12 md:gap-8">
                             {member.instagram && (
-                                <a href={member.instagram} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium text-xs uppercase tracking-[0.15em] underline underline-offset-[6px]">
+                                <a href={member.instagram} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium text-xs uppercase tracking-[0.15em] underline underline-offset-[8px] decoration-[#C7913E]/30 hover:decoration-black">
                                     Instagram
                                 </a>
                             )}
                             {member.website && (
-                                <a href={member.website} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium text-xs uppercase tracking-[0.15em] underline underline-offset-[6px]">
+                                <a href={member.website} target="_blank" rel="noopener noreferrer" className="text-[#C7913E] hover:text-black transition-colors font-medium text-xs uppercase tracking-[0.15em] underline underline-offset-[8px] decoration-[#C7913E]/30 hover:decoration-black">
                                     Website
                                 </a>
                             )}
