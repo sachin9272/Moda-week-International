@@ -42,7 +42,9 @@ export const verifyTicket = async (req, res) => {
                 eventDate: ticket.eventId?.eventDate,
                 quantity: ticket.quantity,
                 status: ticket.status,
-                purchaseDate: ticket.purchaseDate
+                purchaseDate: ticket.purchaseDate,
+                isUsed: ticket.isUsed,
+                scannedAt: ticket.scannedAt
             }
         });
 
@@ -56,7 +58,60 @@ export const verifyTicket = async (req, res) => {
     }
 };
 
-// POST /api/tickets/scan/:id (Optional: Mark as used?)
-// Usually scanning at gate might just verify, or verify AND mark as entered.
-// For now, per request "scanned on the gate", verification is the first step.
-// We can add "mark as used" later if requested.
+// POST /api/tickets/scan/:id
+export const scanTicket = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Find the ticket
+        const ticket = await TicketSale.findById(id).populate('eventId', 'title eventName');
+
+        if (!ticket) {
+            return res.status(404).json({
+                success: false,
+                message: "Ticket not found"
+            });
+        }
+
+        // Check if ticket is valid
+        if (ticket.status !== 'completed') {
+            return res.status(400).json({
+                success: false,
+                message: `Ticket is ${ticket.status}`
+            });
+        }
+
+        // Check if already used
+        if (ticket.isUsed) {
+            return res.status(400).json({
+                success: false,
+                message: "Ticket already used",
+                scannedAt: ticket.scannedAt
+            });
+        }
+
+        // Mark as used
+        ticket.isUsed = true;
+        ticket.scannedAt = Date.now();
+        await ticket.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Ticket scanned successfully",
+            ticket: {
+                id: ticket._id,
+                buyerName: ticket.buyerName,
+                isUsed: ticket.isUsed,
+                scannedAt: ticket.scannedAt
+            }
+        });
+
+    } catch (error) {
+        console.error("Scan error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Scan failed",
+            error: error.message
+        });
+    }
+};
