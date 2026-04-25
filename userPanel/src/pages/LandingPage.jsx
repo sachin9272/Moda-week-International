@@ -21,8 +21,6 @@ import takla from "../assets/takla.avif";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
 import ProgressiveImage from "../components/ProgressiveImage.jsx";
 
-const stripHtml = (value = "") => value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-
 function VideoSlider({ slides, onSlideChange }) {
   const [current, setCurrent] = useState(0);
   const videoRefs = useRef([]);
@@ -361,7 +359,7 @@ export default function LandingPage() {
           </div>
 
           <Link
-            to="/registration"
+            to="/service?tab=designer"
             className="inline-flex w-full items-center justify-center border border-[#d2ab59] bg-white px-5 py-3 text-center text-xs font-bold uppercase tracking-[0.16em] text-[#8C5D25] shadow-[0_6px_14px_rgba(0,0,0,0.2)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#fff8eb] md:w-auto md:min-w-[260px] md:px-7"
           >
             Apply to Showcase Today
@@ -380,12 +378,6 @@ export default function LandingPage() {
 
             <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-16 md:gap-20">
               {upcomingEvents.map((event) => {
-                const description = stripHtml(
-                  event.bottomSection?.text ||
-                  event.description ||
-                  event.descriptionSection?.text ||
-                  ""
-                );
                 const eventImage =
                   event.coverImage?.url ||
                   event.coverImage ||
@@ -396,45 +388,33 @@ export default function LandingPage() {
                   <Link
                     key={event._id}
                     to={`/event-details/${event.slug || event._id}`}
-                    className="group flex h-full w-full max-w-[420px] flex-col text-black"
+                    className="group flex h-full w-full max-w-[420px] cursor-pointer flex-col text-black"
                   >
                     <ProgressiveImage
-                      wrapperClassName="mb-5 aspect-[4/5] overflow-hidden rounded-[10px] border border-black/15 shadow-sm"
+                      wrapperClassName="mb-6 aspect-[3/4] overflow-hidden"
                       src={optimizeCloudinaryImage(eventImage, {
-                        width: 700,
-                        height: 880,
+                        width: 720,
+                        height: 960,
                         crop: "fill",
                       })}
                       alt={getUpcomingEventName(event)}
-                      imgClassName="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      imgClassName="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
                       loading="lazy"
                       decoding="async"
                     />
 
                     <div className="flex flex-1 flex-col">
                       {getUpcomingEventName(event) && (
-                        <h3 className="mb-2 text-xl font-extrabold uppercase leading-tight transition-colors group-hover:text-[#C7913E] md:text-2xl">
+                        <h3 className="mb-2 text-xl font-semibold uppercase leading-tight transition-colors group-hover:text-[#C7913E] md:text-2xl">
                           {getUpcomingEventName(event)}
                         </h3>
                       )}
 
                       {getUpcomingEventMeta(event) && (
-                        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-[#8C5D25] md:text-sm">
+                        <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-gray-500">
                           {getUpcomingEventMeta(event)}
                         </p>
                       )}
-
-                      {description && (
-                        <p className="mb-5 line-clamp-4 text-sm leading-relaxed text-[#222] md:text-base">
-                          {description}
-                        </p>
-                      )}
-
-                      <div className="mt-auto">
-                        <span className="inline-flex bg-linear-to-r from-[#8C5D25] to-[#C7913E] px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.14em] text-white shadow-[0_6px_18px_rgba(140,93,37,0.25)] transition-transform duration-300 group-hover:-translate-y-1">
-                          View Details
-                        </span>
-                      </div>
                     </div>
                   </Link>
                 );
@@ -560,7 +540,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 flex items-end p-8  bg-linear-to-t from-black/90 to-transparent">
                 <div>
                   <h3 className="text-5xl font-bold mb-2">SCHEDULE</h3>
-                  <button className="grad-bg px-5 py-2" onClick={() => navigate("/events")}>VIEW NOW</button>
+                  <button className="grad-bg px-5 py-2" onClick={() => navigate("/events#runway-calendar")}>VIEW NOW</button>
                 </div>
               </div>
             </div>

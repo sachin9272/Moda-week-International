@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import { Search } from "lucide-react";
@@ -7,6 +8,7 @@ import { baseURL } from "../../config/api";
 import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 
 export default function Participants() {
+    const navigate = useNavigate();
     const [activeCategory, setActiveCategory] = useState("Designer");
     const [activeFilter, setActiveFilter] = useState("All");
     const [participants, setParticipants] = useState([]);
@@ -28,7 +30,7 @@ export default function Participants() {
     });
 
     // Categories for the tabs
-    const categories = ["Designer", "Student", "Dancer", "Fine Artist", "Host"];
+    const categories = ["Designer", "Student", "Dancer", "Fine Artist", "Host", "Feature Model", "Producer"];
 
     // Fetch available countries, events, and hero content
     useEffect(() => {
@@ -197,6 +199,8 @@ export default function Participants() {
             case "Dancer": return "PERFORMANCE";
             case "Fine Artist": return "FINE ARTIST";
             case "Host": return "HOST";
+            case "Feature Model": return "FEATURE MODEL";
+            case "Producer": return "PRODUCERS";
             default: return category;
         }
     };
@@ -404,6 +408,16 @@ export default function Participants() {
                                                 </a>
                                             )}
                                         </div>
+
+                                        {participant.category === "Feature Model" && (
+                                            <button
+                                                type="button"
+                                                onClick={() => navigate(`/participants/feature-model/${participant._id}`)}
+                                                className="mt-2 border border-white px-5 py-2 text-xs font-medium tracking-[0.18em] text-white transition hover:bg-white hover:text-black uppercase"
+                                            >
+                                                Learn More
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>

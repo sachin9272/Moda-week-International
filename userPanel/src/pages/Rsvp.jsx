@@ -162,7 +162,7 @@ export default function Rsvp() {
 
       <section className="relative overflow-hidden bg-gradient-to-b from-[#C7913E] to-white pt-28 text-black">
         <div className="absolute top-0 right-0 h-96 w-96 translate-x-1/2 -translate-y-1/2 rounded-full bg-white/20 blur-[120px] pointer-events-none" />
-        <div className="mx-auto flex max-w-6xl flex-col items-center px-6 pb-20 pt-10 text-center md:pb-24">
+        <div className="mx-auto flex max-w-6xl flex-col items-center px-6 pb-12 pt-10 text-center md:pb-14">
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.35em] text-[#8C5D25]">
             Private Access
           </p>
@@ -187,7 +187,7 @@ export default function Rsvp() {
         </div>
       </section>
 
-      <section className="bg-white px-6 py-20">
+      <section className="bg-white px-6 py-10 md:py-12">
         <div className="mx-auto max-w-5xl text-center">
           <p className="mx-auto max-w-4xl text-sm leading-8 text-[#626262] md:text-base">
             Our private gatherings are designed to connect executives, investors,

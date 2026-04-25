@@ -21,6 +21,7 @@ const FashionDesigners = () => {
         category: 'Designer',
         instagram: '',
         website: '',
+        description: '',
         image: null
     });
     const [previewUrl, setPreviewUrl] = useState(null);
@@ -57,6 +58,12 @@ const FashionDesigners = () => {
                 country: value,
                 countryCode: selectedCountry?.code || ''
             }));
+        } else if (name === 'category') {
+            setFormData(prev => ({
+                ...prev,
+                category: value,
+                description: value === 'Feature Model' ? prev.description : ''
+            }));
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -91,6 +98,7 @@ const FashionDesigners = () => {
         data.append('category', formData.category);
         data.append('instagram', formData.instagram);
         data.append('website', formData.website);
+        data.append('description', formData.category === 'Feature Model' ? formData.description : '');
         if (formData.image instanceof File) {
             data.append('image', formData.image);
         }
@@ -145,6 +153,7 @@ const FashionDesigners = () => {
             category: designer.category || 'Designer',
             instagram: designer.instagram || '',
             website: designer.website || '',
+            description: designer.description || '',
             image: designer.image
         });
         setPreviewUrl(designer.image?.url);
@@ -154,7 +163,7 @@ const FashionDesigners = () => {
     };
 
     const resetForm = () => {
-        setFormData({ name: '', country: '', countryCode: '', category: 'Designer', instagram: '', website: '', image: null });
+        setFormData({ name: '', country: '', countryCode: '', category: 'Designer', instagram: '', website: '', description: '', image: null });
         setPreviewUrl(null);
         setIsEditing(false);
         setEditId(null);
@@ -301,9 +310,25 @@ const FashionDesigners = () => {
                                     <option value="Dancer">Dancer</option>
                                     <option value="Fine Artist">Fine Artist</option>
                                     <option value="Host">Host</option>
+                                    <option value="Feature Model">Feature Model</option>
+                                    <option value="Producer">Producer</option>
                                     <option value="Singer">Singer</option>
                                 </select>
                             </div>
+
+                            {formData.category === 'Feature Model' && (
+                                <div>
+                                    <label className="block text-sm font-medium text-neutral-300 mb-1">Learn More Text</label>
+                                    <textarea
+                                        name="description"
+                                        value={formData.description || ''}
+                                        onChange={handleInputChange}
+                                        rows="5"
+                                        className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all"
+                                        placeholder="Text that will appear on the Feature Model Learn More page..."
+                                    />
+                                </div>
+                            )}
 
                             <div>
                                 <label className="block text-sm font-medium text-neutral-300 mb-1">Instagram URL</label>

@@ -5,6 +5,7 @@ import LandingPage from './pages/LandingPage.jsx';
 import About from './pages/about/About.jsx';
 import ProductionTeam from './pages/productionTeam/ProductionTeam.jsx';
 import ProductionTeamMember from './pages/productionTeam/ProductionTeamMember.jsx';
+import FeatureModelMember from './pages/participants/FeatureModelMember.jsx';
 import FashioEvents from './pages/fashionEvents/FashionEvents.jsx'
 import Service from "./pages/services/Service.jsx";
 import Pricing from "./components/Pricing.jsx"
@@ -18,14 +19,13 @@ import EventTicketDetails from "./pages/EventTicketDetails.jsx";
 import MembershipProgram from "./pages/MembershipProgram.jsx";
 import TermsConditions from "./pages/TermsConditions.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
-import Philanthropy from "./pages/philanthropy/Philanthropy.jsx";
+import ImpactPage from "./pages/ImpactPage.jsx";
 import BuyTickets from "./pages/BuyTickets.jsx";
 import PaymentSuccess from './pages/payment/PaymentSuccess';
 import PaymentCancel from './pages/payment/PaymentCancel';
 import CodeOfConduct from "./pages/CodeOfConduct.jsx";
 import DataProtection from "./pages/DataProtection.jsx";
 import MediaReleasePolicy from "./pages/MediaReleasePolicy.jsx";
-import Donation from "./pages/donation/Donation.jsx";
 import Contact from "./pages/Contact.jsx";
 import Rsvp from "./pages/Rsvp.jsx";
 
@@ -47,6 +47,7 @@ function App() {
         <Route path="/about" element={<About />} />
         <Route path="/production-team" element={<ProductionTeam />} />
         <Route path="/production-team/:slug" element={<ProductionTeamMember />} />
+        <Route path="/participants/feature-model/:id" element={<FeatureModelMember />} />
         <Route path="/events" element={<FashioEvents />} />
         <Route path="/service" element={<Service />} />
         <Route path="/registration" element={<Service />} />
@@ -65,13 +66,16 @@ function App() {
         <Route path="/code-of-conduct" element={<CodeOfConduct />} />
         <Route path="/data-protection" element={<DataProtection />} />
         <Route path="/media-release-policy" element={<MediaReleasePolicy />} />
-        <Route path="/philanthropy" element={<Philanthropy />} />
-        <Route path="/donation" element={<Donation />} />
+        <Route path="/philanthropy" element={<ImpactPage />} />
+        <Route path="/donation" element={<ImpactPage />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/rsvp" element={<Rsvp />} />
 
         {/* Payment Routes */}
+        <Route path="/buy-tickets/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
         <Route path="/tickets/payment/success" element={<PaymentSuccess />} />
+        <Route path="/buy-tickets/payment/cancel" element={<PaymentCancel />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
 
         {/* Ticket Routes */}

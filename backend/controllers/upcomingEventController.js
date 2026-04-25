@@ -35,10 +35,22 @@ const getSafeImage = (img) => {
     return null;
 };
 
+const normalizeCollectionDay = (collection = {}) => {
+    const normalizedDay = collection.day === 'custom'
+        ? 'custom'
+        : (['1', '2', '3', '4', '5'].includes(String(collection.day || '')) ? String(collection.day) : undefined);
+
+    return {
+        ...collection,
+        day: normalizedDay,
+        dayLabel: normalizedDay === 'custom' ? (collection.dayLabel || '').trim() : ''
+    };
+};
+
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
-        const { title, eventName, eventDate, location, dressCode, description, status, hasTickets, heroLayout, showOnLandingPage } = req.body;
+        const { title, eventName, eventDate, eventTime, location, dressCode, description, status, hasTickets, heroLayout, showOnLandingPage } = req.body;
 
         // Parse ticketTypes if it's a string (from FormData)
         let ticketTypes = [];
@@ -54,6 +66,8 @@ export const createUpcomingEvent = async (req, res) => {
         const files = req.files || [];
         const coverImageFile = files.find(f => f.fieldname === 'coverImage');
         const coverImage = coverImageFile ? { url: coverImageFile.path, publicId: coverImageFile.filename } : null;
+        const ticketBannerImageFile = files.find(f => f.fieldname === 'ticketBannerImage');
+        const ticketBannerImage = ticketBannerImageFile ? { url: ticketBannerImageFile.path, publicId: ticketBannerImageFile.filename } : null;
 
         // Process description section
         let descriptionSection = {};
@@ -109,22 +123,23 @@ export const createUpcomingEvent = async (req, res) => {
         }
 
         const collectionsWithImages = collections.map((col, index) => {
+            const normalizedCol = normalizeCollectionDay(col);
             const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
             const newImages = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
 
             const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
             const designerImage = designerImageFile
                 ? { url: designerImageFile.path, publicId: designerImageFile.filename }
-                : getSafeImage(col.designerImage);
+                : getSafeImage(normalizedCol.designerImage);
 
             return {
-                ...col,
+                ...normalizedCol,
                 images: [
-                    ...(Array.isArray(col.images) ? col.images.map((img) => getSafeImage(img)).filter(Boolean) : []),
+                    ...(Array.isArray(normalizedCol.images) ? normalizedCol.images.map((img) => getSafeImage(img)).filter(Boolean) : []),
                     ...newImages
                 ],
                 designerImage,
-                gridAspectRatio: col.gridAspectRatio || 'portrait'
+                gridAspectRatio: normalizedCol.gridAspectRatio || 'portrait'
             };
         });
 
@@ -134,6 +149,7 @@ export const createUpcomingEvent = async (req, res) => {
             eventName: eventName?.trim() || '',
             slug,
             eventDate,
+            eventTime: eventTime?.trim() || '',
             location,
             dressCode: dressCode?.trim() || '',
             description,
@@ -141,6 +157,7 @@ export const createUpcomingEvent = async (req, res) => {
             showOnLandingPage: showOnLandingPage === 'true' || showOnLandingPage === true,
             heroLayout: heroLayout || 'split',
             coverImage,
+            ticketBannerImage,
             hasTickets: hasTickets === 'true' || hasTickets === true,
             ticketTypes,
             collections: collectionsWithImages,
@@ -218,7 +235,7 @@ export const getUpcomingEventById = async (req, res) => {
 export const updateUpcomingEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, eventName, eventDate, location, dressCode, description, hasTickets, showOnLandingPage } = req.body;
+        const { title, eventName, eventDate, eventTime, location, dressCode, description, hasTickets, showOnLandingPage } = req.body;
 
         const event = await UpcomingEvent.findById(id);
         if (!event) {
@@ -236,6 +253,7 @@ export const updateUpcomingEvent = async (req, res) => {
 
         const files = req.files || [];
         const coverImageFile = files.find(f => f.fieldname === 'coverImage');
+        const ticketBannerImageFile = files.find(f => f.fieldname === 'ticketBannerImage');
 
         // Handle Cover Image
         if (coverImageFile) {
@@ -248,6 +266,18 @@ export const updateUpcomingEvent = async (req, res) => {
                 await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
             }
             event.coverImage = null;
+        }
+
+        if (ticketBannerImageFile) {
+            if (event.ticketBannerImage && event.ticketBannerImage.publicId) {
+                await deleteCloudinaryAsset(event.ticketBannerImage.publicId, 'image');
+            }
+            event.ticketBannerImage = { url: ticketBannerImageFile.path, publicId: ticketBannerImageFile.filename };
+        } else if (req.body.removeTicketBannerImage === 'true') {
+            if (event.ticketBannerImage && event.ticketBannerImage.publicId) {
+                await deleteCloudinaryAsset(event.ticketBannerImage.publicId, 'image');
+            }
+            event.ticketBannerImage = null;
         }
 
         // Handle description section updates
@@ -422,6 +452,7 @@ export const updateUpcomingEvent = async (req, res) => {
 
             // Map new collections
             const newCollections = incomingCollections.map((col, index) => {
+                const normalizedCol = normalizeCollectionDay(col);
                 const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
                 const newImagesParts = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
 
@@ -430,8 +461,8 @@ export const updateUpcomingEvent = async (req, res) => {
 
                 if (designerImageFile) {
                     designerImage = { url: designerImageFile.path, publicId: designerImageFile.filename };
-                } else if (col.designerImage) {
-                    const diUrl = typeof col.designerImage === 'string' ? col.designerImage : col.designerImage.url;
+                } else if (normalizedCol.designerImage) {
+                    const diUrl = typeof normalizedCol.designerImage === 'string' ? normalizedCol.designerImage : normalizedCol.designerImage.url;
                     let foundDI = null;
                     if (event.collections) {
                         event.collections.forEach(oldCol => {
@@ -439,12 +470,12 @@ export const updateUpcomingEvent = async (req, res) => {
                             if (safeDI && safeDI.url === diUrl) foundDI = safeDI;
                         });
                     }
-                    designerImage = foundDI || (typeof col.designerImage === 'string' ? { url: col.designerImage } : col.designerImage);
+                    designerImage = foundDI || (typeof normalizedCol.designerImage === 'string' ? { url: normalizedCol.designerImage } : normalizedCol.designerImage);
                 }
 
                 const existingImagesObjects = [];
-                if (col.images) {
-                    col.images.forEach(imgData => {
+                if (normalizedCol.images) {
+                    normalizedCol.images.forEach(imgData => {
                         const urlStr = typeof imgData === 'string' ? imgData : imgData.url;
                         let found = null;
                         if (event.collections) {
@@ -464,7 +495,7 @@ export const updateUpcomingEvent = async (req, res) => {
                 }
 
                 return {
-                    ...col,
+                    ...normalizedCol,
                     designerImage,
                     images: [...existingImagesObjects, ...newImagesParts]
                 };
@@ -479,6 +510,7 @@ export const updateUpcomingEvent = async (req, res) => {
         }
         if (eventName !== undefined) event.eventName = eventName.trim();
         if (eventDate !== undefined) event.eventDate = eventDate;
+        if (eventTime !== undefined) event.eventTime = eventTime.trim();
         if (location !== undefined) event.location = location;
         if (dressCode !== undefined) event.dressCode = dressCode.trim();
         if (description !== undefined) event.description = description;
@@ -509,6 +541,9 @@ export const deleteUpcomingEvent = async (req, res) => {
 
         if (event.coverImage && event.coverImage.publicId) {
             await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
+        }
+        if (event.ticketBannerImage && event.ticketBannerImage.publicId) {
+            await deleteCloudinaryAsset(event.ticketBannerImage.publicId, 'image');
         }
 
         if (event.descriptionSection && event.descriptionSection.image && event.descriptionSection.image.publicId) {

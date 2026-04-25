@@ -30,7 +30,7 @@ const NewsManager = () => {
     const [pendingTotalPages, setPendingTotalPages] = useState(1);
     const ITEMS_PER_PAGE = 9;
 
-    const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
+    const CATEGORIES = ['COSMETICS', 'EDUCATION', 'FASHION', 'FINE ART', 'PARTNERSHIPS', 'PEFORMANCES', 'PAST EVENTS', 'TRAVEL'];
 
     // Handle URL query param for tab switching (from notification click)
     useEffect(() => {

@@ -157,11 +157,6 @@ export default function FashionEvents() {
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
             {upcomingEvents.map((event, index) => {
-              const description =
-                event.bottomSection?.text ||
-                event.description ||
-                event.descriptionSection?.text;
-
               return (
                 <Link
                   key={event._id}
@@ -195,15 +190,6 @@ export default function FashionEvents() {
                     <p className="text-gray-500 text-xs tracking-widest uppercase mb-4 font-semibold">
                       {event.eventDate}
                     </p>
-
-                    {description && (
-                      <p
-                        className="text-gray-600 text-sm leading-relaxed mb-6 line-clamp-3"
-                        dangerouslySetInnerHTML={{
-                          __html: description,
-                        }}
-                      />
-                    )}
                   </div>
                 </Link>
               );
@@ -213,7 +199,7 @@ export default function FashionEvents() {
       </div>
 
       {/* Runway Calendar Section */}
-      <div className="px-4 bg-white">
+      <div id="runway-calendar" className="px-4 bg-white">
         <div className="relative py-20 px-4 bg-[#1a1a1a] min-h-[450px]">
           {/* Background Image Overlay */}
           <div
