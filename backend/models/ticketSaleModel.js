@@ -38,6 +38,13 @@ const ticketSaleSchema = new mongoose.Schema({
         type: String,
         enum: ['completed', 'refunded', 'cancelled'],
         default: 'completed'
+    },
+    isUsed: {
+        type: Boolean,
+        default: false
+    },
+    scannedAt: {
+        type: Date
     }
 }, { timestamps: true });
 
