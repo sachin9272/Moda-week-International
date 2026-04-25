@@ -96,8 +96,10 @@ app.post('/api/payment/create-donation-checkout-session', createDonationCheckout
 app.post('/api/payment/confirm-payment', confirmPayment);
 
 // Ticket Verification Routes
-import { verifyTicket } from './controllers/ticketController.js';
+import { verifyTicket, scanTicket } from './controllers/ticketController.js';
+import { protect } from './middlewares/authMiddleware.js';
 app.get('/api/tickets/verify/:id', verifyTicket);
+app.post('/api/tickets/scan/:id', protect, scanTicket);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
