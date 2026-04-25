@@ -125,7 +125,7 @@ export default function ImpactPage() {
                     <div className="py-12 px-6 md:px-12 lg:px-16 max-w-[1400px] mx-auto">
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-start">
                             <div className="space-y-6 lg:col-span-4 relative z-10 lg:pr-12">
-                                <div className="text-gray-600 space-y-4 text-justify font-inter whitespace-pre-wrap">
+                                <div className="text-gray-600 space-y-4 text-left font-inter whitespace-pre-wrap">
                                     {mainContent.introText || (
                                         <>
                                             <p>
@@ -142,7 +142,7 @@ export default function ImpactPage() {
                                     <h3 className="text-xl font-bold text-gray-800 uppercase font-playfair">
                                         {mainContent.powerOfGivingTitle || 'The Power of Giving Back'}
                                     </h3>
-                                    <p className="text-gray-600 text-justify font-inter whitespace-pre-wrap">
+                                    <p className="text-gray-600 text-left font-inter whitespace-pre-wrap">
                                         {mainContent.powerOfGivingText || 'Every contribution serves a greater purpose, opening doors for emerging talent, supporting marginalized communities, and igniting hope through education and creative opportunities.'}
                                     </p>
                                 </div>
@@ -155,10 +155,10 @@ export default function ImpactPage() {
                                 </div>
                             </div>
 
-                            <div className="bg-white p-6 md:p-8 lg:col-span-5 relative z-10 lg:-mr-8">
+                            <div className="bg-white p-6 sm:p-8 lg:col-span-5 relative z-10 lg:-mr-8 shadow-sm lg:shadow-none mb-8 lg:mb-0">
                                 <div className="mb-6">
-                                    <label className="block text-gray-500 text-sm mb-2 font-light">Frequency</label>
-                                    <div className="flex gap-2">
+                                    <label className="block text-gray-500 text-sm mb-3 font-light uppercase tracking-wider">Frequency</label>
+                                    <div className="flex flex-col sm:flex-row gap-2">
                                         {['One time', 'Weekly', 'Monthly'].map((freq) => (
                                             <button
                                                 key={freq}
@@ -231,10 +231,12 @@ export default function ImpactPage() {
                                 <button
                                     onClick={handleDonate}
                                     disabled={processing}
-                                    className={`w-full bg-[#C7913E] text-white font-medium py-3 hover:bg-[#a67832] transition-colors uppercase ${processing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    className={`w-full bg-[#C7913E] text-white font-bold py-4 hover:bg-[#a67832] transition-all duration-300 uppercase tracking-widest shadow-md hover:shadow-lg ${processing ? 'opacity-70 cursor-not-allowed' : ''}`}
                                 >
                                     {processing ? 'Processing...' : `Donate $${donationAmountLabel}`}
                                 </button>
+                                {/* Bottom spacer for mobile floating buttons visibility */}
+                                <div className="h-6 lg:hidden" />
                             </div>
 
                             <div className="hidden lg:block lg:col-span-3 h-[570px] w-full relative z-0 lg:ml-8">
@@ -261,14 +263,14 @@ export default function ImpactPage() {
                                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-full bg-gradient-to-b from-neutral-50 to-transparent -z-10 blur-3xl opacity-50" />
 
                                 <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-12">
-                                    <div className="text-center max-w-4xl mx-auto">
-                                        <p className="text-2xl md:text-3xl font-[Playfair_Display] leading-relaxed text-gray-900 whitespace-pre-wrap">
+                                    <div className="text-center max-w-4xl mx-auto px-4 md:px-0">
+                                        <p className="text-xl md:text-3xl font-[Playfair_Display] leading-relaxed text-gray-900 whitespace-pre-wrap italic">
                                             {philanthropyData.introduction?.leadText}
                                         </p>
                                         <div className="h-1 w-20 bg-[#C7913E]/30 mx-auto mt-8" />
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 text-lg font-light text-gray-600 leading-looose text-justify">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 text-lg font-light text-gray-600 leading-loose text-left px-4 md:px-0">
                                         <div className="space-y-6 whitespace-pre-wrap">
                                             {philanthropyData.introduction?.column1}
                                         </div>
