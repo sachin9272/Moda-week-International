@@ -163,7 +163,7 @@ const MembershipProgram = () => {
                     </section>
 
                     {/* Pricing Section */}
-                    <section className="py-4 px-10 bg-gradient-to-br from-[#FFFDF9] via-[#FFFDF9] to-[#FDBD5C]">
+                    <section className="py-4 px-4 sm:px-6 md:px-10 bg-gradient-to-br from-[#FFFDF9] via-[#FFFDF9] to-[#FDBD5C]">
                         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-0.5">
                             {/* Basic Plan */}
                             <div className="bg-gradient-to-br from-[#FFFDF9] via-[#FFFDF9] to-[#FDBD5C] p-8 rounded-none border border-transparent hover:shadow-xl transition-shadow relative text-center">
@@ -173,7 +173,7 @@ const MembershipProgram = () => {
                                 <h3 className="text-2xl !font-playfair font-bold uppercase tracking-widest mb-1">BASIC</h3>
                                 <div className="w-24 h-[1px] bg-[#D09D30] mx-auto mb-4"></div>
                                 <p className="text-[14px] text-[#D09D30] mb-4">Essential Visibility for Event Recognition</p>
-                                <div className="text-8xl font-semibold bg-clip-text text-transparent bg-gradient-to-b from-[#FFB548] to-[#FD975D] mb-6">$150</div>
+                                <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold bg-clip-text text-transparent bg-gradient-to-b from-[#FFB548] to-[#FD975D] mb-6">$150</div>
                                 <div className="w-full h-[1.5px] bg-[#D09D30]/30 mx-auto mb-8"></div>
                                 <p className="text-xs text-[#3C3C3C] mb-8 px-4">Ideal for emerging brands and regional events seeking increased visibility and direct audience engagement.</p>
 
@@ -197,7 +197,7 @@ const MembershipProgram = () => {
                                 <h3 className="text-2xl font-bold !font-playfair uppercase tracking-widest mb-1 text-black">PREMIUM</h3>
                                 <div className="w-24 h-[1px] bg-white mx-auto mb-4"></div>
                                 <p className="text-[10px] uppercase tracking-wide text-white mb-4">Elevated Exposure and Promotional Asset</p>
-                                <div className="text-8xl font-semibold text-white mb-6">$300</div>
+                                <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold text-white mb-6">$300</div>
                                 <div className="w-full h-[1.5px] bg-white/50 mx-auto mb-8"></div>
                                 <p className="text-xs text-[#3C3C3C] mb-8 px-4">Ideal for emerging brands and regional events seeking increased visibility and direct audience engagement.</p>
 
@@ -223,7 +223,7 @@ const MembershipProgram = () => {
                                 <h3 className="text-2xl !font-playfair font-bold uppercase tracking-widest mb-1">Elite</h3>
                                 <div className="w-24 h-[1px] bg-[#D09D30] mx-auto mb-4"></div>
                                 <p className="text-[14px] text-[#D09D30] mb-4">Strategic Year-Round Promotion & Recognition</p>
-                                <div className="text-8xl font-semibold bg-clip-text text-transparent bg-gradient-to-b from-[#FFB548] to-[#FD975D] mb-6">$1,500</div>
+                                <div className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-semibold bg-clip-text text-transparent bg-gradient-to-b from-[#FFB548] to-[#FD975D] mb-6">$1,500</div>
                                 <div className="w-[70%] h-[1.5px] bg-[#FFB548]/30 mx-auto mb-8"></div>
                                 <p className="text-xs text-[#3C3C3C] mb-8 px-4">For fashion production companies, designer collectives, and promotional agencies seeking long-term visibility and multiple campaigns.</p>
 
@@ -273,18 +273,18 @@ const MembershipProgram = () => {
 
 
 
-                    <section className="max-w-5xl h-[330px] mx-auto relative bg-black text-white overflow-hidden flex items-center justify-center">
+                    <section className="max-w-5xl min-h-[330px] md:h-[330px] mx-auto relative bg-black text-white overflow-hidden flex items-center justify-center">
                         <div className="absolute inset-0 z-0">
                             <img src={promote} alt="" className="w-full h-full object-cover" />
                             <div className="absolute inset-0 bg-gradient-to-l from-[#AE2E0A9E] to-black/70" />
                         </div>
 
                         <div className="relative z-20 max-w-4xl mx-auto text-center px-4 w-full ">
-                            <h2 className="text-3xl md:text-[40px] font-bold mb-5 tracking-wide">READY TO PROMOTE YOUR EVENT?</h2>
+                            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[40px] font-bold mb-5 tracking-wide">READY TO PROMOTE YOUR EVENT?</h2>
 
-                            <div className="max-w-xl mx-auto bg-black/40 backdrop-blur-sm py-2 px-6 mb-6 flex items-center justify-between gap-4">
-                                <span className="text-gray-300 whitespace-nowrap">Send your request to:</span>
-                                <span className="text-[#C7913E] font-medium">info@modaweekinternational.com</span>
+                            <div className="max-w-xl mx-auto bg-black/40 backdrop-blur-sm py-2 px-4 sm:px-6 mb-6 flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4 text-center sm:text-left">
+                                <span className="text-gray-300">Send your request to:</span>
+                                <span className="text-[#C7913E] font-medium break-all">info@modaweekinternational.com</span>
                             </div>
 
                             <p className="text-gray-300 mb-8 max-w-2xl mx-auto tracking-wide">
