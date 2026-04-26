@@ -134,7 +134,7 @@ function VideoSlider({ slides, onSlideChange }) {
       {/* Dynamic Content (LEFT) */}
       <div className="relative z-10 h-full flex flex-col justify-end px-6 pb-10 md:px-10 md:pb-8">
         {slides[current] && (
-          <h1 className="pointer-events-none text-6xl md:text-6xl lg:text-[100px] leading-tight text-white max-w-3xl whitespace-pre-line">
+          <h1 className="pointer-events-none text-4xl sm:text-5xl md:text-6xl lg:text-[100px] leading-tight text-white max-w-3xl whitespace-pre-line">
             {slides[current].title}
           </h1>
         )}
@@ -526,7 +526,7 @@ export default function LandingPage() {
               <div className="absolute inset-0 flex items-end p-8  bg-linear-to-t from-black/90 to-transparent">
                 {" "}
                 <div>
-                  <h3 className="text-5xl font-bold mb-2">OUR SERVICES</h3>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2">OUR SERVICES</h3>
                   <button className="grad-bg px-5 py-2" onClick={() => navigate("/service")}>VIEW NOW</button>
                 </div>
               </div>
@@ -539,7 +539,7 @@ export default function LandingPage() {
               />
               <div className="absolute inset-0 flex items-end p-8  bg-linear-to-t from-black/90 to-transparent">
                 <div>
-                  <h3 className="text-5xl font-bold mb-2">SCHEDULE</h3>
+                  <h3 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2">SCHEDULE</h3>
                   <button className="grad-bg px-5 py-2" onClick={() => navigate("/events#runway-calendar")}>VIEW NOW</button>
                 </div>
               </div>
@@ -606,16 +606,16 @@ export default function LandingPage() {
         </div>
 
         {/* Right side */}
-        <div className="md:w-1/2 py-20 grad-bg">
-          <div className="flex items-center justify-center h-full px-12">
-            <div className="">
-              <h2 className="text-5xl font-bold mb-2">
+        <div className="md:w-1/2 py-12 md:py-20 grad-bg">
+          <div className="flex items-center justify-center h-full px-6 sm:px-10 md:px-12">
+            <div className="text-center md:text-left">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3">
                 FASHION
                 <br />
                 EVENT RSVP
               </h2>
-              <p className="mb-10">
-                Register to Attend Our Upcoming Global <br /> Fashion Showcases.{" "}
+              <p className="mb-8 text-sm sm:text-base">
+                Register to Attend Our Upcoming Global Fashion Showcases.
               </p>
               <Link to="/rsvp">
                 <button className="bg-white text-black px-8 py-3 rounded hover:bg-gray-100 transition-colors font-semibold">
