@@ -98,8 +98,8 @@ export default function Service() {
             </h2>
           </div>
           <div>
-            <p className="text-[14px] md:text-[18px] text-black leading-7 text-justify mt-10">
-              Moda Week International offers a premier platform for companies and brands to showcase their presence through our international fashion show productions and global promotional events. By participating, partners gain direct visibility to high value audiences, international designers, media, VIPs, and commerce industry, while accessing exclusive networking opportunities that foster long term collaboration. Through aligned sponsorships, branding, and co-produced initiatives, MWINTL creates meaningful mutual growth and global impact uniting fashion, culture, and business on an international stage platform.
+            <p className="text-sm md:text-[18px] text-black leading-7 text-left mt-4 md:mt-10">
+              {heroData.description || "Moda Week International offers a premier platform for companies and brands to showcase their presence..."}
             </p>
           </div>
         </div>
