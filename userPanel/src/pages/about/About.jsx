@@ -54,8 +54,8 @@ export default function ModaWeekSite() {
     <div className="min-h-screen text-black">
       <Navbar />
       {/* Hero Section */}
-      <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[400px] flex flex-col items-center justify-center">
-        <h1 className="text-4xl md:text-[44px] font-bold mb-2 tracking-wide uppercase grad-text-up">
+      <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent min-h-[400px] flex flex-col items-center justify-center">
+        <h1 className="text-2xl sm:text-3xl md:text-[44px] font-bold mb-2 tracking-wide uppercase grad-text-up leading-tight">
           {hero.title || "WHAT IS MODA WEEK INTERNATIONAL"}
         </h1>
         <span className="w-[50%] h-[2px] bg-gradient-to-r from-transparent via-[#C7913E] to-transparent mb-10"></span>
@@ -66,12 +66,12 @@ export default function ModaWeekSite() {
       </header>
 
       {/* Moda Week International Section */}
-      <section className="px-10 pb-10 pt-4 bg-white text-gray-900">
+      <section className="px-4 sm:px-6 md:px-10 pb-10 pt-4 bg-white text-gray-900">
         <div className="max-w-9xl w-full">
-          <h2 className="text-4xl md:text-5xl font-bold mb-8 grad-text">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 grad-text">
             {main.title || "MODA WEEK INTERNATIONAL"}
           </h2>
-          <div className="whitespace-pre-line mb-4 leading-relaxed text-lg">
+          <div className="whitespace-pre-line mb-4 leading-relaxed text-base md:text-lg">
             {main.content || "Moda Week International (MWINTL) is a prestigious philanthropic fashion show production..."}
           </div>
         </div>
@@ -79,47 +79,47 @@ export default function ModaWeekSite() {
           <img
             src={main.image?.url || AboutUs1}
             alt="About Us"
-            className="max-w-9xl w-full h-[373px] object-cover"
+            className="max-w-9xl w-full h-[200px] sm:h-[280px] md:h-[373px] object-cover"
           />
         </div>
       </section>
 
       {/* Foundation Section */}
-      <section className="py-10 px-4 bg-[radial-gradient(circle_at_top_left,#C7913E_10%,#C7913E_10%,white_80%)]">
-        <div className="max-w-9xl ">
-          <div className="flex flex-col md:flex-row items-center md:items-center gap-12">
+      <section className="py-10 px-4 sm:px-6 bg-[radial-gradient(circle_at_top_left,#C7913E_10%,#C7913E_10%,white_80%)]">
+        <div className="max-w-9xl">
+          <div className="flex flex-col md:flex-row items-center md:items-center gap-8 md:gap-12">
             <div className="w-full flex justify-center h-full items-center">
               <img
                 src={foundation.image?.url || Founder}
                 alt="Founder"
-                className="shadow-lg w-full max-w-sm object-cover"
+                className="shadow-lg w-full max-w-[280px] sm:max-w-sm object-cover"
               />
             </div>
 
             <div className="text-gray-800">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 grad-text">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 grad-text">
                 {foundation.title || "FOUNDATION"}
               </h2>
-              <p className="md:text-sm mb-3 leading-relaxed font-semibold">
+              <p className="text-sm md:text-sm mb-3 leading-relaxed font-semibold">
                 {foundation.subtitle}
               </p>
-              <div className="md:text-sm mb-1 leading-relaxed whitespace-pre-line">
+              <div className="text-sm md:text-sm mb-1 leading-relaxed whitespace-pre-line">
                 {foundation.content}
               </div>
-              <p className="md:text-sm italic mt-4">{foundation.quote}</p>
+              <p className="text-sm md:text-sm italic mt-4">{foundation.quote}</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Philosophy Section */}
-      <section className="bg-white md:px-10 ">
-        <div className="w-full p-10 bg-[radial-gradient(circle_at_bottom_right,#C7913E_10%,#C7913E_10%,white_80%)]">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12 grad-text">
+      <section className="bg-white md:px-6">
+        <div className="w-full p-6 md:p-10 bg-[radial-gradient(circle_at_bottom_right,#C7913E_10%,#C7913E_10%,white_80%)]">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-8 md:mb-12 grad-text">
             {philosophy.title || "OUR PHILOSOPHY"}
           </h2>
 
-          <div className="flex flex-col md:flex-row items-start gap-12">
+          <div className="flex flex-col md:flex-row items-start gap-8 md:gap-12">
             {/* Left Text */}
             <div className="text-gray-800 md:text-sm leading-relaxed space-y-1 flex-1 whitespace-pre-line">
               {philosophy.content}
@@ -130,7 +130,7 @@ export default function ModaWeekSite() {
               <img
                 src={philosophy.image?.url || Founder2}
                 alt="Philosophy"
-                className="w-[500px] h-[500px] max-w-full object-cover object-top shadow-xl"
+                className="w-full max-w-full md:w-[500px] md:h-[500px] h-auto object-cover object-top shadow-xl"
               />
             </div>
           </div>
@@ -139,8 +139,8 @@ export default function ModaWeekSite() {
 
       {/* Global Platform Section */}
       <section className="md:py-16 py-10 md:px-10 bg-white">
-        <div className="w-full bg-[#f4f4f4] mx-auto px-10 py-6">
-          <h2 className="text-2xl md:text-[45px] font-bold text-center mb-6 text-gray-900 uppercase">
+        <div className="w-full bg-[#f4f4f4] mx-auto px-4 sm:px-6 md:px-10 py-6">
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-[45px] font-bold text-center mb-6 text-gray-900 uppercase leading-tight">
             {global.title || "A GLOBAL PLATFORM FOR VISIONARIES, CULTURE & INNOVATION"}
           </h2>
           <p className="text-center text-lg text-gray-700 mb-16 max-w-4xl mx-auto leading-relaxed whitespace-pre-line">
