@@ -114,7 +114,7 @@ export default function NewsRoom() {
                 <div className="max-w-7xl mx-auto px-4 pt-12 pb-4">
                     {/* Header */}
                     <div className="text-center mb-4 max-w-9xl mx-auto mt-15">
-                        <h1 className="relative inline-block md:text-[52px] font-bold text-4xl tracking-widest mb-6 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair">
+                        <h1 className="relative inline-block text-4xl md:text-[52px] font-bold tracking-widest mb-6 bg-linear-to-br from-[#3C2306] via-[#734F1C] to-[#C7913E] bg-clip-text text-transparent !font-playfair leading-tight">
                             FASHION NEWS
                             <span className="absolute left-1/2 -bottom-4 w-1/3 h-0.5 -translate-x-1/2 bg-linear-to-b from-[#3C2306] to-[#C7913E]"></span>
                         </h1>
@@ -129,7 +129,7 @@ export default function NewsRoom() {
             <main className="max-w-[1400px] mx-auto px-4 md:px-8 py-16">
 
                 {/* Cinematic Live Section */}
-                <section className="mb-24 bg-[#050505] text-white p-1 md:p-8 lg:p-12 -mx-4 md:-mx-8 lg:rounded-sm">
+                <section className="mb-24 bg-[#050505] text-white p-4 md:p-8 lg:p-12 -mx-4 md:-mx-8 lg:rounded-sm">
                     <div className="flex flex-col md:flex-row items-end justify-between mb-12 border-b border-white/20 pb-6 px-4">
                         <div>
                             <span className="text-[#C7913E] text-xs font-bold tracking-[0.2em] uppercase mb-2 block">Moda TV</span>
