@@ -486,7 +486,7 @@ const ApplicationForm = () => {
                       ? "I'm Interested in showing my Design Collection at:"
                       : "I'm Interested in showing my Design Collection at:",
                     "showcaseLocation",
-                    ["CANADA", "EUROPE", "SOUTH AMERICA", "UNITED STATES"]
+                    ["SOUTH AMERICA", "UNITED STATES"]
                   )}
                 </div>
 
