@@ -200,7 +200,7 @@ export default function FashionEvents() {
 
       {/* Runway Calendar Section */}
       <div id="runway-calendar" className="px-4 bg-white">
-        <div className="relative py-20 px-4 bg-[#1a1a1a] min-h-[450px]">
+        <div className="relative py-12 md:py-20 px-4 bg-[#1a1a1a] min-h-[450px]">
           {/* Background Image Overlay */}
           <div
             className="absolute inset-0 opacity-20 bg-cover bg-center z-0"
@@ -212,12 +212,12 @@ export default function FashionEvents() {
           {/* Content Wrapper */}
           <div className="relative z-10 max-w-6xl mx-auto">
 
-            <h2 className="text-center text-4xl md:text-5xl !font-playfair mb-8 grad-text-rev grad-bg">
+            <h2 className="text-center text-3xl md:text-5xl !font-playfair mb-6 md:mb-8 grad-text-rev grad-bg">
               RUNWAY CALENDAR
             </h2>
 
             {/* Tabs */}
-            <div className="flex justify-center gap-12 mb-12 text-sm tracking-[0.2em] font-medium">
+            <div className="flex justify-center gap-10 md:gap-12 mb-8 md:mb-12 text-xs md:text-sm tracking-[0.2em] font-medium">
               <button
                 onClick={() => setActiveTab("upcoming")}
                 className={`pb-2 border-b-2 transition-colors duration-300 ${activeTab === "upcoming"
@@ -239,9 +239,8 @@ export default function FashionEvents() {
               </button>
             </div>
 
-            {/* Table Box */}
-            <div className="bg-black/40 backdrop-blur-md border border-white/30 overflow-hidden">
-
+            {/* Desktop Table (hidden on mobile) */}
+            <div className="hidden md:block bg-black/40 backdrop-blur-md border border-white/30 overflow-hidden">
               {/* Table Header */}
               <div className="grid grid-cols-3 text-[#C7913E] text-sm tracking-widest bg-[#241705]">
                 <div className="p-6 border-b border-r border-white/30">Date</div>
@@ -296,8 +295,57 @@ export default function FashionEvents() {
                   </div>
                 )}
               </div>
-
             </div>
+
+            {/* Mobile Cards (shown only on mobile) */}
+            <div className="md:hidden flex flex-col gap-3">
+              {calendarData.length > 0 ? (
+                calendarData.map((item, idx) => {
+                  const cardContent = (
+                    <div className="bg-black/40 backdrop-blur-md border border-white/20 rounded-lg overflow-hidden">
+                      {/* Gold top accent */}
+                      <div className="h-0.5 w-full bg-gradient-to-r from-[#C7913E] to-[#8B5E1A]" />
+                      <div className="p-4 flex flex-col gap-2">
+                        {/* Date */}
+                        <div className="flex items-start gap-3">
+                          <span className="text-[#C7913E] text-[10px] tracking-widest uppercase font-semibold w-12 shrink-0 pt-0.5">Date</span>
+                          <span className="text-white text-sm font-semibold leading-snug">{item.eventDate || item.date}</span>
+                        </div>
+                        {/* City */}
+                        <div className="flex items-start gap-3">
+                          <span className="text-[#C7913E] text-[10px] tracking-widest uppercase font-semibold w-12 shrink-0 pt-0.5">City</span>
+                          <span className="text-gray-300 text-sm leading-snug">{item.location || item.city}</span>
+                        </div>
+                        {/* Event */}
+                        <div className="flex items-start gap-3">
+                          <span className="text-[#C7913E] text-[10px] tracking-widest uppercase font-semibold w-12 shrink-0 pt-0.5">Event</span>
+                          <span className="text-gray-400 text-sm leading-snug">{item.eventName || item.event}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+
+                  if (activeTab === "upcoming") {
+                    return (
+                      <Link
+                        to={`/event-details/${item.slug || item._id}`}
+                        key={idx}
+                        className="block hover:opacity-80 transition-opacity active:scale-[0.98]"
+                      >
+                        {cardContent}
+                      </Link>
+                    );
+                  } else {
+                    return <div key={idx}>{cardContent}</div>;
+                  }
+                })
+              ) : (
+                <div className="p-8 text-center text-gray-500 italic bg-black/40 border border-white/20 rounded-lg">
+                  No events found.
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
       </div>
