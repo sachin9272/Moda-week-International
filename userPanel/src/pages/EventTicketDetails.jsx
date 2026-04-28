@@ -569,7 +569,7 @@ export default function EventTicketDetails() {
                                 </div>
 
                                 {collection.description ? (
-                                    <div className="prose max-w-none text-gray-700 text-base leading-normal space-y-1 text-justify">
+                                    <div className="prose max-w-none text-gray-700 text-base leading-normal space-y-1">
                                         {renderTextWithLinks(collection.description)}
                                     </div>
                                 ) : (
@@ -776,7 +776,7 @@ export default function EventTicketDetails() {
                             </h2>
                         )}
                         <div className="flex flex-col md:flex-row gap-8 items-start">
-                            <div className="prose max-w-none flex-1 space-y-1 text-base leading-normal text-gray-700 text-justify">
+                            <div className="prose max-w-none flex-1 space-y-1 text-base leading-normal text-gray-700">
                                 {event.description
                                     ? renderTextWithLinks(event.description)
                                     : <p>No description available.</p>}

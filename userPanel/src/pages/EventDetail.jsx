@@ -337,7 +337,7 @@ const EventDetail = () => {
                                 </div>
 
                                 {collection.description ? (
-                                    <div className="prose max-w-none text-gray-700 text-base leading-normal space-y-1 text-justify">
+                                    <div className="prose max-w-none text-gray-700 text-base leading-normal space-y-1">
                                         {renderTextWithLinks(collection.description)}
                                     </div>
                                 ) : (
@@ -467,7 +467,7 @@ const EventDetail = () => {
                             )}
                             {event.descriptionSection.text && (
                                 <div
-                                    className="!text-base rich-text-content text-black leading-relaxed text-lg font-light text-justify"
+                                    className="!text-base rich-text-content text-black leading-relaxed text-lg font-light"
                                     dangerouslySetInnerHTML={{ __html: event.descriptionSection.text }}
                                 />
                             )}

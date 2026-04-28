@@ -227,19 +227,22 @@ export default function Participants() {
 
             {/* Filters & Search */}
             <div className="container mx-auto px-6 py-12">
-                {/* Category Tabs */}
+            {/* Category Tabs */}
                 <div className="flex justify-center mb-12">
-                    <div className="flex bg-gray-100 p-1 rounded-full flex-wrap justify-center gap-1">
+                    <div
+                        className="bg-[#ECECF0] rounded-3xl grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7 items-center p-1 w-full max-w-5xl"
+                    >
                         {categories.map((category) => (
                             <button
                                 key={category}
                                 onClick={() => handleCategoryChange(category)}
-                                className={`px-4 md:px-8 py-3 rounded-full text-xs md:text-sm font-bold uppercase tracking-wider transition-all duration-300 ${activeCategory === category
-                                    ? "bg-black text-white shadow-lg"
-                                    : "text-gray-500 hover:text-black"
+                                className={`flex items-center justify-center gap-2 px-4 py-2 rounded-3xl font-medium text-sm transition-all cursor-pointer h-full
+                                    ${activeCategory === category
+                                        ? "bg-black text-[#EFA137] shadow-md"
+                                        : "text-gray-700 hover:bg-white/50"
                                     }`}
                             >
-                                {getCategoryLabel(category)}
+                                <span className="truncate text-center">{getCategoryLabel(category)}</span>
                             </button>
                         ))}
                     </div>

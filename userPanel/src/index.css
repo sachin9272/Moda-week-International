@@ -135,6 +135,14 @@ body {
   margin-bottom: 0.5em;
 }
 
+/* Override any inline text-align:justify saved by the rich text editor */
+.rich-text-content p,
+.rich-text-content li,
+.event-rich-text p,
+.event-rich-text li {
+  text-align: left !important;
+}
+
 .rich-text-content ul {
   list-style-type: disc;
   padding-left: 1.5em;
