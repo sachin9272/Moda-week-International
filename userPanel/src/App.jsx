@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop.jsx";
 
 import LandingPage from './pages/LandingPage.jsx';
@@ -29,17 +29,26 @@ import MediaReleasePolicy from "./pages/MediaReleasePolicy.jsx";
 import Contact from "./pages/Contact.jsx";
 import Rsvp from "./pages/Rsvp.jsx";
 
+// Scanner imports
+import ScannerLogin from "./pages/scanner/ScannerLogin.jsx";
+import ScannerDashboard from "./pages/scanner/ScannerDashboard.jsx";
+import ScannerProtectedRoute from "./components/ScannerProtectedRoute.jsx";
+
 import { Toaster } from 'react-hot-toast';
 import WhatsAppButton from "./components/WhatsAppButton.jsx";
 import ChatWidget from "./components/ChatWidget.jsx";
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  // Hide widgets for staff scanner routes
+  const isScannerRoute = location.pathname.startsWith('/scanner');
+
   return (
-    <Router>
+    <>
       <ScrollToTop />
       <Toaster position="top-right" />
-      <WhatsAppButton />
-      <ChatWidget />
+      {!isScannerRoute && <WhatsAppButton />}
+      {!isScannerRoute && <ChatWidget />}
       <Routes>
         {/* Default route */}
         <Route path="/" element={<LandingPage />} />
@@ -54,7 +63,6 @@ function App() {
         <Route path="/participants" element={<Participants />} />
         <Route path="/past-events" element={<PastEvents />} />
         <Route path="/news-room" element={<NewsRoom />} />
-        {/* <Route path="/press-media" element={<PressAndMedia />} /> */}
         <Route path="/news-room/submit" element={<SubmitNews />} />
         <Route path="/news-room/:id" element={<NewsDetail />} />
         <Route path="/event-details" element={<EventDetail />} />
@@ -78,10 +86,26 @@ function App() {
         <Route path="/buy-tickets/payment/cancel" element={<PaymentCancel />} />
         <Route path="/payment/cancel" element={<PaymentCancel />} />
 
+        {/* Web Scanner Routes */}
+        <Route path="/scanner/login" element={<ScannerLogin />} />
+        <Route path="/scanner/scan" element={
+          <ScannerProtectedRoute>
+            <ScannerDashboard />
+          </ScannerProtectedRoute>
+        } />
+
         {/* Ticket Routes */}
         <Route path="/tickets" element={<BuyTickets />} />
         <Route path="/:id" element={<EventTicketDetails />} />
       </Routes>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

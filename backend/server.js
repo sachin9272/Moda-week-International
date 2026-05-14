@@ -97,9 +97,12 @@ app.post('/api/payment/confirm-payment', confirmPayment);
 
 // Ticket Verification Routes
 import { verifyTicket, scanTicket } from './controllers/ticketController.js';
-import { protect } from './middlewares/authMiddleware.js';
+import { protect, protectAny } from './middlewares/authMiddleware.js';
+import scannerOperatorRoutes from './routes/scannerOperatorRoutes.js';
+
+app.use('/api/scanner', scannerOperatorRoutes);
 app.get('/api/tickets/verify/:id', verifyTicket);
-app.post('/api/tickets/scan/:id', protect, scanTicket);
+app.post('/api/tickets/scan/:id', protectAny, scanTicket);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
