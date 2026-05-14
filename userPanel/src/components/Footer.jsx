@@ -406,7 +406,7 @@ export default function Footer() {
           {/* Copyright */}
           <div className="relative z-10 grad-top-border py-6">
             <div className="container mx-auto px-6 text-center text-gray-500 text-sm">
-              Copyright © 2024 Moda Week International - All rights reserved
+              Copyright © 2026 Moda Week International - All rights reserved
             </div>
           </div>
         </div>
