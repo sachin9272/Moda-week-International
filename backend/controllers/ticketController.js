@@ -93,6 +93,16 @@ export const scanTicket = async (req, res) => {
         // Mark as used
         ticket.isUsed = true;
         ticket.scannedAt = Date.now();
+        
+        // Track who scanned the ticket
+        if (req.admin) {
+            ticket.scannedBy = `Admin (${req.admin.email})`;
+        } else if (req.scannerOperator) {
+            ticket.scannedBy = `${req.scannerOperator.name} (${req.scannerOperator.email})`;
+        } else {
+            ticket.scannedBy = "Unknown System Process";
+        }
+
         await ticket.save();
 
         res.status(200).json({
@@ -102,7 +112,8 @@ export const scanTicket = async (req, res) => {
                 id: ticket._id,
                 buyerName: ticket.buyerName,
                 isUsed: ticket.isUsed,
-                scannedAt: ticket.scannedAt
+                scannedAt: ticket.scannedAt,
+                scannedBy: ticket.scannedBy
             }
         });
 

@@ -45,6 +45,9 @@ const ticketSaleSchema = new mongoose.Schema({
     },
     scannedAt: {
         type: Date
+    },
+    scannedBy: {
+        type: String
     }
 }, { timestamps: true });
 
