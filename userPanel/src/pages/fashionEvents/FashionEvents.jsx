@@ -56,16 +56,13 @@ export default function FashionEvents() {
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
 
-  const [heroContent, setHeroContent] = useState({
-    title: "UPCOMING EVENTS",
-    subtitle: "local or shared file",
-    description: "Experience world-class fashion events in the most ionic cities across the globe.\nDon't miss this strategic business opportunity to elevate your brand, gain visibility, and connect with industry leaders. Stay informed about upcoming fashion events, partnership opportunities, and participation options.",
-    image: null
-  });
+  const [heroContent, setHeroContent] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchContent = async () => {
       try {
+        setIsLoading(true);
         const cacheBust = Date.now();
         const [eventsRes, heroRes] = await Promise.all([
           fetch(`${baseURL}/api/upcoming-events/all?status=live&_t=${cacheBust}`, {
@@ -92,6 +89,8 @@ export default function FashionEvents() {
         }
       } catch (error) {
         console.error('Error fetching data:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchContent();
@@ -143,14 +142,20 @@ export default function FashionEvents() {
 
       {/* Hero / Global Events Section */}
       <div className="min-h-[415px] md:min-h-[430px] h-auto bg-gradient-to-b from-[#C7913E] to-white flex items-center justify-center text-center px-4 pt-[8.5rem] md:pt-[5.5rem] pb-12 md:pb-14">
-        <div>
-          <h1 className="text-3xl md:text-[44px] mt-10 font-bold bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent mb-4 uppercase">
-            {heroContent.title}
-          </h1>
-          <p className="text-black text-[18px] md:text-base max-w-2xl mx-auto whitespace-pre-line">
-            {heroContent.description}
-          </p>
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center h-full mt-10">
+            <div className="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <div>
+            <h1 className="text-3xl md:text-[44px] mt-10 font-bold bg-linear-to-r from-[#3C2306] to-[#C7913E] bg-clip-text text-transparent mb-4 uppercase">
+              {heroContent?.title || "UPCOMING EVENTS"}
+            </h1>
+            <p className="text-black text-[18px] md:text-base max-w-2xl mx-auto whitespace-pre-line">
+              {heroContent?.description || "Experience world-class fashion events in the most ionic cities across the globe.\nDon't miss this strategic business opportunity to elevate your brand, gain visibility, and connect with industry leaders. Stay informed about upcoming fashion events, partnership opportunities, and participation options."}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="bg-white text-black pt-8 md:pt-9 pb-6 px-10">
