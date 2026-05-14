@@ -77,6 +77,7 @@ const AdminLayout = () => {
         if (path === '/') return 'Dashboard';
         if (path.includes('/events')) return 'Events Management';
         if (path.includes('/applications')) return 'Applications';
+        if (path.includes('/scanner-operators')) return 'Scanner Operators';
         if (path.includes('/news')) return 'News Management';
         if (path.includes('/landing-videos')) return 'Landing Videos';
         if (path.includes('/fashion-designers')) return 'Participants';
