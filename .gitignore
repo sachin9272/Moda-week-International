@@ -16,7 +16,6 @@ build/
 
 # Rasa specific
 .rasa/
-models/
 ai-bot/models/
 ai-bot/.rasa/
 ai-bot/venv/
