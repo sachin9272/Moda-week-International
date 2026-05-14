@@ -198,4 +198,62 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
     });
 };
 
+export const sendScannerInviteEmail = async (to, name, password, scannerUrl) => {
+    const message = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <style>
+                body { font-family: Helvetica, Arial, sans-serif; margin: 0; padding: 0; background-color: #f3f4f6; color: #333; }
+                .container { max-width: 600px; margin: 20px auto; background-color: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+                .header { background-color: #000; padding: 28px 20px; text-align: center; color: #d97706; }
+                .body { padding: 30px; }
+                .credentials { background-color: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin: 20px 0; }
+                .button { display: inline-block; background-color: #d97706; color: #fff; text-decoration: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; margin-top: 10px; }
+                .footer { text-align: center; padding: 20px; font-size: 12px; color: #888; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1 style="margin:0; font-family: Georgia, serif; font-size: 28px;">MODA WEEK</h1>
+                    <p style="margin:5px 0 0; color:#fff; text-transform:uppercase; letter-spacing:2px; font-size:12px;">Scanner Operator Invitation</p>
+                </div>
+                <div class="body">
+                    <p>Hi <strong>${name}</strong>,</p>
+                    <p>You have been invited to be a Ticket Scanner Operator for Moda Week International events.</p>
+                    <p>Use the credentials below to log in to the web scanner tool from your Android or iPhone browser:</p>
+                    
+                    <div class="credentials">
+                        <p style="margin: 0 0 8px;"><strong>Email:</strong> ${to}</p>
+                        <p style="margin: 0;"><strong>Temporary Password:</strong> <code style="background:#fff; padding:3px 6px; border-radius:4px; border:1px solid #ccc; font-size:14px;">${password}</code></p>
+                    </div>
+
+                    <p style="margin-top: 25px;">Click the button below to open the scanner tool and log in:</p>
+                    <center>
+                        <a href="${scannerUrl}" class="button" style="color: #ffffff;">Open Web Scanner</a>
+                    </center>
+
+                    <p style="margin-top: 30px; font-size: 14px; color: #666;">
+                        <em>Tip: Add this scanner page to your phone's home screen for easy access on the day of the event.</em>
+                    </p>
+                </div>
+                <div class="footer">
+                    &copy; ${new Date().getFullYear()} Moda Week International. All rights reserved.
+                </div>
+            </div>
+        </body>
+        </html>
+    `;
+
+    await sendEmail({
+        email: to,
+        subject: "📢 Ticket Scanner Access Granted - Moda Week International",
+        message: `You have been added as a ticket scanner operator. Login URL: ${scannerUrl}\nEmail: ${to}\nPassword: ${password}`,
+        html: message
+    });
+};
+
 export default sendEmail;
