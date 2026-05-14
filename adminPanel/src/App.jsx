@@ -38,6 +38,7 @@ import ProductionTeam from './pages/ProductionTeam';
 import PressAndMedia from './pages/PressAndMedia';
 import LandingPageManager from './pages/LandingPageManager';
 import RsvpManager from './pages/RsvpManager';
+import ScannerOperators from './pages/ScannerOperators';
 import Login from './pages/auth/Login';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
@@ -102,6 +103,7 @@ function App() {
             <Route path="fashion-designers" element={<FashionDesigners />} />
             <Route path="production-team" element={<ProductionTeam />} />
             <Route path="press-media" element={<PressAndMedia />} />
+            <Route path="scanner-operators" element={<ScannerOperators />} />
           </Route>
 
           <Route path="/events/preview/:id" element={

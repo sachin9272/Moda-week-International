@@ -19,7 +19,8 @@ import {
     ChevronDown,
     ChevronUp,
     Info,
-    Ticket
+    Ticket,
+    ScanLine
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -50,6 +51,7 @@ const Sidebar = () => {
         { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
         { path: '/events', icon: Calendar, label: 'Events' },
         { path: '/tickets', icon: Ticket, label: 'Tickets' },
+        { path: '/scanner-operators', icon: ScanLine, label: 'Scanner Operators' },
         { path: '/applications', icon: FolderOpen, label: 'Applications' },
         { path: '/news', icon: Newspaper, label: 'News' },
         // Grouped Pages
