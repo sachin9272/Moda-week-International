@@ -262,3 +262,80 @@ export const getGlobalTicketTypeStats = async (req, res) => {
     }
 };
 
+
+// Get event attendees (scanned tickets) with optional eventId filter, search, pagination
+export const getEventAttendees = async (req, res) => {
+    try {
+        const { eventId, search, page = 1, limit = 10 } = req.query;
+
+        const query = { isUsed: true };
+
+        if (eventId) {
+            query.eventId = eventId;
+        }
+
+        if (search) {
+            query.$or = [
+                { buyerName: { $regex: search, $options: 'i' } },
+                { buyerEmail: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const attendees = await TicketSale.find(query)
+            .populate('eventId', 'eventName title')
+            .sort({ scannedAt: -1 })
+            .skip(parseInt(skip))
+            .limit(parseInt(limit));
+
+        const totalCount = await TicketSale.countDocuments(query);
+
+        res.status(200).json({
+            success: true,
+            data: attendees,
+            pagination: {
+                totalCount,
+                totalPages: Math.ceil(totalCount / limit),
+                currentPage: parseInt(page),
+                limit: parseInt(limit)
+            }
+        });
+    } catch (error) {
+        console.error("Error fetching event attendees:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// Export all event attendees (scanned tickets) matching filter without pagination
+export const exportEventAttendees = async (req, res) => {
+    try {
+        const { eventId, search } = req.query;
+
+        const query = { isUsed: true };
+
+        if (eventId) {
+            query.eventId = eventId;
+        }
+
+        if (search) {
+            query.$or = [
+                { buyerName: { $regex: search, $options: 'i' } },
+                { buyerEmail: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const attendees = await TicketSale.find(query)
+            .populate('eventId', 'eventName title')
+            .sort({ scannedAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            data: attendees
+        });
+    } catch (error) {
+        console.error("Error exporting event attendees:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+

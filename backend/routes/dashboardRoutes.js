@@ -6,8 +6,16 @@ import {
     getGlobalAnalytics,
     getTopCustomers,
     getGlobalRecentTransactions,
-    getGlobalTicketTypeStats
+    getGlobalTicketTypeStats,
+    getEventAttendees,
+    exportEventAttendees
 } from '../controllers/dashboardController.js';
+
+// GET /api/dashboard/event-attendees
+router.get('/event-attendees', getEventAttendees);
+
+// GET /api/dashboard/event-attendees/export
+router.get('/event-attendees/export', exportEventAttendees);
 
 // GET /api/dashboard/event-analytics/:eventId
 router.get('/event-analytics/:eventId', getEventAnalytics);
