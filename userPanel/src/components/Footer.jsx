@@ -22,6 +22,7 @@ export default function Footer() {
   const [partners, setPartners] = useState([]);
   const visiblePartners = partners.filter((brand) => brand?.image?.url);
   const marqueePartners = [...visiblePartners, ...visiblePartners];
+  const marqueeDuration = `${Math.max(18, visiblePartners.length * 2.5)}s`;
 
   React.useEffect(() => {
     const fetchPartners = async () => {
@@ -51,7 +52,7 @@ export default function Footer() {
         {/* Partner Logos Section */}
         <div className="border-gray-800 py-8">
           <div className="marquee-wrapper py-8">
-            <div className="marquee-track">
+            <div className="marquee-track" style={{ "--marquee-duration": marqueeDuration }}>
               {marqueePartners.map((brand, i) => (
                 <div
                   key={`${brand._id || brand.name || "partner"}-${i}`}
