@@ -1,0 +1,8 @@
+node_modules
+dist
+*.local
+
+src/assets/*.mp4
+src/assets/*.MP4
+src/assets/*.webm
+src/assets/*.mov
