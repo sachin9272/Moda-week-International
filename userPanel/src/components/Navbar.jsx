@@ -78,13 +78,15 @@ const Navbar = () => {
   const navLinks = [
     { name: "Upcoming Events", path: "/events", category: "Events" },
     { name: "Past Events", path: "/past-events", category: "Events" },
+    { name: "Amazonas Fashion Week", path: "https://amazonasfashionweek.com/", category: "Events", external: true },
     { name: "About Us", path: "/about", category: "ABOUT MODA" },
+    { name: "Company", path: "https://esmeralds.com/", category: "ABOUT MODA", external: true },
     { name: "Production Team", path: "/production-team", category: "ABOUT MODA" },
     { name: "Newsroom", path: "/news-room", category: "News" },
     // { name: "Press & Media", path: "/press-media", category: "News" },
-    { name: "Donation", path: "/donation", category: "MEMBERSHIPS & SUPPORT" },
+    // { name: "Donation", path: "/donation", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Contact Us", path: "/contact", category: "ABOUT MODA" },
-    { name: "Membership Programs", path: "/membership-program", category: "MEMBERSHIPS & SUPPORT" },
+    // { name: "Membership Programs", path: "/membership-program", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Buy Tickets", path: "/tickets", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Designers", path: "/participants", category: "Events" },
   ];
@@ -144,6 +146,15 @@ const Navbar = () => {
                 >
                   {category}
                 </Link>
+              ) : category === "MEMBERSHIPS & SUPPORT" ? (
+                <Link
+                  key={category}
+                  to="/tickets"
+                  onMouseEnter={() => setActiveDropdown(null)}
+                  className="relative h-full flex items-center text-sm font-bold tracking-[0.2em] uppercase text-[#C7913E] hover:text-white transition-colors"
+                >
+                  Buy Tickets
+                </Link>
               ) : (
                 <div
                   key={category}
@@ -169,17 +180,29 @@ const Navbar = () => {
                         <div className="py-4 flex flex-col">
                           {navLinks
                             .filter((link) => link.category === category)
-                            .map((link) => (
-                              <Link
-                                key={link.name}
-                                to={link.path}
-                                onClick={() => setActiveDropdown(null)}
-                                className="px-6 py-3 text-sm text-[#C7913E] hover:text-white hover:bg-black/10 transition-all flex items-center justify-between group font-medium"
-                              >
-                                <span>{link.name}</span>
-                                <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-white" />
-                              </Link>
-                            ))}
+                            .map((link) =>
+                              link.external ? (
+                                <a
+                                  key={link.name}
+                                  href={link.path}
+                                  onClick={() => setActiveDropdown(null)}
+                                  className="px-6 py-3 text-sm text-[#C7913E] hover:text-white hover:bg-black/10 transition-all flex items-center justify-between group font-medium"
+                                >
+                                  <span>{link.name}</span>
+                                  <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-white" />
+                                </a>
+                              ) : (
+                                <Link
+                                  key={link.name}
+                                  to={link.path}
+                                  onClick={() => setActiveDropdown(null)}
+                                  className="px-6 py-3 text-sm text-[#C7913E] hover:text-white hover:bg-black/10 transition-all flex items-center justify-between group font-medium"
+                                >
+                                  <span>{link.name}</span>
+                                  <ChevronRight size={14} className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all text-white" />
+                                </Link>
+                              )
+                            )}
                         </div>
                       </motion.div>
                     )}
@@ -242,13 +265,23 @@ const Navbar = () => {
                         initial="closed"
                         animate="open"
                       >
-                        <Link
-                          to={link.path}
-                          onClick={() => setIsMenuOpen(false)}
-                          className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
-                        >
-                          {link.name}
-                        </Link>
+                        {link.external ? (
+                          <a
+                            href={link.path}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                          >
+                            {link.name}
+                          </a>
+                        ) : (
+                          <Link
+                            to={link.path}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                          >
+                            {link.name}
+                          </Link>
+                        )}
                       </motion.div>
                     ))}
                 </div>
@@ -279,30 +312,25 @@ const Navbar = () => {
                     ))}
                 </div>
 
-                {/* Group: MEMBERSHIPS & SUPPORT */}
+                {/* Group: Buy Tickets */}
                 <div className="space-y-4">
                   <h3 className="text-xs font-bold tracking-[0.2em] uppercase border-b border-gray-200 pb-2 mb-4 text-gray-400">
-                    MEMBERSHIPS & SUPPORT
+                    Buy Tickets
                   </h3>
-                  {navLinks
-                    .filter((l) => l.category === "MEMBERSHIPS & SUPPORT")
-                    .map((link, i) => (
-                      <motion.div
-                        key={link.name}
-                        custom={i + 4}
-                        variants={linkVariants}
-                        initial="closed"
-                        animate="open"
-                      >
-                        <Link
-                          to={link.path}
-                          onClick={() => setIsMenuOpen(false)}
-                          className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
-                        >
-                          {link.name}
-                        </Link>
-                      </motion.div>
-                    ))}
+                  <motion.div
+                    custom={4}
+                    variants={linkVariants}
+                    initial="closed"
+                    animate="open"
+                  >
+                    <Link
+                      to="/tickets"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block text-2xl font-serif text-black hover:text-[#C7913E] transition-colors"
+                    >
+                      Buy Tickets
+                    </Link>
+                  </motion.div>
                 </div>
 
                 {/* Group: News */}

@@ -217,14 +217,14 @@ export default function Footer() {
                       Fashion Show Production
                     </Link>
                   </li>
-                  <li>
+                  {/* <li>
                     <Link
                       to="/membership-program"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
                       Membership Programs
                     </Link>
-                  </li>
+                  </li> */}
                   <li>
                     <Link
                       to="/service?tab=sponsor"
