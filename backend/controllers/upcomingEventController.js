@@ -188,12 +188,35 @@ export const getUpcomingEvents = async (req, res) => {
             query.showOnLandingPage = showOnLandingPage === 'true';
         }
 
-        const events = await UpcomingEvent.find(query).sort({ createdAt: -1 });
+        const events = await UpcomingEvent.find(query).sort({ order: 1, createdAt: -1 });
         await syncUpcomingEventSlugs(events);
         res.status(200).json(events);
     } catch (error) {
         console.error("Error fetching upcoming events:", error);
         res.status(500).json({ message: "Failed to fetch upcoming events", error: error.message });
+    }
+};
+
+// Reorder upcoming events
+export const reorderUpcomingEvents = async (req, res) => {
+    try {
+        const { orders } = req.body;
+
+        if (!orders || !Array.isArray(orders)) {
+            return res.status(400).json({ message: 'Orders array is required' });
+        }
+
+        await Promise.all(
+            orders.map(({ id, order }) =>
+                UpcomingEvent.findByIdAndUpdate(id, { order }, { new: false })
+            )
+        );
+
+        const events = await UpcomingEvent.find().sort({ order: 1, createdAt: -1 });
+        res.status(200).json(events);
+    } catch (error) {
+        console.error("Error reordering upcoming events:", error);
+        res.status(500).json({ message: "Failed to reorder upcoming events", error: error.message });
     }
 };
 
