@@ -1307,6 +1307,15 @@ const AddUpcomingEvent = () => {
                                 <input type="text" name="subtitle" value={currentCollection.subtitle} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm" />
                             </div>
                             <div>
+                                <label className="block text-gray-400 mb-1 text-sm">Collection Layout</label>
+                                <select name="layout" value={currentCollection.layout} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm">
+                                    <option value="grid">Standard Grid (3 Columns)</option>
+                                    <option value="masonry">Masonry / Pinterest Style</option>
+                                    <option value="highlight">Feature Highlight (Large First Image)</option>
+                                    <option value="carousel">Carousel / Marquee (Designer Profile)</option>
+                                </select>
+                            </div>
+                            <div>
                                 <label className="block text-gray-400 mb-1 text-sm">Aspect Ratio</label>
                                 <select name="gridAspectRatio" value={currentCollection.gridAspectRatio} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm">
                                     <option value="portrait">Portrait (3:4)</option>
@@ -1315,7 +1324,7 @@ const AddUpcomingEvent = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-gray-400 mb-1 text-sm">Day</label>
+                                <label className="block text-gray-400 mb-1 text-sm">Day (Optional)</label>
                                 <select name="day" value={currentCollection.day} onChange={handleCollectionChange} className="w-full p-2 bg-gray-700 rounded text-white text-sm">
                                     <option value="">None</option>
                                     <option value="1">Day 1</option>

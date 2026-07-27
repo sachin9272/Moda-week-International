@@ -689,16 +689,21 @@ const AddEvent = () => {
             data.append('videoSectionFile', formData.videoSection.file);
         }
 
-        const collectionsMeta = formData.collections.map(col => ({
-            title: col.title,
-            subtitle: col.subtitle,
-            description: col.description,
-            designerId: col.designerId, // Include ID
-            layout: col.layout,
-            gridAspectRatio: col.gridAspectRatio,
-            day: col.day, // Include Day
-            dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : ''
-        }));
+        const collectionsMeta = formData.collections.map(col => {
+            const meta = {
+                title: col.title,
+                subtitle: col.subtitle,
+                description: col.description,
+                designerId: col.designerId, // Include ID
+                layout: col.layout,
+                gridAspectRatio: col.gridAspectRatio,
+                dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : ''
+            };
+            if (col.day) {
+                meta.day = col.day; // Only include Day if selected (optional field)
+            }
+            return meta;
+        });
         data.append('collections', JSON.stringify(collectionsMeta));
 
         formData.collections.forEach((col, index) => {

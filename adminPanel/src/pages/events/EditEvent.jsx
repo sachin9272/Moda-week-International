@@ -761,18 +761,23 @@ const EditEvent = () => {
         // Handle collections
         // For existing collections with URLs, we need to pass them back.
         // For new images in new collections, they are files.
-        const collectionsMeta = formData.collections.map(col => ({
-            title: col.title,
-            subtitle: col.subtitle,
-            description: col.description,
-            designerId: col.designerId, // Include ID
-            layout: col.layout,
-            designerImage: typeof col.designerImage === 'string' ? col.designerImage : undefined,
-            gridAspectRatio: col.gridAspectRatio,
-            day: col.day, // Include Day
-            dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : '',
-            images: col.images.filter(img => typeof img === 'string') // Only pass existing URLs in metadata
-        }));
+        const collectionsMeta = formData.collections.map(col => {
+            const meta = {
+                title: col.title,
+                subtitle: col.subtitle,
+                description: col.description,
+                designerId: col.designerId, // Include ID
+                layout: col.layout,
+                designerImage: typeof col.designerImage === 'string' ? col.designerImage : undefined,
+                gridAspectRatio: col.gridAspectRatio,
+                dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : '',
+                images: col.images.filter(img => typeof img === 'string') // Only pass existing URLs in metadata
+            };
+            if (col.day) {
+                meta.day = col.day; // Only include Day if selected (optional field)
+            }
+            return meta;
+        });
         data.append('collections', JSON.stringify(collectionsMeta));
 
         formData.collections.forEach((col, index) => {
