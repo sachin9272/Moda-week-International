@@ -1,6 +1,6 @@
 import express from 'express';
 const router = express.Router();
-import { createUpcomingEvent, getUpcomingEvents, getUpcomingEventById, updateUpcomingEvent, deleteUpcomingEvent } from '../controllers/upcomingEventController.js';
+import { createUpcomingEvent, getUpcomingEvents, getUpcomingEventById, updateUpcomingEvent, deleteUpcomingEvent, reorderUpcomingEvents } from '../controllers/upcomingEventController.js';
 import { uploadS3, setFolder } from '../config/s3Config.js';
 
 router.use((req, res, next) => {
