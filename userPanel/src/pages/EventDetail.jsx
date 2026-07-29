@@ -8,6 +8,39 @@ import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { baseURL as API_BASE_URL } from '../config/api';
 import { optimizeCloudinaryImage } from '../utils/cloudinary';
 
+const LazyCollection = ({ children }) => {
+    const [isVisible, setIsVisible] = React.useState(false);
+    const containerRef = React.useRef(null);
+
+    React.useEffect(() => {
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.disconnect(); // Only load once
+                }
+            },
+            { rootMargin: "300px" } // Load a bit before it comes into view
+        );
+
+        if (containerRef.current) {
+            observer.observe(containerRef.current);
+        }
+
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <div ref={containerRef} style={{ minHeight: "400px" }}>
+            {isVisible ? children : (
+                <div className="flex items-center justify-center h-[400px]">
+                    <div className="w-8 h-8 border-4 border-[#C7913E] border-t-transparent rounded-full animate-spin"></div>
+                </div>
+            )}
+        </div>
+    );
+};
+
 const AutoScrollCarousel = ({ images }) => {
     const scrollRef = React.useRef(null);
     const [isInteracting, setIsInteracting] = React.useState(false);
@@ -327,8 +360,6 @@ const EventDetail = () => {
                                             src={optimizeCloudinaryImage(designerImageUrl, { width: 900, height: 1200, crop: 'fill' })}
                                             alt={collection.title}
                                             className="w-full h-full object-cover object-top"
-                                            loading="lazy"
-                                            decoding="async"
                                         />
                                     </div>
                                 </div>
@@ -641,7 +672,11 @@ const EventDetail = () => {
             <div className="mt-10 bg-white">
                 {event.collections && event.collections
                     .filter(col => !col.day || getCollectionDayKey(col) === activeDay) // Show if no day assigned OR matches active day
-                    .map((col, idx) => renderCollection(col, idx))}
+                    .map((col, idx) => (
+                        <LazyCollection key={col._id || col.title || idx}>
+                            {renderCollection(col, idx)}
+                        </LazyCollection>
+                    ))}
             </div>
 
             {/* <div className='!text-white mb-10'>
