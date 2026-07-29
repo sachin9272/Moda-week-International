@@ -1,5 +1,5 @@
 import LandingPage from "../models/landingPageModel.js";
-import { cloudinary } from "../config/cloudinaryConfig.js";
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 const getOrCreateLandingPage = async () => {
     let page = await LandingPage.findOne();
@@ -40,7 +40,7 @@ export const updateLandingPage = async (req, res) => {
 
         if (modaIntroSection.removeImage && page.modaIntroSection?.image?.publicId) {
             try {
-                await cloudinary.uploader.destroy(page.modaIntroSection.image.publicId);
+                await deleteS3Asset(page.modaIntroSection.image.publicId);
             } catch (error) {
                 console.error("Failed to delete landing intro image:", error);
             }
@@ -57,7 +57,7 @@ export const updateLandingPage = async (req, res) => {
 
             if (page.modaIntroSection?.image?.publicId) {
                 try {
-                    await cloudinary.uploader.destroy(page.modaIntroSection.image.publicId);
+                    await deleteS3Asset(page.modaIntroSection.image.publicId);
                 } catch (error) {
                     console.error("Failed to replace landing intro image:", error);
                 }

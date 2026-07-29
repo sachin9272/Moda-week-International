@@ -1,5 +1,5 @@
 import DonationPage from "../models/donationPageModel.js";
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // Get Donation Page Content
 export const getDonationPage = async (req, res) => {
@@ -62,7 +62,7 @@ export const updateDonationPage = async (req, res) => {
                 if (publicId) {
                     try {
                         console.log(`Attempting to delete image with publicId: ${publicId}`);
-                        const result = await cloudinary.uploader.destroy(publicId, { invalidate: true });
+                        const result = await deleteS3Asset(publicId, { invalidate: true });
                         console.log(`Cloudinary deletion result for ${publicId}:`, result);
 
                         if (result.result === 'ok' || result.result === 'not found') {

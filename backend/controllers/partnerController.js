@@ -1,5 +1,5 @@
 import Partner from "../models/Partner.js";
-import { cloudinary } from "../config/cloudinaryConfig.js";
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // Create a new partner
 export const createPartner = async (req, res) => {
@@ -12,8 +12,8 @@ export const createPartner = async (req, res) => {
         }
 
         const image = {
-            url: req.file.path,
-            publicId: req.file.filename
+            url: req.file.location,
+            publicId: req.file.key
         };
 
         const newPartner = new Partner({
@@ -53,7 +53,7 @@ export const deletePartner = async (req, res) => {
         // Delete image from Cloudinary
         if (partner.image && partner.image.publicId) {
             try {
-                await cloudinary.uploader.destroy(partner.image.publicId);
+                await deleteS3Asset(partner.image.publicId);
             } catch (e) {
                 console.error("Failed to delete image from Cloudinary", e);
             }

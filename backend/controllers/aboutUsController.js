@@ -1,5 +1,5 @@
 import AboutUs from "../models/aboutUsModel.js";
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // Get About Us Page Content
 export const getAboutUs = async (req, res) => {
@@ -47,7 +47,7 @@ export const updateAboutUs = async (req, res) => {
             if (file) {
                 if (currentImage && currentImage.publicId) {
                     try {
-                        await cloudinary.uploader.destroy(currentImage.publicId);
+                        await deleteS3Asset(currentImage.publicId);
                     } catch (err) {
                         console.error(`Failed to delete old image for ${sectionName}:`, err);
                     }

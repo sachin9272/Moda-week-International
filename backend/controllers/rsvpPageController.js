@@ -1,4 +1,4 @@
-import { cloudinary } from "../config/cloudinaryConfig.js";
+import { deleteS3Asset } from '../utils/s3Helper.js';
 import RsvpPage from "../models/rsvpPageModel.js";
 
 const getOrCreateRsvpPage = async () => {
@@ -14,7 +14,7 @@ const replaceImage = async (page, key, file) => {
 
   if (currentImage?.publicId) {
     try {
-      await cloudinary.uploader.destroy(currentImage.publicId);
+      await deleteS3Asset(currentImage.publicId);
     } catch (error) {
       console.error(`Failed to replace RSVP ${key}:`, error);
     }
@@ -31,7 +31,7 @@ const removeImage = async (page, key) => {
 
   if (currentImage?.publicId) {
     try {
-      await cloudinary.uploader.destroy(currentImage.publicId);
+      await deleteS3Asset(currentImage.publicId);
     } catch (error) {
       console.error(`Failed to delete RSVP ${key}:`, error);
     }

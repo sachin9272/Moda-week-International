@@ -25,7 +25,7 @@ export const addVideo = async (req, res) => {
         if (req.file) {
             // If file is uploaded, set the path
             // Note: We're storing the relative path from the server root
-            videoUrl = `/uploads/videos/${req.file.filename}`;
+            videoUrl = `/uploads/videos/${req.file.key}`;
         }
 
         if (!videoUrl) {
@@ -117,7 +117,7 @@ export const updateVideo = async (req, res) => {
             }
 
             // Set new video URL
-            video.videoUrl = `/uploads/videos/${req.file.filename}`;
+            video.videoUrl = `/uploads/videos/${req.file.key}`;
         } else if (req.body.videoUrl) {
             // Fallback if they want to update URL manually
             video.videoUrl = req.body.videoUrl;

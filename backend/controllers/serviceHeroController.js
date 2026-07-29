@@ -1,5 +1,5 @@
 import ServiceHero from '../models/ServiceHero.js';
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 // fs is not needed with multer-storage-cloudinary
 
 // Get Hero Section Data
@@ -24,20 +24,20 @@ export const updateHero = async (req, res) => {
 
         // Handle Image Upload (already handled by multer-storage-cloudinary middleware)
         if (req.file) {
-            // req.file.path is the secure_url from Cloudinary
-            // req.file.filename is the public_id
+            // req.file.location is the secure_url from Cloudinary
+            // req.file.key is the public_id
 
-            updateData.image = req.file.path;
-            updateData.imageId = req.file.filename;
+            updateData.image = req.file.location;
+            updateData.imageId = req.file.key;
 
             // Delete old image from Cloudinary if replacing
             const oldHero = await ServiceHero.findOne();
             if (oldHero && oldHero.imageId) {
-                // await cloudinary.uploader.destroy(oldHero.imageId);
+                // await deleteS3Asset(oldHero.imageId);
                 // Ideally we delete the old one. 
                 // However, check if we aren't deleting the one we just uploaded if strict duplicates allowed? 
                 // Unlikely with unique IDs.
-                await cloudinary.uploader.destroy(oldHero.imageId);
+                await deleteS3Asset(oldHero.imageId);
             }
         }
 

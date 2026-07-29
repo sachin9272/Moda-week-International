@@ -1,5 +1,5 @@
 import UpcomingEvent from '../models/upcomingEventModel.js';
-import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 import slugify from 'slugify';
 
 const generateUpcomingEventSlug = (title = '') =>
@@ -258,24 +258,24 @@ export const updateUpcomingEvent = async (req, res) => {
         // Handle Cover Image
         if (coverImageFile) {
             if (event.coverImage && event.coverImage.publicId) {
-                await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
+                await deleteS3Asset(event.coverImage.publicId, 'image');
             }
             event.coverImage = { url: coverImageFile.path, publicId: coverImageFile.filename };
         } else if (req.body.removeCoverImage === 'true') {
             if (event.coverImage && event.coverImage.publicId) {
-                await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
+                await deleteS3Asset(event.coverImage.publicId, 'image');
             }
             event.coverImage = null;
         }
 
         if (ticketBannerImageFile) {
             if (event.ticketBannerImage && event.ticketBannerImage.publicId) {
-                await deleteCloudinaryAsset(event.ticketBannerImage.publicId, 'image');
+                await deleteS3Asset(event.ticketBannerImage.publicId, 'image');
             }
             event.ticketBannerImage = { url: ticketBannerImageFile.path, publicId: ticketBannerImageFile.filename };
         } else if (req.body.removeTicketBannerImage === 'true') {
             if (event.ticketBannerImage && event.ticketBannerImage.publicId) {
-                await deleteCloudinaryAsset(event.ticketBannerImage.publicId, 'image');
+                await deleteS3Asset(event.ticketBannerImage.publicId, 'image');
             }
             event.ticketBannerImage = null;
         }
@@ -295,12 +295,12 @@ export const updateUpcomingEvent = async (req, res) => {
         const descImageFile = files.find(f => f.fieldname === 'descriptionSectionImage');
         if (descImageFile) {
             if (event.descriptionSection && event.descriptionSection.image && event.descriptionSection.image.publicId) {
-                await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
+                await deleteS3Asset(event.descriptionSection.image.publicId, 'image');
             }
             event.descriptionSection = { ...event.descriptionSection, image: { url: descImageFile.path, publicId: descImageFile.filename } };
         } else if (event.descriptionSection?.image === null) {
             if (previousDescriptionImage?.publicId) {
-                await deleteCloudinaryAsset(previousDescriptionImage.publicId, 'image');
+                await deleteS3Asset(previousDescriptionImage.publicId, 'image');
             }
             event.descriptionSection = { ...event.descriptionSection, image: null };
         }
@@ -318,14 +318,14 @@ export const updateUpcomingEvent = async (req, res) => {
                 };
 
                 if (parsedVideo.type === 'youtube' && previousVideoPublicId) {
-                    await deleteCloudinaryAsset(previousVideoPublicId, 'video');
+                    await deleteS3Asset(previousVideoPublicId, 'video');
                 }
             } catch(e) { console.error("Error parsing videoSection JSON:", e); }
         }
         const videoSectionFile = files.find(f => f.fieldname === 'videoSectionFile');
         if (videoSectionFile) {
             if (event.videoSection && event.videoSection.publicId) {
-                await deleteCloudinaryAsset(event.videoSection.publicId, 'video');
+                await deleteS3Asset(event.videoSection.publicId, 'video');
             }
             if (!event.videoSection) event.videoSection = {};
             event.videoSection.url = videoSectionFile.path;
@@ -347,7 +347,7 @@ export const updateUpcomingEvent = async (req, res) => {
                 if (event.partners) {
                     for (const p of event.partners) {
                         if (p.publicId && !keptPartners.has(p.url)) {
-                             await deleteCloudinaryAsset(p.publicId, 'image');
+                             await deleteS3Asset(p.publicId, 'image');
                         }
                     }
                 }
@@ -381,7 +381,7 @@ export const updateUpcomingEvent = async (req, res) => {
              if (event.ticketTypes) {
                  for (const t of event.ticketTypes) {
                      if (t.image && t.image.publicId && !keptTicketImages.has(t.image.url)) {
-                          await deleteCloudinaryAsset(t.image.publicId, 'image');
+                          await deleteS3Asset(t.image.publicId, 'image');
                      }
                  }
              }
@@ -438,13 +438,13 @@ export const updateUpcomingEvent = async (req, res) => {
                     if (col.images) {
                         for (const img of col.images) {
                             if (img && img.url && !keptImageUrls.has(img.url) && img.publicId) {
-                                await deleteCloudinaryAsset(img.publicId, 'image');
+                                await deleteS3Asset(img.publicId, 'image');
                             }
                         }
                     }
                     if (col.designerImage && col.designerImage.publicId) {
                         if (!keptImageUrls.has(col.designerImage.url)) {
-                            await deleteCloudinaryAsset(col.designerImage.publicId, 'image');
+                            await deleteS3Asset(col.designerImage.publicId, 'image');
                         }
                     }
                 }
@@ -540,29 +540,29 @@ export const deleteUpcomingEvent = async (req, res) => {
         }
 
         if (event.coverImage && event.coverImage.publicId) {
-            await deleteCloudinaryAsset(event.coverImage.publicId, 'image');
+            await deleteS3Asset(event.coverImage.publicId, 'image');
         }
         if (event.ticketBannerImage && event.ticketBannerImage.publicId) {
-            await deleteCloudinaryAsset(event.ticketBannerImage.publicId, 'image');
+            await deleteS3Asset(event.ticketBannerImage.publicId, 'image');
         }
 
         if (event.descriptionSection && event.descriptionSection.image && event.descriptionSection.image.publicId) {
-            await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
+            await deleteS3Asset(event.descriptionSection.image.publicId, 'image');
         }
 
         if (event.videoSection && event.videoSection.publicId) {
-            await deleteCloudinaryAsset(event.videoSection.publicId, 'video');
+            await deleteS3Asset(event.videoSection.publicId, 'video');
         }
 
         if (event.partners) {
             for (const p of event.partners) {
-                 if (p.publicId) await deleteCloudinaryAsset(p.publicId, 'image');
+                 if (p.publicId) await deleteS3Asset(p.publicId, 'image');
             }
         }
 
         if (event.ticketTypes) {
             for (const t of event.ticketTypes) {
-                 if (t.image && t.image.publicId) await deleteCloudinaryAsset(t.image.publicId, 'image');
+                 if (t.image && t.image.publicId) await deleteS3Asset(t.image.publicId, 'image');
             }
         }
 
@@ -570,11 +570,11 @@ export const deleteUpcomingEvent = async (req, res) => {
             for (const col of event.collections) {
                 if (col.images) {
                     for (const img of col.images) {
-                        if (img && img.publicId) await deleteCloudinaryAsset(img.publicId, 'image');
+                        if (img && img.publicId) await deleteS3Asset(img.publicId, 'image');
                     }
                 }
                 if (col.designerImage && col.designerImage.publicId) {
-                    await deleteCloudinaryAsset(col.designerImage.publicId, 'image');
+                    await deleteS3Asset(col.designerImage.publicId, 'image');
                 }
             }
         }

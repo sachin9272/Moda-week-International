@@ -1,5 +1,5 @@
 import Talent from '../models/talentModel.js';
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // Create a new talent
 export const createTalent = async (req, res) => {
@@ -58,7 +58,7 @@ export const updateTalent = async (req, res) => {
             // Delete old image
             if (talent.image && talent.image.publicId) {
                 try {
-                    await cloudinary.uploader.destroy(talent.image.publicId);
+                    await deleteS3Asset(talent.image.publicId);
                 } catch (e) {
                     console.error("Failed to delete old image:", e);
                 }
@@ -159,7 +159,7 @@ export const deleteTalent = async (req, res) => {
 
         if (talent.image && talent.image.publicId) {
             try {
-                await cloudinary.uploader.destroy(talent.image.publicId);
+                await deleteS3Asset(talent.image.publicId);
             } catch (e) {
                 console.error("Failed to delete image from Cloudinary", e);
             }

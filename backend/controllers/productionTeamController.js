@@ -1,5 +1,5 @@
 import ProductionTeam from '../models/productionTeamModel.js';
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 const normalizeTeamMemberOrder = async () => {
     const members = await ProductionTeam.find().sort({ order: 1, createdAt: 1, _id: 1 });
@@ -84,7 +84,7 @@ export const updateTeamMember = async (req, res) => {
             // Delete old image
             if (member.image && member.image.publicId) {
                 try {
-                    await cloudinary.uploader.destroy(member.image.publicId);
+                    await deleteS3Asset(member.image.publicId);
                 } catch (e) {
                     console.error("Failed to delete old image:", e);
                 }
@@ -223,7 +223,7 @@ export const deleteTeamMember = async (req, res) => {
 
         if (member.image && member.image.publicId) {
             try {
-                await cloudinary.uploader.destroy(member.image.publicId);
+                await deleteS3Asset(member.image.publicId);
             } catch (e) {
                 console.error("Failed to delete image from Cloudinary", e);
             }

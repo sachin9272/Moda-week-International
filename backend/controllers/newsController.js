@@ -1,5 +1,5 @@
 import News from '../models/newsModel.js';
-import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 import { createNotification } from './notificationController.js';
 import slugify from 'slugify';
 
@@ -155,8 +155,8 @@ export const createNews = async (req, res) => {
     let imageData = {};
     if (req.file) {
         imageData = {
-            url: req.file.path,
-            public_id: req.file.filename
+            url: req.file.location,
+            public_id: req.file.key
         };
     }
 
@@ -192,19 +192,19 @@ export const updateNews = async (req, res) => {
         // Handle Image Update
         if (req.file) {
             updateData.image = {
-                url: req.file.path,
-                public_id: req.file.filename
+                url: req.file.location,
+                public_id: req.file.key
             };
 
             // Delete old image if exists
             const oldNews = await News.findById(req.params.id);
             if (oldNews && oldNews.image && oldNews.image.public_id) {
-                await deleteCloudinaryAsset(oldNews.image.public_id);
+                await deleteS3Asset(oldNews.image.public_id);
             }
         } else if (req.body.removeImage === 'true') {
             const oldNews = await News.findById(req.params.id);
             if (oldNews && oldNews.image && oldNews.image.public_id) {
-                await deleteCloudinaryAsset(oldNews.image.public_id, 'image');
+                await deleteS3Asset(oldNews.image.public_id, 'image');
             }
             updateData.image = null;
         }
@@ -252,12 +252,12 @@ export const deleteNews = async (req, res) => {
 
         // Delete image from Cloudinary
         if (news.image && news.image.public_id) {
-            await deleteCloudinaryAsset(news.image.public_id, 'image');
+            await deleteS3Asset(news.image.public_id, 'image');
         }
 
         // Delete video from Cloudinary
         if (news.video && news.video.public_id) {
-            await deleteCloudinaryAsset(news.video.public_id, 'video');
+            await deleteS3Asset(news.video.public_id, 'video');
         }
 
         await News.findByIdAndDelete(req.params.id);
@@ -421,12 +421,12 @@ export const rejectNews = async (req, res) => {
 
         // Delete image from Cloudinary
         if (news.image && news.image.public_id) {
-            await deleteCloudinaryAsset(news.image.public_id, 'image');
+            await deleteS3Asset(news.image.public_id, 'image');
         }
 
         // Delete video from Cloudinary
         if (news.video && news.video.public_id) {
-            await deleteCloudinaryAsset(news.video.public_id, 'video');
+            await deleteS3Asset(news.video.public_id, 'video');
         }
 
         await News.findByIdAndDelete(req.params.id);

@@ -1,5 +1,5 @@
 import Philanthropy from '../models/philanthropyModel.js';
-import { v2 as cloudinary } from 'cloudinary';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // Get the Philanthropy page data (create default if not exists)
 export const getPhilanthropy = async (req, res) => {
@@ -82,15 +82,14 @@ export const updatePhilanthropy = async (req, res) => {
                     // Delete old image if exists
                     if (currentSection.image && currentSection.image.publicId) {
                         try {
-                            await cloudinary.uploader.destroy(currentSection.image.publicId);
+                            await deleteS3Asset(currentSection.image.publicId);
                         } catch (err) {
                             console.error(`Failed to delete old image for section ${section.id}:`, err);
                         }
                     }
 
                     const file = req.files[`sectionImage_${section.id}`][0];
-                    const result = await cloudinary.uploader.upload(file.path, { folder: "philanthropy/sections" });
-                    newImage = { url: result.secure_url, publicId: result.public_id };
+                    newImage = { url: file.location, publicId: file.key };
                 }
 
                 // Check for uploaded video for this section
@@ -98,15 +97,14 @@ export const updatePhilanthropy = async (req, res) => {
                     // Delete old video if exists
                     if (currentSection.video && currentSection.video.publicId) {
                         try {
-                            await cloudinary.uploader.destroy(currentSection.video.publicId, { resource_type: 'video' });
+                            await deleteS3Asset(currentSection.video.publicId);
                         } catch (err) {
                             console.error(`Failed to delete old video for section ${section.id}:`, err);
                         }
                     }
 
                     const file = req.files[`sectionVideo_${section.id}`][0];
-                    const result = await cloudinary.uploader.upload(file.path, { resource_type: "video", folder: "philanthropy/sections" });
-                    newVideo = { url: result.secure_url, publicId: result.public_id };
+                    newVideo = { url: file.location, publicId: file.key };
                 }
 
                 return {
@@ -124,8 +122,7 @@ export const updatePhilanthropy = async (req, res) => {
         if (req.files && req.files['slideshowImages']) {
             const files = req.files['slideshowImages']; // Array of files
             for (const file of files) {
-                const result = await cloudinary.uploader.upload(file.path, { folder: "philanthropy/slideshow" });
-                philanthropy.slideshowImages.push({ url: result.secure_url, publicId: result.public_id });
+                philanthropy.slideshowImages.push({ url: file.location, publicId: file.key });
             }
         }
 
@@ -133,7 +130,7 @@ export const updatePhilanthropy = async (req, res) => {
         if (data.removeSlideshowImages && Array.isArray(data.removeSlideshowImages)) {
             for (const publicId of data.removeSlideshowImages) {
                 if (publicId) {
-                    await cloudinary.uploader.destroy(publicId);
+                    await deleteS3Asset(publicId);
                     philanthropy.slideshowImages = philanthropy.slideshowImages.filter(img => img.publicId !== publicId);
                 }
             }

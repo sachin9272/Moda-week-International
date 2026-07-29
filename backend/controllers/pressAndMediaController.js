@@ -1,5 +1,5 @@
 import PressAndMedia from '../models/pressAndMediaModel.js';
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // Create a new media member
 export const createMediaMember = async (req, res) => {
@@ -58,7 +58,7 @@ export const updateMediaMember = async (req, res) => {
             // Delete old image
             if (member.image && member.image.publicId) {
                 try {
-                    await cloudinary.uploader.destroy(member.image.publicId);
+                    await deleteS3Asset(member.image.publicId);
                 } catch (e) {
                     console.error("Failed to delete old image:", e);
                 }
@@ -159,7 +159,7 @@ export const deleteMediaMember = async (req, res) => {
 
         if (member.image && member.image.publicId) {
             try {
-                await cloudinary.uploader.destroy(member.image.publicId);
+                await deleteS3Asset(member.image.publicId);
             } catch (e) {
                 console.error("Failed to delete image from Cloudinary", e);
             }

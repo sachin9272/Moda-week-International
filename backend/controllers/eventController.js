@@ -1,5 +1,5 @@
 import Event from '../models/eventModel.js';
-import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 import slugify from 'slugify';
 
 export const createEvent = async (req, res) => {
@@ -280,12 +280,12 @@ export const updateEvent = async (req, res) => {
         if (thumbnailFile) {
             // New uploaded, delete old
             if (event.thumbnail && event.thumbnail.publicId) {
-                await deleteCloudinaryAsset(event.thumbnail.publicId, 'image');
+                await deleteS3Asset(event.thumbnail.publicId, 'image');
             }
             event.thumbnail = thumbnailFile;
         } else if (req.body.removeThumbnail === 'true') {
             if (event.thumbnail && event.thumbnail.publicId) {
-                await deleteCloudinaryAsset(event.thumbnail.publicId, 'image');
+                await deleteS3Asset(event.thumbnail.publicId, 'image');
             }
             event.thumbnail = null;
         }
@@ -302,7 +302,7 @@ export const updateEvent = async (req, res) => {
                 if (col.images) {
                     for (const img of col.images) {
                         if (img && img.url && !keptImageUrls.has(img.url) && img.publicId) {
-                            await deleteCloudinaryAsset(img.publicId, 'image');
+                            await deleteS3Asset(img.publicId, 'image');
                         }
                     }
                 }
@@ -310,7 +310,7 @@ export const updateEvent = async (req, res) => {
                 if (col.designerImage && col.designerImage.publicId) {
                     const diUrl = col.designerImage.url;
                     if (diUrl && !keptImageUrls.has(diUrl)) {
-                        await deleteCloudinaryAsset(col.designerImage.publicId, 'image');
+                        await deleteS3Asset(col.designerImage.publicId, 'image');
                     }
                 }
             }
@@ -400,12 +400,12 @@ export const updateEvent = async (req, res) => {
         // If new file
         if (descriptionSectionFile) {
 
-            if (event.descriptionSection?.image?.publicId) await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
+            if (event.descriptionSection?.image?.publicId) await deleteS3Asset(event.descriptionSection.image.publicId, 'image');
             descriptionSection.image = descriptionSectionFile;
         } else {
             if (descriptionSection.removeImage) {
                 if (event.descriptionSection?.image?.publicId) {
-                    await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
+                    await deleteS3Asset(event.descriptionSection.image.publicId, 'image');
                 }
                 descriptionSection.image = undefined;
             } else
@@ -497,7 +497,7 @@ export const updateEvent = async (req, res) => {
                 // New file uploaded
                 // Delete old if exists and was upload
                 if (event.videoSection.publicId) {
-                    await deleteCloudinaryAsset(event.videoSection.publicId, 'video');
+                    await deleteS3Asset(event.videoSection.publicId, 'video');
                 }
                 event.videoSection.url = videoSectionFile.url;
                 event.videoSection.publicId = videoSectionFile.publicId;
@@ -514,7 +514,7 @@ export const updateEvent = async (req, res) => {
             // YouTube
             // If previously upload, delete asset
             if (event.videoSection.publicId) {
-                await deleteCloudinaryAsset(event.videoSection.publicId, 'video');
+                await deleteS3Asset(event.videoSection.publicId, 'video');
                 event.videoSection.publicId = undefined;
             }
             event.videoSection.url = incomingVideoSection.url;
@@ -535,7 +535,7 @@ export const updateEvent = async (req, res) => {
                     // It's checked via `keptImageUrls` gathered from `incomingTickets`?
                     // Wait, incomingTickets logic above added to `keptImageUrls`.
                     if (!keptImageUrls.has(ticket.image.url)) {
-                        deleteCloudinaryAsset(ticket.image.publicId, 'image');
+                        deleteS3Asset(ticket.image.publicId, 'image');
                     }
                 }
             });
@@ -576,7 +576,7 @@ export const updateEvent = async (req, res) => {
         if (event.partners) {
             event.partners.forEach(partner => {
                 if (partner.publicId && !keptPartnerUrls.has(partner.url)) {
-                    deleteCloudinaryAsset(partner.publicId, 'image');
+                    deleteS3Asset(partner.publicId, 'image');
                 }
             });
         }
@@ -660,29 +660,29 @@ export const deleteEvent = async (req, res) => {
         }
 
         // Delete all assets
-        if (event.thumbnail?.publicId) await deleteCloudinaryAsset(event.thumbnail.publicId, 'image');
+        if (event.thumbnail?.publicId) await deleteS3Asset(event.thumbnail.publicId, 'image');
 
 
-        if (event.bottomSection?.image?.publicId) await deleteCloudinaryAsset(event.bottomSection.image.publicId, 'image');
-        if (event.descriptionSection?.image?.publicId) await deleteCloudinaryAsset(event.descriptionSection.image.publicId, 'image');
-        if (event.videoSection?.publicId) await deleteCloudinaryAsset(event.videoSection.publicId, 'video');
+        if (event.bottomSection?.image?.publicId) await deleteS3Asset(event.bottomSection.image.publicId, 'image');
+        if (event.descriptionSection?.image?.publicId) await deleteS3Asset(event.descriptionSection.image.publicId, 'image');
+        if (event.videoSection?.publicId) await deleteS3Asset(event.videoSection.publicId, 'video');
 
         if (event.collections) {
             for (const col of event.collections) {
                 if (col.images) {
                     for (const img of col.images) {
-                        if (img.publicId) await deleteCloudinaryAsset(img.publicId, 'image');
+                        if (img.publicId) await deleteS3Asset(img.publicId, 'image');
                     }
                 }
                 if (col.designerImage?.publicId) {
-                    await deleteCloudinaryAsset(col.designerImage.publicId, 'image');
+                    await deleteS3Asset(col.designerImage.publicId, 'image');
                 }
             }
         }
 
         if (event.tickets) {
             for (const ticket of event.tickets) {
-                if (ticket.image?.publicId) await deleteCloudinaryAsset(ticket.image.publicId, 'image');
+                if (ticket.image?.publicId) await deleteS3Asset(ticket.image.publicId, 'image');
             }
         }
 

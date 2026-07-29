@@ -1,5 +1,5 @@
 import UpcomingEventHero from '../models/UpcomingEventHero.js';
-import { deleteCloudinaryAsset } from '../utils/cloudinaryHelper.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // Get Hero Data
 export const getHero = async (req, res) => {
@@ -23,13 +23,13 @@ export const updateHero = async (req, res) => {
 
         if (req.file) {
             if (existingHero?.imageId) {
-                await deleteCloudinaryAsset(existingHero.imageId, 'image');
+                await deleteS3Asset(existingHero.imageId, 'image');
             }
-            updateData.image = req.file.path;
-            updateData.imageId = req.file.filename;
+            updateData.image = req.file.location;
+            updateData.imageId = req.file.key;
         } else if (removeImage === 'true') {
             if (existingHero?.imageId) {
-                await deleteCloudinaryAsset(existingHero.imageId, 'image');
+                await deleteS3Asset(existingHero.imageId, 'image');
             }
             updateData.image = '';
             updateData.imageId = '';

@@ -1,5 +1,5 @@
 import ServiceType from '../models/ServiceType.js';
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // @desc    Get all service types
 // @route   GET /api/service-types
@@ -27,8 +27,8 @@ export const createServiceType = async (req, res) => {
         const newService = new ServiceType({
             title,
             description,
-            image: req.file.path,
-            publicId: req.file.filename,
+            image: req.file.location,
+            publicId: req.file.key,
             order
         });
 
@@ -58,11 +58,11 @@ export const updateServiceType = async (req, res) => {
         if (req.file) {
             // Delete old image from Cloudinary
             if (service.publicId) {
-                await cloudinary.uploader.destroy(service.publicId);
+                await deleteS3Asset(service.publicId);
             }
 
-            service.image = req.file.path;
-            service.publicId = req.file.filename;
+            service.image = req.file.location;
+            service.publicId = req.file.key;
         }
 
         const updatedService = await service.save();
@@ -84,7 +84,7 @@ export const deleteServiceType = async (req, res) => {
         }
 
         if (service.publicId) {
-            await cloudinary.uploader.destroy(service.publicId);
+            await deleteS3Asset(service.publicId);
         }
 
         await service.deleteOne();

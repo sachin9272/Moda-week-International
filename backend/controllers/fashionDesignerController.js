@@ -1,5 +1,5 @@
 import FashionDesigner from '../models/fashionDesignerModel.js';
-import { cloudinary } from '../config/cloudinaryConfig.js';
+import { deleteS3Asset } from '../utils/s3Helper.js';
 
 // Create a new designer
 export const createDesigner = async (req, res) => {
@@ -60,7 +60,7 @@ export const updateDesigner = async (req, res) => {
             // Delete old image
             if (designer.image && designer.image.publicId) {
                 try {
-                    await cloudinary.uploader.destroy(designer.image.publicId);
+                    await deleteS3Asset(designer.image.publicId);
                 } catch (e) {
                     console.error("Failed to delete old image:", e);
                 }
@@ -163,7 +163,7 @@ export const deleteDesigner = async (req, res) => {
 
         if (designer.image && designer.image.publicId) {
             try {
-                await cloudinary.uploader.destroy(designer.image.publicId);
+                await deleteS3Asset(designer.image.publicId);
             } catch (e) {
                 console.error("Failed to delete image from Cloudinary", e);
             }
