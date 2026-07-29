@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import useSWR from 'swr';
 import Navbar from '../components/Navbar';
 import CtaSection from '../components/CtaSection';
 import Footer from '../components/Footer';
@@ -167,13 +168,27 @@ const getCollectionDayLabel = (collection) => {
     return dayMap[String(collection.day)] || `DAY ${collection.day}`;
 };
 
+const fetcher = (url) => axios.get(url).then(res => res.data);
+
 const EventDetail = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
-    const [event, setEvent] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [activeDay, setActiveDay] = useState(''); // Default to first available tagged day
     const dayRefs = React.useRef({});
+
+    const { data: event, error, isLoading: loading } = useSWR(slug ? `${API_BASE_URL}/api/events/${slug}` : null, fetcher, {
+        revalidateOnFocus: false,
+        onSuccess: (data) => {
+            const collections = data.collections || [];
+            const hasDays = collections.some(col => col.day);
+            if (hasDays && !activeDay) {
+                const firstTaggedCollection = collections.find(col => getCollectionDayKey(col));
+                if (firstTaggedCollection) {
+                    setActiveDay(getCollectionDayKey(firstTaggedCollection));
+                }
+            }
+        }
+    });
 
     const collectionDays = React.useMemo(() => {
         const collections = event?.collections || [];
@@ -194,33 +209,7 @@ const EventDetail = () => {
         return uniqueDays;
     }, [event]);
 
-    useEffect(() => {
-        const fetchEvent = async () => {
-            try {
-                // If slug is available, use it. The backend should handle finding by slug OR ID.
-                const response = await axios.get(`${API_BASE_URL}/api/events/${slug}`);
-                setEvent(response.data);
-
-                // Determine initial active day
-                const collections = response.data.collections || [];
-                const hasDays = collections.some(col => col.day);
-                if (hasDays) {
-                    const firstTaggedCollection = collections.find(col => getCollectionDayKey(col));
-                    if (firstTaggedCollection) {
-                        setActiveDay(getCollectionDayKey(firstTaggedCollection));
-                    }
-                }
-
-                setLoading(false);
-            } catch (error) {
-                console.error("Error fetching event details:", error);
-                setLoading(false);
-            }
-        };
-
-        fetchEvent();
-    }, [slug]);
-
+    if (error) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Error loading event.</div>;
     if (loading) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Loading...</div>;
     if (!event) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Event not found</div>;
 
