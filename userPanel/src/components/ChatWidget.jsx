@@ -13,6 +13,7 @@ const ChatWidget = () => {
     const [chatHistory, setChatHistory] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [sessionId] = useState(() => Math.random().toString(36).substring(2, 15));
+    const [lastScrollY, setLastScrollY] = useState(0);
     const chatEndRef = useRef(null);
 
     const toggleChat = () => setIsOpen(!isOpen);
@@ -22,6 +23,20 @@ const ChatWidget = () => {
             chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }
     }, [chatHistory, isOpen, isLoading]);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            // If scrolling down, close the chat panel
+            if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                setIsOpen(false);
+            }
+            setLastScrollY(currentScrollY);
+        };
+
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [lastScrollY]);
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
