@@ -44,6 +44,10 @@ const upcomingEventSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    order: {
+        type: Number,
+        default: 0
+    },
     heroLayout: {
         type: String,
         enum: ['split', 'full', 'minimal'],

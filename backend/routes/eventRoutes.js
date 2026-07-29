@@ -5,6 +5,7 @@ import { uploadS3, setFolder } from '../config/s3Config.js';
 
 router.post('/create', setFolder('events'), uploadS3.any(), createEvent);
 router.get('/all', getEvents);
+router.put('/reorder', reorderEvents);
 router.get('/:id', getEventById);
 router.put('/update/:id', setFolder('events'), uploadS3.any(), updateEvent);
 router.patch('/update-status/:id', updateEventStatus);

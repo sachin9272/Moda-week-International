@@ -78,6 +78,8 @@ const AutoScrollCarousel = ({ images }) => {
     );
 };
 
+const getPartnerMarqueeDuration = (partnerCount) => `${Math.max(18, partnerCount * 2.5)}s`;
+
 const URL_REGEX = /(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi;
 
 const renderTextWithLinks = (text = "") =>
@@ -188,6 +190,9 @@ const EventDetail = () => {
 
     if (loading) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Loading...</div>;
     if (!event) return <div className="bg-white min-h-screen text-black flex items-center justify-center">Event not found</div>;
+
+    const eventPartners = Array.isArray(event.partners) ? event.partners : [];
+    const partnerMarqueeItems = [...eventPartners, ...eventPartners];
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -531,7 +536,7 @@ const EventDetail = () => {
             )}
 
             {/* Partners Section */}
-            {event.partners && event.partners.length > 0 && (
+            {eventPartners.length > 0 && (
                 <div className="py-1 bg-white border-t border-gray-100">
                     <div className="max-w-7xl mx-auto px-6 text-center mb-10">
                         <h2 className="text-3xl md:text-5xl font-playfair font-bold text-black uppercase tracking-wider mb-2">
@@ -542,18 +547,19 @@ const EventDetail = () => {
 
                     <div className="border-gray-800 py-8">
                         <div className="marquee-wrapper py-8">
-                            <div className="marquee-track">
-                                {[...Array(10)].map((_, loopIndex) => (
-                                    event.partners.map((partner, i) => (
-                                        <img
-                                            key={`${loopIndex}-${i}`}
-                                            src={optimizeCloudinaryImage(partner.url, { width: 320, height: 160, crop: 'fit' })}
-                                            alt={`Partner ${i}`}
-                                            className="h-20 object-contain -mx-1"
-                                            loading="lazy"
-                                            decoding="async"
-                                        />
-                                    ))
+                            <div
+                                className="marquee-track"
+                                style={{ '--marquee-duration': getPartnerMarqueeDuration(eventPartners.length) }}
+                            >
+                                {partnerMarqueeItems.map((partner, i) => (
+                                    <img
+                                        key={`${partner._id || partner.url || 'partner'}-${i}`}
+                                        src={optimizeCloudinaryImage(partner.url, { width: 320, height: 160, crop: 'fit' })}
+                                        alt={`Partner ${(i % eventPartners.length) + 1}`}
+                                        className="h-20 object-contain -mx-1"
+                                        loading="lazy"
+                                        decoding="async"
+                                    />
                                 ))}
                             </div>
                         </div>

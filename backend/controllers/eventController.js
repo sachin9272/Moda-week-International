@@ -2,6 +2,18 @@ import Event from '../models/eventModel.js';
 import { deleteS3Asset } from '../utils/s3Helper.js';
 import slugify from 'slugify';
 
+const normalizeCollectionDay = (collection = {}) => {
+    const normalizedDay = collection.day === 'custom'
+        ? 'custom'
+        : (['1', '2', '3', '4', '5'].includes(String(collection.day || '')) ? String(collection.day) : undefined);
+
+    return {
+        ...collection,
+        day: normalizedDay,
+        dayLabel: normalizedDay === 'custom' ? (collection.dayLabel || '').trim() : ''
+    };
+};
+
 export const createEvent = async (req, res) => {
     try {
         const { city, eventName, date, eventType, heroLayout, status } = req.body;
@@ -79,7 +91,7 @@ export const createEvent = async (req, res) => {
             const designerImage = designerImageFile ? { url: designerImageFile.path, publicId: designerImageFile.filename } : null;
 
             return {
-                ...col,
+                ...normalizeCollectionDay(col),
                 description: col.description,
                 images: newImages,
                 designerImage,
@@ -371,6 +383,7 @@ export const updateEvent = async (req, res) => {
                 });
             }
 
+            const normalizedDay = normalizeCollectionDay(col);
             return {
                 title: col.title,
                 subtitle: col.subtitle,
@@ -379,8 +392,8 @@ export const updateEvent = async (req, res) => {
                 layout: col.layout,
                 designerImage,
                 gridAspectRatio: col.gridAspectRatio || 'portrait',
-                day: col.day,
-                dayLabel: col.day === 'custom' ? (col.dayLabel || '').trim() : '',
+                day: normalizedDay.day,
+                dayLabel: normalizedDay.dayLabel,
                 images: [...existingImagesObjects, ...newImagesParts]
             };
         });
@@ -717,11 +730,34 @@ export const getEvents = async (req, res) => {
             }
         }
 
-        const events = await Event.find(query).sort({ createdAt: -1 });
+        const events = await Event.find(query).sort({ order: 1, createdAt: -1 });
         res.status(200).json(events);
     } catch (error) {
         console.error("Error fetching events:", error);
         res.status(500).json({ message: "Failed to fetch events", error: error.message });
+    }
+};
+
+// Reorder events
+export const reorderEvents = async (req, res) => {
+    try {
+        const { orders } = req.body;
+
+        if (!orders || !Array.isArray(orders)) {
+            return res.status(400).json({ message: 'Orders array is required' });
+        }
+
+        await Promise.all(
+            orders.map(({ id, order }) =>
+                Event.findByIdAndUpdate(id, { order }, { new: false })
+            )
+        );
+
+        const events = await Event.find().sort({ order: 1, createdAt: -1 });
+        res.status(200).json(events);
+    } catch (error) {
+        console.error("Error reordering events:", error);
+        res.status(500).json({ message: "Failed to reorder events", error: error.message });
     }
 };
 

@@ -76,6 +76,10 @@ const eventSchema = new mongoose.Schema({
         enum: ['draft', 'published'],
         default: 'draft'
     },
+    order: {
+        type: Number,
+        default: 0
+    },
     hasTickets: {
         type: Boolean,
         default: false

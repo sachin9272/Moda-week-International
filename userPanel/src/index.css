@@ -98,7 +98,7 @@ body {
   display: flex;
   width: max-content;
   gap: 40px;
-  animation: marquee-right 24s linear infinite;
+  animation: marquee-right var(--marquee-duration, 24s) linear infinite;
   will-change: transform;
 }
 

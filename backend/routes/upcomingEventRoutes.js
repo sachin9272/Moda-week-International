@@ -12,6 +12,7 @@ router.use((req, res, next) => {
 
 router.post('/create', setFolder('upcoming-events'), uploadS3.any(), createUpcomingEvent);
 router.get('/all', getUpcomingEvents);
+router.put('/reorder', reorderUpcomingEvents);
 router.get('/:id', getUpcomingEventById);
 router.put('/update/:id', setFolder('upcoming-events'), uploadS3.any(), updateUpcomingEvent);
 router.delete('/delete/:id', deleteUpcomingEvent);
