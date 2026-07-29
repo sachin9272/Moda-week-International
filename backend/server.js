@@ -15,6 +15,8 @@ import uploadRoutes from './routes/uploadRoutes.js';
 import partnerRoutes from './routes/partnerRoutes.js';
 import newsRoutes from './routes/newsRoutes.js';
 import upcomingEventRoutes from './routes/upcomingEventRoutes.js';
+import ssoRouter from './routes/sso.route.js';
+import masterStatsRouter from './routes/masterStatsRoutes.js';
 import { handleStripeWebhook } from './controllers/webhookController.js';
 import { createCheckoutSession, confirmPayment, createDonationCheckoutSession } from './controllers/paymentController.js';
 import path from 'path';
@@ -48,6 +50,8 @@ app.get('/', (req, res) => {
 });
 
 // Custom Routes
+app.use('/api/sso', ssoRouter);
+app.use('/api/master-stats', masterStatsRouter);
 app.use('/api/admin', adminRoutes);
 app.use('/api/landing-videos', landingVideoRoutes);
 app.use('/api/service-types', serviceTypeRoutes);
