@@ -1,13 +1,13 @@
 import express from "express";
 import { updateDonationPage, getDonationPage } from "../controllers/donationPageController.js";
-import { uploadCloudinary, setFolder } from "../config/cloudinaryConfig.js";
+import { uploadS3, setFolder } from "../config/s3Config.js";
 
 const router = express.Router();
 
 router.get("/", getDonationPage);
 router.put("/",
     setFolder('donation/slideshow'),
-    uploadCloudinary.fields([{ name: 'slideshowImages', maxCount: 10 }]),
+    uploadS3.fields([{ name: 'slideshowImages', maxCount: 10 }]),
     updateDonationPage
 );
 

@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import { createUpcomingEvent, getUpcomingEvents, getUpcomingEventById, updateUpcomingEvent, deleteUpcomingEvent } from '../controllers/upcomingEventController.js';
-import { uploadCloudinary, setFolder } from '../config/cloudinaryConfig.js';
+import { uploadS3, setFolder } from '../config/s3Config.js';
 
 router.use((req, res, next) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -10,10 +10,10 @@ router.use((req, res, next) => {
     next();
 });
 
-router.post('/create', setFolder('upcoming-events'), uploadCloudinary.any(), createUpcomingEvent);
+router.post('/create', setFolder('upcoming-events'), uploadS3.any(), createUpcomingEvent);
 router.get('/all', getUpcomingEvents);
 router.get('/:id', getUpcomingEventById);
-router.put('/update/:id', setFolder('upcoming-events'), uploadCloudinary.any(), updateUpcomingEvent);
+router.put('/update/:id', setFolder('upcoming-events'), uploadS3.any(), updateUpcomingEvent);
 router.delete('/delete/:id', deleteUpcomingEvent);
 
 export default router;

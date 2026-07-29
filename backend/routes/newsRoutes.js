@@ -1,6 +1,6 @@
 import express from 'express';
 import { getAllNews, getLiveNews, getNews, getNewsBySlug, submitUserNews, getPendingNews, approveNews, rejectNews } from '../controllers/newsController.js';
-import { uploadCloudinary, setFolder } from '../config/cloudinaryConfig.js';
+import { uploadS3, setFolder } from '../config/s3Config.js';
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ router.get('/live', getLiveNews);
 router.get('/slug/:slug', getNewsBySlug); // Fetch by slug for SEO friendly URLs
 
 // User Submission Route (Public - with image and video upload)
-router.post('/submit', setFolder('news'), uploadCloudinary.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), submitUserNews);
+router.post('/submit', setFolder('news'), uploadS3.fields([{ name: 'image', maxCount: 1 }, { name: 'video', maxCount: 1 }]), submitUserNews);
 
 // Admin Routes for Pending Submissions
 router.get('/pending', getPendingNews);

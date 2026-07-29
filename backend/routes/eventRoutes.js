@@ -1,12 +1,12 @@
 import express from 'express';
 const router = express.Router();
 import { createEvent, getEvents, getEventById, updateEvent, deleteEvent, updateEventStatus } from '../controllers/eventController.js';
-import { uploadCloudinary, setFolder } from '../config/cloudinaryConfig.js';
+import { uploadS3, setFolder } from '../config/s3Config.js';
 
-router.post('/create', setFolder('events'), uploadCloudinary.any(), createEvent);
+router.post('/create', setFolder('events'), uploadS3.any(), createEvent);
 router.get('/all', getEvents);
 router.get('/:id', getEventById);
-router.put('/update/:id', setFolder('events'), uploadCloudinary.any(), updateEvent);
+router.put('/update/:id', setFolder('events'), uploadS3.any(), updateEvent);
 router.patch('/update-status/:id', updateEventStatus);
 router.delete('/delete/:id', deleteEvent);
 

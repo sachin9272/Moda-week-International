@@ -1,6 +1,6 @@
 import express from "express";
 import { updateAboutUs, getAboutUs } from "../controllers/aboutUsController.js";
-import { uploadCloudinary, setFolder } from "../config/cloudinaryConfig.js";
+import { uploadS3, setFolder } from "../config/s3Config.js";
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ const uploadFields = [
 router.get("/", getAboutUs);
 router.put("/",
     setFolder('about-us'),
-    uploadCloudinary.fields(uploadFields),
+    uploadS3.fields(uploadFields),
     updateAboutUs
 );
 

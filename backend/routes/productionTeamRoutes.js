@@ -1,13 +1,13 @@
 import express from 'express';
 import { createTeamMember, getTeamMembers, deleteTeamMember, updateTeamMember, getTeamMemberCountries, getTeamMemberById, reorderTeamMembers } from '../controllers/productionTeamController.js';
-import { uploadCloudinary, setFolder } from '../config/cloudinaryConfig.js';
+import { uploadS3, setFolder } from '../config/s3Config.js';
 
 const router = express.Router();
 
 router.get('/countries', getTeamMemberCountries);
 router.put('/reorder', reorderTeamMembers);
-router.post('/', setFolder('production-team'), uploadCloudinary.single('image'), createTeamMember);
-router.put('/:id', setFolder('production-team'), uploadCloudinary.single('image'), updateTeamMember);
+router.post('/', setFolder('production-team'), uploadS3.single('image'), createTeamMember);
+router.put('/:id', setFolder('production-team'), uploadS3.single('image'), updateTeamMember);
 router.get('/:id', getTeamMemberById);
 router.get('/', getTeamMembers);
 router.delete('/:id', deleteTeamMember);

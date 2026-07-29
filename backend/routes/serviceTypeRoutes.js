@@ -6,11 +6,11 @@ import {
     updateServiceType,
     deleteServiceType
 } from '../controllers/serviceTypeController.js';
-import { uploadCloudinary, setFolder } from '../config/cloudinaryConfig.js';
+import { uploadS3, setFolder } from '../config/s3Config.js';
 
 router.get('/', getServiceTypes);
-router.post('/', setFolder('service-types'), uploadCloudinary.single('image'), createServiceType);
-router.put('/:id', setFolder('service-types'), uploadCloudinary.single('image'), updateServiceType);
+router.post('/', setFolder('service-types'), uploadS3.single('image'), createServiceType);
+router.put('/:id', setFolder('service-types'), uploadS3.single('image'), updateServiceType);
 router.delete('/:id', deleteServiceType);
 
 export default router;
