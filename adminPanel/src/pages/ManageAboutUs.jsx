@@ -196,9 +196,7 @@ const ManageAboutUs = () => {
         });
 
         try {
-            await axios.put(`${baseURL}/api/about-us`, dataToSend, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await axios.put(`${baseURL}/api/about-us`, dataToSend);
             toast.success("About Us page updated successfully!");
             setNewImages({ mainSection: null, foundationSection: null, philosophySection: null, globalPlatformCards: {} });
             fetchData();

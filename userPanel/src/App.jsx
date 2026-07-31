@@ -35,8 +35,8 @@ import ScannerDashboard from "./pages/scanner/ScannerDashboard.jsx";
 import ScannerProtectedRoute from "./components/ScannerProtectedRoute.jsx";
 
 import { Toaster } from 'react-hot-toast';
-import WhatsAppButton from "./components/WhatsAppButton.jsx";
-import ChatWidget from "./components/ChatWidget.jsx";
+// import WhatsAppButton from "./components/WhatsAppButton.jsx";
+// import ChatWidget from "./components/ChatWidget.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -47,8 +47,8 @@ function AppContent() {
     <>
       <ScrollToTop />
       <Toaster position="top-right" />
-      {!isScannerRoute && <WhatsAppButton />}
-      {!isScannerRoute && <ChatWidget />}
+      {/* {!isScannerRoute && <WhatsAppButton />} */}
+      {/* {!isScannerRoute && <ChatWidget />} */}
       <Routes>
         {/* Default route */}
         <Route path="/" element={<LandingPage />} />

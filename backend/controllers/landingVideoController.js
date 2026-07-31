@@ -1,4 +1,5 @@
 import LandingVideo from '../models/LandingVideo.js';
+import { deleteS3Asset, extractS3Key } from '../utils/s3Helper.js';
 
 // @desc    Get all landing videos
 // @route   GET /api/landing-videos
@@ -23,9 +24,7 @@ export const addVideo = async (req, res) => {
         let videoUrl = req.body.videoUrl;
 
         if (req.file) {
-            // If file is uploaded, set the path
-            // Note: We're storing the relative path from the server root
-            videoUrl = `/uploads/videos/${req.file.key}`;
+            videoUrl = req.file.location;
         }
 
         if (!videoUrl) {
@@ -65,14 +64,8 @@ export const deleteVideo = async (req, res) => {
             return res.status(404).json({ message: 'Video not found' });
         }
 
-        // Delete file from disk if it exists and is a local file
+        // Delete the underlying file: legacy videos live on local disk, newer ones on S3
         if (video.videoUrl && video.videoUrl.startsWith('/uploads')) {
-            // Construct absolute path. 
-            // videoUrl is something like "/uploads/videos/filename.mp4"
-            // We need to resolve this relative to the project root (backend folder)
-            // __dirname is .../backend/controllers
-            // We want .../backend/uploads/videos/...
-
             const filePath = path.join(__dirname, '..', video.videoUrl);
 
             fs.unlink(filePath, (err) => {
@@ -81,6 +74,13 @@ export const deleteVideo = async (req, res) => {
                     // Continue with DB deletion even if file deletion fails
                 }
             });
+        } else if (video.videoUrl) {
+            try {
+                await deleteS3Asset(extractS3Key(video.videoUrl));
+            } catch (err) {
+                console.error('Failed to delete video from S3:', err);
+                // Continue with DB deletion even if S3 deletion fails
+            }
         }
 
         await video.deleteOne();
@@ -108,16 +108,22 @@ export const updateVideo = async (req, res) => {
         if (type) video.type = type;
 
         if (req.file) {
-            // Delete old file if it exists locally
+            // Delete old video file: legacy videos live on local disk, newer ones on S3
             if (video.videoUrl && video.videoUrl.startsWith('/uploads')) {
                 const oldFilePath = path.join(__dirname, '..', video.videoUrl);
                 if (fs.existsSync(oldFilePath)) {
                     fs.unlinkSync(oldFilePath);
                 }
+            } else if (video.videoUrl) {
+                try {
+                    await deleteS3Asset(extractS3Key(video.videoUrl));
+                } catch (err) {
+                    console.error('Failed to delete old video from S3:', err);
+                }
             }
 
             // Set new video URL
-            video.videoUrl = `/uploads/videos/${req.file.key}`;
+            video.videoUrl = req.file.location;
         } else if (req.body.videoUrl) {
             // Fallback if they want to update URL manually
             video.videoUrl = req.body.videoUrl;

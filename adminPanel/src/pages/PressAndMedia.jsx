@@ -97,13 +97,9 @@ const PressAndMedia = () => {
 
         try {
             if (isEditing) {
-                await axios.put(`${baseURL}/api/press-and-media/${editId}`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await axios.put(`${baseURL}/api/press-and-media/${editId}`, data);
             } else {
-                await axios.post(`${baseURL}/api/press-and-media`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await axios.post(`${baseURL}/api/press-and-media`, data);
             }
             fetchMediaMembers();
             resetForm();

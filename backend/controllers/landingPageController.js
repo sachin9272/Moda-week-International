@@ -64,8 +64,8 @@ export const updateLandingPage = async (req, res) => {
             }
 
             page.modaIntroSection.image = {
-                url: uploadedImage.path,
-                publicId: uploadedImage.filename,
+                url: uploadedImage.location,
+                publicId: uploadedImage.key,
             };
             page.modaIntroSection.useDefaultImage = false;
         }

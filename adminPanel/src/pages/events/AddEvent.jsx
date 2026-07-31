@@ -242,7 +242,6 @@ const AddEvent = () => {
             formData.append('image', blobInfo.blob(), blobInfo.filename());
 
             axios.post(`${API_BASE_URL}/api/upload`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (e) => {
                     progress(Math.round((e.loaded / e.total) * 100));
                 }
@@ -757,11 +756,7 @@ const AddEvent = () => {
 
         try {
             console.log("Sending request to:", `${API_BASE_URL}/api/events/create`);
-            await axios.post(`${API_BASE_URL}/api/events/create`, data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await axios.post(`${API_BASE_URL}/api/events/create`, data);
             toast.success('Event created successfully!');
             setTimeout(() => {
                 navigate('/events');

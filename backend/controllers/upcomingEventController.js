@@ -65,9 +65,9 @@ export const createUpcomingEvent = async (req, res) => {
 
         const files = req.files || [];
         const coverImageFile = files.find(f => f.fieldname === 'coverImage');
-        const coverImage = coverImageFile ? { url: coverImageFile.path, publicId: coverImageFile.filename } : null;
+        const coverImage = coverImageFile ? { url: coverImageFile.location, publicId: coverImageFile.key } : null;
         const ticketBannerImageFile = files.find(f => f.fieldname === 'ticketBannerImage');
-        const ticketBannerImage = ticketBannerImageFile ? { url: ticketBannerImageFile.path, publicId: ticketBannerImageFile.filename } : null;
+        const ticketBannerImage = ticketBannerImageFile ? { url: ticketBannerImageFile.location, publicId: ticketBannerImageFile.key } : null;
 
         // Process description section
         let descriptionSection = {};
@@ -78,7 +78,7 @@ export const createUpcomingEvent = async (req, res) => {
         }
         const descImageFile = files.find(f => f.fieldname === 'descriptionSectionImage');
         if (descImageFile) {
-             descriptionSection.image = { url: descImageFile.path, publicId: descImageFile.filename };
+             descriptionSection.image = { url: descImageFile.location, publicId: descImageFile.key };
         }
 
         // Process video section
@@ -90,8 +90,8 @@ export const createUpcomingEvent = async (req, res) => {
         }
         const videoSectionFile = files.find(f => f.fieldname === 'videoSectionFile');
         if (videoSectionFile) {
-             videoSection.url = videoSectionFile.path;
-             videoSection.publicId = videoSectionFile.filename;
+             videoSection.url = videoSectionFile.location;
+             videoSection.publicId = videoSectionFile.key;
         }
 
         // Process partners
@@ -101,14 +101,14 @@ export const createUpcomingEvent = async (req, res) => {
         }
         const partners = partnersMeta.map((_, index) => {
              const partnerFile = files.find(f => f.fieldname === `partnerImage_${index}`);
-             return partnerFile ? { url: partnerFile.path, publicId: partnerFile.filename } : null;
+             return partnerFile ? { url: partnerFile.location, publicId: partnerFile.key } : null;
         }).filter(Boolean);
 
         // Process ticket images
         ticketTypes = ticketTypes.map((ticket, index) => {
              const ticketFile = files.find(f => f.fieldname === `ticketImage_${index}`);
              if (ticketFile) {
-                 return { ...ticket, image: { url: ticketFile.path, publicId: ticketFile.filename } };
+                 return { ...ticket, image: { url: ticketFile.location, publicId: ticketFile.key } };
              }
              return ticket;
         });
@@ -125,11 +125,11 @@ export const createUpcomingEvent = async (req, res) => {
         const collectionsWithImages = collections.map((col, index) => {
             const normalizedCol = normalizeCollectionDay(col);
             const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
-            const newImages = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
+            const newImages = colFiles.map(f => ({ url: f.location, publicId: f.key }));
 
             const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
             const designerImage = designerImageFile
-                ? { url: designerImageFile.path, publicId: designerImageFile.filename }
+                ? { url: designerImageFile.location, publicId: designerImageFile.key }
                 : getSafeImage(normalizedCol.designerImage);
 
             return {
@@ -283,7 +283,7 @@ export const updateUpcomingEvent = async (req, res) => {
             if (event.coverImage && event.coverImage.publicId) {
                 await deleteS3Asset(event.coverImage.publicId, 'image');
             }
-            event.coverImage = { url: coverImageFile.path, publicId: coverImageFile.filename };
+            event.coverImage = { url: coverImageFile.location, publicId: coverImageFile.key };
         } else if (req.body.removeCoverImage === 'true') {
             if (event.coverImage && event.coverImage.publicId) {
                 await deleteS3Asset(event.coverImage.publicId, 'image');
@@ -295,7 +295,7 @@ export const updateUpcomingEvent = async (req, res) => {
             if (event.ticketBannerImage && event.ticketBannerImage.publicId) {
                 await deleteS3Asset(event.ticketBannerImage.publicId, 'image');
             }
-            event.ticketBannerImage = { url: ticketBannerImageFile.path, publicId: ticketBannerImageFile.filename };
+            event.ticketBannerImage = { url: ticketBannerImageFile.location, publicId: ticketBannerImageFile.key };
         } else if (req.body.removeTicketBannerImage === 'true') {
             if (event.ticketBannerImage && event.ticketBannerImage.publicId) {
                 await deleteS3Asset(event.ticketBannerImage.publicId, 'image');
@@ -320,7 +320,7 @@ export const updateUpcomingEvent = async (req, res) => {
             if (event.descriptionSection && event.descriptionSection.image && event.descriptionSection.image.publicId) {
                 await deleteS3Asset(event.descriptionSection.image.publicId, 'image');
             }
-            event.descriptionSection = { ...event.descriptionSection, image: { url: descImageFile.path, publicId: descImageFile.filename } };
+            event.descriptionSection = { ...event.descriptionSection, image: { url: descImageFile.location, publicId: descImageFile.key } };
         } else if (event.descriptionSection?.image === null) {
             if (previousDescriptionImage?.publicId) {
                 await deleteS3Asset(previousDescriptionImage.publicId, 'image');
@@ -351,8 +351,8 @@ export const updateUpcomingEvent = async (req, res) => {
                 await deleteS3Asset(event.videoSection.publicId, 'video');
             }
             if (!event.videoSection) event.videoSection = {};
-            event.videoSection.url = videoSectionFile.path;
-            event.videoSection.publicId = videoSectionFile.filename;
+            event.videoSection.url = videoSectionFile.location;
+            event.videoSection.publicId = videoSectionFile.key;
         }
 
         // Handle partners updates
@@ -386,7 +386,7 @@ export const updateUpcomingEvent = async (req, res) => {
                 const newPartners = [];
                 partnersMeta.forEach((_, index) => {
                      const f = files.find(f => f.fieldname === `partnerImage_${index}`);
-                     if (f) newPartners.push({ url: f.path, publicId: f.filename });
+                     if (f) newPartners.push({ url: f.location, publicId: f.key });
                 });
 
                 event.partners = [...existingPartnersObjects, ...newPartners];
@@ -413,7 +413,7 @@ export const updateUpcomingEvent = async (req, res) => {
                 const f = files.find(f => f.fieldname === `ticketImage_${index}`);
                 let finalImage = null;
                 if (f) {
-                    finalImage = { url: f.path, publicId: f.filename };
+                    finalImage = { url: f.location, publicId: f.key };
                 } else if (t.image) {
                     const imgUrl = typeof t.image === 'string' ? t.image : t.image.url;
                     let foundImg = null;
@@ -477,13 +477,13 @@ export const updateUpcomingEvent = async (req, res) => {
             const newCollections = incomingCollections.map((col, index) => {
                 const normalizedCol = normalizeCollectionDay(col);
                 const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
-                const newImagesParts = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
+                const newImagesParts = colFiles.map(f => ({ url: f.location, publicId: f.key }));
 
                 const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
                 let designerImage = null;
 
                 if (designerImageFile) {
-                    designerImage = { url: designerImageFile.path, publicId: designerImageFile.filename };
+                    designerImage = { url: designerImageFile.location, publicId: designerImageFile.key };
                 } else if (normalizedCol.designerImage) {
                     const diUrl = typeof normalizedCol.designerImage === 'string' ? normalizedCol.designerImage : normalizedCol.designerImage.url;
                     let foundDI = null;

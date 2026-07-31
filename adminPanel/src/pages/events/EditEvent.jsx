@@ -240,7 +240,6 @@ const EditEvent = () => {
             formData.append('image', blobInfo.blob(), blobInfo.filename());
 
             axios.post(`${API_BASE_URL}/api/upload`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (e) => {
                     progress(Math.round((e.loaded / e.total) * 100));
                 }
@@ -823,11 +822,7 @@ const EditEvent = () => {
         });
 
         try {
-            await axios.put(`${API_BASE_URL}/api/events/update/${id}`, data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await axios.put(`${API_BASE_URL}/api/events/update/${id}`, data);
             toast.success('Event updated successfully!');
             setTimeout(() => {
                 navigate('/events');

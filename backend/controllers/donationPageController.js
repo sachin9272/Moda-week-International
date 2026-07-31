@@ -47,11 +47,11 @@ export const updateDonationPage = async (req, res) => {
         if (req.files && req.files['slideshowImages']) {
             const files = req.files['slideshowImages'];
             for (const file of files) {
-                // With multer-storage-cloudinary:
-                // file.path -> Cloudinary URL
-                // file.filename -> Cloudinary Public ID
-                console.log(`Image uploaded via middleware. URL: ${file.path}, Public ID: ${file.filename}`);
-                page.slideshowImages.push({ url: file.path, publicId: file.filename });
+                // With multer-s3:
+                // file.location -> S3 URL
+                // file.key -> S3 object key
+                console.log(`Image uploaded via middleware. URL: ${file.location}, Public ID: ${file.key}`);
+                page.slideshowImages.push({ url: file.location, publicId: file.key });
             }
         }
 
