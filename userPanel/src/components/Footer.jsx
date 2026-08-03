@@ -185,8 +185,55 @@ export default function Footer() {
                 </div>
               </div>
 
-              {/* Services */}
+              {/* Quick Links */}
               <div className="w-full md:w-1/2 lg:w-auto lg:ml-6">
+                <h3 className="text-xl font-bold mb-2">QUICK LINKS</h3>
+                <ul className="space-y-1">
+                  <li>
+                    <Link
+                      to="/about"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      About MWINTL
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/events"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Fashion Calendar
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/news-room"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Fashion News
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/past-events"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Past Events
+                    </Link>
+                  </li>
+                  {/* <li>
+                    <Link
+                      to="/press-media"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Press & Media
+                    </Link>
+                  </li> */}
+                </ul>
+              </div>
+
+              {/* Services */}
+              <div className="w-full md:w-1/2 lg:w-auto">
                 <h3 className="text-xl font-bold mb-2">
                   <Link to="/service" className="hover:text-amber-600 transition-colors">
                     SERVICES
@@ -233,53 +280,6 @@ export default function Footer() {
                       Sponsors Partnerships
                     </Link>
                   </li>
-                </ul>
-              </div>
-
-              {/* Quick Links */}
-              <div className="w-full md:w-1/2 lg:w-auto">
-                <h3 className="text-xl font-bold mb-2">QUICK LINKS</h3>
-                <ul className="space-y-1">
-                  <li>
-                    <Link
-                      to="/about"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      About MWINTL
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/events"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Fashion Calendar
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/news-room"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Fashion News
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/past-events"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Past Events
-                    </Link>
-                  </li>
-                  {/* <li>
-                    <Link
-                      to="/press-media"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Press & Media
-                    </Link>
-                  </li> */}
                 </ul>
               </div>
 

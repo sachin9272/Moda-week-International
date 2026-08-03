@@ -40,8 +40,8 @@ export default function ProductionTeam() {
         fetchMembers();
     }, []);
 
-    const featuredMember = members[0] || null;
-    const secondaryMembers = members.slice(1);
+    // const featuredMember = members[0] || null;
+    const secondaryMembers = members;
 
     return (
         <div className="bg-white min-h-screen">
@@ -72,6 +72,7 @@ export default function ProductionTeam() {
                         <div className="py-24 text-center text-[#7a4c10]">No team members found.</div>
                     ) : (
                         <div className="space-y-8 md:space-y-10">
+                            {/* Featured member design (first team member) — disabled so all members share the same card design below.
                             {featuredMember && (
                                 <article className="overflow-hidden border-y border-[#e8d9bf] bg-[linear-gradient(180deg,#a06a18_0%,#6f430e_48%,#2a1405_100%)] px-4 py-8 shadow-[0_18px_40px_rgba(67,34,7,0.16)] md:px-8 md:py-12">
                                     <div className="grid items-start gap-8 md:min-h-[520px] md:grid-cols-[minmax(330px,420px)_1fr] md:gap-12">
@@ -143,9 +144,10 @@ export default function ProductionTeam() {
                                     </div>
                                 </article>
                             )}
+                            */}
 
                             {secondaryMembers.length > 0 && (
-                                <section className="px-4 md:px-8">
+                                <section className="overflow-hidden border-y border-[#e8d9bf] bg-[linear-gradient(180deg,#a06a18_0%,#6f430e_48%,#2a1405_100%)] px-4 py-8 shadow-[0_18px_40px_rgba(67,34,7,0.16)] md:px-8 md:py-12">
                                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
                                         {secondaryMembers.map((member) => (
                                             <article
