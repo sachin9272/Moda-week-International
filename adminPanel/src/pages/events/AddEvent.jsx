@@ -20,10 +20,59 @@ import {
     SortableContext,
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
+    rectSortingStrategy,
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
+
+const SortableImageThumb = ({ id, file, onEdit, onRemove }) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : 'auto',
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} className="relative group">
+            <img
+                src={typeof file === 'string' ? file : URL.createObjectURL(file)}
+                alt="Preview"
+                className="w-full h-32 object-cover rounded border border-gray-700"
+            />
+            <div
+                {...attributes}
+                {...listeners}
+                style={{ touchAction: 'none' }}
+                className="absolute top-1 left-1 bg-gray-800/70 hover:bg-gray-700 text-gray-300 rounded-full p-1 cursor-grab active:cursor-grabbing shadow-md transition-colors"
+                title="Drag to reorder"
+            >
+                <GripVertical size={12} />
+            </div>
+            <div className="absolute top-1 right-1 flex gap-1">
+                <button
+                    type="button"
+                    onClick={onEdit}
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1 shadow-md transition-colors"
+                    title="Edit"
+                >
+                    <Pencil size={12} />
+                </button>
+                <button
+                    type="button"
+                    onClick={onRemove}
+                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-md transition-colors"
+                    title="Remove"
+                >
+                    <X size={12} />
+                </button>
+            </div>
+        </div>
+    );
+};
 
 const SortableCollectionItem = ({ col, idx, startEditCollection, removeCollection }) => {
     const {
@@ -163,6 +212,22 @@ const AddEvent = () => {
                 return {
                     ...prev,
                     collections: arrayMove(prev.collections, oldIndex, newIndex),
+                };
+            });
+        }
+    };
+
+    const handleImageDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            setCurrentCollection((prev) => {
+                const oldIndex = parseInt(String(active.id).replace('img-', ''), 10);
+                const newIndex = parseInt(String(over.id).replace('img-', ''), 10);
+
+                return {
+                    ...prev,
+                    images: arrayMove(prev.images, oldIndex, newIndex),
                 };
             });
         }
@@ -1310,35 +1375,28 @@ const AddEvent = () => {
 
 
                         {currentCollection.images.length > 0 && (
-                            <div className="grid grid-cols-3 md:grid-cols-4 gap-4 bg-gray-900 p-4 max-h-96 overflow-y-auto rounded border border-gray-600">
-                                {currentCollection.images.map((file, idx) => (
-                                    <div key={idx} className="relative group">
-                                        <img
-                                            src={typeof file === 'string' ? file : URL.createObjectURL(file)}
-                                            alt="Preview"
-                                            className="w-full h-32 object-cover rounded border border-gray-700"
-                                        />
-                                        <div className="absolute top-1 right-1 flex gap-1">
-                                            <button
-                                                type="button"
-                                                onClick={() => handleEditClick('currentCollection.image', file, 16 / 9, idx)}
-                                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-1 shadow-md transition-colors"
-                                                title="Edit"
-                                            >
-                                                <Pencil size={12} />
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => removeCollectionImage(idx)}
-                                                className="bg-red-600 hover:bg-red-700 text-white rounded-full p-1 shadow-md transition-colors"
-                                                title="Remove"
-                                            >
-                                                <X size={12} />
-                                            </button>
-                                        </div>
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleImageDragEnd}
+                            >
+                                <SortableContext
+                                    items={currentCollection.images.map((_, i) => `img-${i}`)}
+                                    strategy={rectSortingStrategy}
+                                >
+                                    <div className="grid grid-cols-3 md:grid-cols-4 gap-4 bg-gray-900 p-4 max-h-96 overflow-y-auto rounded border border-gray-600">
+                                        {currentCollection.images.map((file, idx) => (
+                                            <SortableImageThumb
+                                                key={`img-${idx}`}
+                                                id={`img-${idx}`}
+                                                file={file}
+                                                onEdit={() => handleEditClick('currentCollection.image', file, 16 / 9, idx)}
+                                                onRemove={() => removeCollectionImage(idx)}
+                                            />
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </SortableContext>
+                            </DndContext>
                         )}
 
                         <div className="flex gap-2">

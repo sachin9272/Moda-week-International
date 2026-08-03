@@ -76,8 +76,8 @@ const Navbar = () => {
   };
 
   const navLinks = [
-    { name: "Upcoming Events", path: "/events", category: "Fashion Events" },
     { name: "Amazonas Fashion Week", path: "https://amazonasfashionweek.com/", category: "Fashion Events", external: true },
+    { name: "Upcoming Events", path: "/events", category: "Fashion Events" },
     { name: "Past Events", path: "/past-events", category: "Fashion Events" },
     { name: "About Us", path: "/about", category: "ABOUT MODA" },
     { name: "Company", path: "https://esmeralds.com/", category: "ABOUT MODA", external: true },
