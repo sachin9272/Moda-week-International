@@ -147,7 +147,7 @@ export default function ProductionTeam() {
                             */}
 
                             {secondaryMembers.length > 0 && (
-                                <section className="overflow-hidden border-y border-[#e8d9bf] bg-[linear-gradient(180deg,#a06a18_0%,#6f430e_48%,#2a1405_100%)] px-4 py-8 shadow-[0_18px_40px_rgba(67,34,7,0.16)] md:px-8 md:py-12">
+                                <section className="overflow-hidden bg-white px-4 py-8 md:px-8 md:py-12">
                                     <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
                                         {secondaryMembers.map((member) => (
                                             <article
