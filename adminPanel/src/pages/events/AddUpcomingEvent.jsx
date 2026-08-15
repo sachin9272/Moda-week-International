@@ -17,6 +17,7 @@ import {
     sortableKeyboardCoordinates,
     useSortable,
     verticalListSortingStrategy,
+    rectSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ImageEditorModal from '../../components/ImageEditorModal';
@@ -119,6 +120,42 @@ const SortableCollectionItem = ({ col, idx, onEdit, onRemove }) => {
                     <Trash2 size={16} />
                 </button>
             </div>
+        </div>
+    );
+};
+
+const SortableImageThumb = ({ id, img, onRemove }) => {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : 'auto',
+        opacity: isDragging ? 0.5 : 1,
+    };
+
+    return (
+        <div ref={setNodeRef} style={style} className="relative group">
+            <img
+                src={typeof img === 'string' ? img : URL.createObjectURL(img)}
+                className="w-full aspect-square object-cover rounded shadow-sm border border-gray-700"
+            />
+            <div
+                {...attributes}
+                {...listeners}
+                style={{ touchAction: 'none' }}
+                className="absolute top-1 left-1 bg-gray-800/70 hover:bg-gray-700 text-gray-300 rounded-full p-1 cursor-grab active:cursor-grabbing shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                title="Drag to reorder"
+            >
+                <GripVertical size={10} />
+            </div>
+            <button
+                type="button"
+                onClick={onRemove}
+                className="absolute -top-1 -right-1 bg-red-600 p-1 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
+            >
+                <X size={10} />
+            </button>
         </div>
     );
 };
@@ -345,6 +382,22 @@ const AddUpcomingEvent = () => {
         });
     };
 
+    const handleImageDragEnd = (event) => {
+        const { active, over } = event;
+
+        if (!over || active.id === over.id) return;
+
+        setCurrentCollection(prev => {
+            const oldIndex = parseInt(String(active.id).replace('img-', ''), 10);
+            const newIndex = parseInt(String(over.id).replace('img-', ''), 10);
+
+            return {
+                ...prev,
+                images: arrayMove(prev.images, oldIndex, newIndex)
+            };
+        });
+    };
+
     const resetCurrentTicket = () => {
         setCurrentTicket(createEmptyTicket());
         setEditingTicketId(null);
@@ -477,7 +530,6 @@ const AddUpcomingEvent = () => {
             formData.append('image', blobInfo.blob(), blobInfo.filename());
 
             axios.post(`${API_BASE_URL}/api/upload`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (e) => {
                     progress(Math.round((e.loaded / e.total) * 100));
                 }
@@ -849,11 +901,7 @@ const AddUpcomingEvent = () => {
         });
 
         try {
-            await axios.post(`${API_BASE_URL}/api/upcoming-events/create`, data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await axios.post(`${API_BASE_URL}/api/upcoming-events/create`, data);
             toast.success('Upcoming Event created successfully!');
             setTimeout(() => {
                 navigate('/events');
@@ -1374,16 +1422,27 @@ const AddUpcomingEvent = () => {
                         </div>
 
                         {currentCollection.images.length > 0 && (
-                            <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
-                                {currentCollection.images.map((img, idx) => (
-                                    <div key={idx} className="relative group">
-                                        <img src={URL.createObjectURL(img)} className="w-full aspect-square object-cover rounded shadow-sm border border-gray-700" />
-                                        <button type="button" onClick={() => removeCollectionImage(idx)} className="absolute -top-1 -right-1 bg-red-600 p-1 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity shadow-lg">
-                                            <X size={10} />
-                                        </button>
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleImageDragEnd}
+                            >
+                                <SortableContext
+                                    items={currentCollection.images.map((_, i) => `img-${i}`)}
+                                    strategy={rectSortingStrategy}
+                                >
+                                    <div className="grid grid-cols-4 md:grid-cols-6 gap-2">
+                                        {currentCollection.images.map((img, idx) => (
+                                            <SortableImageThumb
+                                                key={`img-${idx}`}
+                                                id={`img-${idx}`}
+                                                img={img}
+                                                onRemove={() => removeCollectionImage(idx)}
+                                            />
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
+                                </SortableContext>
+                            </DndContext>
                         )}
 
                         <button type="button" onClick={addCollection} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-bold shadow-lg transition-transform active:scale-[0.98]">

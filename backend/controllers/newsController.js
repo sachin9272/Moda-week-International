@@ -287,8 +287,8 @@ export const submitUserNews = async (req, res) => {
     if (req.files && req.files['image']) {
         const file = req.files['image'][0];
         imageData = {
-            url: file.path,
-            public_id: file.filename
+            url: file.location,
+            public_id: file.key
         };
     }
 
@@ -296,9 +296,9 @@ export const submitUserNews = async (req, res) => {
     if (req.files && req.files['video']) {
         const file = req.files['video'][0];
         videoData = {
-            url: file.path,
-            publicId: file.filename,
-            public_id: file.filename // Save both to be safe
+            url: file.location,
+            publicId: file.key,
+            public_id: file.key // Save both to be safe
         };
     }
 

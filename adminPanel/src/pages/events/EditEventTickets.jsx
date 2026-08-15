@@ -311,11 +311,7 @@ export default function EditEventTickets() {
         });
 
         try {
-            await axios.put(`${API_BASE_URL}/api/upcoming-events/update/${id}`, data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            await axios.put(`${API_BASE_URL}/api/upcoming-events/update/${id}`, data);
             setTicketTypes(finalTicketTypes);
             resetCurrentTicket();
             toast.success('Tickets updated successfully!');

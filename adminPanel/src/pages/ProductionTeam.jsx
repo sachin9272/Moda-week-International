@@ -207,13 +207,9 @@ const ProductionTeam = () => {
 
         try {
             if (isEditing) {
-                await axios.put(`${baseURL}/api/production-team/${editId}`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await axios.put(`${baseURL}/api/production-team/${editId}`, data);
             } else {
-                await axios.post(`${baseURL}/api/production-team`, data, {
-                    headers: { 'Content-Type': 'multipart/form-data' }
-                });
+                await axios.post(`${baseURL}/api/production-team`, data);
             }
             fetchMembers();
             resetForm();

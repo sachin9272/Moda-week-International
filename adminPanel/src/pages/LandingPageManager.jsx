@@ -114,9 +114,7 @@ const LandingPageManager = () => {
         }
 
         try {
-            await axios.put(`${baseURL}/api/landing-page`, dataToSend, {
-                headers: { "Content-Type": "multipart/form-data" },
-            });
+            await axios.put(`${baseURL}/api/landing-page`, dataToSend);
             toast.success("Landing page content updated successfully");
             fetchData();
         } catch (error) {

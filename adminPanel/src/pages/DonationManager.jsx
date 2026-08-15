@@ -132,9 +132,7 @@ const DonationManager = () => {
         });
 
         try {
-            await axios.put(`${baseURL}/api/donation-page`, dataToSend, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await axios.put(`${baseURL}/api/donation-page`, dataToSend);
             toast.success("Donation page updated successfully!");
             setSlideshowFiles([]);
             setRemovedSlideshowImages([]);

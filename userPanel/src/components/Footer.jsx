@@ -185,69 +185,14 @@ export default function Footer() {
                 </div>
               </div>
 
-              {/* Services */}
+              {/* Quick Links */}
               <div className="w-full md:w-1/2 lg:w-auto lg:ml-6">
                 <h3 className="text-xl font-bold mb-2">
-                  <Link to="/service" className="hover:text-amber-600 transition-colors">
-                    SERVICES
+                  <Link to="/about" className="hover:text-amber-600 transition-colors">
+                    ABOUT MWINTL
                   </Link>
                 </h3>
                 <ul className="space-y-1">
-                  <li>
-                    <Link
-                      to="/service?tab=service"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Consulting Services
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/service"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Digital Marketing
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/service"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Fashion Show Production
-                    </Link>
-                  </li>
-                  {/* <li>
-                    <Link
-                      to="/membership-program"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Membership Programs
-                    </Link>
-                  </li> */}
-                  <li>
-                    <Link
-                      to="/service?tab=sponsor"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Sponsors Partnerships
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Quick Links */}
-              <div className="w-full md:w-1/2 lg:w-auto">
-                <h3 className="text-xl font-bold mb-2">QUICK LINKS</h3>
-                <ul className="space-y-1">
-                  <li>
-                    <Link
-                      to="/about"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      About MWINTL
-                    </Link>
-                  </li>
                   <li>
                     <Link
                       to="/events"
@@ -283,16 +228,63 @@ export default function Footer() {
                 </ul>
               </div>
 
+              {/* Services */}
+              <div className="w-full md:w-1/2 lg:w-auto">
+                <h3 className="text-xl font-bold mb-2">
+                  <Link to="/service" className="hover:text-amber-600 transition-colors">
+                    SERVICES
+                  </Link>
+                </h3>
+                <ul className="space-y-1">
+                  <li>
+                    <Link
+                      to="/service"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Digital Marketing
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/service"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Fashion Show Production
+                    </Link>
+                  </li>
+                  {/* <li>
+                    <Link
+                      to="/membership-program"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Membership Programs
+                    </Link>
+                  </li> */}
+                  <li>
+                    <Link
+                      to="/service?tab=sponsor"
+                      className="text-gray-400 hover:text-amber-600 transition-colors"
+                    >
+                      Sponsors Partnerships
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+
               {/* Career */}
               <div className="w-full md:w-1/2 lg:w-auto">
-                <h3 className="text-xl font-bold mb-2">CAREER</h3>
+                <h3 className="text-xl font-bold mb-2">
+                  <Link to="/service?tab=service" className="hover:text-amber-600 transition-colors">
+                    CAREER
+                  </Link>
+                </h3>
                 <ul className="space-y-1">
                   <li>
                     <Link
                       to="/service?tab=buyer"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Apply as Buyer
+                      Become a Buyer
                     </Link>
                   </li>
                   <li>
@@ -300,7 +292,7 @@ export default function Footer() {
                       to="/service?tab=designer"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Apply as Designer
+                      Become a Designer
                     </Link>
                   </li>
                   <li>
@@ -308,23 +300,7 @@ export default function Footer() {
                       to="/service?tab=service"
                       className="text-gray-400 hover:text-amber-600 transition-colors"
                     >
-                      Apply as Student
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/service?tab=service"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Apply as Model
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/service?tab=service"
-                      className="text-gray-400 hover:text-amber-600 transition-colors"
-                    >
-                      Apply as Volunteer
+                      Become a Model
                     </Link>
                   </li>
                 </ul>

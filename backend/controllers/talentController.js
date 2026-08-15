@@ -10,8 +10,8 @@ export const createTalent = async (req, res) => {
         let image = null;
         if (file) {
             image = {
-                url: file.path,
-                publicId: file.filename
+                url: file.location,
+                publicId: file.key
             };
         }
 
@@ -66,8 +66,8 @@ export const updateTalent = async (req, res) => {
 
             // Set new image
             talent.image = {
-                url: file.path,
-                publicId: file.filename
+                url: file.location,
+                publicId: file.key
             };
         }
 

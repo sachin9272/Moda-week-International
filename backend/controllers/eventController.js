@@ -44,7 +44,7 @@ export const createEvent = async (req, res) => {
         // Helper to get file object
         const getFile = (fieldname) => {
             const file = files.find(f => f.fieldname === fieldname);
-            return file ? { url: file.path, publicId: file.filename } : null;
+            return file ? { url: file.location, publicId: file.key } : null;
         };
 
         const thumbnail = getFile('thumbnail');
@@ -85,10 +85,10 @@ export const createEvent = async (req, res) => {
 
         const collectionsWithImages = collections.map((col, index) => {
             const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
-            const newImages = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
+            const newImages = colFiles.map(f => ({ url: f.location, publicId: f.key }));
 
             const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
-            const designerImage = designerImageFile ? { url: designerImageFile.path, publicId: designerImageFile.filename } : null;
+            const designerImage = designerImageFile ? { url: designerImageFile.location, publicId: designerImageFile.key } : null;
 
             return {
                 ...normalizeCollectionDay(col),
@@ -113,7 +113,7 @@ export const createEvent = async (req, res) => {
                 const ticketFile = files.find(f => f.fieldname === `ticketImage_${index}`);
                 return {
                     ...ticket,
-                    image: ticketFile ? { url: ticketFile.path, publicId: ticketFile.filename } : null
+                    image: ticketFile ? { url: ticketFile.location, publicId: ticketFile.key } : null
                 };
             });
         }
@@ -131,8 +131,8 @@ export const createEvent = async (req, res) => {
             partnersWithImages = parsedPartners.map((partner, index) => {
                 const partnerFile = files.find(f => f.fieldname === `partnerImage_${index}`);
                 return {
-                    url: partnerFile ? partnerFile.path : null,
-                    publicId: partnerFile ? partnerFile.filename : null
+                    url: partnerFile ? partnerFile.location : null,
+                    publicId: partnerFile ? partnerFile.key : null
                 };
             }).filter(p => p.url); // Only keep if image exists
         }
@@ -200,7 +200,7 @@ export const updateEvent = async (req, res) => {
 
         const getFile = (fieldname) => {
             const file = files.find(f => f.fieldname === fieldname);
-            return file ? { url: file.path, publicId: file.filename } : null;
+            return file ? { url: file.location, publicId: file.key } : null;
         };
 
         // Helper to reconstruct url from character map object
@@ -331,7 +331,7 @@ export const updateEvent = async (req, res) => {
         // Reconstruct Collections
         const newCollections = incomingCollections.map((col, index) => {
             const colFiles = files.filter(f => f.fieldname === `collectionImages_${index}`);
-            const newImagesParts = colFiles.map(f => ({ url: f.path, publicId: f.filename }));
+            const newImagesParts = colFiles.map(f => ({ url: f.location, publicId: f.key }));
 
             // Handle Designer Image
             const designerImageFile = files.find(f => f.fieldname === `collectionDesignerImage_${index}`);
@@ -339,7 +339,7 @@ export const updateEvent = async (req, res) => {
 
             if (designerImageFile) {
                 // New file uploaded
-                designerImage = { url: designerImageFile.path, publicId: designerImageFile.filename };
+                designerImage = { url: designerImageFile.location, publicId: designerImageFile.key };
             } else {
                 // Check if kept
                 if (col.designerImage && typeof col.designerImage === 'string') {
@@ -558,7 +558,7 @@ export const updateEvent = async (req, res) => {
         const newTickets = incomingTickets.map((ticket, index) => {
             const ticketFile = files.find(f => f.fieldname === `ticketImage_${index}`);
             if (ticketFile) {
-                return { image: { url: ticketFile.path, publicId: ticketFile.filename } };
+                return { image: { url: ticketFile.location, publicId: ticketFile.key } };
             } else {
                 // Existing. URL string passed?
                 // Find original object
@@ -598,7 +598,7 @@ export const updateEvent = async (req, res) => {
         const newPartners = incomingPartners.map((partner, index) => {
             const partnerFile = files.find(f => f.fieldname === `partnerImage_${index}`);
             if (partnerFile) {
-                return { url: partnerFile.path, publicId: partnerFile.filename };
+                return { url: partnerFile.location, publicId: partnerFile.key };
             } else {
                 // Existing
                 if (partner.url && typeof partner.url === 'string') {

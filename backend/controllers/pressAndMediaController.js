@@ -10,8 +10,8 @@ export const createMediaMember = async (req, res) => {
         let image = null;
         if (file) {
             image = {
-                url: file.path,
-                publicId: file.filename
+                url: file.location,
+                publicId: file.key
             };
         }
 
@@ -66,8 +66,8 @@ export const updateMediaMember = async (req, res) => {
 
             // Set new image
             member.image = {
-                url: file.path,
-                publicId: file.filename
+                url: file.location,
+                publicId: file.key
             };
         }
 

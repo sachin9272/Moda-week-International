@@ -105,9 +105,7 @@ export default function RsvpManager() {
     }
 
     try {
-      await axios.put(`${baseURL}/api/rsvp-page`, dataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await axios.put(`${baseURL}/api/rsvp-page`, dataToSend);
       toast.success("RSVP page images updated successfully");
       fetchRsvpContent();
     } catch (error) {

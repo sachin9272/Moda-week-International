@@ -52,7 +52,7 @@ export const updateAboutUs = async (req, res) => {
                         console.error(`Failed to delete old image for ${sectionName}:`, err);
                     }
                 }
-                return { url: file.path, publicId: file.filename };
+                return { url: file.location, publicId: file.key };
             }
             return null;
         };

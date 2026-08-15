@@ -21,8 +21,8 @@ const replaceImage = async (page, key, file) => {
   }
 
   page[key] = {
-    url: file.path,
-    publicId: file.filename,
+    url: file.location,
+    publicId: file.key,
   };
 };
 

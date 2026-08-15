@@ -134,9 +134,7 @@ const PhilanthropyManager = () => {
         });
 
         try {
-            await axios.post(`${baseURL}/api/philanthropy/update`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await axios.post(`${baseURL}/api/philanthropy/update`, formData);
             toast.success("Page updated successfully!");
             setSlideshowFiles([]); // Clear uploaded files list
             setSectionFiles({});
