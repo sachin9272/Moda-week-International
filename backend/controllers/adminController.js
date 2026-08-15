@@ -13,6 +13,7 @@ import QRCode from 'qrcode';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import sendEmail from '../utils/emailService.js';
+import { generatePressPass } from '../utils/generatePressPass.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -235,7 +236,8 @@ export const updateServiceStatus = async (req, res) => {
         if (status === 'approved' && service.requestParticipation === 'Press & Media Accreditation') {
             console.log("Starting ID Card Generation...");
             try {
-                // Generate QR Code
+                console.log("Starting Precise ID Card Generation...");
+                // Generate QR Code Data
                 const qrData = JSON.stringify({
                     id: service._id,
                     name: service.fullName,
@@ -243,129 +245,15 @@ export const updateServiceStatus = async (req, res) => {
                     event: service.currentEvent
                 });
                 console.log("QR Data prepared");
-                const qrBuffer = await QRCode.toBuffer(qrData);
-                console.log("QR Buffer generated");
 
-                // Load Logo
-                const logoPath = path.join(__dirname, '../assets/logo.png');
-                let logo;
-                try {
-                    logo = await Jimp.read(logoPath);
-                    logo.resize({ w: 100 });
-                } catch (err) {
-                    console.error("Error loading logo for ID card:", err);
-                    // Continue without logo if fails, or handle error
-                }
-
-                // Create ID Card Image (600x900 - Portrait)
-                const card = new Jimp({ width: 600, height: 900, color: cssColorToHex('#ffffff') });
-
-                // Colors
-                const brandColor = cssColorToHex('#C7913E'); // Gold
-                const blackColor = cssColorToHex('#000000');
-                const whiteColor = cssColorToHex('#ffffff');
-
-                // 1. Top Strip
-                const topStrip = new Jimp({ width: 600, height: 30, color: brandColor });
-                card.composite(topStrip, 0, 0);
-
-                // 2. Logo (Centered)
-                if (logo) {
-                    logo.resize({ w: 300 }); // Wider logo
-                    const logoX = (600 - 300) / 2;
-                    card.composite(logo, logoX, 60);
-                }
-
-                // 3. Badge Type Pill (Centered below logo)
-                // Simulating a pill with a filled rectangle
-                const pillWidth = 250;
-                const pillHeight = 50;
-                const pillX = (600 - pillWidth) / 2;
-                const pillY = 180;
-                const pill = new Jimp({ width: pillWidth, height: pillHeight, color: brandColor });
-                card.composite(pill, pillX, pillY);
-
-                // 4. Load Fonts
-                const font32BlackPath = path.join(__dirname, '../node_modules/@jimp/plugin-print/fonts/open-sans/open-sans-32-black/open-sans-32-black.fnt');
-                const font16BlackPath = path.join(__dirname, '../node_modules/@jimp/plugin-print/fonts/open-sans/open-sans-16-black/open-sans-16-black.fnt');
-                const font32WhitePath = path.join(__dirname, '../node_modules/@jimp/plugin-print/fonts/open-sans/open-sans-32-white/open-sans-32-white.fnt');
-                const font16WhitePath = path.join(__dirname, '../node_modules/@jimp/plugin-print/fonts/open-sans/open-sans-16-white/open-sans-16-white.fnt');
-
-                const fontName = await loadFont(font32BlackPath); // Name
-                const fontCompany = await loadFont(font16BlackPath); // Company
-                const fontPill = await loadFont(font32WhitePath); // "PRESS PASS" inside pill
-                const fontFooterTitle = await loadFont(font32WhitePath); // Footer Title
-                const fontFooterText = await loadFont(font16WhitePath); // Footer Details
-
-                // 5. Text: "PRESS PASS" inside pill (Centered)
-                // Manual centering estimation or use print alignment if available in v1.6 (usually maxWidth is supported)
-                card.print({
-                    font: fontPill,
-                    x: pillX,
-                    y: pillY + 5,
-                    text: {
-                        text: "PRESS PASS",
-                        alignmentX: 2,
-                        alignmentY: 16
-                    },
-                    maxWidth: pillWidth,
-                    maxHeight: pillHeight
+                const cardBuffer = await generatePressPass({
+                    fullName: service.fullName,
+                    companyName: service.companyName,
+                    mediaName: service.mediaName,
+                    location: service.country || "ISTANBUL, TURKEY",
+                    qrData
                 });
-
-
-                // 6. Body Content: Name, Company, QR Code
-                // Name & Company (Left Aligned)
-                const contentTextX = 50;
-                const contentTextY = 300;
-
-                card.print({ font: fontName, x: contentTextX, y: contentTextY, text: service.fullName.toUpperCase(), maxWidth: 350 });
-                card.print({ font: fontCompany, x: contentTextX, y: contentTextY + 50, text: (service.mediaName || service.companyName || "").toUpperCase(), maxWidth: 350 });
-
-                // QR Code (Right Aligned)
-                const qrImage = await Jimp.read(qrBuffer);
-                qrImage.resize({ w: 180, h: 180 });
-                card.composite(qrImage, 380, 280);
-
-                // 7. Footer (Bottom Block)
-                const footerHeight = 250;
-                const footerY = 900 - footerHeight;
-                const footer = new Jimp({ width: 600, height: footerHeight, color: brandColor });
-                card.composite(footer, 0, footerY);
-
-                // Footer Text
-                const footerPadding = 40;
-                const footerTextY = footerY + footerPadding;
-
-                // Event Description
-                card.print({
-                    font: fontFooterText,
-                    x: footerPadding,
-                    y: footerTextY,
-                    text: "International Fashion & Textile Fair",
-                    maxWidth: 520
-                });
-
-                // Date
-                card.print({
-                    font: fontFooterTitle,
-                    x: footerPadding,
-                    y: footerTextY + 50,
-                    text: (service.currentEvent || "UPCOMING EVENT").toUpperCase(),
-                    maxWidth: 520
-                });
-
-                // Location
-                card.print({
-                    font: fontFooterText,
-                    x: footerPadding,
-                    y: footerTextY + 120,
-                    text: "ISTANBUL EXPO CENTER\nIstanbul, Turkey",
-                    maxWidth: 520
-                });
-
-                // Save to buffer
-                const cardBuffer = await card.getBuffer("image/png");
-                console.log("Card Buffer created");
+                console.log("Card Buffer created from Puppeteer");
 
                 // Send Email
                 console.log("Sending email...");
