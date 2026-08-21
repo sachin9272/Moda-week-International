@@ -44,6 +44,10 @@ const upcomingEventSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    showDesignersOnLanding: {
+        type: Boolean,
+        default: false
+    },
     order: {
         type: Number,
         default: 0

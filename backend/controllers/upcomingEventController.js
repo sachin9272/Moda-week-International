@@ -50,7 +50,7 @@ const normalizeCollectionDay = (collection = {}) => {
 // Create a new upcoming event
 export const createUpcomingEvent = async (req, res) => {
     try {
-        const { title, eventName, eventDate, eventTime, location, dressCode, description, status, hasTickets, heroLayout, showOnLandingPage } = req.body;
+        const { title, eventName, eventDate, eventTime, location, dressCode, description, status, hasTickets, heroLayout, showOnLandingPage, showDesignersOnLanding } = req.body;
 
         // Parse ticketTypes if it's a string (from FormData)
         let ticketTypes = [];
@@ -155,6 +155,7 @@ export const createUpcomingEvent = async (req, res) => {
             description,
             status: status || 'hidden',
             showOnLandingPage: showOnLandingPage === 'true' || showOnLandingPage === true,
+            showDesignersOnLanding: showDesignersOnLanding === 'true' || showDesignersOnLanding === true,
             heroLayout: heroLayout || 'split',
             coverImage,
             ticketBannerImage,
@@ -190,6 +191,7 @@ export const getUpcomingEvents = async (req, res) => {
 
         const events = await UpcomingEvent.find(query).sort({ order: 1, createdAt: -1 });
         await syncUpcomingEventSlugs(events);
+        await UpcomingEvent.populate(events, { path: 'collections.designerId' });
         res.status(200).json(events);
     } catch (error) {
         console.error("Error fetching upcoming events:", error);
@@ -258,7 +260,7 @@ export const getUpcomingEventById = async (req, res) => {
 export const updateUpcomingEvent = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, eventName, eventDate, eventTime, location, dressCode, description, hasTickets, showOnLandingPage } = req.body;
+        const { title, eventName, eventDate, eventTime, location, dressCode, description, hasTickets, showOnLandingPage, showDesignersOnLanding } = req.body;
 
         const event = await UpcomingEvent.findById(id);
         if (!event) {
@@ -540,6 +542,9 @@ export const updateUpcomingEvent = async (req, res) => {
         if (req.body.status) event.status = req.body.status;
         if (showOnLandingPage !== undefined) {
             event.showOnLandingPage = showOnLandingPage === 'true' || showOnLandingPage === true;
+        }
+        if (showDesignersOnLanding !== undefined) {
+            event.showDesignersOnLanding = showDesignersOnLanding === 'true' || showDesignersOnLanding === true;
         }
         if (req.body.heroLayout) event.heroLayout = req.body.heroLayout;
         if (req.body.hasTickets !== undefined) event.hasTickets = (hasTickets === 'true' || hasTickets === true);

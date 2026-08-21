@@ -20,6 +20,7 @@ import schedule from "../assets/schedule.jpg";
 import takla from "../assets/takla.avif";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
 import ProgressiveImage from "../components/ProgressiveImage.jsx";
+import EventDesignersCarousel from "../components/EventDesignersCarousel.jsx";
 
 function VideoSlider({ slides, onSlideChange }) {
   const [current, setCurrent] = useState(0);
@@ -165,6 +166,33 @@ export default function LandingPage() {
     event.date ||
     event.city ||
     "";
+  const getEventDesigners = (event) => {
+    if (!Array.isArray(event.collections)) return [];
+    const uniqueDesigners = new Map();
+    event.collections.forEach((col) => {
+      const designer = col.designerId;
+      if (designer && typeof designer === "object" && designer._id) {
+        uniqueDesigners.set(designer._id, designer);
+        return;
+      }
+
+      // Collection wasn't linked to a Fashion Designer record - fall back to
+      // whatever the admin typed/uploaded directly on the collection itself.
+      const fallbackName = (col.title || col.subtitle || "").trim();
+      const fallbackImage = col.designerImage?.url || col.designerImage;
+      if (!fallbackName && !fallbackImage) return;
+
+      const key = col._id || `${fallbackName}-${fallbackImage}`;
+      if (!uniqueDesigners.has(key)) {
+        uniqueDesigners.set(key, {
+          _id: key,
+          name: fallbackName,
+          image: col.designerImage || null,
+        });
+      }
+    });
+    return Array.from(uniqueDesigners.values());
+  };
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
   const [landingPageContent, setLandingPageContent] = useState({
@@ -424,6 +452,22 @@ export default function LandingPage() {
         </section>
       )}
 
+      {/* Fashion Designers per featured upcoming event */}
+      {upcomingEvents
+        .filter((event) => event.showDesignersOnLanding)
+        .map((event) => {
+          const eventDesigners = getEventDesigners(event);
+          if (eventDesigners.length === 0) return null;
+
+          return (
+            <EventDesignersCarousel
+              key={event._id}
+              heading={`${getUpcomingEventName(event) || event.title} FASHION DESIGNERS`}
+              designers={eventDesigners}
+            />
+          );
+        })}
+
       {/* MODA Week International */}
       {landingPageLoaded && hasModaIntroContent && (
         <section className="py-12 px-6 bg-white">
@@ -455,62 +499,6 @@ export default function LandingPage() {
           </div>
         </section>
       )}
-
-      {/* Fashion Designers
-      <section className="bg-white">
-        <div className="container mx-auto pl-4">
-          <div className="flex justify-between items-center mb-6 pr-4">
-            <h2 className="text-2xl font-bold grad-text">FASHION DESIGNERS</h2>
-            <Link to="/participants" className="grad-text font-semibold">VIEW ALL</Link>
-          </div>
-
-          <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex gap-4 px-0 snap-x snap-mandatory">
-              {designers.map((designer, idx) => (
-                <div
-                  key={idx}
-                  className="group cursor-pointer shrink-0 w-94 snap-start"
-                >
-                  <a
-                    href={designer.socialMedia || "#"}
-                    target={designer.socialMedia ? "_blank" : "_self"}
-                    rel="noopener noreferrer"
-                    className="block relative overflow-hidden mb-4 aspect-3/4"
-                  >
-                    <img
-                      src={optimizeCloudinaryImage(designer.image?.url || designer.image, {
-                        width: 720,
-                        height: 960,
-                        crop: "fill",
-                      })}
-                      alt={designer.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      loading="lazy"
-                      decoding="async"
-                    />
-
-                    <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/80 to-transparent"></div>
-
-                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
-                      {designer.countryCode && (
-                        <img
-                          src={`https://flagcdn.com/w20/${designer.countryCode.toLowerCase()}.png`}
-                          alt={designer.country}
-                          className="w-5 h-auto rounded-sm"
-                        />
-                      )}
-                      <p className="text-white text-sm font-medium tracking-wide">
-                        {designer.name}
-                      </p>
-                    </div>
-                  </a>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-      */}
 
       {/* Best Moments & Schedule */}
       <section className="py-5 bg-white">

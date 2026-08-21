@@ -255,6 +255,7 @@ const AddUpcomingEvent = () => {
         dressCode: '',
         description: '',
         showOnLandingPage: false,
+        showDesignersOnLanding: false,
         coverImage: null,
         heroLayout: 'split',
         descriptionSection: {
@@ -822,6 +823,7 @@ const AddUpcomingEvent = () => {
         data.append('dressCode', formData.dressCode);
         data.append('description', formData.description);
         data.append('showOnLandingPage', formData.showOnLandingPage);
+        data.append('showDesignersOnLanding', formData.showDesignersOnLanding);
         data.append('heroLayout', formData.heroLayout);
         data.append('coverImage', formData.coverImage);
         data.append('hasTickets', formData.hasTickets);
@@ -973,6 +975,19 @@ const AddUpcomingEvent = () => {
                                     className="h-4 w-4 rounded border-gray-600 bg-gray-700"
                                 />
                                 <span className="text-gray-300">Enable this on landing page</span>
+                            </label>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    name="showDesignersOnLanding"
+                                    checked={formData.showDesignersOnLanding}
+                                    onChange={handleInputChange}
+                                    className="h-4 w-4 rounded border-gray-600 bg-gray-700"
+                                />
+                                <span className="text-gray-300">Feature this event's designers on landing page</span>
                             </label>
                         </div>
 
