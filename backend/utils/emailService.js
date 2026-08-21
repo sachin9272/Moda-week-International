@@ -42,7 +42,7 @@ const sendEmail = async (options) => {
     }
 };
 
-export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
+export const buildTicketsPdf = async (ticketsWithIds, eventDetails) => {
     const { title, date, location } = eventDetails;
 
     // ticketsWithIds should be an array of TicketSale objects (or objects containing _id, ticketName, quantity, price)
@@ -54,8 +54,6 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
         tickets = ticketsWithIds;
     }
 
-    // Attachments array for Nodemailer
-    const attachments = [];
     const safeTitle = escapeHtml(title);
     const safeLocation = escapeHtml(location);
     const formattedDate = date ? new Date(date).toDateString() : 'Date to be announced';
@@ -214,6 +212,13 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
 
     const pdfBuffer = await generatePdfFromHtml(message);
 
+    return { pdfBuffer, totalAmount, safeTitle };
+};
+
+export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
+    const { title } = eventDetails;
+    const { pdfBuffer, totalAmount, safeTitle } = await buildTicketsPdf(ticketsWithIds, eventDetails);
+
     const simpleMessage = `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
             <p style="font-size: 16px;">Hi there,</p>
@@ -223,11 +228,11 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
         </div>
     `;
 
-    attachments.push({
+    const attachments = [{
         filename: 'tickets.pdf',
         content: pdfBuffer,
         contentType: 'application/pdf'
-    });
+    }];
 
     await sendEmail({
         email: to,

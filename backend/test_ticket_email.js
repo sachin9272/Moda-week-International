@@ -11,10 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const run = async () => {
     try {
-        const toEmail = process.env.SMPT_MAIL;
-        if (!toEmail) {
-            throw new Error("No SMPT_MAIL found in .env");
-        }
+        const toEmail = "harshmehrotraji@gmail.com";
         
         // We convert the local image to a base64 data URL so Puppeteer can render it reliably
         const ladyImagePath = path.join(__dirname, 'public', 'lady image.png');
@@ -32,7 +29,7 @@ const run = async () => {
             {
                 _id: "test-ticket-xyz-123",
                 ticketName: "VIP Front Row",
-                buyerName: "John Doe",
+                buyerName: "Harsh Mehrotra",
                 quantity: 1,
                 price: 250.00
             }

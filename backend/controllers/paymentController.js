@@ -2,7 +2,7 @@
 import Stripe from 'stripe';
 import UpcomingEvent from '../models/upcomingEventModel.js';
 import TicketSale from '../models/ticketSaleModel.js';
-import { sendTicketEmail } from '../utils/emailService.js';
+import { sendTicketEmail, buildTicketsPdf } from '../utils/emailService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -194,6 +194,43 @@ export const confirmPayment = async (req, res) => {
     } catch (error) {
         console.error("Error confirming payment:", error);
         res.status(500).json({ message: "Failed to confirm payment", error: error.message });
+    }
+};
+
+export const downloadTicketsPdf = async (req, res) => {
+    try {
+        const { ticketIds } = req.body;
+
+        if (!Array.isArray(ticketIds) || ticketIds.length === 0) {
+            return res.status(400).json({ message: "ticketIds is required" });
+        }
+
+        const tickets = await TicketSale.find({ _id: { $in: ticketIds } });
+        if (!tickets.length) {
+            return res.status(404).json({ message: "No tickets found" });
+        }
+
+        const event = await UpcomingEvent.findById(tickets[0].eventId);
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+
+        // Reuse the same HTML/Puppeteer template used for the emailed ticket PDF
+        const { pdfBuffer } = await buildTicketsPdf(tickets, {
+            title: event.title,
+            date: event.eventDate,
+            location: event.location,
+            coverImage: event.coverImage
+        });
+
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename="tickets.pdf"'
+        });
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error("Error generating ticket PDF:", error);
+        res.status(500).json({ message: "Failed to generate ticket PDF", error: error.message });
     }
 };
 

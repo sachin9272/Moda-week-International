@@ -18,7 +18,7 @@ import upcomingEventRoutes from './routes/upcomingEventRoutes.js';
 import ssoRouter from './routes/sso.route.js';
 import masterStatsRouter from './routes/masterStatsRoutes.js';
 import { handleStripeWebhook } from './controllers/webhookController.js';
-import { createCheckoutSession, confirmPayment, createDonationCheckoutSession } from './controllers/paymentController.js';
+import { createCheckoutSession, confirmPayment, createDonationCheckoutSession, downloadTicketsPdf } from './controllers/paymentController.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -98,6 +98,7 @@ app.use('/api/chat', chatRoutes);
 app.post('/api/payment/create-checkout-session', createCheckoutSession);
 app.post('/api/payment/create-donation-checkout-session', createDonationCheckoutSession);
 app.post('/api/payment/confirm-payment', confirmPayment);
+app.post('/api/payment/ticket-pdf', downloadTicketsPdf);
 
 // Ticket Verification Routes
 import { verifyTicket, scanTicket } from './controllers/ticketController.js';
