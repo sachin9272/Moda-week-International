@@ -309,22 +309,27 @@ export const generatePressPass = async ({
 </html>
     `;
 
-    // Find local browser executable
+    // Find local browser executable (same detection order as pdfService.js)
     const paths = [
         "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
         "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-        "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"
+        "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+        "/usr/bin/google-chrome",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/chromium"
     ];
-    let executablePath = '';
-    for (const p of paths) {
-        if (fs.existsSync(p)) {
-            executablePath = p;
-            break;
+    let executablePath = process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_BIN || '';
+    if (!executablePath) {
+        for (const p of paths) {
+            if (fs.existsSync(p)) {
+                executablePath = p;
+                break;
+            }
         }
     }
-    
+
     if (!executablePath) {
-        throw new Error("Could not find Chrome or Edge executable on this system for PDF generation.");
+        throw new Error("Could not find Chrome or Edge executable on this system for press pass generation.");
     }
 
     // Launch puppeteer to generate image

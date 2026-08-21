@@ -161,17 +161,22 @@ export const confirmPayment = async (req, res) => {
             console.log(`Fallback: Saved ticket sale: ${ticket.quantity}x ${ticket.ticketName}`);
         }
 
-        // Send Email
+        // Send Email (best-effort - the ticket sale is already saved, so a transient
+        // email failure shouldn't turn a successful payment into an error response)
         const event = await UpcomingEvent.findById(eventId);
         if (event) {
-            // Updated to pass savedSales which contains the _id for QR code generation
-            await sendTicketEmail(buyerEmail, savedSales, {
-                title: event.title,
-                date: event.eventDate,
-                location: event.location,
-                coverImage: event.coverImage
-            });
-            console.log(`Fallback: Ticket email sent to ${buyerEmail}`);
+            try {
+                // Updated to pass savedSales which contains the _id for QR code generation
+                await sendTicketEmail(buyerEmail, savedSales, {
+                    title: event.title,
+                    date: event.eventDate,
+                    location: event.location,
+                    coverImage: event.coverImage
+                });
+                console.log(`Fallback: Ticket email sent to ${buyerEmail}`);
+            } catch (emailError) {
+                console.error("Fallback: Failed to send ticket email:", emailError);
+            }
         }
 
         res.status(200).json({

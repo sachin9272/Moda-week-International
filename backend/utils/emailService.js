@@ -43,7 +43,7 @@ const sendEmail = async (options) => {
 };
 
 export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
-    const { title, date, location, coverImage } = eventDetails;
+    const { title, date, location } = eventDetails;
 
     // ticketsWithIds should be an array of TicketSale objects (or objects containing _id, ticketName, quantity, price)
     // If it's a string, we parse it (backwards compatibility or error handling)
@@ -81,7 +81,7 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
           <div class="brand-subtitle">WEEK INTERNATIONAL</div>
         </header>
         <div class="show-title">
-          <span></span>${safeTitle}<span></span>
+          <span></span><span class="show-title-text">${safeTitle}</span><span></span>
         </div>
         <div class="ticket-kind">${safeTicketName}</div>
 
@@ -107,7 +107,6 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
             </div>
           </article>
         </div>
-        ${coverImage?.url ? `<img class="model" src="${coverImage.url}" alt="Model" aria-hidden="true">` : ''}
         <footer>
           ${formattedDate} @ ${safeLocation}
         </footer>
@@ -159,9 +158,10 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
       .brand { position: relative; text-align: center; color: var(--gold); }
       .brand-name { font-size: clamp(68px, 10vw, 130px); font-weight: 500; letter-spacing: -10px; line-height: 0.72; font-family: "Playfair Display", serif; }
       .brand-subtitle { margin-top: 18px; font: 500 clamp(20px, 3vw, 36px)/1 "Playfair Display", serif; letter-spacing: 2px; }
-      .show-title { position: relative; display: flex; align-items: center; justify-content: center; gap: 14px; font-size: 21px; font-weight: 800; letter-spacing: 1.4px; margin: 27px 0 28px; text-transform: uppercase; }
-      .show-title span { width: 60px; height: 2px; background: #c99132; }
-      .ticket-kind { position: relative; background: linear-gradient(100deg, #9a6004, #d49b32); color: white; font-size: 21px; font-weight: 700; letter-spacing: 4px; width: max-content; margin: 0 auto 42px; padding: 13px 28px; text-transform: uppercase; }
+      .show-title { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; row-gap: 8px; font-size: clamp(15px, 2.2vw, 21px); font-weight: 800; letter-spacing: 1.4px; margin: 27px 0 28px; text-transform: uppercase; }
+      .show-title span:first-child, .show-title span:last-child { flex: none; width: 60px; height: 2px; background: #c99132; }
+      .show-title-text { max-width: 78%; white-space: normal; overflow-wrap: break-word; text-align: center; }
+      .ticket-kind { position: relative; max-width: 90%; background: linear-gradient(100deg, #9a6004, #d49b32); color: white; font-size: clamp(14px, 1.8vw, 21px); font-weight: 700; letter-spacing: 4px; width: max-content; margin: 0 auto 42px; padding: 13px 28px; text-transform: uppercase; white-space: normal; overflow-wrap: break-word; text-align: center; }
       .details { position: relative; width: 69%; z-index: 1; }
       .detail-row { display: flex; align-items: center; gap: 18px; min-height: 92px; border-bottom: 1px solid #d7c9ad; }
       .icon { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--gold); color: #fff; font-size: 28px; border: 1px solid #e0b24e; }
@@ -170,13 +170,12 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
       .icon.calendar { font-size: 28px; }
       .icon.clock { font-size: 38px; }
       small { display: block; color: #9e6711; font-weight: 600; letter-spacing: 2px; font-size: 15px; margin-bottom: 8px; }
-      strong { display: block; letter-spacing: 1.3px; font-size: 22px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      strong { display: block; letter-spacing: 1.3px; font-size: clamp(15px, 1.7vw, 22px); font-weight: 600; white-space: normal; overflow-wrap: break-word; line-height: 1.25; }
       p { margin: 5px 0 0; font-size: 17px; }
       .date-time { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
       .date-time .detail-row { gap: 13px; }
-      .date-time strong { font-size: 20px; }
-      .model { position: absolute; z-index: 2; bottom: -4px; right: 4%; height: 430px; width: auto; object-fit: contain; pointer-events: none; }
-      footer { position: absolute; z-index: 3; bottom: 35px; left: 62px; right: 25px; font-size: 12px; font-weight: 800; letter-spacing: 2.2px; white-space: nowrap; text-transform: uppercase; }
+      .date-time strong { font-size: clamp(14px, 1.6vw, 20px); }
+      footer { position: absolute; z-index: 3; bottom: 22px; left: 62px; right: 25px; font-size: clamp(9px, 1.1vw, 12px); font-weight: 800; letter-spacing: 1.4px; line-height: 1.4; white-space: normal; overflow-wrap: break-word; text-transform: uppercase; }
       .perforation { position: relative; background: #fffefa; }
       .perforation:after { content: ""; position: absolute; left: 50%; top: 36px; bottom: 36px; border-left: 4px dashed #ad7311; }
       .ticket-stub { border-radius: 0 24px 24px 0; text-align: center; padding: 60px 42px 40px; background: radial-gradient(ellipse at 115% 0, #e9d5a7 0 2%, transparent 2.5% 5%, #e9d5a7 5.5% 6%, transparent 6.5%) 100% 0/130px 130px, #fffdf7; }
@@ -198,7 +197,6 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
         .perforation:after { left: 30px; right: 30px; top: 50%; bottom: auto; border-left: 0; border-top: 4px dashed #ad7311; }
         .ticket-stub { min-height: 620px; border-radius: 0 0 22px 22px; }
         .details { width: 100%; }
-        .model { opacity: 0.22; right: -38px; }
         .brand-name { font-size: 78px; }
         .brand-subtitle { font-size: 23px; }
         .show-title { font-size: 14px; }
