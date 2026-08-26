@@ -251,7 +251,8 @@ export const updateServiceStatus = async (req, res) => {
                     companyName: service.companyName,
                     mediaName: service.mediaName,
                     location: service.country || "ISTANBUL, TURKEY",
-                    qrData
+                    qrData,
+                    photoUrl: service.photo?.url
                 });
                 console.log("Card Buffer created from Puppeteer");
 

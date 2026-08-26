@@ -161,10 +161,18 @@ const getCollectionDayLabel = (collection) => {
 };
 
 const getDescriptionLines = (text = "") =>
-    stripHtml(text)
-        .split(/\n|•|·|-/)
+    ensureString(text)
+        .replace(/<[^>]+>/g, " ")
+        .split("\n")
         .map((line) => line.trim())
-        .filter(Boolean);
+        .filter(Boolean)
+        .map((line) => {
+            const isHeading = /^-\s*/.test(line);
+            return {
+                text: line.replace(/^[-•·]\s*/, ""),
+                showIcon: !isHeading,
+            };
+        });
 
 const getTicketIcon = (ticketName = "", index = 0) => {
     const normalized = ticketName.toLowerCase();
@@ -485,8 +493,10 @@ export default function EventTicketDetails() {
                                 <ul className="min-h-[150px] space-y-3 text-left text-[15px] leading-6 text-gray-700">
                                     {features.length > 0 ? features.map((feature, featureIndex) => (
                                         <li key={`${ticketId}-feature-${featureIndex}`} className="flex gap-3">
-                                            <Check size={15} className="mt-1 shrink-0 text-[#C7913E]" />
-                                            <span>{feature}</span>
+                                            {feature.showIcon && (
+                                                <Check size={15} className="mt-1 shrink-0 text-[#C7913E]" />
+                                            )}
+                                            <span>{feature.text}</span>
                                         </li>
                                     )) : (
                                         <li className="flex gap-3">

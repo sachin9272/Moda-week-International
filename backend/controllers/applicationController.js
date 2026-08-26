@@ -109,7 +109,31 @@ export const createSponsorApplication = async (req, res) => {
 // Create Service Application
 export const createServiceApplication = async (req, res) => {
     try {
-        const service = new Service(req.body);
+        const payload = { ...req.body };
+
+        // Array fields arrive as JSON strings when submitted via multipart/form-data (photo upload)
+        ['mediaReleaseNames', 'volunteeringInterests'].forEach((field) => {
+            if (typeof payload[field] === 'string') {
+                try {
+                    payload[field] = JSON.parse(payload[field]);
+                } catch {
+                    payload[field] = payload[field] ? [payload[field]] : [];
+                }
+            }
+        });
+
+        if (payload.requestParticipation === 'Press & Media Accreditation' && !req.file) {
+            return res.status(400).json({ success: false, message: 'A photo is required for Press & Media Accreditation applications.' });
+        }
+
+        if (req.file) {
+            payload.photo = {
+                url: req.file.location,
+                publicId: req.file.key
+            };
+        }
+
+        const service = new Service(payload);
         await service.save();
 
         await sendApplicationEmails(

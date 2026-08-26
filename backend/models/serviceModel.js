@@ -37,6 +37,10 @@ const serviceSchema = new mongoose.Schema({
     signature: { type: String },
     mediaReleaseNames: [{ type: String }],
     mediaName: { type: String },
+    photo: {
+        url: { type: String },
+        publicId: { type: String }
+    },
 
     // Volunteer & Internship Fields
     educationMajor: { type: String },
