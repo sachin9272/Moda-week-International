@@ -384,6 +384,11 @@ export default function Participants() {
                                                     className="w-6 h-auto"
                                                 />
                                             )}
+                                            {participant.country && (
+                                                <span className="text-white text-xs font-medium tracking-widest uppercase">
+                                                    {participant.country}
+                                                </span>
+                                            )}
                                         </div>
 
                                         {/* Social Icons */}

@@ -5,7 +5,9 @@ const ScrollToTop = () => {
     const { pathname, search, hash } = useLocation();
 
     useEffect(() => {
-        window.scrollTo(0, 0);
+        if (!hash) {
+            window.scrollTo(0, 0);
+        }
     }, [pathname, search, hash]);
 
     return null;

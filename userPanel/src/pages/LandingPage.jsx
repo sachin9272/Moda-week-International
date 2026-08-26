@@ -464,6 +464,7 @@ export default function LandingPage() {
               key={event._id}
               heading={`${getUpcomingEventName(event) || event.title} FASHION DESIGNERS`}
               designers={eventDesigners}
+              eventId={event.slug || event._id}
             />
           );
         })}

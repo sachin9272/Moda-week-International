@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { baseURL } from "../config/api";
 import Navbar from "../components/Navbar";
@@ -214,6 +214,7 @@ export default function EventTicketDetails() {
     const [loading, setLoading] = useState(true);
     const [activeDay, setActiveDay] = useState("");
     const [quantities, setQuantities] = useState({});
+    const location = useLocation();
     const [totalPrice, setTotalPrice] = useState(0);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const eventDisplayName = ensureString(event?.eventName);
@@ -297,29 +298,75 @@ export default function EventTicketDetails() {
         return formatDate(dateString);
     }
 
-    useEffect(() => {
-        const fetchEvent = async () => {
-            try {
-                const response = await axios.get(`${baseURL}/api/upcoming-events/${id}`, {
-                    params: { _t: Date.now() },
-                    headers: {
-                        'Cache-Control': 'no-cache',
-                        Pragma: 'no-cache'
-                    }
-                });
-                setEvent(response.data);
-
-                const eventCollections = Array.isArray(response.data?.collections) ? response.data.collections : [];
-                const firstTaggedCollection = eventCollections.find((collection) => getCollectionDayKey(collection));
-                setActiveDay(firstTaggedCollection ? getCollectionDayKey(firstTaggedCollection) : "");
-            } catch (error) {
-                console.error("Error fetching event details:", error);
-            } finally {
-                setLoading(false);
+    const fetchEventData = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(`${baseURL}/api/upcoming-events/${id}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch event data");
             }
-        };
-        fetchEvent();
+            const data = await response.json();
+            setEvent(data);
+            
+            // Set active day based on hash or default to first day
+            const collections = Array.isArray(data?.collections) ? data.collections : [];
+            let targetCollection = null;
+            const hash = location.hash;
+            if (hash && hash.startsWith('#designer-')) {
+                let designerId = hash.replace('#designer-', '');
+                try { designerId = decodeURIComponent(designerId); } catch(e) {}
+                targetCollection = collections.find(col => {
+                    const objId = col.designerId?._id || col.designerId;
+                    return String(objId) === String(designerId) || String(col._id) === String(designerId);
+                });
+            }
+
+            const hasDays = collections.some(col => col.day);
+            if (hasDays) {
+                if (targetCollection && getCollectionDayKey(targetCollection)) {
+                    setActiveDay(getCollectionDayKey(targetCollection));
+                } else {
+                    const firstTaggedCollection = collections.find(col => getCollectionDayKey(col));
+                    if (firstTaggedCollection) {
+                        setActiveDay(getCollectionDayKey(firstTaggedCollection));
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching event data:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEventData();
     }, [id]);
+
+    useEffect(() => {
+        if (event && location.hash && !loading) {
+            let hashId = location.hash.substring(1);
+            try { hashId = decodeURIComponent(hashId); } catch(e) {}
+            
+            let attempts = 0;
+            const scrollInterval = setInterval(() => {
+                const element = document.getElementById(hashId);
+                if (element) {
+                    const yOffset = -80; 
+                    const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    const currentY = window.pageYOffset;
+                    if (Math.abs(currentY - y) > 5) {
+                        window.scrollTo({ top: y, behavior: 'auto' });
+                    }
+                }
+                attempts++;
+                if (attempts > 15) { // 1.5 seconds max
+                    clearInterval(scrollInterval);
+                }
+            }, 100);
+            return () => clearInterval(scrollInterval);
+        }
+    }, [event, activeDay, location.hash, loading]);
 
     const handleQuantityChange = (ticketId, delta) => {
         setQuantities((prev) => {
@@ -913,16 +960,21 @@ export default function EventTicketDetails() {
                         .map((col, idx) => {
                             const dayKey = getCollectionDayKey(col);
 
+                            const objId = col.designerId?._id || col.designerId;
+                            const fallbackId = col._id;
                             return (
-                                <div
-                                    key={col._id || col.id || `${dayKey || "collection"}-${idx}`}
-                                    ref={(element) => {
-                                        if (dayKey && element) {
-                                            dayRefs.current[dayKey] = element;
-                                        }
-                                    }}
-                                >
-                                    {renderCollection(col, idx)}
+                                <div key={col._id || col.id || `${dayKey || "collection"}-${idx}`} id={`designer-${objId}`}>
+                                    <div id={`designer-${fallbackId}`}>
+                                        <div
+                                            ref={(element) => {
+                                                if (dayKey && element) {
+                                                    dayRefs.current[dayKey] = element;
+                                                }
+                                            }}
+                                        >
+                                            {renderCollection(col, idx)}
+                                        </div>
+                                    </div>
                                 </div>
                             );
                         })}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import useSWR from 'swr';
 import Navbar from '../components/Navbar';
@@ -9,11 +9,16 @@ import { ChevronRight, ChevronLeft } from 'lucide-react';
 import { baseURL as API_BASE_URL } from '../config/api';
 import { optimizeCloudinaryImage } from '../utils/cloudinary';
 
-const LazyCollection = ({ children }) => {
-    const [isVisible, setIsVisible] = React.useState(false);
+const LazyCollection = ({ children, id, forceVisible }) => {
+    const [isVisible, setIsVisible] = React.useState(forceVisible || false);
     const containerRef = React.useRef(null);
 
     React.useEffect(() => {
+        if (forceVisible) {
+            setIsVisible(true);
+            return;
+        }
+
         const observer = new IntersectionObserver(
             ([entry]) => {
                 if (entry.isIntersecting) {
@@ -32,7 +37,7 @@ const LazyCollection = ({ children }) => {
     }, []);
 
     return (
-        <div ref={containerRef} style={{ minHeight: "400px" }}>
+        <div id={id} ref={containerRef} style={{ minHeight: "400px", scrollMarginTop: "100px" }}>
             {isVisible ? children : (
                 <div className="flex items-center justify-center h-[400px]">
                     <div className="w-8 h-8 border-4 border-[#C7913E] border-t-transparent rounded-full animate-spin"></div>
@@ -173,22 +178,75 @@ const fetcher = (url) => axios.get(url).then(res => res.data);
 const EventDetail = () => {
     const { slug } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [activeDay, setActiveDay] = useState(''); // Default to first available tagged day
     const dayRefs = React.useRef({});
 
     const { data: event, error, isLoading: loading } = useSWR(slug ? `${API_BASE_URL}/api/events/${slug}` : null, fetcher, {
-        revalidateOnFocus: false,
-        onSuccess: (data) => {
-            const collections = data.collections || [];
+        revalidateOnFocus: false
+    });
+
+    useEffect(() => {
+        if (event) {
+            const collections = event.collections || [];
+            
+            let targetCollection = null;
+            const hash = location.hash;
+            if (hash && hash.startsWith('#designer-')) {
+                let designerId = hash.replace('#designer-', '');
+                try { designerId = decodeURIComponent(designerId); } catch(e) {}
+                targetCollection = collections.find(col => {
+                    const objId = col.designerId?._id || col.designerId;
+                    return String(objId) === String(designerId) || String(col._id) === String(designerId);
+                });
+            }
+
             const hasDays = collections.some(col => col.day);
-            if (hasDays && !activeDay) {
-                const firstTaggedCollection = collections.find(col => getCollectionDayKey(col));
-                if (firstTaggedCollection) {
-                    setActiveDay(getCollectionDayKey(firstTaggedCollection));
+            if (hasDays) {
+                if (targetCollection && getCollectionDayKey(targetCollection)) {
+                    setActiveDay(getCollectionDayKey(targetCollection));
+                } else if (!activeDay) {
+                    const firstTaggedCollection = collections.find(col => getCollectionDayKey(col));
+                    if (firstTaggedCollection) {
+                        setActiveDay(getCollectionDayKey(firstTaggedCollection));
+                    }
                 }
             }
         }
-    });
+    }, [event, location.hash]);
+
+    useEffect(() => {
+        if (event && location.hash) {
+            let id = location.hash.substring(1);
+            try { id = decodeURIComponent(id); } catch(e) {}
+            
+            console.log("[Scroll Debug] Searching for element with id:", id);
+            
+            let attempts = 0;
+            const scrollInterval = setInterval(() => {
+                const element = document.getElementById(id);
+                if (element) {
+                    console.log("[Scroll Debug] Found element! Scrolling into view.");
+                    const yOffset = -80; 
+                    const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                    const currentY = window.pageYOffset;
+                    // Only scroll if we're not already there (tolerance of 5px)
+                    if (Math.abs(currentY - y) > 5) {
+                        window.scrollTo({ top: y, behavior: 'auto' });
+                    }
+                    // Do NOT clear interval yet. Keep enforcing it to fight layout shifts!
+                } else {
+                    console.log("[Scroll Debug] Element not found on attempt", attempts);
+                }
+                attempts++;
+                if (attempts > 15) { // 1.5 seconds max
+                    console.log("[Scroll Debug] Finished scrolling.");
+                    clearInterval(scrollInterval);
+                }
+            }, 100);
+            return () => clearInterval(scrollInterval);
+        }
+    }, [event, activeDay, location.hash]);
 
     const collectionDays = React.useMemo(() => {
         const collections = event?.collections || [];
@@ -661,11 +719,19 @@ const EventDetail = () => {
             <div className="mt-10 bg-white">
                 {event.collections && event.collections
                     .filter(col => !col.day || getCollectionDayKey(col) === activeDay) // Show if no day assigned OR matches active day
-                    .map((col, idx) => (
-                        <LazyCollection key={col._id || col.title || idx}>
-                            {renderCollection(col, idx)}
-                        </LazyCollection>
-                    ))}
+                    .map((col, idx) => {
+                        const objId = col.designerId?._id || col.designerId;
+                        const fallbackId = col._id;
+                        return (
+                            <div key={col._id || col.title || idx} id={`designer-${objId}`}>
+                                <div id={`designer-${fallbackId}`}>
+                                    <LazyCollection forceVisible={!!location.hash}>
+                                        {renderCollection(col, idx)}
+                                    </LazyCollection>
+                                </div>
+                            </div>
+                        );
+                    })}
             </div>
 
             {/* <div className='!text-white mb-10'>

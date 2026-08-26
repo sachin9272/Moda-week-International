@@ -1,66 +1,79 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
 
-function DesignerCard({ designer }) {
-  return (
-    <div className="group relative h-[300px] md:h-[400px] w-[220px] md:w-[280px] shrink-0 overflow-hidden cursor-default">
-      <img
-        src={optimizeCloudinaryImage(designer.image?.url || designer.image, {
-          width: 720,
-          height: 960,
-          crop: "fill",
-        })}
-        alt={designer.name}
-        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
-        loading="lazy"
-        decoding="async"
-      />
-      <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+function DesignerCard({ designer, index = 0, eventId }) {
+  const isFeatured = index % 2 === 0;
 
-      <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-center items-center gap-3 bg-black/60 backdrop-blur-xs h-auto min-h-[4rem] transition-all duration-300">
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          <h3 className="text-white text-sm font-bold tracking-widest uppercase text-center">
+  return (
+    <div className="group flex flex-col w-[280px] md:w-[320px] shrink-0 overflow-hidden cursor-pointer bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
+      <div className="relative w-full aspect-[4/5] overflow-hidden">
+        <img
+          src={optimizeCloudinaryImage(designer.image?.url || designer.image, {
+            width: 720,
+            height: 900,
+            crop: "fill",
+          })}
+          alt={designer.name}
+          className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+          loading="lazy"
+          decoding="async"
+        />
+        
+        {/* Badge */}
+        {/* <div className="absolute top-3 left-3 z-10">
+          {isFeatured ? (
+            <span className="bg-[#B98D4D] text-white text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-sm uppercase tracking-wider shadow-sm">
+              Featured Designer
+            </span>
+          ) : (
+            <span className="bg-[#0D3B2E] text-white text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-sm uppercase tracking-wider shadow-sm">
+              International Designer
+            </span>
+          )}
+        </div> */}
+
+        {/* Bottom Overlay */}
+        <div className="absolute inset-x-0 bottom-0 h-[65%] bg-linear-to-t from-black via-black/40 to-transparent flex flex-col justify-end p-5">
+          <h3 className="text-white text-xl md:text-2xl font-serif tracking-wide mb-1.5 uppercase drop-shadow-md">
             {designer.name}
           </h3>
-          {designer.countryCode && (
-            <img
-              src={`https://flagcdn.com/w20/${designer.countryCode.toLowerCase()}.png`}
-              alt={designer.country}
-              className="w-6 h-auto"
-            />
-          )}
-        </div>
-
-        <div className="flex items-center gap-4 mt-1">
-          {designer.instagram && (
-            <a
-              href={designer.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-[#C7913E] transition-colors"
-              title="Instagram"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
-            </a>
-          )}
-          {designer.website && (
-            <a
-              href={designer.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white hover:text-[#C7913E] transition-colors"
-              title="Website"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            </a>
-          )}
+          
+          <div className="flex items-center gap-2 mb-2">
+            {designer.countryCode && (
+              <img
+                src={`https://flagcdn.com/w20/${designer.countryCode.toLowerCase()}.png`}
+                alt={designer.country}
+                className="w-5 h-3.5 object-cover rounded-sm shadow-sm"
+              />
+            )}
+            <span className="text-white text-[11px] md:text-xs font-semibold tracking-widest uppercase drop-shadow-sm">
+              {designer.country}
+            </span>
+          </div>
+          
+          <p className="text-white text-[10px] md:text-[11px] tracking-widest uppercase mb-1.5 opacity-90 drop-shadow-sm">
+            {designer.collectionName || "Luminescence Collection"}
+          </p>
+          
+          <p className="text-[#B98D4D] text-[10px] md:text-[11px] font-bold tracking-wider uppercase drop-shadow-sm">
+            NYCFS 2026 • Participating Designer
+          </p>
         </div>
       </div>
+
+      {/* Footer / View Designer Button */}
+      <Link 
+        to={`/event-details/${eventId}#designer-${designer._id}`}
+        className="bg-white py-4 md:py-4.5 flex justify-center items-center gap-2 text-[#0D3B2E] font-bold text-xs md:text-sm tracking-widest uppercase hover:bg-gray-50 transition-colors"
+      >
+        View Designer <span className="text-lg leading-none">&rarr;</span>
+      </Link>
     </div>
   );
 }
 
-export default function EventDesignersCarousel({ heading, designers }) {
+export default function EventDesignersCarousel({ heading, designers, eventId }) {
   const scrollRef = useRef(null);
   const [isInteracting, setIsInteracting] = useState(false);
   const canLoop = designers.length > 1;
@@ -117,8 +130,8 @@ export default function EventDesignersCarousel({ heading, designers }) {
           onMouseEnter={() => setIsInteracting(true)}
           onMouseLeave={() => setIsInteracting(false)}
         >
-          {trackDesigners.map(({ designer, key }) => (
-            <DesignerCard key={key} designer={designer} />
+          {trackDesigners.map(({ designer, key }, idx) => (
+            <DesignerCard key={key} designer={designer} index={idx} eventId={eventId} />
           ))}
         </div>
       </div>
