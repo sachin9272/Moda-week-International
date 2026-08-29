@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Table from '../../components/ui/Table';
+import ApplicationDetailsModal from '../../components/ApplicationDetailsModal';
 import { baseURL } from '../../config/api';
 import { ArrowLeft, Search, Download, Trash2, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ const Designers = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
+    const [selectedDesigner, setSelectedDesigner] = useState(null);
 
     const fetchDesigners = async () => {
         try {
@@ -148,7 +150,19 @@ const Designers = () => {
                 title="All Designer Applications"
                 columns={columns}
                 data={filteredDesigners}
+                onView={setSelectedDesigner}
+                onRowClick={setSelectedDesigner}
                 onDelete={openDeleteModal}
+            />
+
+            <ApplicationDetailsModal
+                application={selectedDesigner}
+                title="Designer Application Details"
+                onClose={() => setSelectedDesigner(null)}
+                onDelete={(designer) => {
+                    setSelectedDesigner(null);
+                    openDeleteModal(designer._id);
+                }}
             />
 
             {/* Delete Modal */}

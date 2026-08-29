@@ -1,7 +1,19 @@
 import React from 'react';
 import { Trash2, Eye } from 'lucide-react';
 
-const Table = ({ columns, data, onDelete, onView, title }) => {
+const Table = ({ columns, data, onDelete, onView, onRowClick, title }) => {
+    const handleRowClick = (event, item) => {
+        if (!onRowClick) return;
+        if (event.target.closest('button, a, input, select, textarea, [data-row-action]')) return;
+        onRowClick(item);
+    };
+
+    const handleRowKeyDown = (event, item) => {
+        if (!onRowClick || (event.key !== 'Enter' && event.key !== ' ')) return;
+        event.preventDefault();
+        onRowClick(item);
+    };
+
     return (
         <div className="bg-[#1a1a1a] rounded-2xl shadow-xl border border-[#2a2a2a] overflow-hidden">
             <div className="p-6 border-b border-[#2a2a2a] flex justify-between items-center bg-[#1a1a1a]">
@@ -33,7 +45,13 @@ const Table = ({ columns, data, onDelete, onView, title }) => {
                             </tr>
                         ) : (
                             data.map((item, idx) => (
-                                <tr key={item._id || idx} className="hover:bg-[#C7913E]/5 transition-colors group">
+                                <tr
+                                    key={item._id || idx}
+                                    onClick={(event) => handleRowClick(event, item)}
+                                    onKeyDown={(event) => handleRowKeyDown(event, item)}
+                                    tabIndex={onRowClick ? 0 : undefined}
+                                    className={`hover:bg-[#C7913E]/5 transition-colors group ${onRowClick ? 'cursor-pointer focus:outline-none focus:bg-[#C7913E]/10' : ''}`}
+                                >
                                     {columns.map((col, colIdx) => (
                                         <td key={colIdx} className="p-4 text-sm text-neutral-300 font-medium">
                                             {col.render ? col.render(item) : (
@@ -48,7 +66,10 @@ const Table = ({ columns, data, onDelete, onView, title }) => {
                                             <div className="flex items-center justify-end gap-3">
                                                 {onView && (
                                                     <button
-                                                        onClick={() => onView(item)}
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            onView(item);
+                                                        }}
                                                         className="p-2 text-[#C7913E] hover:bg-[#C7913E]/10 rounded-lg transition-all"
                                                         title="View Details"
                                                     >
@@ -57,7 +78,10 @@ const Table = ({ columns, data, onDelete, onView, title }) => {
                                                 )}
                                                 {onDelete && (
                                                     <button
-                                                        onClick={() => onDelete(item._id)}
+                                                        onClick={(event) => {
+                                                            event.stopPropagation();
+                                                            onDelete(item._id);
+                                                        }}
                                                         className="p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
                                                         title="Delete"
                                                     >

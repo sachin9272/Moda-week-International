@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Table from '../../components/ui/Table';
+import ApplicationDetailsModal from '../../components/ApplicationDetailsModal';
 import { baseURL } from '../../config/api';
 import { ArrowLeft, Search, Download, Trash2, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ const Buyers = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
+    const [selectedBuyer, setSelectedBuyer] = useState(null);
 
     const fetchBuyers = async () => {
         try {
@@ -146,7 +148,19 @@ const Buyers = () => {
                 title="All Buyer Registrations"
                 columns={columns}
                 data={filteredBuyers}
+                onView={setSelectedBuyer}
+                onRowClick={setSelectedBuyer}
                 onDelete={openDeleteModal}
+            />
+
+            <ApplicationDetailsModal
+                application={selectedBuyer}
+                title="Buyer Application Details"
+                onClose={() => setSelectedBuyer(null)}
+                onDelete={(buyer) => {
+                    setSelectedBuyer(null);
+                    openDeleteModal(buyer._id);
+                }}
             />
 
             {/* Delete Modal */}

@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
 
-function DesignerCard({ designer, index = 0, eventId }) {
-  const isFeatured = index % 2 === 0;
-
+function DesignerCard({ designer, eventId }) {
   return (
     <div className="group flex flex-col w-[280px] md:w-[320px] shrink-0 overflow-hidden cursor-pointer bg-white rounded-xl shadow-[0_4px_12px_rgba(0,0,0,0.1)] border border-gray-100 hover:shadow-2xl transition-shadow duration-300">
       <div className="relative w-full aspect-[4/5] overflow-hidden">
@@ -52,10 +50,6 @@ function DesignerCard({ designer, index = 0, eventId }) {
             </span>
           </div>
           
-          <p className="text-white text-[10px] md:text-[11px] tracking-widest uppercase mb-1.5 opacity-90 drop-shadow-sm">
-            {designer.collectionName || "Luminescence Collection"}
-          </p>
-          
           <p className="text-[#B98D4D] text-[10px] md:text-[11px] font-bold tracking-wider uppercase drop-shadow-sm">
             NYCFS 2026 • Participating Designer
           </p>
@@ -67,7 +61,7 @@ function DesignerCard({ designer, index = 0, eventId }) {
         to={`/event-details/${eventId}#designer-${designer._id}`}
         className="bg-white py-4 md:py-4.5 flex justify-center items-center gap-2 text-[#0D3B2E] font-bold text-xs md:text-sm tracking-widest uppercase hover:bg-gray-50 transition-colors"
       >
-        View Designer <span className="text-lg leading-none">&rarr;</span>
+        View Participant <span className="text-lg leading-none">&rarr;</span>
       </Link>
     </div>
   );
@@ -130,8 +124,8 @@ export default function EventDesignersCarousel({ heading, designers, eventId }) 
           onMouseEnter={() => setIsInteracting(true)}
           onMouseLeave={() => setIsInteracting(false)}
         >
-          {trackDesigners.map(({ designer, key }, idx) => (
-            <DesignerCard key={key} designer={designer} index={idx} eventId={eventId} />
+          {trackDesigners.map(({ designer, key }) => (
+            <DesignerCard key={key} designer={designer} eventId={eventId} />
           ))}
         </div>
       </div>

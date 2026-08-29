@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Table from '../../components/ui/Table';
+import ApplicationDetailsModal from '../../components/ApplicationDetailsModal';
 import { baseURL } from '../../config/api';
 import { ArrowLeft, Search, Download, Trash2, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ const Sponsors = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
+    const [selectedSponsor, setSelectedSponsor] = useState(null);
 
     const fetchSponsors = async () => {
         try {
@@ -146,7 +148,19 @@ const Sponsors = () => {
                 title="All Sponsor Applications"
                 columns={columns}
                 data={filteredSponsors}
+                onView={setSelectedSponsor}
+                onRowClick={setSelectedSponsor}
                 onDelete={openDeleteModal}
+            />
+
+            <ApplicationDetailsModal
+                application={selectedSponsor}
+                title="Sponsor Application Details"
+                onClose={() => setSelectedSponsor(null)}
+                onDelete={(sponsor) => {
+                    setSelectedSponsor(null);
+                    openDeleteModal(sponsor._id);
+                }}
             />
 
             {/* Delete Modal */}
