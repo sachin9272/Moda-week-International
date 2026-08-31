@@ -8,6 +8,7 @@ const ApplicationForm = () => {
   const [searchParams] = useSearchParams();
   const initialTab = searchParams.get("tab") || "service";
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -74,6 +75,7 @@ const ApplicationForm = () => {
     signature: "",
     mediaReleaseNames: [],
     mediaName: "",
+    photo: null,
 
     // Volunteer & Internship
     educationMajor: "",
@@ -102,6 +104,14 @@ const ApplicationForm = () => {
     }));
   };
 
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: files && files[0] ? files[0] : null,
+    }));
+  };
+
   const handleCheckboxChange = (e, field) => {
     const { value, checked } = e.target;
     setFormData((prev) => {
@@ -115,6 +125,8 @@ const ApplicationForm = () => {
   };
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
+
     // Define different API endpoints for each tab
     const apiEndpoints = {
       buyer: `${baseURL}/api/forms/buyer`,
@@ -123,16 +135,66 @@ const ApplicationForm = () => {
       service: `${baseURL}/api/forms/service`,
     };
 
+    if (activeTab === "service" && formData.requestParticipation === "Press & Media Accreditation") {
+      const requiredPressFields = [
+        ["companyName", "Company Name"],
+        ["address", "Address"],
+        ["city", "City"],
+        ["state", "State/Province"],
+        ["zipCode", "Zip/Postal Code"],
+        ["website", "Website"],
+        ["currentEvent", "Current Event"],
+        ["jobTitle", "Title"],
+        ["date", "Date"],
+        ["signature", "Signature"],
+        ["mediaName", "Name Of Media"],
+      ];
+      const missingField = requiredPressFields.find(([field]) => !String(formData[field] || "").trim());
+      if (missingField) {
+        toast.error(`${missingField[1]} is required.`);
+        return;
+      }
+
+      if (!formData.photo) {
+        toast.error("Please upload a photo to appear on your Press Pass.");
+        return;
+      }
+    }
+
     console.log("Submitting Form Data:", formData);
 
+    setIsSubmitting(true);
     try {
-      const response = await fetch(apiEndpoints[activeTab], {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
+      let response;
+
+      if (activeTab === "service") {
+        // Sent as multipart/form-data so the optional photo upload can travel with the rest of the fields
+        const payload = new FormData();
+        Object.entries(formData).forEach(([key, value]) => {
+          if (key === "photo") return;
+          if (Array.isArray(value)) {
+            payload.append(key, JSON.stringify(value));
+          } else if (value !== null && value !== undefined) {
+            payload.append(key, value);
+          }
+        });
+        if (formData.photo) {
+          payload.append("photo", formData.photo);
+        }
+
+        response = await fetch(apiEndpoints[activeTab], {
+          method: "POST",
+          body: payload,
+        });
+      } else {
+        response = await fetch(apiEndpoints[activeTab], {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+        });
+      }
 
       const data = await response.json();
 
@@ -198,6 +260,7 @@ const ApplicationForm = () => {
           signature: "",
           mediaReleaseNames: [],
           mediaName: "",
+          photo: null,
 
           // Volunteer & Internship
           educationMajor: "",
@@ -209,6 +272,8 @@ const ApplicationForm = () => {
     } catch (error) {
       console.error("Error submitting form:", error);
       toast.error("An error occurred. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -223,6 +288,7 @@ const ApplicationForm = () => {
         value={formData[name]}
         onChange={handleInputChange}
         placeholder={placeholder}
+        required={required}
         className="w-full px-4 py-1.5 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
@@ -583,18 +649,37 @@ const ApplicationForm = () => {
               <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
                 <h3 className="text-xl font-bold mb-6">Press & Media Accreditation Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {renderInput("Company Name", "companyName", "Company Name", "text", false)}
-                  {renderInput("Address", "address", "Address", "text", false)}
-                  {renderInput("City", "city", "City", "text", false)}
-                  {renderInput("State/Province", "state", "State/Province", "text", false)}
-                  {renderInput("Zip/Postal Code", "zipCode", "Zip/Postal Code", "text", false)}
+                  {renderInput("Company Name", "companyName", "Company Name", "text")}
+                  {renderInput("Address", "address", "Address", "text")}
+                  {renderInput("City", "city", "City", "text")}
+                  {renderInput("State/Province", "state", "State/Province", "text")}
+                  {renderInput("Zip/Postal Code", "zipCode", "Zip/Postal Code", "text")}
                   {renderInput("Fax", "fax", "Fax Number", "tel", false)}
-                  {renderInput("Website", "website", "https://example.com", "url", false)}
-                  {renderInput("Current Event", "currentEvent", "Current Event", "text", false)}
-                  {renderInput("Title", "jobTitle", "Title", "text", false)}
-                  {renderInput("Date", "date", "Select Date", "date", false)}
-                  {renderInput("Signature", "signature", "Digital Signature", "text", false)}
-                  {renderInput("Name Of Media", "mediaName", "Name Of Media", "text", false)}
+                  {renderInput("Website", "website", "https://example.com", "url")}
+                  {renderInput("Current Event", "currentEvent", "Current Event", "text")}
+                  {renderInput("Title", "jobTitle", "Title", "text")}
+                  {renderInput("Date", "date", "Select Date", "date")}
+                  {renderInput("Signature", "signature", "Digital Signature", "text")}
+                  {renderInput("Name Of Media", "mediaName", "Name Of Media", "text")}
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Upload Photo (for your Press Pass ID card) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="file"
+                    name="photo"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:cursor-pointer cursor-pointer"
+                  />
+                  {formData.photo && (
+                    <p className="mt-2 text-xs text-gray-500">Selected: {formData.photo.name}</p>
+                  )}
+                  <p className="mt-1 text-xs text-gray-500">
+                    This photo will appear on the digital Press Pass sent to your email once your application is approved.
+                  </p>
                 </div>
 
                 {renderCheckboxGroup("List the names where the pictures will be released by your company", "mediaReleaseNames", [
@@ -713,9 +798,10 @@ const ApplicationForm = () => {
             <div className="mt-8">
               <button
                 onClick={handleSubmit}
-                className="w-full bg-black text-white py-2 rounded-lg font-bold text-lg hover:bg-gray-800 transition-colors uppercase tracking-wider"
+                disabled={isSubmitting}
+                className="w-full bg-black text-white py-2 rounded-lg font-bold text-lg hover:bg-gray-800 transition-colors uppercase tracking-wider disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Submit Application
+                {isSubmitting ? "Submitting..." : "Submit Application"}
               </button>
             </div>
           </div>

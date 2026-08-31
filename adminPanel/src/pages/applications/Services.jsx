@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Table from '../../components/ui/Table';
+import ApplicationDetailsModal from '../../components/ApplicationDetailsModal';
 import { baseURL } from '../../config/api';
 import { ArrowLeft, Search, Download, Trash2, Loader, Wrench, Check, X } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -14,6 +15,7 @@ const Services = () => {
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
     const [statusLoading, setStatusLoading] = useState(null); // Track which service is updating
+    const [selectedService, setSelectedService] = useState(null);
 
     const fetchServices = async () => {
         try {
@@ -57,7 +59,9 @@ const Services = () => {
         try {
             const res = await axios.put(`${baseURL}/api/admin/services/${id}/status`, { status: newStatus });
             if (res.data.success) {
-                setServices(services.map(s => s._id === id ? { ...s, status: newStatus } : s));
+                const updatedService = res.data.data || { _id: id, status: newStatus };
+                setServices(services.map(s => s._id === id ? { ...s, ...updatedService, status: newStatus } : s));
+                setSelectedService((current) => current?._id === id ? { ...current, ...updatedService, status: newStatus } : current);
                 toast.success(`Application ${newStatus}`);
             }
         } catch (error) {
@@ -145,14 +149,20 @@ const Services = () => {
                         item.status !== 'approved' && item.status !== 'rejected' && (
                             <>
                                 <button
-                                    onClick={() => handleStatusUpdate(item._id, 'approved')}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleStatusUpdate(item._id, 'approved');
+                                    }}
                                     className="p-1 hover:bg-green-500/10 rounded-lg text-green-500 transition-colors"
                                     title="Approve"
                                 >
                                     <Check size={18} />
                                 </button>
                                 <button
-                                    onClick={() => handleStatusUpdate(item._id, 'rejected')}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        handleStatusUpdate(item._id, 'rejected');
+                                    }}
                                     className="p-1 hover:bg-red-500/10 rounded-lg text-red-500 transition-colors"
                                     title="Reject"
                                 >
@@ -162,7 +172,10 @@ const Services = () => {
                         )
                     )}
                     <button
-                        onClick={() => openDeleteModal(item._id)}
+                        onClick={(event) => {
+                            event.stopPropagation();
+                            openDeleteModal(item._id);
+                        }}
                         className="p-1 hover:bg-red-500/10 rounded-lg text-neutral-400 hover:text-red-500 transition-colors"
                         title="Delete"
                     >
@@ -220,6 +233,21 @@ const Services = () => {
                 title="All Service Inquiries"
                 columns={columns}
                 data={filteredServices}
+                onView={setSelectedService}
+                onRowClick={setSelectedService}
+            />
+
+            <ApplicationDetailsModal
+                application={selectedService}
+                title="Service Inquiry Details"
+                onClose={() => setSelectedService(null)}
+                onApprove={(service) => handleStatusUpdate(service._id, 'approved')}
+                onReject={(service) => handleStatusUpdate(service._id, 'rejected')}
+                onDelete={(service) => {
+                    setSelectedService(null);
+                    openDeleteModal(service._id);
+                }}
+                actionLoading={statusLoading === selectedService?._id}
             />
 
             {/* Delete Modal */}

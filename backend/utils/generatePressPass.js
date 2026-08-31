@@ -2,10 +2,25 @@ import puppeteer from 'puppeteer-core';
 import QRCode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
+import axios from 'axios';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Downloads a remote image (e.g. an S3 URL) and inlines it as a base64 data URL,
+// since Puppeteer's headless page has no session/credentials to fetch it live.
+const fetchImageAsBase64 = async (url) => {
+    if (!url) return '';
+    try {
+        const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 15000 });
+        const contentType = response.headers['content-type'] || 'image/jpeg';
+        return `data:${contentType};base64,${Buffer.from(response.data).toString('base64')}`;
+    } catch (e) {
+        console.error("Error fetching applicant photo for press pass", e.message);
+        return '';
+    }
+};
 
 export const generatePressPass = async ({
     fullName,
@@ -13,6 +28,7 @@ export const generatePressPass = async ({
     mediaName,
     location,
     qrData,
+    photoUrl,
 }) => {
     // Determine the primary name for the pass
     const passCompany = (mediaName || companyName || "COMPANY").toUpperCase();
@@ -30,6 +46,9 @@ export const generatePressPass = async ({
     } catch (e) {
         console.error("Error loading logo for press pass", e);
     }
+
+    // Inline the applicant's uploaded photo, if any
+    const photoBase64 = await fetchImageAsBase64(photoUrl);
 
     // Generate QR Code base64
     const qrCodeDataUrl = await QRCode.toDataURL(qrData || 'Moda Week International', {
@@ -60,12 +79,20 @@ export const generatePressPass = async ({
             font-family: 'Inter', sans-serif;
             background-color: white;
             width: 600px;
-            height: 850px;
+            height: 1080px;
             position: relative;
-            border: 8px solid #1a1a1a;
+            border: 1px solid #e5e5e5;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+        }
+
+        /* Top Strip */
+        .top-strip {
+            height: 22px;
+            background-color: #B28247;
+            width: 100%;
+            flex-shrink: 0;
         }
 
         /* Top Border Area for Hole */
@@ -138,6 +165,39 @@ export const generatePressPass = async ({
             font-size: 20px;
             padding: 0 15px;
             line-height: 1;
+        }
+
+        /* Applicant Photo */
+        .photo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .photo-circle {
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 6px solid #B28247;
+            overflow: hidden;
+            background-color: #f2f2f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .photo-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        .photo-circle svg {
+            width: 45%;
+            height: 45%;
+            fill: #c9c9c9;
         }
 
         /* Content Area */
@@ -239,6 +299,8 @@ export const generatePressPass = async ({
 </head>
 <body>
 
+    <div class="top-strip"></div>
+
     <div class="top-lanyard">
         <div class="lanyard-hole"></div>
     </div>
@@ -251,13 +313,18 @@ export const generatePressPass = async ({
         <h1>PRESS PASS</h1>
     </div>
 
-    <div class="divider">
-        <div class="divider-icon">✦</div>
+    <div class="photo-container">
+        <div class="photo-circle">
+            ${photoBase64
+            ? `<img src="${photoBase64}" alt="${passName}" />`
+            : `<svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>`
+        }
+        </div>
     </div>
 
     <div class="content-area">
         <div class="media-title">${passCompany}</div>
-        
+
         <div class="info-qr-container">
             <div class="info-list">
                 
@@ -266,7 +333,7 @@ export const generatePressPass = async ({
                         <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                     </div>
                     <div class="info-text">
-                        <span class="info-label">Username</span>
+                        <span class="info-label">Name</span>
                         <span class="info-value">${passName}</span>
                     </div>
                 </div>
@@ -343,7 +410,7 @@ export const generatePressPass = async ({
     // Set viewport to exact dimensions
     await page.setViewport({
         width: 600,
-        height: 850,
+        height: 1080,
         deviceScaleFactor: 2 // High resolution
     });
 

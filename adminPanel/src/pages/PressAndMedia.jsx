@@ -4,6 +4,7 @@ import { Upload, X, Trash2, Plus, Pencil, Loader, Users } from 'lucide-react';
 import { baseURL } from '../config/api';
 import { countries } from '../utils/countries';
 import ImageEditorModal from '../components/ImageEditorModal';
+import ApplicationDetailsModal from '../components/ApplicationDetailsModal';
 import { optimizeCloudinaryImage } from '../utils/cloudinary';
 
 const PressAndMedia = () => {
@@ -12,6 +13,7 @@ const PressAndMedia = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null, name: '' });
     const [deleting, setDeleting] = useState(false);
+    const [selectedMember, setSelectedMember] = useState(null);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -195,7 +197,11 @@ const PressAndMedia = () => {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {mediaMembers?.map((member) => (
-                        <div key={member._id} className="bg-[#1a1a1a] rounded-xl shadow-lg border border-[#2a2a2a] overflow-hidden group hover:border-[#3a3a3a] transition-all">
+                        <div
+                            key={member._id}
+                            onClick={() => setSelectedMember(member)}
+                            className="bg-[#1a1a1a] rounded-xl shadow-lg border border-[#2a2a2a] overflow-hidden group hover:border-[#3a3a3a] transition-all cursor-pointer"
+                        >
                             <div className="relative aspect-[3/4]">
                                 <img
                                     src={optimizeCloudinaryImage(member.image?.url || 'https://via.placeholder.com/300x400?text=No+Image', { width: 720, height: 960, crop: 'fill' })}
@@ -206,13 +212,19 @@ const PressAndMedia = () => {
                                 />
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
                                     <button
-                                        onClick={() => handleEdit(member)}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            handleEdit(member);
+                                        }}
                                         className="p-2.5 bg-[#C7913E] rounded-full text-white hover:bg-[#B38135] transition-colors"
                                     >
                                         <Pencil size={20} />
                                     </button>
                                     <button
-                                        onClick={() => openDeleteConfirm(member)}
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            openDeleteConfirm(member);
+                                        }}
                                         className="p-2.5 bg-red-600 rounded-full text-white hover:bg-red-700 transition-colors"
                                     >
                                         <Trash2 size={20} />
@@ -239,6 +251,16 @@ const PressAndMedia = () => {
                     )}
                 </div>
             )}
+
+            <ApplicationDetailsModal
+                application={selectedMember}
+                title="Press and Media Details"
+                onClose={() => setSelectedMember(null)}
+                onDelete={(member) => {
+                    setSelectedMember(null);
+                    openDeleteConfirm(member);
+                }}
+            />
 
             {/* Add/Edit Modal */}
             {showAddModal && (

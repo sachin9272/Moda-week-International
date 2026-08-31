@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Table from '../../components/ui/Table';
+import ApplicationDetailsModal from '../../components/ApplicationDetailsModal';
 import { baseURL } from '../../config/api';
 import { ArrowLeft, Search, Download, Trash2, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -13,6 +14,7 @@ const Rsvps = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
+    const [selectedRsvp, setSelectedRsvp] = useState(null);
 
     const fetchRsvps = async () => {
         try {
@@ -145,7 +147,19 @@ const Rsvps = () => {
                 title="All RSVP Applications"
                 columns={columns}
                 data={filteredRsvps}
+                onView={setSelectedRsvp}
+                onRowClick={setSelectedRsvp}
                 onDelete={openDeleteModal}
+            />
+
+            <ApplicationDetailsModal
+                application={selectedRsvp}
+                title="RSVP Application Details"
+                onClose={() => setSelectedRsvp(null)}
+                onDelete={(rsvp) => {
+                    setSelectedRsvp(null);
+                    openDeleteModal(rsvp._id);
+                }}
             />
 
             {deleteModal.show && (

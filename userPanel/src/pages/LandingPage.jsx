@@ -462,7 +462,7 @@ export default function LandingPage() {
           return (
             <EventDesignersCarousel
               key={event._id}
-              heading={`${getUpcomingEventName(event) || event.title} FASHION DESIGNERS`}
+              heading="MEET THE DESIGNERS"
               designers={eventDesigners}
               eventId={event.slug || event._id}
             />
