@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Moda Week International — Ticket Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --gold-primary: #a47027;
+        --gold-light: #dfb368;
+        --gold-dark: #805315;
+        --dark-text: #1a1a1a;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 40px 0;
+        background: #eef0f2;
+        font-family: 'Montserrat', Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      
+      .ticket-wrapper {
+        width: 1220px;
+        height: 765px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .ticket-card {
+        position: relative;
+        width: 1200px;
+        height: 735px;
+        display: grid;
+        grid-template-columns: minmax(0, 2.05fr) 40px minmax(320px, 0.84fr);
+        background: url('assets/bg.png') no-repeat center center;
+        background-size: 100% 100%;
+        overflow: hidden;
+      }
+
+      /* Main Left Section */
+      .ticket-main {
+        position: relative;
+        padding: 50px 50px 30px;
+        background: transparent;
+      }
+
+      /* Header Brand */
+      .brand {
+        position: relative;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      .brand-logo {
+        max-width: 450px;
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 25px auto;
+      }
+
+      /* Show Title */
+      .show-title {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin: 12px 0 18px;
+      }
+      .title-line {
+        flex: 1;
+        max-width: 90px;
+        height: 1.5px;
+        background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+      }
+      .show-title-text {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        color: var(--dark-text);
+        text-transform: uppercase;
+      }
+
+      /* Category Badge */
+      .category-badge-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .star-accent {
+        color: var(--gold-primary);
+        font-size: 18px;
+      }
+      .ticket-kind {
+        background: linear-gradient(135deg, #a47027 0%, #d8a553 50%, #805315 100%);
+        color: #ffffff;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        padding: 9px 30px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        box-shadow: 0 3px 8px rgba(164, 112, 39, 0.3);
+      }
+
+      /* Lady Model Image Overlay */
+      .lady-image {
+        position: absolute;
+        right: 15px;
+        bottom: 25px;
+        height: 480px;
+        max-width: 360px;
+        object-fit: contain;
+        z-index: 3;
+        pointer-events: none;
+      }
+
+      /* Details Section */
+      .details {
+        position: relative;
+        width: 420px;
+        z-index: 4;
+        margin-top: 70px;
+        margin-left: 60px
+      }
+      .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1.5px dotted #e5c898;
+      }
+      .icon-circle {
+        flex: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a47027, #805315);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid var(--gold-light);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      }
+      small {
+        display: block;
+        color: var(--gold-primary);
+        font-weight: 700;
+        letter-spacing: 1.8px;
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
+      strong {
+        display: block;
+        color: var(--dark-text);
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 1px;
+        line-height: 1.25;
+      }
+
+      .date-time-container {
+        display: flex;
+        gap: 20px;
+      }
+      .dt-half {
+        flex: 1;
+        border-bottom: none;
+      }
+
+      /* Main Footer */
+      footer {
+        position: absolute;
+        bottom: 25px;
+        left: 50px;
+        right: 50px;
+        z-index: 4;
+        text-align: center;
+      }
+      .footer-line {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .f-line {
+        flex: 1;
+        height: 1px;
+        background: var(--gold-light);
+      }
+      .footer-text {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--dark-text);
+        text-transform: uppercase;
+      }
+
+      /* Perforation Divider */
+      .perforation-divider {
+        position: relative;
+        background: transparent;
+      }
+      .perforation-divider::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 40px;
+        bottom: 40px;
+        border-left: 3px dashed #a47027;
+        transform: translateX(-50%);
+      }
+
+      /* Ticket Stub Right */
+      .ticket-stub {
+        position: relative;
+        padding: 50px 10px 30px 0px;
+        margin-left: -20px;
+        background: transparent;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: calc(100% + 20px);
+      }
+
+      .stub-brand {
+        margin-bottom: 16px;
+      }
+      .stub-logo {
+        max-width: 170px;
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .stub-badge {
+        background: linear-gradient(135deg, #a47027, #805315);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        padding: 6px 20px;
+        border-radius: 4px;
+        margin-bottom: 14px;
+      }
+
+      .vip-text {
+        font-family: 'Playfair Display', serif;
+        font-size: 54px;
+        font-weight: 700;
+        color: var(--gold-primary);
+        letter-spacing: 4px;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+
+      .stub-ornament {
+        color: var(--gold-primary);
+        font-size: 18px;
+        margin-bottom: 16px;
+      }
+
+      .qr-container {
+        width: 175px;
+        height: 175px;
+        border: 3px solid var(--gold-primary);
+        border-radius: 10px;
+        padding: 10px;
+        background: #ffffff;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        margin-bottom: 18px;
+      }
+
+      .id-section {
+        margin-bottom: 10px;
+      }
+      .id-label {
+        display: block;
+        color: var(--gold-primary);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 4px;
+      }
+      .id-code {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--dark-text);
+        letter-spacing: 1.5px;
+      }
+
+      .dotted-sep {
+        color: var(--gold-light);
+        letter-spacing: 3px;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .admit-text {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--dark-text);
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ticket-wrapper">
+      <main class="ticket-card" aria-label="Moda Week VIP ticket">
+        <section class="ticket-main">
+          <header class="brand">
+            <img src="assets/glodenlogo.png" alt="Moda Week International" class="brand-logo" />
+          </header>
+
+          <div class="show-title">
+            <span class="title-line"></span>
+            <span class="show-title-text">MODA WEEK FASHION SHOW 2026</span>
+            <span class="title-line"></span>
+          </div>
+
+          <div class="category-badge-container">
+            <span class="star-accent">✦</span>
+            <div class="ticket-kind">VIP FRONT ROW</div>
+            <span class="star-accent">✦</span>
+          </div>
+
+          <img src="assets/lady_image.png" class="lady-image" alt="Model" />
+
+          <div class="details">
+            <article class="detail-row">
+              <div class="icon-circle">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+              </div>
+              <div>
+                <small>CUSTOMER NAME</small>
+                <strong>Harsh Mehrotra</strong>
+              </div>
+            </article>
+
+            <article class="detail-row">
+              <div class="icon-circle">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              </div>
+              <div>
+                <small>ADDRESS</small>
+                <strong>Istanbul Expo Center, Turkey</strong>
+              </div>
+            </article>
+
+            <article class="date-time-container">
+              <div class="detail-row dt-half">
+                <div class="icon-circle">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+                </div>
+                <div>
+                  <small>DATE</small>
+                  <strong>Mon Aug 31 2026</strong>
+                </div>
+              </div>
+
+              <div class="detail-row dt-half">
+                <div class="icon-circle">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                </div>
+                <div>
+                  <small>TIME</small>
+                  <strong>04:00 PM</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <footer>
+            <div class="footer-line">
+              <span class="f-line"></span>
+              <span class="star-accent">✦</span>
+              <span class="f-line"></span>
+            </div>
+            <div class="footer-text">MON AUG 31 2026 @ ISTANBUL EXPO CENTER, TURKEY</div>
+          </footer>
+        </section>
+
+        <div class="perforation-divider" aria-hidden="true"></div>
+
+        <aside class="ticket-stub">
+          <header class="stub-brand">
+            <img src="assets/glodenlogo.png" alt="Moda Week International" class="stub-logo" />
+          </header>
+
+          <div class="stub-badge">TICKET TYPE</div>
+          <div class="vip-text">VIP</div>
+          <div class="stub-ornament">✦</div>
+
+          <div class="qr-container" aria-label="Ticket QR code">
+            <img src="public/logo.png" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain;" />
+          </div>
+
+          <div class="id-section">
+            <small class="id-label">TICKET ID</small>
+            <strong class="id-code">test-ticket-xyz-123</strong>
+          </div>
+
+          <div class="dotted-sep">...................................</div>
+
+          <div class="admit-text">✦ &nbsp; ADMIT ONE &nbsp; ✦</div>
+        </aside>
+      </main>
+    </div>
+  </body>
+</html>

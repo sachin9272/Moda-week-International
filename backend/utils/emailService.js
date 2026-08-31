@@ -1,138 +1,205 @@
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { generateQRCode } from './qrCodeService.js';
 import { generatePdfFromHtml } from './pdfService.js';
 dotenv.config();
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const escapeHtml = (value = '') =>
-    String(value)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 const sendEmail = async (options) => {
-    // Create a transporter
-    const transporter = nodemailer.createTransport({
-        service: 'gmail', // or your email service
-        auth: {
-            user: process.env.SMPT_MAIL,
-            pass: process.env.SMPT_PASSWORD,
-        },
-    });
+  // Create a transporter
+  const transporter = nodemailer.createTransport({
+    service: 'gmail', // or your email service
+    auth: {
+      user: process.env.SMPT_MAIL,
+      pass: process.env.SMPT_PASSWORD,
+    },
+  });
 
-    // Define email options
-    const mailOptions = {
-        from: process.env.SMPT_MAIL,
-        to: options.email,
-        subject: options.subject,
-        text: options.message,
-        html: options.html, // Optional: if you want to send HTML email
-        attachments: options.attachments // Include attachments if any
-    };
+  // Define email options
+  const mailOptions = {
+    from: process.env.SMPT_MAIL,
+    to: options.email,
+    subject: options.subject,
+    text: options.message,
+    html: options.html, // Optional: if you want to send HTML email
+    attachments: options.attachments // Include attachments if any
+  };
 
-    // Send email
-    try {
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Email sent: ${info.response}`);
-    } catch (error) {
-        console.error("Error sending email:", error);
-        throw error; // Re-throw to be caught by controller
-    }
+  // Send email
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Email sent: ${info.response}`);
+  } catch (error) {
+    console.error("Error sending email:", error);
+    throw error; // Re-throw to be caught by controller
+  }
 };
 
 export const buildTicketsPdf = async (ticketsWithIds, eventDetails) => {
-    const { title, date, location } = eventDetails;
+  const { title, date, location } = eventDetails;
 
-    // ticketsWithIds should be an array of TicketSale objects (or objects containing _id, ticketName, quantity, price)
-    // If it's a string, we parse it (backwards compatibility or error handling)
-    let tickets = [];
-    if (typeof ticketsWithIds === 'string') {
-        tickets = JSON.parse(ticketsWithIds);
-    } else {
-        tickets = ticketsWithIds;
-    }
+  // Read the golden logo, background image, and lady image and convert to base64 data URLs for Puppeteer rendering
+  const logoPath = path.join(__dirname, '..', 'assets', 'glodenlogo.png');
+  const logoBase64 = fs.readFileSync(logoPath).toString('base64');
+  const logoDataUrl = `data:image/png;base64,${logoBase64}`;
 
-    const safeTitle = escapeHtml(title);
-    const safeLocation = escapeHtml(location);
-    const formattedDate = date ? new Date(date).toDateString() : 'Date to be announced';
+  const bgPath = path.join(__dirname, '..', 'assets', 'bg.png');
+  const bgBase64 = fs.readFileSync(bgPath).toString('base64');
+  const bgDataUrl = `data:image/png;base64,${bgBase64}`;
 
-    // Generate QR Codes and prepare attachments
-    const ticketRows = await Promise.all(tickets.map(async (t) => {
-        // Safety check for _id
-        const ticketId = t._id ? t._id.toString() : 'unknown-id';
-        const safeTicketName = escapeHtml(t.ticketName || 'Ticket');
-        const safeTicketDisplayId = escapeHtml(ticketId);
-        const safeBuyerName = escapeHtml(t.buyerName || 'Customer');
-        const price = Number(t.price) || 0;
-        const quantity = Number(t.quantity) || 0;
+  const ladyPath = path.join(__dirname, '..', 'assets', 'lady_image.png');
+  let ladyDataUrl = '';
+  if (fs.existsSync(ladyPath)) {
+    const ladyBase64 = fs.readFileSync(ladyPath).toString('base64');
+    ladyDataUrl = `data:image/png;base64,${ladyBase64}`;
+  }
 
-        const qrCodeDataUrl = await generateQRCode(ticketId);
+  const coverImageDataUrl = eventDetails?.coverImage?.url || (typeof eventDetails?.coverImage === 'string' ? eventDetails.coverImage : ladyDataUrl);
 
-        return `
-    <main class="ticket" aria-label="Moda Week VIP ticket">
+  // ticketsWithIds should be an array of TicketSale objects (or objects containing _id, ticketName, quantity, price)
+  // If it's a string, we parse it (backwards compatibility or error handling)
+  let tickets = [];
+  if (typeof ticketsWithIds === 'string') {
+    tickets = JSON.parse(ticketsWithIds);
+  } else {
+    tickets = ticketsWithIds;
+  }
+
+  const safeTitle = escapeHtml(title);
+  const safeLocation = escapeHtml(location);
+  const formattedDate = date ? new Date(date).toDateString() : 'Date to be announced';
+
+  // Generate QR Codes and prepare attachments
+  const ticketRows = await Promise.all(tickets.map(async (t) => {
+    // Safety check for _id
+    const ticketId = t._id ? t._id.toString() : 'unknown-id';
+    const safeTicketName = escapeHtml(t.ticketName || 'VIP Ticket');
+    const safeTicketDisplayId = escapeHtml(ticketId);
+    const safeBuyerName = escapeHtml(t.buyerName || 'Customer');
+    const price = Number(t.price) || 0;
+    const quantity = Number(t.quantity) || 0;
+
+    const qrCodeDataUrl = await generateQRCode(ticketId);
+
+    return `
+    <main class="ticket-card" aria-label="Moda Week VIP ticket">
       <section class="ticket-main">
-        <div class="skyline" aria-hidden="true"></div>
         <header class="brand">
-          <div class="brand-name">MODA</div>
-          <div class="brand-subtitle">WEEK INTERNATIONAL</div>
+          <img src="${logoDataUrl}" alt="Moda Week International" class="brand-logo" />
         </header>
+
         <div class="show-title">
-          <span></span><span class="show-title-text">${safeTitle}</span><span></span>
+          <span class="title-line"></span>
+          <span class="show-title-text">${safeTitle}</span>
+          <span class="title-line"></span>
         </div>
-        <div class="ticket-kind">${safeTicketName}</div>
+
+        <div class="category-badge-container">
+          <span class="star-accent">✦</span>
+          <div class="ticket-kind">${safeTicketName}</div>
+          <span class="star-accent">✦</span>
+        </div>
+
+        ${coverImageDataUrl ? `<img src="${coverImageDataUrl}" class="lady-image" alt="Model" />` : ''}
 
         <div class="details">
           <article class="detail-row">
-            <div class="icon">●</div>
-            <div><small>CUSTOMER NAME</small><strong>${safeBuyerName}</strong></div>
-          </article>
-          <article class="detail-row">
-            <div class="icon pin">●</div>
+            <div class="icon-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </div>
             <div>
-              <small>ADDRESS</small><strong>${safeLocation}</strong>
+              <small>CUSTOMER NAME</small>
+              <strong>${safeBuyerName}</strong>
             </div>
           </article>
-          <article class="date-time">
-            <div class="detail-row">
-              <div class="icon calendar">▣</div>
-              <div><small>DATE</small><strong>${formattedDate}</strong></div>
+
+          <article class="detail-row">
+            <div class="icon-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
             </div>
-            <div class="detail-row">
-              <div class="icon clock">◷</div>
-              <div><small>TIME</small><strong>TBA</strong></div>
+            <div>
+              <small>ADDRESS</small>
+              <strong>${safeLocation}</strong>
+            </div>
+          </article>
+
+          <article class="date-time-container">
+            <div class="detail-row dt-half">
+              <div class="icon-circle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+              </div>
+              <div>
+                <small>DATE</small>
+                <strong>${formattedDate}</strong>
+              </div>
+            </div>
+
+            <div class="detail-row dt-half">
+              <div class="icon-circle">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+              </div>
+              <div>
+                <small>TIME</small>
+                <strong>04:00 PM</strong>
+              </div>
             </div>
           </article>
         </div>
+
         <footer>
-          ${formattedDate} @ ${safeLocation}
+          <div class="footer-line">
+            <span class="f-line"></span>
+            <span class="star-accent">✦</span>
+            <span class="f-line"></span>
+          </div>
+          <div class="footer-text">${formattedDate} @ ${safeLocation}</div>
         </footer>
       </section>
 
-      <div class="perforation" aria-hidden="true"></div>
+      <div class="perforation-divider" aria-hidden="true"></div>
 
       <aside class="ticket-stub">
         <header class="stub-brand">
-          <b>MODA</b><span>WEEK INTERNATIONAL</span>
+          <img src="${logoDataUrl}" alt="Moda Week International" class="stub-logo" />
         </header>
-        <div class="stub-label">TICKET TYPE</div>
-        <div class="vip">${safeTicketName.substring(0, 5)}</div>
-        <div class="ornament">— ✦ —</div>
-        <div class="qr" aria-label="Ticket QR code">
+
+        <div class="stub-badge">TICKET TYPE</div>
+        <div class="vip-text">${escapeHtml((t.ticketName || 'VIP').split(' ')[0])}</div>
+        <div class="stub-ornament">✦</div>
+
+        <div class="qr-container" aria-label="Ticket QR code">
           <img src="${qrCodeDataUrl}" alt="QR Code" style="width: 100%; height: 100%; object-fit: contain;" />
         </div>
-        <small class="id-label">TICKET ID</small>
-        <strong class="id" style="font-size: 13px; word-break: break-all;">${safeTicketDisplayId}</strong>
-        <div class="admit">✦ &nbsp; ADMIT ONE &nbsp; ✦</div>
+
+        <div class="id-section">
+          <small class="id-label">TICKET ID</small>
+          <strong class="id-code">${safeTicketDisplayId}</strong>
+        </div>
+
+        <div class="dotted-sep">...................................</div>
+
+        <div class="admit-text">✦ &nbsp; ADMIT ONE &nbsp; ✦</div>
       </aside>
     </main>
         `;
-    }));
+  }));
 
-    const totalAmount = tickets.reduce((sum, t) => sum + (t.price * t.quantity), 0);
+  const totalAmount = tickets.reduce((sum, t) => sum + (t.price * t.quantity), 0);
 
-    const message = `
+  const message = `
 <!doctype html>
 <html lang="en">
   <head>
@@ -141,66 +208,309 @@ export const buildTicketsPdf = async (ticketsWithIds, eventDetails) => {
     <title>Moda Week International — Tickets</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,600&display=swap" rel="stylesheet" />
     <style>
-      :root { --gold: #ad7311; --dark: #121212; --paper: #fffefa; }
+      :root {
+        --gold-primary: #a47027;
+        --gold-light: #dfb368;
+        --gold-dark: #805315;
+        --dark-text: #1a1a1a;
+      }
       * { box-sizing: border-box; }
-      body { margin: 0; padding: 0; background: #f3f3f1; font-family: Montserrat, Arial, sans-serif; }
-      .ticket-wrapper { width: 1220px; height: 765px; display: flex; align-items: center; justify-content: center; page-break-after: always; }
-      .ticket { width: 1200px; height: 735px; display: grid; grid-template-columns: minmax(0, 2.05fr) 44px minmax(320px, 0.84fr); filter: drop-shadow(0 3px 5px #7778); zoom: 1; margin: 0; }
-      .ticket-main, .ticket-stub { position: relative; overflow: hidden; background: var(--paper); border: 2px solid #c18a2a; }
-      .ticket-main { padding: 58px 62px 38px; border-radius: 24px 0 0 24px; }
-      .ticket-main:before, .ticket-stub:before { content: ""; position: absolute; inset: 10px; border: 1px solid #d6a54e; pointer-events: none; }
-      .ticket-main:after { content: ""; position: absolute; width: 115px; height: 115px; right: -58px; top: -58px; background: #f3f3f1; border-radius: 50%; box-shadow: 0 0 5px #5558 inset; }
-      .skyline { position: absolute; left: 0; bottom: 0; width: 100%; height: 63%; opacity: 0.15; background: linear-gradient(90deg, transparent 7%, #b5b8b7 7% 10%, transparent 10% 13%, #c8c9c8 13% 16%, transparent 16% 18%, #aeb2b2 18% 22%, transparent 22% 26%, #c4c4c1 26% 29%, transparent 29%), repeating-linear-gradient(90deg, transparent 0 53px, #aeb2b2 54px 65px, transparent 66px 91px); clip-path: polygon(0 100%, 0 48%, 5% 48%, 7% 26%, 9% 48%, 13% 48%, 15% 15%, 17% 48%, 22% 48%, 26% 37%, 29% 48%, 35% 48%, 39% 25%, 42% 48%, 49% 48%, 54% 32%, 58% 48%, 66% 48%, 70% 21%, 73% 48%, 82% 48%, 88% 35%, 91% 48%, 100% 48%, 100% 100%); }
-      .brand { position: relative; text-align: center; color: var(--gold); }
-      .brand-name { font-size: clamp(68px, 10vw, 130px); font-weight: 500; letter-spacing: -10px; line-height: 0.72; font-family: "Playfair Display", serif; }
-      .brand-subtitle { margin-top: 18px; font: 500 clamp(20px, 3vw, 36px)/1 "Playfair Display", serif; letter-spacing: 2px; }
-      .show-title { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; row-gap: 8px; font-size: clamp(15px, 2.2vw, 21px); font-weight: 800; letter-spacing: 1.4px; margin: 27px 0 28px; text-transform: uppercase; }
-      .show-title span:first-child, .show-title span:last-child { flex: none; width: 60px; height: 2px; background: #c99132; }
-      .show-title-text { max-width: 78%; white-space: normal; overflow-wrap: break-word; text-align: center; }
-      .ticket-kind { position: relative; max-width: 90%; background: linear-gradient(100deg, #9a6004, #d49b32); color: white; font-size: clamp(14px, 1.8vw, 21px); font-weight: 700; letter-spacing: 4px; width: max-content; margin: 0 auto 42px; padding: 13px 28px; text-transform: uppercase; white-space: normal; overflow-wrap: break-word; text-align: center; }
-      .details { position: relative; width: 69%; z-index: 1; }
-      .detail-row { display: flex; align-items: center; gap: 18px; min-height: 92px; border-bottom: 1px solid #d7c9ad; }
-      .icon { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--gold); color: #fff; font-size: 28px; border: 1px solid #e0b24e; }
-      .icon.pin { font-size: 0; }
-      .icon.pin:after { content: "♦"; font-size: 29px; transform: rotate(45deg); }
-      .icon.calendar { font-size: 28px; }
-      .icon.clock { font-size: 38px; }
-      small { display: block; color: #9e6711; font-weight: 600; letter-spacing: 2px; font-size: 15px; margin-bottom: 8px; }
-      strong { display: block; letter-spacing: 1.3px; font-size: clamp(15px, 1.7vw, 22px); font-weight: 600; white-space: normal; overflow-wrap: break-word; line-height: 1.25; }
-      p { margin: 5px 0 0; font-size: 17px; }
-      .date-time { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-      .date-time .detail-row { gap: 13px; }
-      .date-time strong { font-size: clamp(14px, 1.6vw, 20px); }
-      footer { position: absolute; z-index: 3; bottom: 22px; left: 62px; right: 25px; font-size: clamp(9px, 1.1vw, 12px); font-weight: 800; letter-spacing: 1.4px; line-height: 1.4; white-space: normal; overflow-wrap: break-word; text-transform: uppercase; }
-      .perforation { position: relative; background: #fffefa; }
-      .perforation:after { content: ""; position: absolute; left: 50%; top: 36px; bottom: 36px; border-left: 4px dashed #ad7311; }
-      .ticket-stub { border-radius: 0 24px 24px 0; text-align: center; padding: 60px 42px 40px; background: radial-gradient(ellipse at 115% 0, #e9d5a7 0 2%, transparent 2.5% 5%, #e9d5a7 5.5% 6%, transparent 6.5%) 100% 0/130px 130px, #fffdf7; }
-      .stub-brand { position: relative; color: var(--gold); font-family: "Playfair Display", serif; }
-      .stub-brand b { display: block; letter-spacing: -5px; font-size: 50px; line-height: 0.8; }
-      .stub-brand span { font-size: 13px; }
-      .stub-label { position: relative; margin: 20px auto 45px; padding: 10px 15px; background: var(--gold); color: #fff; font-size: 19px; letter-spacing: 2px; }
-      .vip { position: relative; color: var(--gold); font: 600 52px/1 "Playfair Display", serif; text-transform: uppercase; }
-      .ornament { position: relative; margin: 22px 0 34px; color: #bd8123; font-size: 22px; letter-spacing: 10px; }
-      .qr { position: relative; width: 205px; aspect-ratio: 1; margin: auto; border: 4px solid var(--gold); background: #fff; padding: 14px; }
-      .id-label { position: relative; margin-top: 44px; }
-      .id { position: relative; font-size: 17px; }
-      .admit { position: absolute; bottom: 53px; left: 0; width: 100%; color: #111; font-size: 17px; font-weight: 500; letter-spacing: 2px; }
-      @media (max-width: 800px) {
-        body { padding: 16px; }
-        .ticket { grid-template-columns: 1fr; max-width: 520px; zoom: 1; }
-        .ticket-main { min-height: 690px; padding: 52px 34px 82px; border-radius: 22px 22px 0 0; }
-        .perforation { height: 30px; }
-        .perforation:after { left: 30px; right: 30px; top: 50%; bottom: auto; border-left: 0; border-top: 4px dashed #ad7311; }
-        .ticket-stub { min-height: 620px; border-radius: 0 0 22px 22px; }
-        .details { width: 100%; }
-        .brand-name { font-size: 78px; }
-        .brand-subtitle { font-size: 23px; }
-        .show-title { font-size: 14px; }
-        .ticket-kind { font-size: 15px; letter-spacing: 2px; }
-        footer { left: 34px; white-space: normal; }
-        .date-time strong { font-size: 16px; }
+      body { margin: 0; padding: 0; background: #eef0f2; font-family: 'Montserrat', Arial, sans-serif; }
+      
+      .ticket-wrapper {
+        width: 1220px;
+        height: 765px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        page-break-after: always;
+      }
+
+      .ticket-card {
+        position: relative;
+        width: 1200px;
+        height: 735px;
+        display: grid;
+        grid-template-columns: minmax(0, 2.05fr) 40px minmax(320px, 0.84fr);
+        background: url('${bgDataUrl}') no-repeat center center;
+        background-size: 100% 100%;
+        overflow: hidden;
+      }
+
+      /* Main Left Section */
+      .ticket-main {
+        position: relative;
+        padding: 50px 50px 30px;
+        background: transparent;
+      }
+
+      /* Header Brand */
+      .brand {
+        position: relative;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      .brand-logo {
+        max-width: 450px;
+        width: 100%;
+        height: auto;
+        display: block;
+        margin: 25px auto;
+      }
+
+      /* Show Title */
+      .show-title {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        margin: 12px 0 18px;
+      }
+      .title-line {
+        flex: 1;
+        max-width: 90px;
+        height: 1.5px;
+        background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+      }
+      .show-title-text {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        color: var(--dark-text);
+        text-transform: uppercase;
+      }
+
+      /* Category Badge */
+      .category-badge-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+      .star-accent {
+        color: var(--gold-primary);
+        font-size: 18px;
+      }
+      .ticket-kind {
+        background: linear-gradient(135deg, #a47027 0%, #d8a553 50%, #805315 100%);
+        color: #ffffff;
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        padding: 9px 30px;
+        border-radius: 6px;
+        text-transform: uppercase;
+        box-shadow: 0 3px 8px rgba(164, 112, 39, 0.3);
+      }
+
+      /* Lady Model Image Overlay */
+      .lady-image {
+        position: absolute;
+        right: 15px;
+        bottom: 25px;
+        height: 480px;
+        max-width: 360px;
+        object-fit: contain;
+        z-index: 3;
+        pointer-events: none;
+      }
+
+      /* Details Section */
+      .details {
+        position: relative;
+        width: 420px;
+        z-index: 4;
+        margin-top: 70px;
+        margin-left: 60px;
+      }
+      .detail-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 12px 0;
+        border-bottom: 1.5px dotted #e5c898;
+      }
+      .icon-circle {
+        flex: none;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #a47027, #805315);
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid var(--gold-light);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      }
+      small {
+        display: block;
+        color: var(--gold-primary);
+        font-weight: 700;
+        letter-spacing: 1.8px;
+        font-size: 13px;
+        margin-bottom: 3px;
+      }
+      strong {
+        display: block;
+        color: var(--dark-text);
+        font-weight: 700;
+        font-size: 18px;
+        letter-spacing: 1px;
+        line-height: 1.25;
+      }
+
+      .date-time-container {
+        display: flex;
+        gap: 20px;
+      }
+      .dt-half {
+        flex: 1;
+        border-bottom: none;
+      }
+
+      /* Main Footer */
+      footer {
+        position: absolute;
+        bottom: 25px;
+        left: 50px;
+        right: 50px;
+        z-index: 4;
+        text-align: center;
+      }
+      .footer-line {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        margin-bottom: 8px;
+      }
+      .f-line {
+        flex: 1;
+        height: 1px;
+        background: var(--gold-light);
+      }
+      .footer-text {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--dark-text);
+        text-transform: uppercase;
+      }
+
+      /* Perforation Divider */
+      .perforation-divider {
+        position: relative;
+        background: transparent;
+      }
+      .perforation-divider::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: 40px;
+        bottom: 40px;
+        border-left: 3px dashed #a47027;
+        transform: translateX(-50%);
+      }
+
+      /* Ticket Stub Right */
+      .ticket-stub {
+        position: relative;
+        padding: 50px 10px 30px 0px;
+        margin-left: -20px;
+        background: transparent;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: calc(100% + 20px);
+      }
+
+      .stub-brand {
+        margin-bottom: 16px;
+      }
+      .stub-logo {
+        max-width: 170px;
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .stub-badge {
+        background: linear-gradient(135deg, #a47027, #805315);
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        padding: 6px 20px;
+        border-radius: 4px;
+        margin-bottom: 14px;
+      }
+
+      .vip-text {
+        font-family: 'Playfair Display', serif;
+        font-size: 54px;
+        font-weight: 700;
+        color: var(--gold-primary);
+        letter-spacing: 4px;
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+
+      .stub-ornament {
+        color: var(--gold-primary);
+        font-size: 18px;
+        margin-bottom: 16px;
+      }
+
+      .qr-container {
+        width: 175px;
+        height: 175px;
+        border: 3px solid var(--gold-primary);
+        border-radius: 10px;
+        padding: 10px;
+        background: #ffffff;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        margin-bottom: 18px;
+      }
+
+      .id-section {
+        margin-bottom: 10px;
+      }
+      .id-label {
+        display: block;
+        color: var(--gold-primary);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 4px;
+      }
+      .id-code {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--dark-text);
+        letter-spacing: 1.5px;
+      }
+
+      .dotted-sep {
+        color: var(--gold-light);
+        letter-spacing: 3px;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .admit-text {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 2px;
+        color: var(--dark-text);
+        text-transform: uppercase;
       }
     </style>
   </head>
@@ -210,16 +520,16 @@ export const buildTicketsPdf = async (ticketsWithIds, eventDetails) => {
 </html>
     `;
 
-    const pdfBuffer = await generatePdfFromHtml(message);
+  const pdfBuffer = await generatePdfFromHtml(message);
 
-    return { pdfBuffer, totalAmount, safeTitle };
+  return { pdfBuffer, totalAmount, safeTitle };
 };
 
 export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
-    const { title } = eventDetails;
-    const { pdfBuffer, totalAmount, safeTitle } = await buildTicketsPdf(ticketsWithIds, eventDetails);
+  const { title } = eventDetails;
+  const { pdfBuffer, totalAmount, safeTitle } = await buildTicketsPdf(ticketsWithIds, eventDetails);
 
-    const simpleMessage = `
+  const simpleMessage = `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
             <p style="font-size: 16px;">Hi there,</p>
             <p style="font-size: 16px;">Thank you for your purchase. Your tickets for <strong>${safeTitle}</strong> are attached to this email as a PDF document.</p>
@@ -228,23 +538,23 @@ export const sendTicketEmail = async (to, ticketsWithIds, eventDetails) => {
         </div>
     `;
 
-    const attachments = [{
-        filename: 'tickets.pdf',
-        content: pdfBuffer,
-        contentType: 'application/pdf'
-    }];
+  const attachments = [{
+    filename: 'tickets.pdf',
+    content: pdfBuffer,
+    contentType: 'application/pdf'
+  }];
 
-    await sendEmail({
-        email: to,
-        subject: `Your Tickets for ${title}`,
-        message: `Your tickets for ${title} are attached. Total: $${totalAmount}`, // Fallback text
-        html: simpleMessage,
-        attachments: attachments
-    });
+  await sendEmail({
+    email: to,
+    subject: `Your Tickets for ${title}`,
+    message: `Your tickets for ${title} are attached. Total: $${totalAmount}`, // Fallback text
+    html: simpleMessage,
+    attachments: attachments
+  });
 };
 
 export const sendScannerInviteEmail = async (to, name, password, scannerUrl) => {
-    const message = `
+  const message = `
         <!DOCTYPE html>
         <html lang="en">
         <head>
@@ -293,12 +603,12 @@ export const sendScannerInviteEmail = async (to, name, password, scannerUrl) => 
         </html>
     `;
 
-    await sendEmail({
-        email: to,
-        subject: "📢 Ticket Scanner Access Granted - Moda Week International",
-        message: `You have been added as a ticket scanner operator. Login URL: ${scannerUrl}\nEmail: ${to}\nPassword: ${password}`,
-        html: message
-    });
+  await sendEmail({
+    email: to,
+    subject: "📢 Ticket Scanner Access Granted - Moda Week International",
+    message: `You have been added as a ticket scanner operator. Login URL: ${scannerUrl}\nEmail: ${to}\nPassword: ${password}`,
+    html: message
+  });
 };
 
 export default sendEmail;
