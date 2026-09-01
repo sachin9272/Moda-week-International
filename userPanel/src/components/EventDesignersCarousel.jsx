@@ -51,7 +51,7 @@ function DesignerCard({ designer, eventId }) {
           </div>
           
           <p className="text-[#B98D4D] text-[10px] md:text-[11px] font-bold tracking-wider uppercase drop-shadow-sm">
-            NYCFS 2026 • Participating Designer
+            NYCFS 2026 • Participant
           </p>
         </div>
       </div>
