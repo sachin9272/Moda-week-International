@@ -24,12 +24,8 @@ const landingVideoSchema = new mongoose.Schema({
         type: String,
         enum: ['landing', 'newsroom'],
         default: 'landing'
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
     }
-});
+}, { timestamps: true });
 
 const LandingVideo = mongoose.model('LandingVideo', landingVideoSchema);
 export default LandingVideo;

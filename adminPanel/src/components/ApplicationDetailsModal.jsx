@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Check, ExternalLink, Loader, Trash2, X } from 'lucide-react';
+import { ExternalLink, Trash2, X } from 'lucide-react';
 import { baseURL } from '../config/api';
 
 const hiddenFields = new Set(['__v']);
@@ -20,6 +20,8 @@ const isEmptyValue = (value) => (
 );
 
 const isUrl = (value) => typeof value === 'string' && /^https?:\/\//i.test(value);
+
+const isImageUrl = (value) => isUrl(value) && /\.(jpe?g|png|gif|webp|bmp|svg|avif)(\?.*)?$/i.test(value);
 
 const resolveAssetUrl = (value) => {
     if (!value || typeof value !== 'string') return '';
@@ -48,6 +50,18 @@ const formatValue = (value) => {
 
 const DetailValue = ({ value }) => {
     const formattedValue = formatValue(value);
+
+    if (isImageUrl(formattedValue)) {
+        return (
+            <a href={formattedValue} target="_blank" rel="noreferrer" className="inline-block">
+                <img
+                    src={formattedValue}
+                    alt="Uploaded attachment"
+                    className="max-h-48 max-w-full rounded-lg border border-[#2a2a2a] object-contain bg-[#0f0f0f]"
+                />
+            </a>
+        );
+    }
 
     if (isUrl(formattedValue)) {
         return (
@@ -84,10 +98,7 @@ const ApplicationDetailsModal = ({
     application,
     title,
     onClose,
-    onApprove,
-    onReject,
-    onDelete,
-    actionLoading = false
+    onDelete
 }) => {
     useEffect(() => {
         if (!application) return undefined;
@@ -109,10 +120,6 @@ const ApplicationDetailsModal = ({
             key,
             key === 'createdAt' || key === 'updatedAt' ? formatDate(value) : value
         ]);
-    const showStatusActions = onApprove || onReject;
-    const isApproved = application.status === 'approved';
-    const isRejected = application.status === 'rejected';
-
     return (
         <div
             className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
@@ -166,38 +173,15 @@ const ApplicationDetailsModal = ({
                     </div>
                 </div>
 
-                {(showStatusActions || onDelete) && (
+                {onDelete && (
                     <div className="p-6 border-t border-[#2a2a2a] flex flex-col sm:flex-row sm:items-center sm:justify-end gap-3 bg-[#141414]">
-                        {showStatusActions && (
-                            <>
-                                <button
-                                    onClick={() => onApprove?.(application)}
-                                    disabled={actionLoading || isApproved || isRejected}
-                                    className="px-4 py-3 rounded-xl bg-green-600 text-white font-bold hover:bg-green-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    {actionLoading ? <Loader size={18} className="animate-spin" /> : <Check size={18} />}
-                                    Accept
-                                </button>
-                                <button
-                                    onClick={() => onReject?.(application)}
-                                    disabled={actionLoading || isApproved || isRejected}
-                                    className="px-4 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                                >
-                                    {actionLoading ? <Loader size={18} className="animate-spin" /> : <X size={18} />}
-                                    Decline
-                                </button>
-                            </>
-                        )}
-                        {onDelete && (
-                            <button
-                                onClick={() => onDelete(application)}
-                                disabled={actionLoading}
-                                className="px-4 py-3 rounded-xl border border-red-500/40 text-red-400 font-bold hover:bg-red-500/10 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                            >
-                                <Trash2 size={18} />
-                                Delete
-                            </button>
-                        )}
+                        <button
+                            onClick={() => onDelete(application)}
+                            className="px-4 py-3 rounded-xl border border-red-500/40 text-red-400 font-bold hover:bg-red-500/10 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                            <Trash2 size={18} />
+                            Delete
+                        </button>
                     </div>
                 )}
             </div>

@@ -112,7 +112,7 @@ export const createServiceApplication = async (req, res) => {
         const payload = { ...req.body };
 
         // Array fields arrive as JSON strings when submitted via multipart/form-data (photo upload)
-        ['mediaReleaseNames', 'volunteeringInterests'].forEach((field) => {
+        ['mediaReleaseNames', 'volunteeringInterests', 'consultationTypes', 'servicesInterested', 'productionTypes', 'areasOfInterest', 'performanceTypes'].forEach((field) => {
             if (typeof payload[field] === 'string') {
                 try {
                     payload[field] = JSON.parse(payload[field]);
@@ -122,14 +122,76 @@ export const createServiceApplication = async (req, res) => {
             }
         });
 
-        if (payload.requestParticipation === 'Press & Media Accreditation' && !req.file) {
+        const photoFile = req.files?.photo?.[0];
+        const compCardFile = req.files?.compCard?.[0];
+        const digitalsFile = req.files?.digitals?.[0];
+        const brandLogoFile = req.files?.brandLogo?.[0];
+        const mediaKitFile = req.files?.mediaKit?.[0];
+        const lookbookFile = req.files?.lookbook?.[0];
+        const membershipLogoFile = req.files?.membershipLogo?.[0];
+        const pressKitFile = req.files?.pressKit?.[0];
+
+        if (payload.requestParticipation === 'Press & Media Accreditation' && !photoFile) {
             return res.status(400).json({ success: false, message: 'A photo is required for Press & Media Accreditation applications.' });
         }
 
-        if (req.file) {
+        if (payload.requestParticipation === 'Top Models & Casting Opportunities' && !compCardFile) {
+            return res.status(400).json({ success: false, message: 'A comp card upload is required for Top Models & Casting applications.' });
+        }
+
+        if (photoFile) {
             payload.photo = {
-                url: req.file.location,
-                publicId: req.file.key
+                url: photoFile.location,
+                publicId: photoFile.key
+            };
+        }
+
+        if (compCardFile) {
+            payload.compCard = {
+                url: compCardFile.location,
+                publicId: compCardFile.key
+            };
+        }
+
+        if (digitalsFile) {
+            payload.digitals = {
+                url: digitalsFile.location,
+                publicId: digitalsFile.key
+            };
+        }
+
+        if (brandLogoFile) {
+            payload.brandLogo = {
+                url: brandLogoFile.location,
+                publicId: brandLogoFile.key
+            };
+        }
+
+        if (mediaKitFile) {
+            payload.mediaKit = {
+                url: mediaKitFile.location,
+                publicId: mediaKitFile.key
+            };
+        }
+
+        if (lookbookFile) {
+            payload.lookbook = {
+                url: lookbookFile.location,
+                publicId: lookbookFile.key
+            };
+        }
+
+        if (membershipLogoFile) {
+            payload.membershipLogo = {
+                url: membershipLogoFile.location,
+                publicId: membershipLogoFile.key
+            };
+        }
+
+        if (pressKitFile) {
+            payload.pressKit = {
+                url: pressKitFile.location,
+                publicId: pressKitFile.key
             };
         }
 

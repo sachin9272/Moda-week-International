@@ -79,7 +79,83 @@ const ApplicationForm = () => {
 
     // Volunteer & Internship
     educationMajor: "",
-    volunteeringInterests: []
+    volunteeringInterests: [],
+
+    // Booth / Table Exhibition Spaces
+    exhibitItems: "",
+    preferredEventLocation: "",
+    boothTablePreference: "",
+    samplesDemonstrations: "",
+    specialRequirements: "",
+    brandLogo: null,
+
+    // Consulting Services
+    consultationTypes: [],
+    projectDescription: "",
+    assistanceNeeded: "",
+    desiredStartDate: "",
+    estimatedBudget: "",
+
+    // Digital Marketing & Media Promotion
+    promoteDescription: "",
+    servicesInterested: [],
+    targetAudience: "",
+    targetMarket: "",
+    campaignStartDate: "",
+    campaignDuration: "",
+    mediaKit: null,
+
+    // Fashion Show Production
+    collectionType: "",
+    numberOfLooks: "",
+    targetCategory: "",
+    productionTypes: [],
+    modelsRequired: "",
+    hairMakeupRequired: "",
+    photoVideoRequired: "",
+    preferredCityCountry: "",
+    preferredEventDate: "",
+    lookbook: null,
+
+    // Membership Programs
+    membershipProgram: "",
+    membershipType: "",
+    membershipGoals: "",
+    areasOfInterest: [],
+    professionalBio: "",
+    membershipLogo: null,
+
+    // Performances & Live Entertainment
+    performanceTypes: [],
+    numberOfPerformers: "",
+    performanceDuration: "",
+    stageRequirements: "",
+    eventInterestedIn: "",
+    pressKit: null,
+    performanceVideoLink: "",
+    artistBio: "",
+
+    // Top Models & Casting Opportunities
+    age: "",
+    gender: "",
+    instagram: "",
+    height: "",
+    bustChest: "",
+    waist: "",
+    hips: "",
+    dressSuitSize: "",
+    shoeSize: "",
+    eyeColor: "",
+    hairColor: "",
+    modelingExperience: "",
+    agencyRepresented: "",
+    runwayExperience: "",
+    eventCastingInterest: "",
+    compCard: null,
+    digitals: null,
+    runwayVideoLink: "",
+    availability: "",
+    parentGuardianContact: "",
   });
 
   const tabs = [
@@ -161,6 +237,164 @@ const ApplicationForm = () => {
       }
     }
 
+    if (activeTab === "service" && formData.requestParticipation === "Booth / Table Exhibition Spaces") {
+      const requiredBoothFields = [
+        ["companyName", "Company / Brand Name"],
+        ["businessType", "Type of Business / Product"],
+        ["exhibitItems", "What would you like to exhibit?"],
+        ["preferredEventLocation", "Preferred Event / Location"],
+        ["boothTablePreference", "Booth or Table Preference"],
+        ["samplesDemonstrations", "Will you offer samples or demonstrations?"],
+      ];
+      const missingBoothField = requiredBoothFields.find(([field]) => !String(formData[field] || "").trim());
+      if (missingBoothField) {
+        toast.error(`${missingBoothField[1]} is required.`);
+        return;
+      }
+    }
+
+    if (activeTab === "service" && formData.requestParticipation === "Consulting Services") {
+      const requiredConsultingFields = [
+        ["companyName", "Company / Organization"],
+        ["city", "Country / City"],
+        ["projectDescription", "Briefly describe your project or business"],
+        ["assistanceNeeded", "What would you like our assistance with?"],
+      ];
+      const missingConsultingField = requiredConsultingFields.find(([field]) => !String(formData[field] || "").trim());
+      if (missingConsultingField) {
+        toast.error(`${missingConsultingField[1]} is required.`);
+        return;
+      }
+
+      if (!formData.consultationTypes || formData.consultationTypes.length === 0) {
+        toast.error("Please select at least one Type of Consultation Needed.");
+        return;
+      }
+    }
+
+    if (activeTab === "service" && formData.requestParticipation === "Digital Marketing & Media Promotion") {
+      const requiredMarketingFields = [
+        ["companyName", "Company / Brand"],
+        ["industry", "Industry"],
+        ["promoteDescription", "What would you like to promote?"],
+        ["targetAudience", "Target Audience"],
+        ["targetMarket", "Target Country / Market"],
+      ];
+      const missingMarketingField = requiredMarketingFields.find(([field]) => !String(formData[field] || "").trim());
+      if (missingMarketingField) {
+        toast.error(`${missingMarketingField[1]} is required.`);
+        return;
+      }
+
+      if (!formData.servicesInterested || formData.servicesInterested.length === 0) {
+        toast.error("Please select at least one Service Interested In.");
+        return;
+      }
+    }
+
+    if (activeTab === "service" && formData.requestParticipation === "Fashion Show Production") {
+      const requiredFashionShowFields = [
+        ["brandName", "Designer / Brand Name"],
+        ["contactName", "Contact Person"],
+        ["collectionType", "Type of Collection"],
+        ["numberOfLooks", "Number of Looks"],
+        ["targetCategory", "Women / Men / Unisex / Children"],
+        ["modelsRequired", "Models Required?"],
+        ["hairMakeupRequired", "Hair & Makeup Required?"],
+        ["photoVideoRequired", "Photo / Video Required?"],
+        ["preferredCityCountry", "Preferred City / Country"],
+        ["preferredEventDate", "Preferred Event Date"],
+      ];
+      const missingFashionShowField = requiredFashionShowFields.find(([field]) => !String(formData[field] || "").trim());
+      if (missingFashionShowField) {
+        toast.error(`${missingFashionShowField[1]} is required.`);
+        return;
+      }
+
+      if (!formData.productionTypes || formData.productionTypes.length === 0) {
+        toast.error("Please select at least one Type of Production Needed.");
+        return;
+      }
+    }
+
+    if (activeTab === "service" && formData.requestParticipation === "Membership Programs") {
+      const requiredMembershipFields = [
+        ["companyName", "Company / Professional Name"],
+        ["city", "Country / City"],
+        ["industry", "Profession / Industry"],
+        ["membershipProgram", "Membership Program Interested In"],
+        ["membershipType", "Individual / Company"],
+        ["membershipGoals", "What are you looking to gain from the network?"],
+        ["professionalBio", "Short Professional Bio"],
+      ];
+      const missingMembershipField = requiredMembershipFields.find(([field]) => !String(formData[field] || "").trim());
+      if (missingMembershipField) {
+        toast.error(`${missingMembershipField[1]} is required.`);
+        return;
+      }
+
+      if (!formData.areasOfInterest || formData.areasOfInterest.length === 0) {
+        toast.error("Please select at least one Area of Interest.");
+        return;
+      }
+    }
+
+    if (activeTab === "service" && formData.requestParticipation === "Performances & Live Entertainment") {
+      const requiredPerformanceFields = [
+        ["brandName", "Artist / Group Name"],
+        ["contactName", "Contact Person"],
+        ["city", "Country / City"],
+        ["numberOfPerformers", "Number of Performers"],
+        ["performanceDuration", "Performance Duration"],
+        ["eventInterestedIn", "Event Interested In"],
+        ["artistBio", "Short Artist Biography"],
+      ];
+      const missingPerformanceField = requiredPerformanceFields.find(([field]) => !String(formData[field] || "").trim());
+      if (missingPerformanceField) {
+        toast.error(`${missingPerformanceField[1]} is required.`);
+        return;
+      }
+
+      if (!formData.performanceTypes || formData.performanceTypes.length === 0) {
+        toast.error("Please select at least one Type of Performance.");
+        return;
+      }
+    }
+
+    if (activeTab === "service" && formData.requestParticipation === "Top Models & Casting Opportunities") {
+      const requiredModelFields = [
+        ["age", "Age"],
+        ["gender", "Gender"],
+        ["city", "City / Country"],
+        ["height", "Height"],
+        ["bustChest", "Bust / Chest"],
+        ["waist", "Waist"],
+        ["hips", "Hips"],
+        ["dressSuitSize", "Dress / Suit Size"],
+        ["shoeSize", "Shoe Size"],
+        ["eyeColor", "Eye Color"],
+        ["hairColor", "Hair Color"],
+        ["runwayExperience", "Runway Experience"],
+        ["eventCastingInterest", "Event / Casting Interested In"],
+        ["availability", "Availability"],
+      ];
+      const missingModelField = requiredModelFields.find(([field]) => !String(formData[field] || "").trim());
+      if (missingModelField) {
+        toast.error(`${missingModelField[1]} is required.`);
+        return;
+      }
+
+      if (!formData.compCard) {
+        toast.error("Please upload your Comp Card.");
+        return;
+      }
+
+      if (Number(formData.age) < 18 && !String(formData.parentGuardianContact || "").trim()) {
+        toast.error("Parent / Guardian Contact is required for applicants under 18.");
+        return;
+      }
+    }
+
     console.log("Submitting Form Data:", formData);
 
     setIsSubmitting(true);
@@ -169,18 +403,21 @@ const ApplicationForm = () => {
 
       if (activeTab === "service") {
         // Sent as multipart/form-data so the optional photo upload can travel with the rest of the fields
+        const fileFields = ["photo", "compCard", "digitals", "brandLogo", "mediaKit", "lookbook", "membershipLogo", "pressKit"];
         const payload = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
-          if (key === "photo") return;
+          if (fileFields.includes(key)) return;
           if (Array.isArray(value)) {
             payload.append(key, JSON.stringify(value));
           } else if (value !== null && value !== undefined) {
             payload.append(key, value);
           }
         });
-        if (formData.photo) {
-          payload.append("photo", formData.photo);
-        }
+        fileFields.forEach((field) => {
+          if (formData[field]) {
+            payload.append(field, formData[field]);
+          }
+        });
 
         response = await fetch(apiEndpoints[activeTab], {
           method: "POST",
@@ -264,7 +501,83 @@ const ApplicationForm = () => {
 
           // Volunteer & Internship
           educationMajor: "",
-          volunteeringInterests: []
+          volunteeringInterests: [],
+
+          // Booth / Table Exhibition Spaces
+          exhibitItems: "",
+          preferredEventLocation: "",
+          boothTablePreference: "",
+          samplesDemonstrations: "",
+          specialRequirements: "",
+          brandLogo: null,
+
+          // Consulting Services
+          consultationTypes: [],
+          projectDescription: "",
+          assistanceNeeded: "",
+          desiredStartDate: "",
+          estimatedBudget: "",
+
+          // Digital Marketing & Media Promotion
+          promoteDescription: "",
+          servicesInterested: [],
+          targetAudience: "",
+          targetMarket: "",
+          campaignStartDate: "",
+          campaignDuration: "",
+          mediaKit: null,
+
+          // Fashion Show Production
+          collectionType: "",
+          numberOfLooks: "",
+          targetCategory: "",
+          productionTypes: [],
+          modelsRequired: "",
+          hairMakeupRequired: "",
+          photoVideoRequired: "",
+          preferredCityCountry: "",
+          preferredEventDate: "",
+          lookbook: null,
+
+          // Membership Programs
+          membershipProgram: "",
+          membershipType: "",
+          membershipGoals: "",
+          areasOfInterest: [],
+          professionalBio: "",
+          membershipLogo: null,
+
+          // Performances & Live Entertainment
+          performanceTypes: [],
+          numberOfPerformers: "",
+          performanceDuration: "",
+          stageRequirements: "",
+          eventInterestedIn: "",
+          pressKit: null,
+          performanceVideoLink: "",
+          artistBio: "",
+
+          // Top Models & Casting Opportunities
+          age: "",
+          gender: "",
+          instagram: "",
+          height: "",
+          bustChest: "",
+          waist: "",
+          hips: "",
+          dressSuitSize: "",
+          shoeSize: "",
+          eyeColor: "",
+          hairColor: "",
+          modelingExperience: "",
+          agencyRepresented: "",
+          runwayExperience: "",
+          eventCastingInterest: "",
+          compCard: null,
+          digitals: null,
+          runwayVideoLink: "",
+          availability: "",
+          parentGuardianContact: "",
         });
       } else {
         toast.error(data.message || "Failed to submit application. Please try again.");
@@ -638,12 +951,382 @@ const ApplicationForm = () => {
         return (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {renderInput("Full Name", "fullName", "Your Company", "text")}
+              {renderInput("Full Name", "fullName", "Full Name", "text")}
               {renderInput("Phone Number", "phoneNumber", "+1 (555) 000-0000", "tel")}
               {renderInput("Email", "email", "email@company.com", "email")}
               {renderInput("Country", "country", "Country")}
             </div>
             {renderRadioGroup("Request Participation", "requestParticipation", participationOptions)}
+
+            {formData.requestParticipation === "Performances & Live Entertainment" && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Performances & Live Entertainment Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Artist / Group Name", "brandName", "Artist / Group Name", "text")}
+                  {renderInput("Contact Person", "contactName", "Contact Person", "text")}
+                  {renderInput("Country / City", "city", "Country / City", "text")}
+                  {renderInput("Website", "website", "https://example.com", "url", false)}
+                  {renderInput("Instagram / YouTube / Spotify", "instagram", "Profile link or handle", "text", false)}
+                  {renderInput("Number of Performers", "numberOfPerformers", "e.g., 3", "number")}
+                  {renderInput("Performance Duration", "performanceDuration", "e.g., 20 minutes", "text")}
+                  {renderInput("Event Interested In", "eventInterestedIn", "Event Interested In", "text")}
+                  {renderInput("Performance Fee / Rate", "estimatedBudget", "e.g., $500 - $1,000", "text", false)}
+                  {renderInput("Upload / Link Performance Video", "performanceVideoLink", "https://youtube.com/...", "url", false)}
+                </div>
+
+                {renderCheckboxGroup("Type of Performance", "performanceTypes", [
+                  "Singer",
+                  "Musician",
+                  "Band",
+                  "DJ",
+                  "Dance",
+                  "Cultural Performance",
+                  "Live Art",
+                  "Other",
+                ])}
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Technical / Stage Requirements
+                  </label>
+                  <textarea
+                    name="stageRequirements"
+                    value={formData.stageRequirements}
+                    onChange={handleInputChange}
+                    placeholder="Let us know about any technical or stage needs..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Short Artist Biography <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="artistBio"
+                    value={formData.artistBio}
+                    onChange={handleInputChange}
+                    placeholder="Tell us about the artist / group..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Upload Press Kit
+                  </label>
+                  <input
+                    type="file"
+                    name="pressKit"
+                    accept="image/*,.pdf"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:cursor-pointer cursor-pointer"
+                  />
+                  {formData.pressKit && (
+                    <p className="mt-2 text-xs text-gray-500">Selected: {formData.pressKit.name}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {formData.requestParticipation === "Membership Programs" && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Membership Program Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Company / Professional Name", "companyName", "Company / Professional Name", "text")}
+                  {renderInput("Country / City", "city", "Country / City", "text")}
+                  {renderInput("Profession / Industry", "industry", "e.g., Fashion Designer, Photographer", "text")}
+                  {renderInput("Company Website", "website", "https://example.com", "url", false)}
+                  {renderInput("Instagram / LinkedIn", "instagram", "Profile link or handle", "text", false)}
+                  {renderInput("Membership Program Interested In", "membershipProgram", "e.g., Designer Membership, Media Membership", "text")}
+                  {renderSelect("Individual / Company", "membershipType", [
+                    { value: "Individual", label: "Individual" },
+                    { value: "Company", label: "Company" },
+                  ])}
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    What are you looking to gain from the network? <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="membershipGoals"
+                    value={formData.membershipGoals}
+                    onChange={handleInputChange}
+                    placeholder="Tell us what you're hoping to gain..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                {renderCheckboxGroup("Areas of Interest", "areasOfInterest", [
+                  "Fashion",
+                  "Business",
+                  "Art",
+                  "Tourism",
+                  "Media",
+                  "Education",
+                  "International Networking",
+                  "Events",
+                ])}
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Short Professional Bio <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="professionalBio"
+                    value={formData.professionalBio}
+                    onChange={handleInputChange}
+                    placeholder="A brief bio about your professional background..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Upload Photo / Company Logo
+                  </label>
+                  <input
+                    type="file"
+                    name="membershipLogo"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:cursor-pointer cursor-pointer"
+                  />
+                  {formData.membershipLogo && (
+                    <p className="mt-2 text-xs text-gray-500">Selected: {formData.membershipLogo.name}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {formData.requestParticipation === "Fashion Show Production" && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Fashion Show Production Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Designer / Brand Name", "brandName", "Designer / Brand Name", "text")}
+                  {renderInput("Contact Person", "contactName", "Contact Person", "text")}
+                  {renderInput("Website", "website", "https://example.com", "url", false)}
+                  {renderInput("Instagram", "instagram", "@yourhandle", "text", false)}
+                  {renderInput("Type of Collection", "collectionType", "e.g., Ready-to-wear, Couture, Streetwear", "text")}
+                  {renderInput("Number of Looks", "numberOfLooks", "e.g., 12", "number")}
+                  {renderSelect("Women / Men / Unisex / Children", "targetCategory", [
+                    { value: "Women", label: "Women" },
+                    { value: "Men", label: "Men" },
+                    { value: "Unisex", label: "Unisex" },
+                    { value: "Children", label: "Children" },
+                  ])}
+                  {renderInput("Preferred City / Country", "preferredCityCountry", "Preferred City / Country", "text")}
+                  {renderInput("Preferred Event Date", "preferredEventDate", "Select Date", "date")}
+                  {renderInput("Estimated Budget", "estimatedBudget", "e.g., $5,000 - $10,000", "text", false)}
+                </div>
+
+                {renderCheckboxGroup("Type of Production Needed", "productionTypes", [
+                  "Full Fashion Show Production",
+                  "Runway Presentation",
+                  "Private Brand Show",
+                  "Collection Showcase",
+                  "International Event Participation",
+                ])}
+
+                {renderRadioGroup("Models Required?", "modelsRequired", ["Yes", "No"])}
+                {renderRadioGroup("Hair & Makeup Required?", "hairMakeupRequired", ["Yes", "No"])}
+                {renderRadioGroup("Photo / Video Required?", "photoVideoRequired", ["Yes", "No"])}
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Upload Lookbook / Collection
+                  </label>
+                  <input
+                    type="file"
+                    name="lookbook"
+                    accept="image/*,.pdf"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:cursor-pointer cursor-pointer"
+                  />
+                  {formData.lookbook && (
+                    <p className="mt-2 text-xs text-gray-500">Selected: {formData.lookbook.name}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {formData.requestParticipation === "Digital Marketing & Media Promotion" && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Digital Marketing & Media Promotion Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Company / Brand", "companyName", "Company / Brand", "text")}
+                  {renderInput("Website", "website", "https://example.com", "url", false)}
+                  {renderInput("Social Media Accounts", "socialMediaLink", "@yourhandle or profile links", "text", false)}
+                  {renderInput("Industry", "industry", "e.g., Fashion, Beauty, Technology", "text")}
+                  {renderInput("Target Audience", "targetAudience", "e.g., Women 18-35, Fashion buyers", "text")}
+                  {renderInput("Target Country / Market", "targetMarket", "Target Country / Market", "text")}
+                  {renderInput("Campaign Start Date", "campaignStartDate", "Select Date", "date", false)}
+                  {renderInput("Campaign Duration", "campaignDuration", "e.g., 1 month, 3 months", "text", false)}
+                  {renderInput("Estimated Budget", "estimatedBudget", "e.g., $5,000 - $10,000", "text", false)}
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    What would you like to promote? <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="promoteDescription"
+                    value={formData.promoteDescription}
+                    onChange={handleInputChange}
+                    placeholder="Tell us about the brand, product, or event you'd like to promote..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                {renderCheckboxGroup("Services Interested In", "servicesInterested", [
+                  "Social Media Promotion",
+                  "Website Advertising",
+                  "Newsroom Feature",
+                  "Brand Feature",
+                  "Event Promotion",
+                  "Video Promotion",
+                  "Email Marketing",
+                  "Press / Media Exposure",
+                  "Other",
+                ])}
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Upload Logo / Media Kit
+                  </label>
+                  <input
+                    type="file"
+                    name="mediaKit"
+                    accept="image/*,.pdf"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:cursor-pointer cursor-pointer"
+                  />
+                  {formData.mediaKit && (
+                    <p className="mt-2 text-xs text-gray-500">Selected: {formData.mediaKit.name}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {formData.requestParticipation === "Consulting Services" && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Consulting Services Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Company / Organization", "companyName", "Company / Organization", "text")}
+                  {renderInput("Country / City", "city", "Country / City", "text")}
+                  {renderInput("Website", "website", "https://example.com", "url", false)}
+                  {renderInput("Desired Start Date", "desiredStartDate", "Select Date", "date", false)}
+                  {renderInput("Estimated Budget", "estimatedBudget", "e.g., $5,000 - $10,000", "text", false)}
+                </div>
+
+                {renderCheckboxGroup("Type of Consultation Needed", "consultationTypes", [
+                  "Event Production",
+                  "Fashion Industry",
+                  "Business Development",
+                  "Branding",
+                  "International Expansion",
+                  "Sponsorship Strategy",
+                  "Other",
+                ])}
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Briefly describe your project or business <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="projectDescription"
+                    value={formData.projectDescription}
+                    onChange={handleInputChange}
+                    placeholder="Tell us about your project or business..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    What would you like our assistance with? <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="assistanceNeeded"
+                    value={formData.assistanceNeeded}
+                    onChange={handleInputChange}
+                    placeholder="Let us know what you'd like help with..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            {formData.requestParticipation === "Booth / Table Exhibition Spaces" && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Booth / Table Exhibition Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Company / Brand Name", "companyName", "Company / Brand Name", "text")}
+                  {renderInput("Website", "website", "https://example.com", "url", false)}
+                  {renderInput("Instagram / Social Media", "instagram", "@yourhandle", "text", false)}
+                  {renderInput("Type of Business / Product", "businessType", "e.g., Apparel, Accessories, Beauty", "text")}
+                  {renderSelect("Booth or Table Preference", "boothTablePreference", [
+                    { value: "Booth", label: "Booth" },
+                    { value: "Table", label: "Table" },
+                  ])}
+                  {renderInput("Preferred Event / Location", "preferredEventLocation", "Preferred Event / Location", "text")}
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    What would you like to exhibit? <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    name="exhibitItems"
+                    value={formData.exhibitItems}
+                    onChange={handleInputChange}
+                    placeholder="Describe the products / collection you plan to exhibit..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                {renderRadioGroup("Will you offer samples or demonstrations?", "samplesDemonstrations", ["Yes", "No"])}
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Special Space / Electrical Requirements
+                  </label>
+                  <textarea
+                    name="specialRequirements"
+                    value={formData.specialRequirements}
+                    onChange={handleInputChange}
+                    placeholder="Let us know about any special space or electrical needs..."
+                    rows="2"
+                    className="w-full px-4 py-3 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <label className="block text-sm font-medium text-gray-900 mb-2">
+                    Upload Brand Logo
+                  </label>
+                  <input
+                    type="file"
+                    name="brandLogo"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:cursor-pointer cursor-pointer"
+                  />
+                  {formData.brandLogo && (
+                    <p className="mt-2 text-xs text-gray-500">Selected: {formData.brandLogo.name}</p>
+                  )}
+                </div>
+              </div>
+            )}
 
             {formData.requestParticipation === "Press & Media Accreditation" && (
               <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
@@ -690,6 +1373,72 @@ const ApplicationForm = () => {
                   "Global Networking",
                   "Website/Blog"
                 ])}
+              </div>
+            )}
+
+            {formData.requestParticipation === "Top Models & Casting Opportunities" && (
+              <div className="mt-8 border-t border-gray-200 pt-8 animate-fadeIn">
+                <h3 className="text-xl font-bold mb-6">Top Models & Casting Opportunities Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {renderInput("Age", "age", "Age", "number")}
+                  {renderSelect("Gender", "gender", [
+                    { value: "Female", label: "Female" },
+                    { value: "Male", label: "Male" },
+                    { value: "Non-binary", label: "Non-binary" },
+                    { value: "Other", label: "Other" },
+                  ])}
+                  {renderInput("City / Country", "city", "City / Country", "text")}
+                  {renderInput("Instagram", "instagram", "@yourhandle", "text", false)}
+                  {renderInput("Height", "height", "e.g., 5'9\" / 175cm")}
+                  {renderInput("Bust / Chest", "bustChest", "e.g., 34in / 86cm")}
+                  {renderInput("Waist", "waist", "e.g., 26in / 66cm")}
+                  {renderInput("Hips", "hips", "e.g., 36in / 91cm")}
+                  {renderInput("Dress / Suit Size", "dressSuitSize", "e.g., US 4 / EU 36")}
+                  {renderInput("Shoe Size", "shoeSize", "e.g., US 8 / EU 39")}
+                  {renderInput("Eye Color", "eyeColor", "Eye Color")}
+                  {renderInput("Hair Color", "hairColor", "Hair Color")}
+                  {renderInput("Modeling Experience", "modelingExperience", "Years / brief summary", "text", false)}
+                  {renderInput("Agency, if represented", "agencyRepresented", "Agency Name", "text", false)}
+                  {renderInput("Event / Casting Interested In", "eventCastingInterest", "Event / Casting")}
+                  {renderInput("Runway Walk Video / Link", "runwayVideoLink", "https://...", "url", false)}
+                  {renderInput("Availability", "availability", "e.g., Dates you're available")}
+                  {renderInput("Parent / Guardian Contact (required for applicants under 18)", "parentGuardianContact", "Name & Phone", "text", false)}
+                </div>
+
+                {renderRadioGroup("Runway Experience", "runwayExperience", ["Yes", "No"])}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                      Upload Comp Card <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="file"
+                      name="compCard"
+                      accept="image/*,.pdf"
+                      onChange={handleFileChange}
+                      className="w-full px-4 py-2 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:cursor-pointer cursor-pointer"
+                    />
+                    {formData.compCard && (
+                      <p className="mt-2 text-xs text-gray-500">Selected: {formData.compCard.name}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                      Upload Digitals
+                    </label>
+                    <input
+                      type="file"
+                      name="digitals"
+                      accept="image/*,.pdf"
+                      onChange={handleFileChange}
+                      className="w-full px-4 py-2 bg-[#F3F3F5] border-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-black file:text-white file:cursor-pointer cursor-pointer"
+                    />
+                    {formData.digitals && (
+                      <p className="mt-2 text-xs text-gray-500">Selected: {formData.digitals.name}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 

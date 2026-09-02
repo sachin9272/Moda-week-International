@@ -4,7 +4,7 @@ import axios from 'axios';
 import Table from '../../components/ui/Table';
 import ApplicationDetailsModal from '../../components/ApplicationDetailsModal';
 import { baseURL } from '../../config/api';
-import { ArrowLeft, Search, Download, Trash2, Loader, Wrench, Check, X } from 'lucide-react';
+import { ArrowLeft, Search, Download, Trash2, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const Services = () => {
@@ -14,7 +14,6 @@ const Services = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
-    const [statusLoading, setStatusLoading] = useState(null); // Track which service is updating
     const [selectedService, setSelectedService] = useState(null);
 
     const fetchServices = async () => {
@@ -51,24 +50,6 @@ const Services = () => {
         } finally {
             setDeleting(false);
             setDeleteModal({ show: false, id: null });
-        }
-    };
-
-    const handleStatusUpdate = async (id, newStatus) => {
-        setStatusLoading(id);
-        try {
-            const res = await axios.put(`${baseURL}/api/admin/services/${id}/status`, { status: newStatus });
-            if (res.data.success) {
-                const updatedService = res.data.data || { _id: id, status: newStatus };
-                setServices(services.map(s => s._id === id ? { ...s, ...updatedService, status: newStatus } : s));
-                setSelectedService((current) => current?._id === id ? { ...current, ...updatedService, status: newStatus } : current);
-                toast.success(`Application ${newStatus}`);
-            }
-        } catch (error) {
-            console.error("Error updating status:", error);
-            toast.error("Failed to update status");
-        } finally {
-            setStatusLoading(null);
         }
     };
 
@@ -143,34 +124,6 @@ const Services = () => {
             header: 'Actions',
             render: (item) => (
                 <div className="flex gap-2">
-                    {statusLoading === item._id ? (
-                        <Loader size={16} className="animate-spin text-[#C7913E]" />
-                    ) : (
-                        item.status !== 'approved' && item.status !== 'rejected' && (
-                            <>
-                                <button
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleStatusUpdate(item._id, 'approved');
-                                    }}
-                                    className="p-1 hover:bg-green-500/10 rounded-lg text-green-500 transition-colors"
-                                    title="Approve"
-                                >
-                                    <Check size={18} />
-                                </button>
-                                <button
-                                    onClick={(event) => {
-                                        event.stopPropagation();
-                                        handleStatusUpdate(item._id, 'rejected');
-                                    }}
-                                    className="p-1 hover:bg-red-500/10 rounded-lg text-red-500 transition-colors"
-                                    title="Reject"
-                                >
-                                    <X size={18} />
-                                </button>
-                            </>
-                        )
-                    )}
                     <button
                         onClick={(event) => {
                             event.stopPropagation();
@@ -241,13 +194,10 @@ const Services = () => {
                 application={selectedService}
                 title="Service Inquiry Details"
                 onClose={() => setSelectedService(null)}
-                onApprove={(service) => handleStatusUpdate(service._id, 'approved')}
-                onReject={(service) => handleStatusUpdate(service._id, 'rejected')}
                 onDelete={(service) => {
                     setSelectedService(null);
                     openDeleteModal(service._id);
                 }}
-                actionLoading={statusLoading === selectedService?._id}
             />
 
             {/* Delete Modal */}
