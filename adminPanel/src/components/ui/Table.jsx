@@ -1,7 +1,18 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Trash2, Eye } from 'lucide-react';
 
-const Table = ({ columns, data, onDelete, onView, onRowClick, title }) => {
+const Table = ({ columns, data, onDelete, onView, onRowClick, title, selectable, selectedIds, onToggleSelect, onToggleSelectAll }) => {
+    const selectAllRef = useRef(null);
+    const selectableIds = data.map((item) => item._id);
+    const selectedCount = selectableIds.filter((id) => selectedIds?.includes(id)).length;
+    const allSelected = selectableIds.length > 0 && selectedCount === selectableIds.length;
+
+    useEffect(() => {
+        if (selectAllRef.current) {
+            selectAllRef.current.indeterminate = selectedCount > 0 && !allSelected;
+        }
+    }, [selectedCount, allSelected]);
+
     const handleRowClick = (event, item) => {
         if (!onRowClick) return;
         if (event.target.closest('button, a, input, select, textarea, [data-row-action]')) return;
@@ -14,6 +25,8 @@ const Table = ({ columns, data, onDelete, onView, onRowClick, title }) => {
         onRowClick(item);
     };
 
+    const extraCols = (selectable ? 1 : 0) + ((onDelete || onView) ? 1 : 0);
+
     return (
         <div className="bg-[#1a1a1a] rounded-2xl shadow-xl border border-[#2a2a2a] overflow-hidden">
             <div className="p-6 border-b border-[#2a2a2a] flex justify-between items-center bg-[#1a1a1a]">
@@ -24,6 +37,19 @@ const Table = ({ columns, data, onDelete, onView, onRowClick, title }) => {
                 <table className="w-full text-left border-collapse">
                     <thead className="bg-[#0f0f0f]">
                         <tr>
+                            {selectable && (
+                                <th className="p-4 border-b border-[#2a2a2a] w-10">
+                                    <input
+                                        ref={selectAllRef}
+                                        type="checkbox"
+                                        checked={allSelected}
+                                        onChange={() => onToggleSelectAll?.(selectableIds)}
+                                        disabled={selectableIds.length === 0}
+                                        className="w-4 h-4 rounded accent-[#C7913E] cursor-pointer"
+                                        aria-label="Select all rows"
+                                    />
+                                </th>
+                            )}
                             {columns.map((col, idx) => (
                                 <th key={idx} className="p-4 text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-500 border-b border-[#2a2a2a]">
                                     {col.header}
@@ -39,7 +65,7 @@ const Table = ({ columns, data, onDelete, onView, onRowClick, title }) => {
                     <tbody className="divide-y divide-[#2a2a2a]">
                         {data.length === 0 ? (
                             <tr>
-                                <td colSpan={columns.length + ((onDelete || onView) ? 1 : 0)} className="p-12 text-center text-neutral-600 italic">
+                                <td colSpan={columns.length + extraCols} className="p-12 text-center text-neutral-600 italic">
                                     No entries found in this category
                                 </td>
                             </tr>
@@ -50,8 +76,19 @@ const Table = ({ columns, data, onDelete, onView, onRowClick, title }) => {
                                     onClick={(event) => handleRowClick(event, item)}
                                     onKeyDown={(event) => handleRowKeyDown(event, item)}
                                     tabIndex={onRowClick ? 0 : undefined}
-                                    className={`hover:bg-[#C7913E]/5 transition-colors group ${onRowClick ? 'cursor-pointer focus:outline-none focus:bg-[#C7913E]/10' : ''}`}
+                                    className={`hover:bg-[#C7913E]/5 transition-colors group ${onRowClick ? 'cursor-pointer focus:outline-none focus:bg-[#C7913E]/10' : ''} ${selectedIds?.includes(item._id) ? 'bg-[#C7913E]/5' : ''}`}
                                 >
+                                    {selectable && (
+                                        <td className="p-4" data-row-action>
+                                            <input
+                                                type="checkbox"
+                                                checked={!!selectedIds?.includes(item._id)}
+                                                onChange={() => onToggleSelect?.(item._id)}
+                                                className="w-4 h-4 rounded accent-[#C7913E] cursor-pointer"
+                                                aria-label="Select row"
+                                            />
+                                        </td>
+                                    )}
                                     {columns.map((col, colIdx) => (
                                         <td key={colIdx} className="p-4 text-sm text-neutral-300 font-medium">
                                             {col.render ? col.render(item) : (

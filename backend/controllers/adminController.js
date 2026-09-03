@@ -141,6 +141,19 @@ export const deleteRsvp = async (req, res) => {
     }
 };
 
+export const bulkDeleteRsvps = async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'No IDs provided' });
+        }
+        const result = await RsvpApplication.deleteMany({ _id: { $in: ids } });
+        res.status(200).json({ success: true, message: `${result.deletedCount} RSVP(s) deleted successfully`, deletedCount: result.deletedCount });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // --- Buyers ---
 export const getAllBuyers = async (req, res) => {
     try {
@@ -155,6 +168,19 @@ export const deleteBuyer = async (req, res) => {
     try {
         await Buyer.findByIdAndDelete(req.params.id);
         res.status(200).json({ success: true, message: 'Buyer deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const bulkDeleteBuyers = async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'No IDs provided' });
+        }
+        const result = await Buyer.deleteMany({ _id: { $in: ids } });
+        res.status(200).json({ success: true, message: `${result.deletedCount} buyer(s) deleted successfully`, deletedCount: result.deletedCount });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
@@ -179,6 +205,19 @@ export const deleteDesigner = async (req, res) => {
     }
 };
 
+export const bulkDeleteDesigners = async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'No IDs provided' });
+        }
+        const result = await Designer.deleteMany({ _id: { $in: ids } });
+        res.status(200).json({ success: true, message: `${result.deletedCount} designer(s) deleted successfully`, deletedCount: result.deletedCount });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // --- Sponsors ---
 export const getAllSponsors = async (req, res) => {
     try {
@@ -198,6 +237,19 @@ export const deleteSponsor = async (req, res) => {
     }
 };
 
+export const bulkDeleteSponsors = async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'No IDs provided' });
+        }
+        const result = await Sponsor.deleteMany({ _id: { $in: ids } });
+        res.status(200).json({ success: true, message: `${result.deletedCount} sponsor(s) deleted successfully`, deletedCount: result.deletedCount });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
 // --- Services ---
 export const getAllServices = async (req, res) => {
     try {
@@ -212,6 +264,19 @@ export const deleteService = async (req, res) => {
     try {
         await Service.findByIdAndDelete(req.params.id);
         res.status(200).json({ success: true, message: 'Service deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const bulkDeleteServices = async (req, res) => {
+    try {
+        const { ids } = req.body;
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ success: false, message: 'No IDs provided' });
+        }
+        const result = await Service.deleteMany({ _id: { $in: ids } });
+        res.status(200).json({ success: true, message: `${result.deletedCount} service inquiry(ies) deleted successfully`, deletedCount: result.deletedCount });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

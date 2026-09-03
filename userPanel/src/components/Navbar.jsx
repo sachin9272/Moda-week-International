@@ -87,7 +87,7 @@ const Navbar = () => {
     // { name: "Donation", path: "/donation", category: "MEMBERSHIPS & SUPPORT" },
     { name: "Contact Us", path: "/contact", category: "ABOUT MODA" },
     { name: "Buy Tickets", path: "/tickets", category: "MEMBERSHIPS & SUPPORT" },
-    { name: "Participants", path: "/participants", category: "Fashion Events" },
+    { name: "Featured Participants", path: "/participants", category: "Fashion Events" },
     { name: "Registration", path: "/registration", category: "Registration" },
     { name: "Membership Programs", path: "/membership-program", category: "Registration" },
   ];

@@ -6,6 +6,9 @@ import ApplicationDetailsModal from '../../components/ApplicationDetailsModal';
 import { baseURL } from '../../config/api';
 import { ArrowLeft, Search, Download, Trash2, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { exportRecordsToExcel } from '../../utils/exportExcel';
+import { SPONSOR_FIELDS } from '../../utils/applicationExportFields';
+import { useBulkSelection } from '../../hooks/useBulkSelection';
 
 const Sponsors = () => {
     const navigate = useNavigate();
@@ -15,6 +18,9 @@ const Sponsors = () => {
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
     const [selectedSponsor, setSelectedSponsor] = useState(null);
+    const { selectedIds, toggleSelect, toggleSelectAll, removeFromSelection, clearSelection } = useBulkSelection();
+    const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     const fetchSponsors = async () => {
         try {
@@ -44,6 +50,7 @@ const Sponsors = () => {
         try {
             await axios.delete(`${baseURL}/api/admin/sponsors/${deleteModal.id}`);
             setSponsors(sponsors.filter(s => s._id !== deleteModal.id));
+            removeFromSelection(deleteModal.id);
             toast.success("Sponsor application deleted");
         } catch (error) {
             toast.error("Failed to delete application");
@@ -53,41 +60,31 @@ const Sponsors = () => {
         }
     };
 
+    const confirmBulkDelete = async () => {
+        if (!selectedIds.length) return;
+        setBulkDeleting(true);
+        try {
+            await axios.post(`${baseURL}/api/admin/sponsors/bulk-delete`, { ids: selectedIds });
+            setSponsors(sponsors.filter(s => !selectedIds.includes(s._id)));
+            toast.success(`${selectedIds.length} sponsor application(s) deleted`);
+            clearSelection();
+        } catch (error) {
+            toast.error("Failed to delete selected applications");
+        } finally {
+            setBulkDeleting(false);
+            setBulkDeleteModal(false);
+        }
+    };
+
     const filteredSponsors = sponsors.filter(sponsor =>
         sponsor.companyName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sponsor.contactName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         sponsor.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const downloadCSV = () => {
-        const headers = ["Company Name", "Contact Name", "Email", "Phone", "Country", "Industry", "Interests", "Additional Info", "Date"];
-        const csvData = filteredSponsors.map(s => [
-            s.companyName,
-            s.contactName,
-            s.email,
-            s.phoneNumber,
-            s.country,
-            s.industry,
-            Array.isArray(s.sponsorshipInterests) ? s.sponsorshipInterests.join("; ") : s.sponsorshipInterests,
-            `"${s.additionalInfo?.replace(/"/g, '""') || ''}"`,
-            new Date(s.createdAt).toLocaleDateString()
-        ]);
-
-        const csvContent = [
-            headers.join(","),
-            ...csvData.map(row => row.join(","))
-        ].join("\n");
-
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", "sponsors_applications.csv");
-        link.style.visibility = "hidden";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success("CSV exported successfully");
+    const downloadExcel = () => {
+        exportRecordsToExcel('sponsor_applications.xlsx', 'Sponsor Applications', filteredSponsors, SPONSOR_FIELDS);
+        toast.success("Excel file exported successfully");
     };
 
     const columns = [
@@ -134,8 +131,17 @@ const Sponsors = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+                    {selectedIds.length > 0 && (
+                        <button
+                            onClick={() => setBulkDeleteModal(true)}
+                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-red-600/20"
+                        >
+                            <Trash2 size={18} />
+                            <span>Delete Selected ({selectedIds.length})</span>
+                        </button>
+                    )}
                     <button
-                        onClick={downloadCSV}
+                        onClick={downloadExcel}
                         className="px-4 py-2 bg-[#C7913E] hover:bg-[#B38135] text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-[#C7913E]/20"
                     >
                         <Download size={18} />
@@ -151,6 +157,10 @@ const Sponsors = () => {
                 onView={setSelectedSponsor}
                 onRowClick={setSelectedSponsor}
                 onDelete={openDeleteModal}
+                selectable
+                selectedIds={selectedIds}
+                onToggleSelect={toggleSelect}
+                onToggleSelectAll={toggleSelectAll}
             />
 
             <ApplicationDetailsModal
@@ -194,6 +204,46 @@ const Sponsors = () => {
                                         <>
                                             <Trash2 size={18} />
                                             Delete
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulk Delete Modal */}
+            {bulkDeleteModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setBulkDeleteModal(false)}>
+                    <div className="bg-[#1a1a1a] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-[#2a2a2a]" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-6">
+                            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+                                <Trash2 size={32} className="text-red-400" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white text-center mb-2">Delete {selectedIds.length} Sponsor {selectedIds.length !== 1 ? 'Inquiries' : 'Inquiry'}?</h3>
+                            <p className="text-neutral-400 text-center mb-6">
+                                Are you sure you want to remove these partnership inquiries? This action cannot be undone.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setBulkDeleteModal(false)}
+                                    disabled={bulkDeleting}
+                                    className="flex-1 px-4 py-3 rounded-xl border border-[#2a2a2a] text-neutral-300 font-medium hover:bg-[#252525] transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmBulkDelete}
+                                    disabled={bulkDeleting}
+                                    className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {bulkDeleting ? (
+                                        <Loader size={20} className="animate-spin" />
+                                    ) : (
+                                        <>
+                                            <Trash2 size={18} />
+                                            Delete All
                                         </>
                                     )}
                                 </button>

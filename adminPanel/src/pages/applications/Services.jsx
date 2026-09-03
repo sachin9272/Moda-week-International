@@ -4,8 +4,12 @@ import axios from 'axios';
 import Table from '../../components/ui/Table';
 import ApplicationDetailsModal from '../../components/ApplicationDetailsModal';
 import { baseURL } from '../../config/api';
-import { ArrowLeft, Search, Download, Trash2, Loader } from 'lucide-react';
+import { ArrowLeft, Search, Trash2, Loader } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ExportMenu from '../../components/ExportMenu';
+import { downloadWorkbook, buildSheetRows } from '../../utils/exportExcel';
+import { SERVICE_COMMON_FIELDS, SERVICE_TYPES, getServiceSheetFields } from '../../utils/applicationExportFields';
+import { useBulkSelection } from '../../hooks/useBulkSelection';
 
 const Services = () => {
     const navigate = useNavigate();
@@ -15,6 +19,9 @@ const Services = () => {
     const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
     const [deleting, setDeleting] = useState(false);
     const [selectedService, setSelectedService] = useState(null);
+    const { selectedIds, toggleSelect, toggleSelectAll, removeFromSelection, clearSelection } = useBulkSelection();
+    const [bulkDeleteModal, setBulkDeleteModal] = useState(false);
+    const [bulkDeleting, setBulkDeleting] = useState(false);
 
     const fetchServices = async () => {
         try {
@@ -44,6 +51,7 @@ const Services = () => {
         try {
             await axios.delete(`${baseURL}/api/admin/services/${deleteModal.id}`);
             setServices(services.filter(s => s._id !== deleteModal.id));
+            removeFromSelection(deleteModal.id);
             toast.success("Service inquiry deleted");
         } catch (error) {
             toast.error("Failed to delete inquiry");
@@ -53,39 +61,72 @@ const Services = () => {
         }
     };
 
+    const confirmBulkDelete = async () => {
+        if (!selectedIds.length) return;
+        setBulkDeleting(true);
+        try {
+            await axios.post(`${baseURL}/api/admin/services/bulk-delete`, { ids: selectedIds });
+            setServices(services.filter(s => !selectedIds.includes(s._id)));
+            toast.success(`${selectedIds.length} inquiry(ies) deleted`);
+            clearSelection();
+        } catch (error) {
+            toast.error("Failed to delete selected inquiries");
+        } finally {
+            setBulkDeleting(false);
+            setBulkDeleteModal(false);
+        }
+    };
+
     const filteredServices = services.filter(service =>
         service.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         service.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         service.country?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const downloadCSV = () => {
-        const headers = ["Full Name", "Email", "Phone", "Country", "Request Participation", "Additional Info", "Date"];
-        const csvData = filteredServices.map(s => [
-            s.fullName,
-            s.email,
-            s.phoneNumber,
-            s.country,
-            Array.isArray(s.requestParticipation) ? s.requestParticipation.join("; ") : s.requestParticipation,
-            `"${s.additionalInfo?.replace(/"/g, '""') || ''}"`,
-            new Date(s.createdAt).toLocaleDateString()
+    const slugify = (value) => value.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+
+    const exportOptions = [
+        { key: 'all', label: 'All Request Types (one sheet per type)' },
+        ...SERVICE_TYPES.map((type) => ({ key: type, label: type })),
+    ];
+
+    const handleExport = (key) => {
+        if (key === 'all') {
+            const sheets = SERVICE_TYPES
+                .map((type) => ({
+                    name: type,
+                    rows: buildSheetRows(
+                        filteredServices.filter((s) => s.requestParticipation === type),
+                        getServiceSheetFields(type)
+                    ),
+                }))
+                .filter((sheet) => sheet.rows.length > 0);
+
+            const uncategorized = filteredServices.filter((s) => !SERVICE_TYPES.includes(s.requestParticipation));
+            if (uncategorized.length) {
+                sheets.push({ name: 'Other', rows: buildSheetRows(uncategorized, SERVICE_COMMON_FIELDS) });
+            }
+
+            if (!sheets.length) {
+                toast.error("No service inquiries to export");
+                return;
+            }
+
+            downloadWorkbook('service_inquiries_all_types.xlsx', sheets);
+            toast.success("Excel file exported successfully");
+            return;
+        }
+
+        const records = filteredServices.filter((s) => s.requestParticipation === key);
+        if (!records.length) {
+            toast.error("No inquiries found for this request type");
+            return;
+        }
+
+        downloadWorkbook(`service_inquiries_${slugify(key)}.xlsx`, [
+            { name: key, rows: buildSheetRows(records, getServiceSheetFields(key)) },
         ]);
-
-        const csvContent = [
-            headers.join(","),
-            ...csvData.map(row => row.join(","))
-        ].join("\n");
-
-        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
-        link.setAttribute("href", url);
-        link.setAttribute("download", "services_applications.csv");
-        link.style.visibility = "hidden";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        toast.success("CSV exported successfully");
+        toast.success("Excel file exported successfully");
     };
 
     const columns = [
@@ -172,13 +213,16 @@ const Services = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <button
-                        onClick={downloadCSV}
-                        className="px-4 py-2 bg-[#C7913E] hover:bg-[#B38135] text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-[#C7913E]/20"
-                    >
-                        <Download size={18} />
-                        <span className="hidden sm:inline">Export</span>
-                    </button>
+                    {selectedIds.length > 0 && (
+                        <button
+                            onClick={() => setBulkDeleteModal(true)}
+                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-red-600/20"
+                        >
+                            <Trash2 size={18} />
+                            <span>Delete Selected ({selectedIds.length})</span>
+                        </button>
+                    )}
+                    <ExportMenu options={exportOptions} onSelect={handleExport} />
                 </div>
             </div>
 
@@ -188,6 +232,10 @@ const Services = () => {
                 data={filteredServices}
                 onView={setSelectedService}
                 onRowClick={setSelectedService}
+                selectable
+                selectedIds={selectedIds}
+                onToggleSelect={toggleSelect}
+                onToggleSelectAll={toggleSelectAll}
             />
 
             <ApplicationDetailsModal
@@ -231,6 +279,46 @@ const Services = () => {
                                         <>
                                             <Trash2 size={18} />
                                             Delete
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Bulk Delete Modal */}
+            {bulkDeleteModal && (
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={() => setBulkDeleteModal(false)}>
+                    <div className="bg-[#1a1a1a] rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-[#2a2a2a]" onClick={(e) => e.stopPropagation()}>
+                        <div className="p-6">
+                            <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
+                                <Trash2 size={32} className="text-red-400" />
+                            </div>
+                            <h3 className="text-xl font-bold text-white text-center mb-2">Delete {selectedIds.length} Service {selectedIds.length !== 1 ? 'Inquiries' : 'Inquiry'}?</h3>
+                            <p className="text-neutral-400 text-center mb-6">
+                                Are you sure you want to remove these logistical inquiries? This action cannot be undone.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setBulkDeleteModal(false)}
+                                    disabled={bulkDeleting}
+                                    className="flex-1 px-4 py-3 rounded-xl border border-[#2a2a2a] text-neutral-300 font-medium hover:bg-[#252525] transition-colors disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmBulkDelete}
+                                    disabled={bulkDeleting}
+                                    className="flex-1 px-4 py-3 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                                >
+                                    {bulkDeleting ? (
+                                        <Loader size={20} className="animate-spin" />
+                                    ) : (
+                                        <>
+                                            <Trash2 size={18} />
+                                            Delete All
                                         </>
                                     )}
                                 </button>

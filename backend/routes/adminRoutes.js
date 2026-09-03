@@ -2,11 +2,11 @@ import express from 'express';
 import { getAllNews, getNews, createNews, updateNews, deleteNews } from '../controllers/newsController.js';
 import {
     getDashboardStats,
-    getAllBuyers, deleteBuyer,
-    getAllDesigners, deleteDesigner,
-    getAllSponsors, deleteSponsor,
-    getAllServices, deleteService, updateServiceStatus,
-    getAllRsvps, deleteRsvp,
+    getAllBuyers, deleteBuyer, bulkDeleteBuyers,
+    getAllDesigners, deleteDesigner, bulkDeleteDesigners,
+    getAllSponsors, deleteSponsor, bulkDeleteSponsors,
+    getAllServices, deleteService, bulkDeleteServices, updateServiceStatus,
+    getAllRsvps, deleteRsvp, bulkDeleteRsvps,
     loginAdmin, registerAdmin
 } from '../controllers/adminController.js';
 import { protect } from '../middlewares/authMiddleware.js';
@@ -23,18 +23,23 @@ router.get('/stats', protect, getDashboardStats);
 
 // Application Routes
 router.get('/buyers', protect, getAllBuyers);
+router.post('/buyers/bulk-delete', protect, bulkDeleteBuyers);
 router.delete('/buyers/:id', protect, deleteBuyer);
 
 router.get('/designers', protect, getAllDesigners);
+router.post('/designers/bulk-delete', protect, bulkDeleteDesigners);
 router.delete('/designers/:id', protect, deleteDesigner);
 
 router.get('/sponsors', protect, getAllSponsors);
+router.post('/sponsors/bulk-delete', protect, bulkDeleteSponsors);
 router.delete('/sponsors/:id', protect, deleteSponsor);
 
 router.get('/services', protect, getAllServices);
+router.post('/services/bulk-delete', protect, bulkDeleteServices);
 router.delete('/services/:id', protect, deleteService);
 router.put('/services/:id/status', protect, updateServiceStatus);
 router.get('/rsvps', protect, getAllRsvps);
+router.post('/rsvps/bulk-delete', protect, bulkDeleteRsvps);
 router.delete('/rsvps/:id', protect, deleteRsvp);
 
 // News Routes
