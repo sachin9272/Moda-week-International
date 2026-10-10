@@ -13,6 +13,7 @@ import CtaSection from "../../components/CtaSection";
 import Card from "./Card";
 import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
+import { Download } from "lucide-react";
 
 export default function ModaWeekSite() {
   const [data, setData] = useState(null);
@@ -75,12 +76,32 @@ export default function ModaWeekSite() {
             {main.content || "Moda Week International (MWINTL) is a prestigious philanthropic fashion show production..."}
           </div>
         </div>
-        <div className="mt-6">
+        <div className="mt-6 relative w-full h-[260px] sm:h-[320px] md:h-[380px] lg:h-[420px] flex items-center justify-center overflow-hidden">
           <img
             src={main.image?.url || AboutUs1}
             alt="About Us"
-            className="max-w-9xl w-full h-[200px] sm:h-[280px] md:h-[373px] object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
+          {/* Subtle dark overlay for contrast */}
+          <div className="absolute inset-0 bg-black/45" />
+
+          {/* Centered Portfolio CTA */}
+          <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
+            <p className="font-playfair text-white text-xs sm:text-sm tracking-[0.22em] uppercase font-medium mb-3 sm:mb-4 drop-shadow-md">
+              DOWNLOAD OUR OFFICIAL PORTFOLIO
+            </p>
+
+            <a
+              href={main.portfolioUrl || "/MWINTL-BOOKLET.pdf"}
+              download="MWINTL-BOOKLET.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-3 px-6 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-r from-[#664b27] via-[#7d643b] to-[#664b27] border-[1.5px] border-[#a58657] hover:border-[#c9a670] text-[#fffff7] font-playfair font-semibold text-sm sm:text-base tracking-[0.06em] shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:brightness-110 active:scale-[0.99] transition-all duration-300 cursor-pointer"
+            >
+              <span>DOWNLOAD PORTFOLIO (PDF)</span>
+              <Download className="w-4 h-4 sm:w-5 sm:h-5 text-[#fff7e0] shrink-0" strokeWidth={1.8} />
+            </a>
+          </div>
         </div>
       </section>
 
