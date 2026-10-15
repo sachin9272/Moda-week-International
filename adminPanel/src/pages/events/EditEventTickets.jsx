@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 import { baseURL as API_BASE_URL } from '../../config/api';
-import { ArrowLeft, GripVertical, Loader, Pencil, Plus, Ticket, X } from 'lucide-react';
+import { ArrowLeft, Crop, GripVertical, Loader, Pencil, Plus, Ticket, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { compressImageIfNeeded } from '../../utils/imageCompression';
 import ImageEditorModal from '../../components/ImageEditorModal';
@@ -63,6 +63,7 @@ const SortableTicketItem = ({ ticket, idx, onEdit, onRemove }) => {
                         src={imageSrc}
                         alt={ticket.name}
                         className="h-12 w-12 rounded object-cover shadow-sm"
+                        crossOrigin="anonymous"
                     />
                 )}
                 <div>
@@ -120,6 +121,7 @@ export default function EditEventTickets() {
     const [editingTicketId, setEditingTicketId] = useState(null);
     const [editorOpen, setEditorOpen] = useState(false);
     const [editorImageSrc, setEditorImageSrc] = useState(null);
+    const [editorTarget, setEditorTarget] = useState('banner');
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -200,16 +202,35 @@ export default function EditEventTickets() {
         const imageUrl = typeof ticketBannerImage === 'string'
             ? ticketBannerImage
             : URL.createObjectURL(ticketBannerImage);
+        setEditorTarget('banner');
         setEditorImageSrc(imageUrl);
         setEditorOpen(true);
     };
 
-    const handleSaveEditedBannerImage = (blob) => {
-        const fileName = ticketBannerImage instanceof File ? ticketBannerImage.name : 'ticket_banner_image.jpg';
-        const fileType = ticketBannerImage instanceof File ? ticketBannerImage.type : 'image/jpeg';
-        const file = new File([blob], fileName, { type: fileType });
+    const handleEditTicketImage = () => {
+        if (!currentTicket.image) return;
+        const imageUrl = typeof currentTicket.image === 'string'
+            ? currentTicket.image
+            : URL.createObjectURL(currentTicket.image);
+        setEditorTarget('ticket');
+        setEditorImageSrc(imageUrl);
+        setEditorOpen(true);
+    };
 
-        setTicketBannerImage(file);
+    const handleSaveEditedImage = (blob) => {
+        if (editorTarget === 'banner') {
+            const fileName = ticketBannerImage instanceof File ? ticketBannerImage.name : 'ticket_banner_image.jpg';
+            const fileType = ticketBannerImage instanceof File ? ticketBannerImage.type : 'image/jpeg';
+            const file = new File([blob], fileName, { type: fileType });
+
+            setTicketBannerImage(file);
+        } else {
+            const fileName = currentTicket.image instanceof File ? currentTicket.image.name : 'ticket_image.jpg';
+            const fileType = currentTicket.image instanceof File ? currentTicket.image.type : 'image/jpeg';
+            const file = new File([blob], fileName, { type: fileType });
+
+            setCurrentTicket((prev) => ({ ...prev, image: file }));
+        }
         setEditorOpen(false);
         setEditorImageSrc(null);
     };
@@ -342,9 +363,9 @@ export default function EditEventTickets() {
                     setEditorOpen(false);
                     setEditorImageSrc(null);
                 }}
-                onSave={handleSaveEditedBannerImage}
+                onSave={handleSaveEditedImage}
                 image={editorImageSrc}
-                aspect={16 / 9}
+                aspect={editorTarget === 'banner' ? 16 / 9 : 1}
             />
 
             <div className="flex items-center gap-4">
@@ -389,6 +410,7 @@ export default function EditEventTickets() {
                                         src={ticketBannerImage instanceof File ? URL.createObjectURL(ticketBannerImage) : ticketBannerImage}
                                         alt="Buy tickets banner preview"
                                         className="max-h-52 rounded object-cover"
+                                        crossOrigin="anonymous"
                                     />
                                     <button
                                         type="button"
@@ -533,14 +555,24 @@ export default function EditEventTickets() {
                                 src={typeof currentTicket.image === 'string' ? currentTicket.image : URL.createObjectURL(currentTicket.image)}
                                 alt="Current ticket preview"
                                 className="h-14 w-14 rounded object-cover"
+                                crossOrigin="anonymous"
                             />
                             <div className="flex-1 text-sm text-gray-300">
                                 {editingTicketId ? 'Editing selected ticket image' : 'Ticket image ready'}
                             </div>
                             <button
                                 type="button"
+                                onClick={handleEditTicketImage}
+                                className="rounded-full bg-blue-900/30 p-2 text-blue-400 hover:text-blue-300"
+                                title="Crop / Edit ticket image"
+                            >
+                                <Crop size={14} />
+                            </button>
+                            <button
+                                type="button"
                                 onClick={() => setCurrentTicket((prev) => ({ ...prev, image: null }))}
                                 className="rounded-full bg-red-900/30 p-2 text-red-400 hover:text-red-300"
+                                title="Remove image"
                             >
                                 <X size={14} />
                             </button>

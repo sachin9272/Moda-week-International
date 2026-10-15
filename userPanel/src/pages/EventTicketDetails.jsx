@@ -688,9 +688,9 @@ export default function EventTicketDetails() {
                         <div className="relative min-h-[540px] md:min-h-[620px]">
                             {coverImageUrl && (
                                 <img
-                                    src={optimizeCloudinaryImage(coverImageUrl, { width: 1800, height: 1100, crop: "fill" })}
+                                    src={event?.ticketBannerImage ? coverImageUrl : optimizeCloudinaryImage(coverImageUrl, { width: 1800, height: 1100, crop: "fill" })}
                                     alt={eventDisplayName || eventMainTitle || "Event"}
-                                    className="absolute inset-0 h-full w-full object-cover"
+                                    className="absolute inset-0 h-full w-full object-cover object-center"
                                     decoding="async"
                                 />
                             )}
