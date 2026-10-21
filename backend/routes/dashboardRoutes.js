@@ -10,6 +10,9 @@ import {
     getEventAttendees,
     exportEventAttendees
 } from '../controllers/dashboardController.js';
+import { protect, authorizePermission } from '../middlewares/authMiddleware.js';
+
+router.use(protect, authorizePermission('dashboard', 'view'));
 
 // GET /api/dashboard/event-attendees
 router.get('/event-attendees', getEventAttendees);

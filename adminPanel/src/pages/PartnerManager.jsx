@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Trash2, Upload, Loader, Plus, Image } from 'lucide-react';
 import { baseURL } from '../config/api';
 import { optimizeCloudinaryImage } from '../utils/cloudinary';
+import { useAuth } from '../context/AuthContext';
 
 const PartnerManager = () => {
+    const { hasPermission } = useAuth();
     const [partners, setPartners] = useState([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
@@ -44,8 +46,12 @@ const PartnerManager = () => {
             formData.append('name', newName);
             formData.append('image', newLogo);
 
+            const token = localStorage.getItem('token');
             const response = await fetch(`${baseURL}/api/partners`, {
                 method: 'POST',
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                },
                 body: formData
             });
 
@@ -76,8 +82,12 @@ const PartnerManager = () => {
         setDeleting(true);
 
         try {
+            const token = localStorage.getItem('token');
             const response = await fetch(`${baseURL}/api/partners/${deleteConfirm.id}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    ...(token ? { Authorization: `Bearer ${token}` } : {})
+                }
             });
 
             if (response.ok) {
@@ -105,44 +115,46 @@ const PartnerManager = () => {
             </div>
 
             {/* Add New Partner */}
-            <div className="bg-[#1a1a1a] p-6 rounded-xl shadow-lg border border-[#2a2a2a] mb-8 max-w-4xl">
-                <h2 className="text-lg font-semibold text-white mb-4">Add New Partner</h2>
-                <form onSubmit={handleAddPartner} className="flex flex-col md:flex-row gap-4 items-end">
-                    <div className="flex-1 w-full">
-                        <label className="block text-sm font-medium text-neutral-300 mb-1">Partner Name</label>
-                        <input
-                            type="text"
-                            value={newName}
-                            onChange={(e) => setNewName(e.target.value)}
-                            placeholder="e.g. Brand Name"
-                            className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all"
-                        />
-                    </div>
-                    <div className="flex-1 w-full">
-                        <label className="block text-sm font-medium text-neutral-300 mb-1">Logo Image</label>
-                        <input
-                            id="logoInput"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            className="block w-full text-sm text-neutral-400
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-[#C7913E]/20 file:text-[#C7913E]
-                                hover:file:bg-[#C7913E]/30 file:cursor-pointer"
-                        />
-                    </div>
-                    <button
-                        type="submit"
-                        disabled={uploading || !newLogo}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#C7913E]/20"
-                    >
-                        {uploading ? <Loader className="animate-spin" size={20} /> : <Plus size={20} />}
-                        Add
-                    </button>
-                </form>
-            </div>
+            {hasPermission('partners', 'create') && (
+                <div className="bg-[#1a1a1a] p-6 rounded-xl shadow-lg border border-[#2a2a2a] mb-8 max-w-4xl">
+                    <h2 className="text-lg font-semibold text-white mb-4">Add New Partner</h2>
+                    <form onSubmit={handleAddPartner} className="flex flex-col md:flex-row gap-4 items-end">
+                        <div className="flex-1 w-full">
+                            <label className="block text-sm font-medium text-neutral-300 mb-1">Partner Name</label>
+                            <input
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                placeholder="e.g. Brand Name"
+                                className="w-full px-4 py-2.5 bg-[#0f0f0f] border border-[#2a2a2a] rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-[#C7913E] focus:border-[#C7913E] hover:border-[#3a3a3a] transition-all"
+                            />
+                        </div>
+                        <div className="flex-1 w-full">
+                            <label className="block text-sm font-medium text-neutral-300 mb-1">Logo Image</label>
+                            <input
+                                id="logoInput"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="block w-full text-sm text-neutral-400
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-full file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-[#C7913E]/20 file:text-[#C7913E]
+                                    hover:file:bg-[#C7913E]/30 file:cursor-pointer"
+                            />
+                        </div>
+                        <button
+                            type="submit"
+                            disabled={uploading || !newLogo}
+                            className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-[#C7913E]/20"
+                        >
+                            {uploading ? <Loader className="animate-spin" size={20} /> : <Plus size={20} />}
+                            Add
+                        </button>
+                    </form>
+                </div>
+            )}
 
             {/* Partners List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -159,12 +171,14 @@ const PartnerManager = () => {
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="font-medium text-white">{partner.name}</span>
-                            <button
-                                onClick={() => openDeleteConfirm(partner)}
-                                className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                            >
-                                <Trash2 size={18} />
-                            </button>
+                            {hasPermission('partners', 'delete') && (
+                                <button
+                                    onClick={() => openDeleteConfirm(partner)}
+                                    className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                                >
+                                    <Trash2 size={18} />
+                                </button>
+                            )}
                         </div>
                     </div>
                 ))}

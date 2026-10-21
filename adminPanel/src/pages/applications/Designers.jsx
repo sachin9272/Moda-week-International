@@ -9,9 +9,11 @@ import toast from 'react-hot-toast';
 import { exportRecordsToExcel } from '../../utils/exportExcel';
 import { DESIGNER_FIELDS } from '../../utils/applicationExportFields';
 import { useBulkSelection } from '../../hooks/useBulkSelection';
+import { useAuth } from '../../context/AuthContext';
 
 const Designers = () => {
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [designers, setDesigners] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -131,7 +133,7 @@ const Designers = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    {selectedIds.length > 0 && (
+                    {selectedIds.length > 0 && hasPermission('applications', 'delete') && (
                         <button
                             onClick={() => setBulkDeleteModal(true)}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-red-600/20"
@@ -156,8 +158,8 @@ const Designers = () => {
                 data={filteredDesigners}
                 onView={setSelectedDesigner}
                 onRowClick={setSelectedDesigner}
-                onDelete={openDeleteModal}
-                selectable
+                onDelete={hasPermission('applications', 'delete') ? openDeleteModal : undefined}
+                selectable={hasPermission('applications', 'delete')}
                 selectedIds={selectedIds}
                 onToggleSelect={toggleSelect}
                 onToggleSelectAll={toggleSelectAll}
@@ -167,10 +169,10 @@ const Designers = () => {
                 application={selectedDesigner}
                 title="Designer Application Details"
                 onClose={() => setSelectedDesigner(null)}
-                onDelete={(designer) => {
+                onDelete={hasPermission('applications', 'delete') ? (designer) => {
                     setSelectedDesigner(null);
                     openDeleteModal(designer._id);
-                }}
+                } : undefined}
             />
 
             {/* Delete Modal */}

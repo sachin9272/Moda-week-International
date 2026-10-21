@@ -9,9 +9,11 @@ import toast from 'react-hot-toast';
 import { exportRecordsToExcel } from '../../utils/exportExcel';
 import { BUYER_FIELDS } from '../../utils/applicationExportFields';
 import { useBulkSelection } from '../../hooks/useBulkSelection';
+import { useAuth } from '../../context/AuthContext';
 
 const Buyers = () => {
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [buyers, setBuyers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -131,7 +133,7 @@ const Buyers = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    {selectedIds.length > 0 && (
+                    {selectedIds.length > 0 && hasPermission('applications', 'delete') && (
                         <button
                             onClick={() => setBulkDeleteModal(true)}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-red-600/20"
@@ -156,8 +158,8 @@ const Buyers = () => {
                 data={filteredBuyers}
                 onView={setSelectedBuyer}
                 onRowClick={setSelectedBuyer}
-                onDelete={openDeleteModal}
-                selectable
+                onDelete={hasPermission('applications', 'delete') ? openDeleteModal : undefined}
+                selectable={hasPermission('applications', 'delete')}
                 selectedIds={selectedIds}
                 onToggleSelect={toggleSelect}
                 onToggleSelectAll={toggleSelectAll}
@@ -167,10 +169,10 @@ const Buyers = () => {
                 application={selectedBuyer}
                 title="Buyer Application Details"
                 onClose={() => setSelectedBuyer(null)}
-                onDelete={(buyer) => {
+                onDelete={hasPermission('applications', 'delete') ? (buyer) => {
                     setSelectedBuyer(null);
                     openDeleteModal(buyer._id);
-                }}
+                } : undefined}
             />
 
             {/* Delete Modal */}

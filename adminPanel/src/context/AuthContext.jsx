@@ -1,4 +1,4 @@
-    import React, { createContext, useState, useEffect } from 'react';
+    import React, { createContext, useState, useEffect, useContext } from 'react';
     import axios from 'axios';
     import { baseURL } from '../config/api';
     
@@ -48,13 +48,43 @@
     
     export const AuthProvider = ({ children }) => {
         const [user, setUser] = useState(null);
+        const [role, setRole] = useState(null);
+        const [permissions, setPermissions] = useState({});
         const [loading, setLoading] = useState(true);
+        const [loadingPermissions, setLoadingPermissions] = useState(true);
+
+        const fetchMyPermissions = async (authToken) => {
+            try {
+                const config = authToken ? { headers: { Authorization: `Bearer ${authToken}` } } : {};
+                const res = await axios.get(`${baseURL}/api/admin/my-permissions`, config);
+                if (res.data.success && res.data.data) {
+                    setPermissions(res.data.data.permissions || {});
+                    setRole(res.data.data.role || 'Admin Access');
+                }
+            } catch (err) {
+                console.error('Failed to load user permissions:', err);
+            } finally {
+                setLoadingPermissions(false);
+            }
+        };
+
+        const hasPermission = (section, action = 'view') => {
+            if (!user) return false;
+            // Super Admin always has full access
+            if (role === 'Super Admin') return true;
+            if (!permissions) return false;
+            const sec = permissions[section];
+            return Boolean(sec && sec[action] === true);
+        };
     
         useEffect(() => {
             const clearStoredAuth = () => {
                 localStorage.removeItem('adminUser');
                 delete axios.defaults.headers.common['Authorization'];
                 setUser(null);
+                setRole(null);
+                setPermissions({});
+                setLoadingPermissions(false);
             };
     
             const interceptor = axios.interceptors.request.use((config) => {
@@ -104,6 +134,7 @@
                 const cleanUrl = window.location.pathname;
                 window.history.replaceState({}, document.title, cleanUrl);
     
+                fetchMyPermissions(ssoToken);
                 setLoading(false);
                 return;
             }
@@ -122,6 +153,7 @@
                     localStorage.setItem('adminUser', JSON.stringify(adminData));
                     setUser(adminData);
                     axios.defaults.headers.common['Authorization'] = `Bearer ${cookieToken}`;
+                    fetchMyPermissions(cookieToken);
                     setLoading(false);
                     return;
                 }
@@ -134,6 +166,7 @@
             if (storedAdmin && token && !isTokenExpired(token)) {
                 setUser(storedAdmin);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                fetchMyPermissions(token);
             } else {
                 clearStoredAuth();
             }
@@ -155,6 +188,7 @@
                     const token = getAdminToken(data);
                     if (token) {
                         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                        await fetchMyPermissions(token);
                     }
                     return { success: true };
                 }
@@ -169,13 +203,33 @@
 
         const logout = () => {
             setUser(null);
+            setRole(null);
+            setPermissions({});
             localStorage.removeItem('adminUser');
             delete axios.defaults.headers.common['Authorization'];
         };
 
         return (
-            <AuthContext.Provider value={{ user, login, logout, loading }}>
+            <AuthContext.Provider value={{ 
+                user, 
+                role, 
+                permissions, 
+                loading, 
+                loadingPermissions, 
+                login, 
+                logout, 
+                hasPermission, 
+                refreshPermissions: fetchMyPermissions 
+            }}>
                 {!loading && children}
             </AuthContext.Provider>
         );
+    };
+
+    export const useAuth = () => {
+        const context = useContext(AuthContext);
+        if (!context) {
+            throw new Error('useAuth must be used within an AuthProvider');
+        }
+        return context;
     };

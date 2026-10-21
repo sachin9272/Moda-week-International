@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { baseURL as API_BASE_URL } from '../../config/api';
 import { Pencil, Trash2, ArrowLeft, Loader, Calendar, MapPin, Search, Plus, Eye, GripVertical } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { optimizeCloudinaryImage } from '../../utils/cloudinary';
+import { AuthContext } from '../../context/AuthContext';
 import {
     DndContext,
     closestCenter,
@@ -24,7 +25,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 const getUpcomingEventName = (event) => event.eventName || event.title;
 
-const SortableUpcomingEventCard = ({ event, toggleStatus, updatingStatusId, initiateDelete }) => {
+const SortableUpcomingEventCard = ({ event, toggleStatus, updatingStatusId, initiateDelete, canEdit, canDelete }) => {
     const {
         attributes,
         listeners,
@@ -60,15 +61,17 @@ const SortableUpcomingEventCard = ({ event, toggleStatus, updatingStatusId, init
                 <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/80 to-transparent"></div>
 
                 <div className="absolute top-3 left-3 flex items-center gap-2">
-                    <button
-                        type="button"
-                        {...attributes}
-                        {...listeners}
-                        className="cursor-grab active:cursor-grabbing p-2 rounded-lg bg-black/50 backdrop-blur-md text-neutral-200 hover:text-[#C7913E] hover:bg-black/70 transition-colors"
-                        title="Drag to reorder"
-                    >
-                        <GripVertical size={18} />
-                    </button>
+                    {canEdit && (
+                        <button
+                            type="button"
+                            {...attributes}
+                            {...listeners}
+                            className="cursor-grab active:cursor-grabbing p-2 rounded-lg bg-black/50 backdrop-blur-md text-neutral-200 hover:text-[#C7913E] hover:bg-black/70 transition-colors"
+                            title="Drag to reorder"
+                        >
+                            <GripVertical size={18} />
+                        </button>
+                    )}
                 </div>
 
                 <div className="absolute top-3 right-3 flex gap-2">
@@ -97,20 +100,22 @@ const SortableUpcomingEventCard = ({ event, toggleStatus, updatingStatusId, init
                         <span className={`text-[10px] font-bold tracking-widest uppercase ${event.status === 'live' ? 'text-green-500' : 'text-neutral-500'}`}>
                             {event.status === 'live' ? 'Live' : 'Hidden'}
                         </span>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleStatus(event);
-                            }}
-                            disabled={updatingStatusId === event._id}
-                            className={`w-9 h-5 rounded-full flex items-center transition-all p-1 ${event.status === 'live' ? 'bg-green-500/20 border border-green-500/50' : 'bg-neutral-900 border border-neutral-700'}`}
-                        >
-                            {updatingStatusId === event._id ? (
-                                <Loader className="w-3 h-3 text-white animate-spin mx-auto" />
-                            ) : (
-                                <div className={`w-3 h-3 rounded-full shadow-md transform transition-all duration-300 ${event.status === 'live' ? 'translate-x-4 bg-green-500' : 'translate-x-0 bg-neutral-500'}`} />
-                            )}
-                        </button>
+                        {canEdit && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleStatus(event);
+                                }}
+                                disabled={updatingStatusId === event._id}
+                                className={`w-9 h-5 rounded-full flex items-center transition-all p-1 ${event.status === 'live' ? 'bg-green-500/20 border border-green-500/50' : 'bg-neutral-900 border border-neutral-700'}`}
+                            >
+                                {updatingStatusId === event._id ? (
+                                    <Loader className="w-3 h-3 text-white animate-spin mx-auto" />
+                                ) : (
+                                    <div className={`w-3 h-3 rounded-full shadow-md transform transition-all duration-300 ${event.status === 'live' ? 'translate-x-4 bg-green-500' : 'translate-x-0 bg-neutral-500'}`} />
+                                )}
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -131,25 +136,31 @@ const SortableUpcomingEventCard = ({ event, toggleStatus, updatingStatusId, init
                     </div>
                 </div>
 
-                <div className="flex justify-between items-center mt-auto border-t border-[#2a2a2a] pt-4 gap-3">
-                    <Link
-                        to={`/events/upcoming/edit/${event._id}`}
-                        className="flex-1 bg-[#C7913E]/10 hover:bg-[#C7913E] text-[#C7913E] hover:text-white py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn border border-[#C7913E]/20"
-                    >
-                        <Pencil size={16} />
-                        <span className="font-semibold text-sm">Edit Event</span>
-                    </Link>
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            initiateDelete(event);
-                        }}
-                        className="p-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl transition-all duration-300 border border-red-500/20"
-                        title="Delete Event"
-                    >
-                        <Trash2 size={18} />
-                    </button>
-                </div>
+                {(canEdit || canDelete) && (
+                    <div className="flex justify-between items-center mt-auto border-t border-[#2a2a2a] pt-4 gap-3">
+                        {canEdit && (
+                            <Link
+                                to={`/events/upcoming/edit/${event._id}`}
+                                className="flex-1 bg-[#C7913E]/10 hover:bg-[#C7913E] text-[#C7913E] hover:text-white py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn border border-[#C7913E]/20"
+                            >
+                                <Pencil size={16} />
+                                <span className="font-semibold text-sm">Edit Event</span>
+                            </Link>
+                        )}
+                        {canDelete && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    initiateDelete(event);
+                                }}
+                                className="p-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-xl transition-all duration-300 border border-red-500/20"
+                                title="Delete Event"
+                            >
+                                <Trash2 size={18} />
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -165,6 +176,10 @@ const UpcomingEventsList = () => {
     const [deleting, setDeleting] = useState(false);
     const [reordering, setReordering] = useState(false);
     const navigate = useNavigate();
+    const { hasPermission } = useContext(AuthContext);
+    const canCreate = hasPermission('events', 'create');
+    const canEdit = hasPermission('events', 'edit');
+    const canDelete = hasPermission('events', 'delete');
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -295,12 +310,14 @@ const UpcomingEventsList = () => {
                         <p className="text-neutral-500 mt-1">Manage ticketed events and live event dashboards</p>
                     </div>
                 </div>
-                <Link
-                    to="/events/upcoming/add"
-                    className="flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-5 py-2.5 rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"
-                >
-                    <Plus size={20} /> Add Event
-                </Link>
+                {canCreate && (
+                    <Link
+                        to="/events/upcoming/add"
+                        className="flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-5 py-2.5 rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"
+                    >
+                        <Plus size={20} /> Add Event
+                    </Link>
+                )}
             </div>
 
             {/* Filter Bar */}
@@ -358,6 +375,8 @@ const UpcomingEventsList = () => {
                                         toggleStatus={toggleStatus}
                                         updatingStatusId={updatingStatusId}
                                         initiateDelete={initiateDelete}
+                                        canEdit={canEdit}
+                                        canDelete={canDelete}
                                     />
                                 ))}
                             </div>

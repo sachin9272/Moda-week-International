@@ -15,25 +15,64 @@
       try {
         const secret = process.env.SSO_SECRET || "super_secret_sso_key_456";
         const decoded = jwt.verify(token, secret);
-    
-        // Strictly enforce: only users with Super Admin full access can bypass password
-        if (decoded.role !== 'Super Admin') {
-          console.warn("SSO rejected: user does not have Super Admin role", decoded);
-          return res.redirect(`${frontendAdminUrl}/login?error=Super+Admin+access+required`);
+
+        const isSuperAdmin = decoded.role === 'Super Admin';
+        const permittedProjects = decoded.permittedProjects || [];
+        const hasModaAccess = 
+          isSuperAdmin || 
+          permittedProjects.includes('Moda Week International') || 
+          permittedProjects.includes('*');
+
+        if (!hasModaAccess) {
+          console.warn("SSO rejected: user does not have Moda Week clearance", decoded);
+          return res.redirect(`${frontendAdminUrl}/login?error=Moda+Week+access+is+not+granted`);
         }
     
-        // Find or obtain admin in Moda-Week database
-        let admin = await Admin.findOne({ email: decoded.email });
-        if (!admin) {
-          admin = await Admin.findOne({ email: "info@modaweekinternational.com" });
+        const esmeraldaUserId = decoded.userId;
+        const normalizedEmail = (decoded.email || "").toLowerCase().trim();
+
+        // 1. Identity resolution
+        let admin = null;
+        if (esmeraldaUserId) {
+          admin = await Admin.findOne({ esmeraldaUserId });
         }
-        if (!admin) {
-          admin = await Admin.findOne({});
+
+        if (!admin && normalizedEmail) {
+          const byEmail = await Admin.findOne({ email: normalizedEmail });
+          if (byEmail) {
+            // Prevent takeover if assigned to another Esmeralda user
+            if (byEmail.esmeraldaUserId && esmeraldaUserId && byEmail.esmeraldaUserId !== esmeraldaUserId) {
+              console.warn("SSO rejected: identity collision on email", normalizedEmail);
+              return res.redirect(`${frontendAdminUrl}/login?error=Identity+conflict+detected`);
+            }
+            admin = byEmail;
+          }
         }
-        if (!admin) {
+
+        if (admin) {
+          if (admin.status === 'Inactive') {
+            return res.redirect(`${frontendAdminUrl}/login?error=Account+is+deactivated`);
+          }
+
+          // Link identity and sync role/permissions
+          if (esmeraldaUserId) admin.esmeraldaUserId = esmeraldaUserId;
+          admin.role = decoded.role || admin.role;
+          admin.permittedProjects = permittedProjects;
+          if (decoded.modaPermissions) {
+            admin.modaPermissions = decoded.modaPermissions;
+          }
+          await admin.save();
+        } else {
+          // Create admin record with linked identity
           admin = await Admin.create({
-            email: decoded.email || "info@modaweekinternational.com",
-            password: Math.random().toString(36).slice(-12) + "A1!",
+            esmeraldaUserId,
+            email: normalizedEmail || "info@modaweekinternational.com",
+            role: decoded.role || 'Admin Access',
+            status: 'Active',
+            permittedProjects,
+            modaPermissions: decoded.modaPermissions || {},
+            password: Math.random().toString(36).slice(-12) + "A1!moda",
+            source: 'esmeralda_master'
           });
         }
     

@@ -1,12 +1,13 @@
 import express from 'express';
 import { getPhilanthropy, updatePhilanthropy } from '../controllers/philanthropyController.js';
 import { uploadS3, setFolder } from '../config/s3Config.js';
+import { protect, authorizePermission, optionalProtectAndAuthorize } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/', getPhilanthropy);
+router.get('/', optionalProtectAndAuthorize('philanthropy_donation', 'view'), getPhilanthropy);
 
-router.post('/update', setFolder('philanthropy'), uploadS3.fields([
+router.post('/update', protect, authorizePermission('philanthropy_donation', 'edit'), setFolder('philanthropy'), uploadS3.fields([
     { name: 'sectionImage_community', maxCount: 1 },
     { name: 'sectionImage_events', maxCount: 1 },
     { name: 'sectionImage_digital', maxCount: 1 },

@@ -17,6 +17,7 @@ import newsRoutes from './routes/newsRoutes.js';
 import upcomingEventRoutes from './routes/upcomingEventRoutes.js';
 import ssoRouter from './routes/sso.route.js';
 import masterStatsRouter from './routes/masterStatsRoutes.js';
+import internalRouter from './routes/internalRoutes.js';
 import { handleStripeWebhook } from './controllers/webhookController.js';
 import { createCheckoutSession, confirmPayment, createDonationCheckoutSession, downloadTicketsPdf } from './controllers/paymentController.js';
 import path from 'path';
@@ -50,6 +51,7 @@ app.get('/', (req, res) => {
 });
 
 // Custom Routes
+app.use('/api/internal/permissions', internalRouter);
 app.use('/api/sso', ssoRouter);
 app.use('/api/master-stats', masterStatsRouter);
 app.use('/api/admin', adminRoutes);

@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { Pencil, Trash2, Plus, Loader2, Eye, Check, X, Clock, FileText, ChevronLeft, ChevronRight, Loader } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { baseURL } from '../../config/api';
 import toast from 'react-hot-toast';
 import { optimizeCloudinaryImage } from '../../utils/cloudinary';
+import { AuthContext } from '../../context/AuthContext';
 
 const NewsManager = () => {
     const location = useLocation();
+    const { hasPermission } = useContext(AuthContext);
+    const canCreate = hasPermission('news', 'create');
+    const canEdit = hasPermission('news', 'edit');
+    const canDelete = hasPermission('news', 'delete');
     const [news, setNews] = useState([]);
     const [pendingNews, setPendingNews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -176,12 +181,14 @@ const NewsManager = () => {
                     <h1 className="text-3xl font-bold text-white uppercase tracking-tight">News Management</h1>
                     <p className="text-neutral-500 mt-1">Manage articles, news and community submissions</p>
                 </div>
-                <Link
-                    to="/news/add"
-                    className="flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-5 py-2.5 rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"
-                >
-                    <Plus size={20} /> Add News
-                </Link>
+                {canCreate && (
+                    <Link
+                        to="/news/add"
+                        className="flex items-center gap-2 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white px-5 py-2.5 rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"
+                    >
+                        <Plus size={20} /> Add News
+                    </Link>
+                )}
             </div>
 
             {/* Tabs */}
@@ -286,38 +293,46 @@ const NewsManager = () => {
                                                 <span className={`text-[10px] uppercase font-bold tracking-widest ${item.status === 'live' ? 'text-green-500' : 'text-neutral-500'}`}>
                                                     {item.status === 'live' ? 'Live' : 'Hidden'}
                                                 </span>
-                                                <button
-                                                    onClick={() => toggleStatus(item)}
-                                                    disabled={updatingStatusId === item._id}
-                                                    className={`w-9 h-5 rounded-full flex items-center transition-all p-1 ${item.status === 'live' ? 'bg-green-500/20 border border-green-500/50' : 'bg-neutral-800 border border-neutral-700'}`}
-                                                >
-                                                    {updatingStatusId === item._id ? (
-                                                        <Loader className="w-3 h-3 text-white animate-spin mx-auto" />
-                                                    ) : (
-                                                        <div className={`w-3 h-3 rounded-full shadow-md transform transition-all duration-300 ${item.status === 'live' ? 'translate-x-4 bg-green-500' : 'translate-x-0 bg-neutral-500'}`} />
-                                                    )}
-                                                </button>
+                                                {canEdit && (
+                                                    <button
+                                                        onClick={() => toggleStatus(item)}
+                                                        disabled={updatingStatusId === item._id}
+                                                        className={`w-9 h-5 rounded-full flex items-center transition-all p-1 ${item.status === 'live' ? 'bg-green-500/20 border border-green-500/50' : 'bg-neutral-800 border border-neutral-700'}`}
+                                                    >
+                                                        {updatingStatusId === item._id ? (
+                                                            <Loader className="w-3 h-3 text-white animate-spin mx-auto" />
+                                                        ) : (
+                                                            <div className={`w-3 h-3 rounded-full shadow-md transform transition-all duration-300 ${item.status === 'live' ? 'translate-x-4 bg-green-500' : 'translate-x-0 bg-neutral-500'}`} />
+                                                        )}
+                                                    </button>
+                                                )}
                                             </div>
                                         </div>
 
                                         <div className="text-neutral-400 text-sm line-clamp-3 mb-6 flex-grow leading-relaxed" dangerouslySetInnerHTML={{ __html: item.content }} />
 
-                                        <div className="flex justify-between items-center mt-auto border-t border-[#2a2a2a] pt-4 gap-3">
-                                            <Link
-                                                to={`/news/edit/${item._id}`}
-                                                className="flex-1 bg-[#C7913E]/10 hover:bg-[#C7913E] text-[#C7913E] hover:text-white py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn border border-[#C7913E]/20"
-                                            >
-                                                <Pencil size={16} />
-                                                <span className="font-semibold text-sm">Edit</span>
-                                            </Link>
-                                            <button
-                                                onClick={() => initiateDelete(item)}
-                                                className="flex-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn border border-red-500/20"
-                                            >
-                                                <Trash2 size={16} />
-                                                <span className="font-semibold text-sm">Delete</span>
-                                            </button>
-                                        </div>
+                                        {(canEdit || canDelete) && (
+                                            <div className="flex justify-between items-center mt-auto border-t border-[#2a2a2a] pt-4 gap-3">
+                                                {canEdit && (
+                                                    <Link
+                                                        to={`/news/edit/${item._id}`}
+                                                        className="flex-1 bg-[#C7913E]/10 hover:bg-[#C7913E] text-[#C7913E] hover:text-white py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn border border-[#C7913E]/20"
+                                                    >
+                                                        <Pencil size={16} />
+                                                        <span className="font-semibold text-sm">Edit</span>
+                                                    </Link>
+                                                )}
+                                                {canDelete && (
+                                                    <button
+                                                        onClick={() => initiateDelete(item)}
+                                                        className="flex-1 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 group/btn border border-red-500/20"
+                                                    >
+                                                        <Trash2 size={16} />
+                                                        <span className="font-semibold text-sm">Delete</span>
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}

@@ -9,9 +9,11 @@ import toast from 'react-hot-toast';
 import { exportRecordsToExcel } from '../../utils/exportExcel';
 import { RSVP_FIELDS } from '../../utils/applicationExportFields';
 import { useBulkSelection } from '../../hooks/useBulkSelection';
+import { useAuth } from '../../context/AuthContext';
 
 const Rsvps = () => {
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [rsvps, setRsvps] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -130,7 +132,7 @@ const Rsvps = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    {selectedIds.length > 0 && (
+                    {selectedIds.length > 0 && hasPermission('applications', 'delete') && (
                         <button
                             onClick={() => setBulkDeleteModal(true)}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-red-600/20"
@@ -155,8 +157,8 @@ const Rsvps = () => {
                 data={filteredRsvps}
                 onView={setSelectedRsvp}
                 onRowClick={setSelectedRsvp}
-                onDelete={openDeleteModal}
-                selectable
+                onDelete={hasPermission('applications', 'delete') ? openDeleteModal : undefined}
+                selectable={hasPermission('applications', 'delete')}
                 selectedIds={selectedIds}
                 onToggleSelect={toggleSelect}
                 onToggleSelectAll={toggleSelectAll}
@@ -166,10 +168,10 @@ const Rsvps = () => {
                 application={selectedRsvp}
                 title="RSVP Application Details"
                 onClose={() => setSelectedRsvp(null)}
-                onDelete={(rsvp) => {
+                onDelete={hasPermission('applications', 'delete') ? (rsvp) => {
                     setSelectedRsvp(null);
                     openDeleteModal(rsvp._id);
-                }}
+                } : undefined}
             />
 
             {deleteModal.show && (

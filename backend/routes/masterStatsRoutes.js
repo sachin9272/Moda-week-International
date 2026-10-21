@@ -1,11 +1,23 @@
 import express from "express";
+import crypto from "crypto";
 
 const masterStatsRouter = express.Router();
 
 masterStatsRouter.get("/", async (req, res) => {
   const apiKey = req.headers["x-master-api-key"] || req.query.apiKey;
+  const expectedKey = process.env.MASTER_API_KEY || "super_secret_master_key_123";
 
-  if (apiKey !== process.env.MASTER_API_KEY) {
+  if (!apiKey) {
+    return res.status(401).json({ success: false, message: "Unauthorized" });
+  }
+
+  try {
+    const keyBuf = Buffer.from(String(apiKey));
+    const expBuf = Buffer.from(String(expectedKey));
+    if (keyBuf.length !== expBuf.length || !crypto.timingSafeEqual(keyBuf, expBuf)) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+  } catch {
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
 

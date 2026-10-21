@@ -8,19 +8,19 @@ import {
     getTalentCountries
 } from '../controllers/talentController.js';
 import { uploadS3, setFolder } from '../config/s3Config.js';
-import { protect } from '../middlewares/authMiddleware.js';
+import { protect, authorizePermission, optionalProtectAndAuthorize } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
 router.route('/')
-    .get(getTalents)
-    .post(protect, setFolder('talents'), uploadS3.single('image'), createTalent);
+    .get(optionalProtectAndAuthorize('fashion_designers', 'view'), getTalents)
+    .post(protect, authorizePermission('fashion_designers', 'create'), setFolder('talents'), uploadS3.single('image'), createTalent);
 
-router.get('/countries', getTalentCountries);
+router.get('/countries', optionalProtectAndAuthorize('fashion_designers', 'view'), getTalentCountries);
 
 router.route('/:id')
-    .get(getTalentById)
-    .put(protect, setFolder('talents'), uploadS3.single('image'), updateTalent)
-    .delete(protect, deleteTalent);
+    .get(optionalProtectAndAuthorize('fashion_designers', 'view'), getTalentById)
+    .put(protect, authorizePermission('fashion_designers', 'edit'), setFolder('talents'), uploadS3.single('image'), updateTalent)
+    .delete(protect, authorizePermission('fashion_designers', 'delete'), deleteTalent);
 
 export default router;

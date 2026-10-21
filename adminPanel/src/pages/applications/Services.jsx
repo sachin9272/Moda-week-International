@@ -10,9 +10,11 @@ import ExportMenu from '../../components/ExportMenu';
 import { downloadWorkbook, buildSheetRows } from '../../utils/exportExcel';
 import { SERVICE_COMMON_FIELDS, SERVICE_TYPES, getServiceSheetFields } from '../../utils/applicationExportFields';
 import { useBulkSelection } from '../../hooks/useBulkSelection';
+import { useAuth } from '../../context/AuthContext';
 
 const Services = () => {
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -213,7 +215,7 @@ const Services = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    {selectedIds.length > 0 && (
+                    {selectedIds.length > 0 && hasPermission('applications', 'delete') && (
                         <button
                             onClick={() => setBulkDeleteModal(true)}
                             className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-red-600/20"
@@ -232,7 +234,8 @@ const Services = () => {
                 data={filteredServices}
                 onView={setSelectedService}
                 onRowClick={setSelectedService}
-                selectable
+                onDelete={hasPermission('applications', 'delete') ? openDeleteModal : undefined}
+                selectable={hasPermission('applications', 'delete')}
                 selectedIds={selectedIds}
                 onToggleSelect={toggleSelect}
                 onToggleSelectAll={toggleSelectAll}
@@ -242,10 +245,10 @@ const Services = () => {
                 application={selectedService}
                 title="Service Inquiry Details"
                 onClose={() => setSelectedService(null)}
-                onDelete={(service) => {
+                onDelete={hasPermission('applications', 'delete') ? (service) => {
                     setSelectedService(null);
                     openDeleteModal(service._id);
-                }}
+                } : undefined}
             />
 
             {/* Delete Modal */}

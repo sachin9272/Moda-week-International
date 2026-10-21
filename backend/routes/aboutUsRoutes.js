@@ -1,6 +1,7 @@
 import express from "express";
 import { updateAboutUs, getAboutUs } from "../controllers/aboutUsController.js";
 import { uploadS3, setFolder } from "../config/s3Config.js";
+import { protect, authorizePermission, optionalProtectAndAuthorize } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
@@ -14,8 +15,10 @@ const uploadFields = [
     ...cardFields
 ];
 
-router.get("/", getAboutUs);
+router.get("/", optionalProtectAndAuthorize('about_us', 'view'), getAboutUs);
 router.put("/",
+    protect,
+    authorizePermission('about_us', 'edit'),
     setFolder('about-us'),
     uploadS3.fields(uploadFields),
     updateAboutUs

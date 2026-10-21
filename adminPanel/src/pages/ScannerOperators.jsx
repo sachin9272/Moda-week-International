@@ -1,11 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Trash2, Loader, Plus, Shield, ShieldAlert, Key, Mail, RefreshCw, Search, Download, Calendar, ChevronLeft, ChevronRight, Users } from 'lucide-react';
 import axios from 'axios';
 import { baseURL } from '../config/api';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
+import { AuthContext } from '../context/AuthContext';
 
 const ScannerOperators = () => {
+    const { hasPermission } = useContext(AuthContext);
+    const canCreate = hasPermission('scanner_operators', 'create');
+    const canEdit = hasPermission('scanner_operators', 'edit');
+    const canDelete = hasPermission('scanner_operators', 'delete');
+
     const [operators, setOperators] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -278,13 +284,15 @@ const ScannerOperators = () => {
                 </div>
                 <div className="flex gap-3 flex-wrap">
                     {activeTab === 'operators' ? (
-                        <button
-                            onClick={() => setShowAddModal(true)}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20"
-                        >
-                            <Plus size={20} />
-                            Add Operator
-                        </button>
+                        canCreate && (
+                            <button
+                                onClick={() => setShowAddModal(true)}
+                                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#8C5D25] to-[#C7913E] text-white rounded-xl font-medium hover:from-[#7A5020] hover:to-[#B38135] transition-all shadow-lg shadow-[#C7913E]/20 cursor-pointer"
+                            >
+                                <Plus size={20} />
+                                Add Operator
+                            </button>
+                        )
                     ) : (
                         <button
                             onClick={handleExportExcel}
@@ -349,8 +357,11 @@ const ScannerOperators = () => {
                                             <td className="py-4 px-6 text-neutral-300">{operator.email}</td>
                                             <td className="py-4 px-6">
                                                 <button 
-                                                    onClick={() => handleToggleStatus(operator)}
-                                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer border
+                                                    onClick={() => canEdit && handleToggleStatus(operator)}
+                                                    disabled={!canEdit}
+                                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border ${
+                                                        !canEdit ? 'cursor-default opacity-80' : 'cursor-pointer'
+                                                    }
                                                     ${operator.isActive 
                                                         ? 'bg-emerald-950/40 text-emerald-400 border-emerald-800/50 hover:bg-emerald-900/60' 
                                                         : 'bg-red-950/40 text-red-400 border-red-800/50 hover:bg-red-900/60'
@@ -372,20 +383,24 @@ const ScannerOperators = () => {
                                             </td>
                                             <td className="py-4 px-6 text-right">
                                                 <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        onClick={() => setResetConfirm({ show: true, id: operator._id, name: operator.name })}
-                                                        className="p-2 text-[#C7913E] hover:bg-[#C7913E]/10 rounded-lg transition-colors"
-                                                        title="Resend invite / reset password"
-                                                    >
-                                                        <RefreshCw size={18} />
-                                                    </button>
-                                                    <button
-                                                        onClick={() => setDeleteConfirm({ show: true, id: operator._id, name: operator.name })}
-                                                        className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
-                                                        title="Delete Operator"
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
+                                                    {canEdit && (
+                                                        <button
+                                                            onClick={() => setResetConfirm({ show: true, id: operator._id, name: operator.name })}
+                                                            className="p-2 text-[#C7913E] hover:bg-[#C7913E]/10 rounded-lg transition-colors cursor-pointer"
+                                                            title="Resend invite / reset password"
+                                                        >
+                                                            <RefreshCw size={18} />
+                                                        </button>
+                                                    )}
+                                                    {canDelete && (
+                                                        <button
+                                                            onClick={() => setDeleteConfirm({ show: true, id: operator._id, name: operator.name })}
+                                                            className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors cursor-pointer"
+                                                            title="Delete Operator"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 const Sidebar = () => {
-    const { logout } = useContext(AuthContext);
+    const { logout, hasPermission, role } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
     const [collapsed, setCollapsed] = useState(false);
@@ -48,35 +48,45 @@ const Sidebar = () => {
     };
 
     const navItems = [
-        { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
-        { path: '/events', icon: Calendar, label: 'Events' },
-        { path: '/tickets', icon: Ticket, label: 'Tickets' },
-        { path: '/scanner-operators', icon: ScanLine, label: 'Scanner Operators' },
-        { path: '/applications', icon: FolderOpen, label: 'Applications' },
-        { path: '/news', icon: Newspaper, label: 'News' },
+        { path: '/', icon: LayoutDashboard, label: 'Dashboard', section: 'dashboard' },
+        { path: '/events', icon: Calendar, label: 'Events', section: 'events' },
+        { path: '/tickets', icon: Ticket, label: 'Tickets', section: 'tickets' },
+        { path: '/scanner-operators', icon: ScanLine, label: 'Scanner Operators', section: 'scanner_operators' },
+        { path: '/applications', icon: FolderOpen, label: 'Applications', section: 'applications' },
+        { path: '/news', icon: Newspaper, label: 'News', section: 'news' },
         // Grouped Pages
         {
             key: 'pages',
             label: 'Pages',
             icon: Layers,
             children: [
-                { path: '/impact-content', icon: Heart, label: 'Philanthropy & Donation' },
-                { path: '/about-us-content', icon: Info, label: 'About Us' },
-                { path: '/landing-page-content', icon: Info, label: 'Landing Page' },
-                { path: '/rsvp-content', icon: Info, label: 'RSVP' },
-                { path: '/service-content', icon: Briefcase, label: 'Services' },
-                { path: '/upcoming-event-content', icon: Calendar, label: 'Upcoming Event' },
-                { path: '/past-event-content', icon: Calendar, label: 'Past Event' },
-                { path: '/participants-content', icon: Calendar, label: 'Participants' },
-                { path: '/legal-pages', icon: Scale, label: 'Legal Pages' },
+                { path: '/impact-content', icon: Heart, label: 'Philanthropy & Donation', section: 'philanthropy_donation' },
+                { path: '/about-us-content', icon: Info, label: 'About Us', section: 'about_us' },
+                { path: '/landing-page-content', icon: Info, label: 'Landing Page', section: 'landing_page' },
+                { path: '/rsvp-content', icon: Info, label: 'RSVP', section: 'rsvp_page' },
+                { path: '/service-content', icon: Briefcase, label: 'Services', section: 'services_content' },
+                { path: '/upcoming-event-content', icon: Calendar, label: 'Upcoming Event', section: 'upcoming_event_hero' },
+                { path: '/past-event-content', icon: Calendar, label: 'Past Event', section: 'past_event_hero' },
+                { path: '/participants-content', icon: Calendar, label: 'Participants', section: 'participants_hero' },
+                { path: '/legal-pages', icon: Scale, label: 'Legal Pages', section: 'legal_pages' },
             ]
         },
-        { path: '/landing-videos', icon: Video, label: 'Landing Videos' },
-        { path: '/fashion-designers', icon: Users, label: 'Participants' },
-        { path: '/production-team', icon: Users, label: 'Production Team' },
-        { path: '/press-media', icon: Newspaper, label: 'Press & Media' },
-        { path: '/partners', icon: Image, label: 'Partners / Logos' },
+        { path: '/landing-videos', icon: Video, label: 'Landing Videos', section: 'landing_videos' },
+        { path: '/fashion-designers', icon: Users, label: 'Participants', section: 'fashion_designers' },
+        { path: '/production-team', icon: Users, label: 'Production Team', section: 'production_team' },
+        { path: '/press-media', icon: Newspaper, label: 'Press & Media', section: 'press_media' },
+        { path: '/partners', icon: Image, label: 'Partners / Logos', section: 'partners' },
     ];
+
+    // Filter nav items based on verified permissions
+    const visibleNavItems = navItems.map(item => {
+        if (item.children) {
+            const visibleChildren = item.children.filter(child => hasPermission(child.section, 'view'));
+            if (visibleChildren.length === 0) return null;
+            return { ...item, children: visibleChildren };
+        }
+        return hasPermission(item.section, 'view') ? item : null;
+    }).filter(Boolean);
 
     const renderNavItem = (item) => {
         // Handle Nested Items
@@ -192,7 +202,7 @@ const Sidebar = () => {
 
             {/* Navigation */}
             <nav className="flex-1 p-3 space-y-1 overflow-y-auto no-scrollbar">
-                {navItems.map(renderNavItem)}
+                {visibleNavItems.map(renderNavItem)}
             </nav>
 
             {/* Collapse Toggle */}
