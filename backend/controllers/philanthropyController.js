@@ -57,9 +57,9 @@ export const updatePhilanthropy = async (req, res) => {
         const data = JSON.parse(req.body.data); // Expecting JSON string in 'data' field
 
         // Update Text Fields
-        if (data.header) philanthropy.header = { ...philanthropy.header, ...data.header };
-        if (data.introduction) philanthropy.introduction = { ...philanthropy.introduction, ...data.introduction };
-        if (data.philosophy) philanthropy.philosophy = { ...philanthropy.philosophy, ...data.philosophy };
+        if (data.header) philanthropy.header = { ...(philanthropy.header?.toObject ? philanthropy.header.toObject() : philanthropy.header), ...data.header };
+        if (data.introduction) philanthropy.introduction = { ...(philanthropy.introduction?.toObject ? philanthropy.introduction.toObject() : philanthropy.introduction), ...data.introduction };
+        if (data.philosophy) philanthropy.philosophy = { ...(philanthropy.philosophy?.toObject ? philanthropy.philosophy.toObject() : philanthropy.philosophy), ...data.philosophy };
 
         // Handle Sections Updates
         if (data.sections) {

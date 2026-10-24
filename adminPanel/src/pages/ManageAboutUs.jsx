@@ -178,10 +178,16 @@ const ManageAboutUs = () => {
         // Append JSON data
         dataToSend.append('data', JSON.stringify({
             hero: formData.hero,
-            mainSection: { ...formData.mainSection, image: undefined }, // Don't send existing image object
-            foundationSection: { ...formData.foundationSection, image: undefined },
-            philosophySection: { ...formData.philosophySection, image: undefined },
-            globalPlatformSection: { ...formData.globalPlatformSection, cards: formData.globalPlatformSection.cards.map(c => ({ ...c, image: undefined })) }
+            mainSection: { ...formData.mainSection, image: formData.mainSection?.image?.url ? formData.mainSection.image : undefined },
+            foundationSection: { ...formData.foundationSection, image: formData.foundationSection?.image?.url ? formData.foundationSection.image : undefined },
+            philosophySection: { ...formData.philosophySection, image: formData.philosophySection?.image?.url ? formData.philosophySection.image : undefined },
+            globalPlatformSection: {
+                ...formData.globalPlatformSection,
+                cards: formData.globalPlatformSection.cards.map(c => ({
+                    ...c,
+                    image: c.image?.url ? c.image : undefined
+                }))
+            }
         }));
 
         // Append New Files
@@ -226,10 +232,11 @@ const ManageAboutUs = () => {
                 </div>
             );
         }
-        if (currentImage) {
+        const imageUrl = typeof currentImage === 'string' ? currentImage : currentImage?.url;
+        if (imageUrl) {
             return (
                 <div className="relative group rounded-xl overflow-hidden shadow-lg border border-[#333] aspect-video w-full max-w-sm bg-[#0f0f0f]">
-                    <img src={currentImage.url || currentImage} alt="Current" className="w-full h-full object-cover" />
+                    <img src={imageUrl} alt="Current" className="w-full h-full object-cover" />
                 </div>
             );
         }

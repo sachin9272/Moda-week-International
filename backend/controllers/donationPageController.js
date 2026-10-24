@@ -37,9 +37,9 @@ export const updateDonationPage = async (req, res) => {
         if (!page) {
             page = new DonationPage({ hero, mainContent, contactInfo });
         } else {
-            if (hero) page.hero = { ...page.hero, ...hero };
-            if (mainContent) page.mainContent = { ...page.mainContent, ...mainContent };
-            if (contactInfo) page.contactInfo = { ...page.contactInfo, ...contactInfo };
+            if (hero) page.hero = { ...(page.hero?.toObject ? page.hero.toObject() : page.hero), ...hero };
+            if (mainContent) page.mainContent = { ...(page.mainContent?.toObject ? page.mainContent.toObject() : page.mainContent), ...mainContent };
+            if (contactInfo) page.contactInfo = { ...(page.contactInfo?.toObject ? page.contactInfo.toObject() : page.contactInfo), ...contactInfo };
         }
 
         // Handle Slideshow Images
@@ -62,18 +62,8 @@ export const updateDonationPage = async (req, res) => {
                 if (publicId) {
                     try {
                         console.log(`Attempting to delete image with publicId: ${publicId}`);
-                        const result = await deleteS3Asset(publicId, { invalidate: true });
-                        console.log(`Cloudinary deletion result for ${publicId}:`, result);
-
-                        if (result.result === 'ok' || result.result === 'not found') {
-                            page.slideshowImages = page.slideshowImages.filter(img => img.publicId !== publicId);
-                        } else {
-                            console.warn(`Cloudinary did not return 'ok' for ${publicId}. Result: ${result.result}`);
-                            // Still remove from DB if we want to force sync, or keep it? 
-                            // Usually if it fails, we might want to retry or at least remove from DB if it's "not found".
-                            // If it is 'not found', it means it's already gone from Cloudinary, so we should remove from DB.
-                            page.slideshowImages = page.slideshowImages.filter(img => img.publicId !== publicId);
-                        }
+                        await deleteS3Asset(publicId);
+                        page.slideshowImages = page.slideshowImages.filter(img => img.publicId !== publicId);
 
                     } catch (err) {
                         console.error(`Failed to delete image ${publicId}:`, err);

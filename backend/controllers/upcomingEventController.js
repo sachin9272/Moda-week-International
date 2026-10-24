@@ -310,10 +310,11 @@ export const updateUpcomingEvent = async (req, res) => {
         if (req.body.descriptionSection) {
             try {
                 const parsedDesc = JSON.parse(req.body.descriptionSection);
+                const existingDesc = event.descriptionSection?.toObject ? event.descriptionSection.toObject() : (event.descriptionSection || {});
                 event.descriptionSection = {
-                    ...event.descriptionSection,
+                    ...existingDesc,
                     ...parsedDesc,
-                    image: parsedDesc.removeImage ? null : previousDescriptionImage
+                    image: parsedDesc.removeImage ? null : (previousDescriptionImage || null)
                 };
             } catch(e) { console.error("Error parsing descriptionSection JSON:", e); }
         }
@@ -322,21 +323,24 @@ export const updateUpcomingEvent = async (req, res) => {
             if (event.descriptionSection && event.descriptionSection.image && event.descriptionSection.image.publicId) {
                 await deleteS3Asset(event.descriptionSection.image.publicId, 'image');
             }
-            event.descriptionSection = { ...event.descriptionSection, image: { url: descImageFile.location, publicId: descImageFile.key } };
+            const currentDesc = event.descriptionSection?.toObject ? event.descriptionSection.toObject() : (event.descriptionSection || {});
+            event.descriptionSection = { ...currentDesc, image: { url: descImageFile.location, publicId: descImageFile.key } };
         } else if (event.descriptionSection?.image === null) {
             if (previousDescriptionImage?.publicId) {
                 await deleteS3Asset(previousDescriptionImage.publicId, 'image');
             }
-            event.descriptionSection = { ...event.descriptionSection, image: null };
+            const currentDesc = event.descriptionSection?.toObject ? event.descriptionSection.toObject() : (event.descriptionSection || {});
+            event.descriptionSection = { ...currentDesc, image: null };
         }
 
         // Handle video section updates
         if (req.body.videoSection) {
             try {
                 const parsedVideo = JSON.parse(req.body.videoSection);
+                const existingVideo = event.videoSection?.toObject ? event.videoSection.toObject() : (event.videoSection || {});
                 const previousVideoPublicId = event.videoSection?.publicId;
                 event.videoSection = {
-                    ...event.videoSection,
+                    ...existingVideo,
                     ...parsedVideo,
                     url: parsedVideo.type === 'youtube' ? parsedVideo.url : event.videoSection?.url,
                     publicId: parsedVideo.type === 'youtube' ? null : event.videoSection?.publicId,

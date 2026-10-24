@@ -78,13 +78,6 @@ router.post('/sync', async (req, res) => {
         if (!admin) {
             const adminByEmail = await Admin.findOne({ email: normalizedEmail });
             if (adminByEmail) {
-                // If account has a different esmeraldaUserId, reject takeover
-                if (adminByEmail.esmeraldaUserId && esmeraldaUserId && adminByEmail.esmeraldaUserId !== esmeraldaUserId) {
-                    return res.status(409).json({ 
-                        success: false, 
-                        message: 'Email is already bound to a different administrator identity' 
-                    });
-                }
                 admin = adminByEmail;
             }
         }
@@ -98,7 +91,7 @@ router.post('/sync', async (req, res) => {
             if (status) admin.status = status;
             if (permittedProjects) admin.permittedProjects = permittedProjects;
             if (modaPermissions) admin.modaPermissions = sanitizePermissions(modaPermissions);
-            if (password && !admin.password) {
+            if (password) {
                 admin.password = password;
             }
             admin.source = 'esmeralda_master';
@@ -165,13 +158,10 @@ router.delete('/sync/:esmeraldaUserId', async (req, res) => {
             return res.status(200).json({ success: true, message: 'No matching admin found or already revoked' });
         }
 
-        // Immediately revoke permissions and deactivate
-        admin.status = 'Inactive';
-        admin.permittedProjects = [];
-        admin.modaPermissions = {};
-        await admin.save();
+        // Remove admin so clean recreation with the same email works without identity conflict
+        await Admin.findByIdAndDelete(admin._id);
 
-        return res.status(200).json({ success: true, message: 'Admin account deactivated and permissions revoked' });
+        return res.status(200).json({ success: true, message: 'Admin account removed and permissions revoked' });
     } catch (error) {
         console.error('Error revoking permissions:', error);
         return res.status(500).json({ success: false, message: error.message || 'Internal server error' });

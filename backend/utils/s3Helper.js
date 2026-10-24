@@ -44,6 +44,16 @@ export const deleteS3Asset = async (key) => {
        return;
     }
     
+    // Safety check - never delete stock template assets
+    const isStockAsset = [
+        'aboutus1.png', 'founder.png', 'founder2.jpg',
+        'addon1.jpg', 'addon2.jpg', 'addon3.jpg'
+    ].some(stock => key.endsWith(stock));
+    if (isStockAsset) {
+        console.warn(`[S3Helper] Skipped deletion of protected stock asset: ${key}`);
+        return { $metadata: { httpStatusCode: 200 } };
+    }
+    
     try {
         const command = new DeleteObjectCommand({
             Bucket: BUCKET_NAME,

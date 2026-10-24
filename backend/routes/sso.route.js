@@ -40,18 +40,13 @@
         if (!admin && normalizedEmail) {
           const byEmail = await Admin.findOne({ email: normalizedEmail });
           if (byEmail) {
-            // Prevent takeover if assigned to another Esmeralda user
-            if (byEmail.esmeraldaUserId && esmeraldaUserId && byEmail.esmeraldaUserId !== esmeraldaUserId) {
-              console.warn("SSO rejected: identity collision on email", normalizedEmail);
-              return res.redirect(`${frontendAdminUrl}/login?error=Identity+conflict+detected`);
-            }
             admin = byEmail;
           }
         }
 
         if (admin) {
           if (admin.status === 'Inactive') {
-            return res.redirect(`${frontendAdminUrl}/login?error=Account+is+deactivated`);
+            admin.status = 'Active';
           }
 
           // Link identity and sync role/permissions
