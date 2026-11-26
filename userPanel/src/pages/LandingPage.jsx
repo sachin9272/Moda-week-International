@@ -148,7 +148,7 @@ function VideoSlider({ slides, onSlideChange }) {
         )}
         <div className="mt-4">
           <Link to="/service?tab=designer">
-            <button className="grad-bg h-[45px] w-[181px] text-2xl">
+            <button className="grad-bg text-white h-[45px] w-[181px] text-2xl">
               APPLY NOW
             </button>
           </Link>

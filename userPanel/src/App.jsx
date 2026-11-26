@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import ScrollToTop from "./components/ScrollToTop.jsx";
 
 import LandingPage from './pages/LandingPage.jsx';
+import SampleLandingPage from './pages/SampleLandingPage.jsx';
 import About from './pages/about/About.jsx';
 import ProductionTeam from './pages/productionTeam/ProductionTeam.jsx';
 import ProductionTeamMember from './pages/productionTeam/ProductionTeamMember.jsx';
@@ -52,6 +53,8 @@ function AppContent() {
       <Routes>
         {/* Default route */}
         <Route path="/" element={<LandingPage />} />
+        {/* Sample Landing Route based on reference design */}
+        <Route path="/sample-landing" element={<SampleLandingPage />} />
         {/* Add more pages */}
         <Route path="/about" element={<About />} />
         <Route path="/production-team" element={<ProductionTeam />} />

@@ -28,17 +28,120 @@ const generateToken = (id) => {
 export const loginAdmin = async (req, res) => {
     const { email, password } = req.body;
     try {
-        const admin = await Admin.findOne({ email });
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: 'Email and password are required' });
+        }
+
+        const normalizedEmail = (email || '').toLowerCase().trim();
+        let admin = await Admin.findOne({ email: { $regex: new RegExp(`^${normalizedEmail}$`, 'i') } });
+
+        // 1. Check local credentials if admin exists
         if (admin && (await admin.matchPassword(password))) {
-            res.json({
+            if (admin.status === 'Inactive') {
+                return res.status(403).json({ success: false, message: 'Account is deactivated' });
+            }
+
+            const isSuperAdmin = admin.role === 'Super Admin';
+            const hasModaAccess = isSuperAdmin || 
+                admin.permittedProjects?.includes('Moda Week International') || 
+                admin.permittedProjects?.includes('*');
+
+            if (!hasModaAccess) {
+                return res.status(403).json({ 
+                    success: false, 
+                    message: 'Access denied: You do not have permissions for Moda Week International' 
+                });
+            }
+
+            return res.json({
                 success: true,
                 _id: admin._id,
                 email: admin.email,
                 token: generateToken(admin._id),
             });
-        } else {
-            res.status(401).json({ success: false, message: 'Invalid email or password' });
         }
+
+        // 2. Fallback / Live verification against Esmeralda Master Panel
+        try {
+            const esmeraldaUrl = process.env.ESMERALDA_BACKEND_URL || process.env.MASTER_BACKEND_URL || 'https://api.esmeralds.com';
+            const apiKey = process.env.MASTER_API_KEY || 'super_secret_master_key_123';
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+            let masterRes = await fetch(`${esmeraldaUrl}/team/internal/verify-credentials`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-master-api-key': apiKey,
+                },
+                body: JSON.stringify({ email: normalizedEmail, password }),
+                signal: controller.signal,
+            });
+
+            // If 404, retry with /api prefix in case of reverse proxy variation
+            if (masterRes.status === 404) {
+                masterRes = await fetch(`${esmeraldaUrl}/api/team/internal/verify-credentials`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-master-api-key': apiKey,
+                    },
+                    body: JSON.stringify({ email: normalizedEmail, password }),
+                    signal: controller.signal,
+                });
+            }
+
+            clearTimeout(timeoutId);
+
+            if (masterRes.ok) {
+                const masterData = await masterRes.json();
+                if (masterData.valid) {
+                    if (!masterData.hasModaAccess) {
+                        return res.status(403).json({
+                            success: false,
+                            message: 'Access denied: You do not have permissions for Moda Week International. Please contact the Super Admin.'
+                        });
+                    }
+
+                    const esmeraldaUser = masterData.user;
+                    if (admin) {
+                        admin.password = password;
+                        if (esmeraldaUser.id) admin.esmeraldaUserId = esmeraldaUser.id;
+                        if (esmeraldaUser.name) admin.name = esmeraldaUser.name;
+                        admin.role = esmeraldaUser.role || admin.role;
+                        admin.status = esmeraldaUser.status || 'Active';
+                        admin.permittedProjects = esmeraldaUser.permittedProjects || [];
+                        admin.modaPermissions = esmeraldaUser.modaPermissions || {};
+                        admin.source = 'esmeralda_master';
+                        await admin.save();
+                    } else {
+                        admin = await Admin.create({
+                            esmeraldaUserId: esmeraldaUser.id,
+                            name: esmeraldaUser.name || '',
+                            email: normalizedEmail,
+                            password: password,
+                            role: esmeraldaUser.role || 'Admin Access',
+                            status: esmeraldaUser.status || 'Active',
+                            permittedProjects: esmeraldaUser.permittedProjects || ['Moda Week International'],
+                            modaPermissions: esmeraldaUser.modaPermissions || {},
+                            source: 'esmeralda_master'
+                        });
+                    }
+
+                    return res.json({
+                        success: true,
+                        _id: admin._id,
+                        email: admin.email,
+                        token: generateToken(admin._id),
+                    });
+                }
+            }
+        } catch (masterErr) {
+            console.error('Live Esmeralda master verification fallback error:', masterErr.message);
+        }
+
+        return res.status(401).json({ success: false, message: 'Invalid email or password' });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }
