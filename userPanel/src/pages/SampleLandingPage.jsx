@@ -573,7 +573,7 @@ export default function SampleLandingPage() {
 
   const galleryItems =
     featuredProductions.length > 0
-      ? featuredProductions.slice(0, 5).map((e) => ({
+      ? featuredProductions.map((e) => ({
           img: e.thumbnail?.url || e.thumbnail || runwayImg,
           title: (e.eventName || e.city || "MODA PRODUCTION").toUpperCase(),
           subtitle: e.city || "Fashion Showcase",
@@ -746,14 +746,14 @@ export default function SampleLandingPage() {
           </p>
 
           {/* 5 Category Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-5">
             {businessCategories.map((cat) => (
               <div
                 key={cat.id}
-                className="group flex flex-col bg-white border border-gray-200 hover:border-[#C7913E] transition-all duration-300 rounded-sm overflow-hidden shadow-sm hover:shadow-[0_12px_28px_rgba(199,145,62,0.18)] hover:-translate-y-1"
+                className="group flex flex-col h-full bg-white border border-gray-200 hover:border-[#C7913E] transition-all duration-300 rounded-sm overflow-hidden shadow-sm hover:shadow-[0_12px_28px_rgba(199,145,62,0.18)] hover:-translate-y-1"
               >
                 {/* Image */}
-                <div className="relative aspect-[4/3] overflow-hidden bg-black">
+                <div className="relative aspect-[3/4] overflow-hidden bg-black">
                   <img
                     src={cat.image}
                     alt={cat.title}
@@ -859,37 +859,39 @@ export default function SampleLandingPage() {
           </div>
 
           {/* Panoramic Production Gallery */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {galleryItems.map((item, idx) => (
-              <Link
-                key={idx}
-                to={item.link || "/past-events"}
-                className="group relative aspect-[3/4] rounded-sm overflow-hidden bg-black border border-gray-200 cursor-pointer shadow-md block"
-              >
-                <img
-                  src={item.img}
-                  alt={item.title}
-                  className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+          <div className="overflow-x-auto scrollbar-hide pb-4 -mx-5 px-5 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12">
+            <div className="flex gap-5 sm:gap-7 snap-x snap-mandatory">
+              {galleryItems.map((item, idx) => (
+                <Link
+                  key={idx}
+                  to={item.link || "/past-events"}
+                  className="group relative shrink-0 w-[85vw] sm:w-[420px] aspect-[3/4] rounded-sm overflow-hidden bg-black border border-gray-200 cursor-pointer shadow-md block snap-start"
+                >
+                  <img
+                    src={item.img}
+                    alt={item.title}
+                    className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                  {/* Gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-                {/* Content Overlay */}
-                <div className="absolute inset-0 p-4 flex flex-col justify-end">
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-[#d2ab59] font-bold mb-1">
-                    {item.subtitle}
-                  </span>
-                  <h3 className="font-playfair text-sm sm:text-base font-bold uppercase text-white leading-snug group-hover:text-[#d2ab59] transition-colors">
-                    {item.title}
-                  </h3>
-                </div>
+                  {/* Content Overlay */}
+                  <div className="absolute inset-0 p-5 sm:p-6 flex flex-col justify-end">
+                    <span className="text-[11px] sm:text-xs uppercase tracking-[0.2em] text-[#d2ab59] font-bold mb-1.5">
+                      {item.subtitle}
+                    </span>
+                    <h3 className="font-playfair text-base sm:text-lg md:text-xl font-bold uppercase text-white leading-snug group-hover:text-[#d2ab59] transition-colors">
+                      {item.title}
+                    </h3>
+                  </div>
 
-                <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-black/60 border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="w-3.5 h-3.5 text-white" />
-                </div>
-              </Link>
-            ))}
+                  <div className="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-black/60 border border-white/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <ArrowRight className="w-4 h-4 text-white" />
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
