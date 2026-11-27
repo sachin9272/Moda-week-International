@@ -907,18 +907,18 @@ export default function SampleLandingPage() {
             
             {/* Left Column: Fashion Image */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-full max-w-[380px] rounded-xs overflow-hidden border-2 border-[#C7913E]/50 shadow-xl group">
+              <div className="relative w-full max-w-[500px] rounded-xs overflow-hidden border-2 border-[#C7913E]/50 shadow-xl group">
                 <img
                   src={runwayImg}
                   alt="Build Your Business with MWINTL"
-                  className="w-full h-[340px] object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-[460px] sm:h-[500px] lg:h-[540px] object-cover object-top transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
-                <div className="absolute bottom-4 left-4 right-4 text-center">
-                  <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#d2ab59] block mb-1">
+                <div className="absolute bottom-5 left-5 right-5 text-center">
+                  <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#d2ab59] block mb-1.5">
                     MODA WEEK INTERNATIONAL
                   </span>
-                  <span className="font-playfair text-lg text-white font-medium">
+                  <span className="font-playfair text-lg sm:text-xl text-white font-medium">
                     Global Runway & Business Platform
                   </span>
                 </div>
