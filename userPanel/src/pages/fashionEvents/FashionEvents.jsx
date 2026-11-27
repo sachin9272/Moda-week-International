@@ -8,6 +8,7 @@ import runnaway from "../../assets/runnaway.jpg";
 import CtaSection from "../../components/CtaSection.jsx";
 import { baseURL } from "../../config/api";
 import { optimizeCloudinaryImage } from "../../utils/cloudinary";
+import { isEventPast } from "../../utils/eventDate";
 
 import event1 from "../../assets/Events.jpg";
 import event2 from "../../assets/Events-1.jpg";
@@ -76,7 +77,8 @@ export default function FashionEvents() {
         ]);
 
         const eventsData = await eventsRes.json();
-        setUpcomingEvents(eventsData);
+        const activeUpcoming = Array.isArray(eventsData) ? eventsData.filter(e => !isEventPast(e.eventDate)) : [];
+        setUpcomingEvents(activeUpcoming);
 
         if (heroRes.ok) {
           const heroData = await heroRes.json();

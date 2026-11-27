@@ -1,6 +1,7 @@
 import UpcomingEvent from '../models/upcomingEventModel.js';
 import { deleteS3Asset } from '../utils/s3Helper.js';
 import slugify from 'slugify';
+import { isEventPast } from '../utils/eventDateHelper.js';
 
 const generateUpcomingEventSlug = (title = '') =>
     slugify(
@@ -178,7 +179,7 @@ export const createUpcomingEvent = async (req, res) => {
 // Get all upcoming events
 export const getUpcomingEvents = async (req, res) => {
     try {
-        const { status, showOnLandingPage } = req.query;
+        const { status, showOnLandingPage, includePast } = req.query;
         let query = {};
 
         if (status) {
@@ -189,9 +190,15 @@ export const getUpcomingEvents = async (req, res) => {
             query.showOnLandingPage = showOnLandingPage === 'true';
         }
 
-        const events = await UpcomingEvent.find(query).sort({ order: 1, createdAt: -1 });
+        let events = await UpcomingEvent.find(query).sort({ order: 1, createdAt: -1 });
         await syncUpcomingEventSlugs(events);
         await UpcomingEvent.populate(events, { path: 'collections.designerId' });
+
+        // Filter out past events unless explicitly requested (e.g. admin with includePast=true)
+        if (includePast !== 'true') {
+            events = events.filter(e => !isEventPast(e.eventDate));
+        }
+
         res.status(200).json(events);
     } catch (error) {
         console.error("Error fetching upcoming events:", error);
@@ -249,7 +256,10 @@ export const getUpcomingEventById = async (req, res) => {
         }
 
         await syncUpcomingEventSlug(event);
-        res.status(200).json(event);
+        const eventObj = event.toObject();
+        eventObj.isPast = isEventPast(event.eventDate);
+        eventObj.pastEventSlug = event.slug;
+        res.status(200).json(eventObj);
     } catch (error) {
         console.error("Error fetching upcoming event:", error);
         res.status(500).json({ message: "Failed to fetch upcoming event", error: error.message });

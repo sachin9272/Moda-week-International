@@ -5,7 +5,7 @@ import useSWR from 'swr';
 import Navbar from '../components/Navbar';
 import CtaSection from '../components/CtaSection';
 import Footer from '../components/Footer';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, MapPin } from 'lucide-react';
 import { baseURL as API_BASE_URL } from '../config/api';
 import { optimizeCloudinaryImage } from '../utils/cloudinary';
 
@@ -300,14 +300,21 @@ const EventDetail = () => {
     };
 
     const renderHero = () => {
+        const venue = event.location || event.city;
         return (
             <header className="pt-32 pb-16 px-4 text-center bg-gradient-to-b from-[#C7913E] to-transparent h-[300px] flex flex-col justify-center items-center">
                 <h1 className="text-3xl md:text-[44px] font-bold uppercase tracking-wider mb-2 grad-text-up">
                     {event.eventName}
                 </h1>
-                <p className="text-sm md:text-lg font-medium tracking-wide mb-4 text-black">
-                    {formatDate(event.date)}
+                <p className="text-sm md:text-lg font-medium tracking-wide mb-2 text-black">
+                    {formatDate(event.date || event.eventDate)}
                 </p>
+                {venue && (
+                    <div className="flex justify-center items-center gap-2 mt-1 text-[#734F1C] font-medium tracking-widest uppercase text-sm">
+                        <MapPin size={16} />
+                        <span>{venue}</span>
+                    </div>
+                )}
             </header>
         );
     };
@@ -538,7 +545,7 @@ const EventDetail = () => {
             {/* Day Navigation Buttons - Only show for PAST events with day-tagged collections */}
 
 
-            {event.descriptionSection && event.descriptionSection.isVisible && (
+            {event.descriptionSection && (event.descriptionSection.isVisible || event.descriptionSection.credits || event.descriptionSection.text || event.description) && (
                 <div className="py-6 px-8 bg-white relative overflow-hidden mb-8">
                     <div className="max-w-7xl mx-auto flex flex-col gap-10">
                         {/* Top: Title & Top Text */}
@@ -558,11 +565,11 @@ const EventDetail = () => {
 
                         {/* Split: Image (Left) & Credits (Right) */}
                         {(() => {
-                            const descImage = event.descriptionSection.image;
-                            console.log("EventDetail - Description Image:", descImage);
+                            const descImage = event.descriptionSection.image || event.coverImage || event.thumbnail;
                             const descImageUrl = descImage?.url || descImage;
+                            const descCredits = event.descriptionSection.credits || event.descriptionSection.text || event.description;
 
-                            if (!descImageUrl && !event.descriptionSection.credits) return null;
+                            if (!descImageUrl && !descCredits) return null;
 
                             const imageSize = event.descriptionSection.imageSize || 'medium';
                             let imageWidthClass = 'md:w-1/2'; // Default medium
@@ -584,10 +591,10 @@ const EventDetail = () => {
                             return (
                                 <div className="flex flex-col md:flex-row gap-12 items-start">
                                     <div className={`w-full ${textWidthClass}`}>
-                                        {event.descriptionSection.credits && (
+                                        {descCredits && (
                                             <div
                                                 className="rich-text-content text-black leading-relaxed text-base font-light tracking-wide space-y-2"
-                                                dangerouslySetInnerHTML={{ __html: event.descriptionSection.credits }}
+                                                dangerouslySetInnerHTML={{ __html: descCredits }}
                                             />
                                         )}
                                     </div>
@@ -596,9 +603,9 @@ const EventDetail = () => {
                                         <div className={`w-full ${imageWidthClass} relative`}>
                                             <div className="relative aspect-[3/4] shadow-xl">
                                                 <img
-                                                    src={optimizeCloudinaryImage(descImageUrl, { width: 1000, height: 1300, crop: 'fill' })}
-                                                    alt="Description"
-                                                    className="w-full h-full object-cover rounded-sm"
+                                                    src={optimizeCloudinaryImage(descImageUrl, { width: 1000, height: 1300, crop: 'limit' })}
+                                                    alt={event.eventName || "Description"}
+                                                    className="w-full h-full object-contain rounded-sm bg-white"
                                                     loading="lazy"
                                                     decoding="async"
                                                 />

@@ -1,6 +1,8 @@
 import Event from '../models/eventModel.js';
+import UpcomingEvent from '../models/upcomingEventModel.js';
 import { deleteS3Asset } from '../utils/s3Helper.js';
 import slugify from 'slugify';
+import { parseEventEndDate } from '../utils/eventDateHelper.js';
 
 const normalizeCollectionDay = (collection = {}) => {
     const normalizedDay = collection.day === 'custom'
@@ -730,7 +732,17 @@ export const getEvents = async (req, res) => {
             }
         }
 
-        const events = await Event.find(query).sort({ order: 1, createdAt: -1 });
+        let events = await Event.find(query).sort({ order: 1, createdAt: -1 });
+
+        // Sort so that the latest completed event is first
+        events = events.sort((a, b) => {
+            const dateA = parseEventEndDate(a.date);
+            const dateB = parseEventEndDate(b.date);
+            const timeA = dateA ? dateA.getTime() : 0;
+            const timeB = dateB ? dateB.getTime() : 0;
+            return timeB - timeA;
+        });
+
         res.status(200).json(events);
     } catch (error) {
         console.error("Error fetching events:", error);
@@ -761,8 +773,7 @@ export const reorderEvents = async (req, res) => {
     }
 };
 
-// Get single event by ID
-// Get single event by ID
+// Get single event by ID or slug
 export const getEventById = async (req, res) => {
     try {
         const { id } = req.params;
@@ -778,14 +789,70 @@ export const getEventById = async (req, res) => {
             event = await Event.findOne({ slug: id }).populate('collections.designerId');
         }
 
-        if (!event) {
-            return res.status(404).json({ message: "Event not found" });
+        let eventObj;
+        if (event) {
+            eventObj = event.toObject();
+        } else {
+            // If not found in Event, check in UpcomingEvent as fallback
+            let upEvent;
+            if (id.match(/^[0-9a-fA-F]{24}$/)) {
+                upEvent = await UpcomingEvent.findById(id).populate('collections.designerId');
+            }
+            if (!upEvent) {
+                upEvent = await UpcomingEvent.findOne({ slug: id }).populate('collections.designerId');
+            }
+            if (!upEvent) {
+                return res.status(404).json({ message: "Event not found" });
+            }
+            const upObj = upEvent.toObject();
+            eventObj = {
+                ...upObj,
+                date: upObj.eventDate,
+                city: upObj.location || 'NEW YORK',
+                eventType: 'past',
+                status: 'published'
+            };
         }
 
+        // If event matches an UpcomingEvent by slug, enrich missing/empty fields without touching database
+        const matchingUp = await UpcomingEvent.findOne({ slug: eventObj.slug }).populate('collections.designerId');
+        if (matchingUp) {
+            const upObj = matchingUp.toObject();
+            if (!eventObj.description && upObj.description) eventObj.description = upObj.description;
+            if (!eventObj.location && upObj.location) eventObj.location = upObj.location;
+            if (!eventObj.eventTime && upObj.eventTime) eventObj.eventTime = upObj.eventTime;
+            if (!eventObj.dressCode && upObj.dressCode) eventObj.dressCode = upObj.dressCode;
+            if (!eventObj.coverImage && upObj.coverImage) eventObj.coverImage = upObj.coverImage;
+            if (!eventObj.ticketBannerImage && upObj.ticketBannerImage) eventObj.ticketBannerImage = upObj.ticketBannerImage;
+            if ((!eventObj.collections || eventObj.collections.length === 0) && upObj.collections && upObj.collections.length > 0) {
+                eventObj.collections = upObj.collections;
+            }
+            if ((!eventObj.videoSection || !eventObj.videoSection.url) && upObj.videoSection && upObj.videoSection.url) {
+                eventObj.videoSection = upObj.videoSection;
+            }
+            if ((!eventObj.partners || eventObj.partners.length === 0) && upObj.partners && upObj.partners.length > 0) {
+                eventObj.partners = upObj.partners;
+            }
 
+            const descText = eventObj.description || upObj.description || upObj.descriptionSection?.text || "";
+            const descImage = eventObj.coverImage || upObj.coverImage || upObj.ticketBannerImage || eventObj.thumbnail || null;
+            const formatTextToHtml = (t) => {
+                if (!t) return "";
+                if (/<[a-z][\s\S]*>/i.test(t)) return t;
+                return t.split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(line => `<p class="leading-relaxed mb-4">${line}</p>`).join("");
+            };
 
-        // Convert to object to modify
-        const eventObj = event.toObject();
+            if (!eventObj.descriptionSection || !eventObj.descriptionSection.isVisible || (!eventObj.descriptionSection.credits && !eventObj.descriptionSection.text)) {
+                eventObj.descriptionSection = {
+                    title: upObj.descriptionSection?.title || `About ${eventObj.eventName}`,
+                    text: "",
+                    credits: formatTextToHtml(descText),
+                    image: descImage,
+                    isVisible: Boolean(descText || descImage),
+                    imageSize: "medium"
+                };
+            }
+        }
 
         // Fallback Logic:
         // If collection.designerImage is missing, use collection.designerId.image

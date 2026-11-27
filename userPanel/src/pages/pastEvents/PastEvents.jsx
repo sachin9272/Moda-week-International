@@ -8,6 +8,7 @@ import CtaSection from "../../components/CtaSection";
 import { baseURL } from "../../config/api";
 import { optimizeCloudinaryImage } from "../../utils/cloudinary";
 import ProgressiveImage from "../../components/ProgressiveImage";
+import { isEventPast, sortEventsByDateDesc } from "../../utils/eventDate";
 
 export default function PastEvents() {
   const [events, setEvents] = useState([]);
@@ -22,14 +23,20 @@ export default function PastEvents() {
     const fetchEvents = async () => {
       try {
         const [eventsRes, heroRes] = await Promise.all([
-          axios.get(`${baseURL}/api/events/all?status=published`),
+          axios.get(`${baseURL}/api/events/all?status=published&_t=${Date.now()}`, {
+            headers: {
+              "Cache-Control": "no-cache",
+              Pragma: "no-cache",
+            },
+          }),
           axios.get(`${baseURL}/api/past-event-hero`)
         ]);
 
         const pastEvents = eventsRes.data.filter(
-          (event) => event.eventType === "past"
+          (event) => event.eventType === "past" || isEventPast(event.date)
         );
-        setEvents(pastEvents);
+        const sortedPastEvents = sortEventsByDateDesc(pastEvents);
+        setEvents(sortedPastEvents);
 
         if (heroRes.data) {
           setHeroContent({

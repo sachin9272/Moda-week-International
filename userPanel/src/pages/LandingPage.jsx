@@ -19,6 +19,7 @@ import ourservice from "../assets/ourservice.jpg";
 import schedule from "../assets/schedule.jpg";
 import takla from "../assets/takla.avif";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
+import { isEventPast, sortEventsByDateDesc } from "../utils/eventDate";
 import ProgressiveImage from "../components/ProgressiveImage.jsx";
 import EventDesignersCarousel from "../components/EventDesignersCarousel.jsx";
 
@@ -308,12 +309,17 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/events/all?status=published`);
-        const allEvents = response.data;
-        // Filter for past events
-        const past = allEvents.filter(e => e.eventType === 'past');
+        const response = await axios.get(`${baseURL}/api/events/all?status=published&_t=${Date.now()}`, {
+          headers: {
+            "Cache-Control": "no-cache",
+            Pragma: "no-cache",
+          },
+        });
+        const allEvents = Array.isArray(response.data) ? response.data : [];
+        // Filter for past events and sort by latest completed date first
+        const past = sortEventsByDateDesc(allEvents.filter(e => e.eventType === 'past'));
 
-        // Map to expected format (if needed) or just use the event object directly in render
+        // Map to expected format
         const formattedEvents = past.map(e => ({
           id: e._id,
           slug: e.slug,
@@ -332,8 +338,17 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchUpcomingEvents = async () => {
       try {
-        const response = await axios.get(`${baseURL}/api/upcoming-events/all?status=live&showOnLandingPage=true`);
-        const events = Array.isArray(response.data) ? response.data : [];
+        const response = await axios.get(
+          `${baseURL}/api/upcoming-events/all?status=live&showOnLandingPage=true&_t=${Date.now()}`,
+          {
+            headers: {
+              "Cache-Control": "no-cache",
+              Pragma: "no-cache",
+            },
+          }
+        );
+        const rawEvents = Array.isArray(response.data) ? response.data : [];
+        const events = rawEvents.filter(e => !isEventPast(e.eventDate));
         setUpcomingEvents(events);
       } catch (error) {
         console.error("Failed to fetch upcoming events", error);
@@ -554,7 +569,7 @@ export default function LandingPage() {
             <div className="flex gap-2.5 snap-x snap-mandatory">
               {pastEvents.map((event, idx) => (
                 <Link
-                  to={`/past-event-details/${event.slug || event.id}`}
+                  to={`/past-event-details/${event.slug || event.id || event._id}`}
                   key={idx}
                   className="group cursor-pointer shrink-0 w-88 snap-start"
                 >

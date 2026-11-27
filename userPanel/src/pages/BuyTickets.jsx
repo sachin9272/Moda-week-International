@@ -6,6 +6,7 @@ import { Calendar, MapPin, Ticket } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { optimizeCloudinaryImage } from "../utils/cloudinary";
+import { isEventPast } from "../utils/eventDate";
 
 const BuyTickets = () => {
     const getUpcomingEventName = (event) => event.eventName || '';
@@ -24,7 +25,8 @@ const BuyTickets = () => {
                         Pragma: 'no-cache'
                     }
                 });
-                setEvents(response.data);
+                const allEvts = Array.isArray(response.data) ? response.data : [];
+                setEvents(allEvts.filter(e => !isEventPast(e.eventDate)));
             } catch (error) {
                 console.error("Error fetching events:", error);
             } finally {
